@@ -7,3 +7,6 @@
 [submodule "tocalog"]
 	path = tocalog
 	url = ssh://git@thrakh.feste-ip.net:8005/home/git/dialogue-system/tocalog.git
+[submodule "tecs"]
+	path = tecs
+	url = ssh://git@thrakh.feste-ip.net:8005/home/git/tecs/tecs.git
