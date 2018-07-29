@@ -13,8 +13,8 @@ gantt
     Task in sec      : 01.08.2018  , 12d
     another task      : after arch-concept, 24d
     section KnowledgeBase
-    Concept				:de.dfki.tocalog.core.kb-concept, 01.07.2018, 30d
-	Concept2			:de.dfki.tocalog.core.kb-concept2, after model-concept, 10d
+    Concept				:de.dfki.tocalog.kb-concept, 01.07.2018, 30d
+	Concept2			:de.dfki.tocalog.kb-concept2, after model-concept, 10d
     section Model
     Concept 			:model-concept, 23.08.2018, 30d
     section Input

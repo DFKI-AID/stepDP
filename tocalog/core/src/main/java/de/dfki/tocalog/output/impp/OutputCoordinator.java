@@ -1,8 +1,8 @@
 package de.dfki.tocalog.output.impp;
 
-import de.dfki.tocalog.core.AbstractDialogComponent;
-import de.dfki.tocalog.core.Event;
-import de.dfki.tocalog.core.EventEngine;
+import de.dfki.tocalog.framework.AbstractDialogComponent;
+import de.dfki.tocalog.framework.Event;
+import de.dfki.tocalog.framework.EventEngine;
 
 import java.util.HashMap;
 import java.util.Map;

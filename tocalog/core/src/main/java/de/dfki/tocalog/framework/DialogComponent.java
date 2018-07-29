@@ -1,7 +1,4 @@
-package de.dfki.tocalog.core;
-
-import de.dfki.tocalog.core.ProjectManager;
-import de.dfki.tocalog.core.EventEngine;
+package de.dfki.tocalog.framework;
 
 /**
  */

@@ -1,6 +1,6 @@
-package de.dfki.tocalog.core.kb.gen;
+package de.dfki.tocalog.model;
 
-public interface VisualFocus extends de.dfki.tractat.idl.Base<VisualFocus> {
+public interface VisualFocus extends de.dfki.tractat.idl.Base {
     //getter / setter
     
     java.util.Optional<String> getId();
@@ -16,7 +16,7 @@ public interface VisualFocus extends de.dfki.tractat.idl.Base<VisualFocus> {
     void serialize(de.dfki.tractat.idl.Serializer serializer) throws java.io.IOException;
 
     public static VisualFocus create() {
-        return new de.dfki.tocalog.core.kb.gen.VisualFocusImpl();
+        return new VisualFocusImpl();
     }
 
     interface Factory {

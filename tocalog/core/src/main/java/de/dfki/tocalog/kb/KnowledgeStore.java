@@ -1,4 +1,4 @@
-package de.dfki.tocalog.core.kb;
+package de.dfki.tocalog.kb;
 
 import de.dfki.tractat.idl.Base;
 import de.dfki.tractat.idl.CborDeserializer;
@@ -12,7 +12,7 @@ import java.util.function.Predicate;
 /**
  * TODO maybe add timestamp and source for entry
  */
-public class KnowledgeStore<T extends Base<T>> {
+public class KnowledgeStore<T extends Base> {
     private Map<String, T> store = new HashMap<>();
     private CborSerializer serializer = new CborSerializer();
     private CborDeserializer deserializer = new CborDeserializer();
@@ -51,7 +51,7 @@ public class KnowledgeStore<T extends Base<T>> {
 
     protected synchronized T copy(T base) {
         try {
-            return base.copy(serializer, deserializer);
+            return (T) base.copy(serializer, deserializer);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

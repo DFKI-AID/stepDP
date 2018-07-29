@@ -1,4 +1,4 @@
-package de.dfki.tocalog.core.kb;
+package de.dfki.tocalog.kb;
 
 import java.util.function.Function;
 

@@ -1,4 +1,4 @@
-package de.dfki.tocalog.core.sc;
+package de.dfki.tocalog.dialog.sc;
 
 /**
  */

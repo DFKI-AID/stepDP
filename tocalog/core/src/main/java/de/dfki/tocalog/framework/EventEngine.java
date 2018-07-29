@@ -1,4 +1,4 @@
-package de.dfki.tocalog.core;
+package de.dfki.tocalog.framework;
 
 import java.util.*;
 

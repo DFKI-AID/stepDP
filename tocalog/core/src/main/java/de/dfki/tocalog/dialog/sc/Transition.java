@@ -1,6 +1,6 @@
-package de.dfki.tocalog.core.sc;
+package de.dfki.tocalog.dialog.sc;
 
-import de.dfki.tocalog.core.Event;
+import de.dfki.tocalog.framework.Event;
 
 /**
  */

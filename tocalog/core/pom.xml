@@ -28,8 +28,8 @@
         </dependency>
         <dependency>
             <groupId>de.dfki.tractat</groupId>
-            <artifactId>idl-generator</artifactId>
-            <version>0.0.3</version>
+            <artifactId>idl-lib</artifactId>
+            <version>0.0.6</version>
         </dependency>
     </dependencies>
 

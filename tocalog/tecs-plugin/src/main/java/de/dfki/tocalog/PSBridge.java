@@ -2,10 +2,10 @@ package de.dfki.tocalog;
 
 import de.dfki.tecs.ps.PSClient;
 import de.dfki.tecs.ps.PSFactory;
-import de.dfki.tocalog.core.Event;
-import de.dfki.tocalog.core.EventEngine;
-import de.dfki.tocalog.core.ProjectManager;
-import de.dfki.tocalog.core.DialogComponent;
+import de.dfki.tocalog.framework.Event;
+import de.dfki.tocalog.framework.EventEngine;
+import de.dfki.tocalog.framework.ProjectManager;
+import de.dfki.tocalog.framework.DialogComponent;
 import org.apache.thrift.TBase;
 
 import java.util.HashSet;

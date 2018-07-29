@@ -1,6 +1,6 @@
-package de.dfki.tocalog.core.kb.gen;
+package de.dfki.tocalog.model;
 
-public class VisualFocusImpl implements de.dfki.tocalog.core.kb.gen.VisualFocus{
+public class VisualFocusImpl implements VisualFocus {
 
     //fields
     private java.util.Optional<String> id;

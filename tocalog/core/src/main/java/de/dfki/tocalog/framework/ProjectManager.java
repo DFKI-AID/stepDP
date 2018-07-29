@@ -1,6 +1,6 @@
-package de.dfki.tocalog.core;
+package de.dfki.tocalog.framework;
 
-import de.dfki.tocalog.core.kb.KnowledgeBase;
+import de.dfki.tocalog.kb.KnowledgeBase;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -52,7 +52,7 @@ public class ProjectManager implements Runnable {
         public Builder() {
         }
 
-        public Builder addFusionModule(DialogComponent fusionModule) {
+        public Builder add(DialogComponent fusionModule) {
             eventEngineBuilder.addListener(fusionModule);
             fusionModules.add(fusionModule);
             return this;

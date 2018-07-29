@@ -1,16 +1,16 @@
 package de.dfki.tocalog;
 
-import de.dfki.tocalog.core.ProjectManager;
-import de.dfki.tocalog.core.AbstractDialogComponent;
-import de.dfki.tocalog.core.DialogComponent;
-import de.dfki.tocalog.core.kb.*;
-import de.dfki.tocalog.core.Event;
-import de.dfki.tocalog.core.EventEngine;
-import de.dfki.tocalog.core.sc.State;
-import de.dfki.tocalog.core.sc.StateChart;
-import de.dfki.tocalog.core.sc.Transition;
-import de.dfki.tocalog.core.kb.gen.Person;
-import de.dfki.tocalog.core.kb.gen.VisualFocus;
+import de.dfki.tocalog.framework.ProjectManager;
+import de.dfki.tocalog.framework.AbstractDialogComponent;
+import de.dfki.tocalog.framework.DialogComponent;
+import de.dfki.tocalog.kb.*;
+import de.dfki.tocalog.framework.Event;
+import de.dfki.tocalog.framework.EventEngine;
+import de.dfki.tocalog.model.Person;
+import de.dfki.tocalog.dialog.sc.State;
+import de.dfki.tocalog.dialog.sc.StateChart;
+import de.dfki.tocalog.dialog.sc.Transition;
+import de.dfki.tocalog.model.VisualFocus;
 import de.dfki.tocalog.output.Output;
 import de.dfki.tocalog.output.impp.OutputNode;
 import de.dfki.tocalog.output.SpeechOutput;
@@ -102,8 +102,8 @@ public class Main {
                 .build();
 
         ProjectManager dc = ProjectManager.build()
-                .addFusionModule(fusion1)
-                .addFusionModule(psBridge)
+                .add(fusion1)
+                .add(psBridge)
                 .build();
 
 
