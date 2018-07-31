@@ -1,16 +1,16 @@
 package de.dfki.tocalog.output;
 
 import de.dfki.tocalog.output.impp.AllocationState;
+import de.dfki.tocalog.output.impp.OutputNode;
 
 /**
  */
-public interface AllocationModule<T extends Output> {
+public interface AllocationModule {
     /**
-     *
      * @param output
      * @return
      */
-    String allocate(AllocationRequest<T> output);
+    String allocate(OutputNode output);
 
     AllocationState getState(String id);
 }

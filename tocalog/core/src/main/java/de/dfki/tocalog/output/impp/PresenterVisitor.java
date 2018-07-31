@@ -10,6 +10,7 @@ public class PresenterVisitor implements OutputNode.Visitor {
     public void visitInnerNode(OutputNode.InnerNode node) {
         OutputNode.InnerNode.Builder builder = currentBuilder;
         currentBuilder = OutputNode.buildNode(node.getSemantic());
+        node.getId().ifPresent(id -> currentBuilder.setId(id));
 
         switch (node.getSemantic()) {
             case redundant:

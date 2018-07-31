@@ -12,12 +12,9 @@ import de.dfki.tocalog.dialog.sc.StateChart;
 import de.dfki.tocalog.dialog.sc.Transition;
 import de.dfki.tocalog.model.VisualFocus;
 import de.dfki.tocalog.output.Output;
-import de.dfki.tocalog.output.impp.OutputNode;
+import de.dfki.tocalog.output.impp.*;
 import de.dfki.tocalog.output.SpeechOutput;
 import de.dfki.tocalog.output.TextOutput;
-import de.dfki.tocalog.output.impp.PresentableVisitor;
-import de.dfki.tocalog.output.impp.PresenterVisitor;
-import de.dfki.tocalog.output.impp.PrintVisitor;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
@@ -25,14 +22,15 @@ import org.apache.log4j.Level;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.Optional;
 
 /**
  */
 public class MainYK {
     public static void main(String[] args) throws IOException, InterruptedException {
 //        statechart(args);
-//        impp(args);
-        framework(args);
+        impp(args);
+//        framework(args);
     }
 
     public static void impp(String[] args) {
@@ -43,7 +41,7 @@ public class MainYK {
 
         OutputNode node =
                 OutputNode.buildNode(OutputNode.Semantic.concurrent)
-                    .addNode(OutputNode.buildNode(OutputNode.Semantic.complementary)
+                    .addNode(OutputNode.buildNode(OutputNode.Semantic.complementary).setId("abcdef")
                             .addNode(OutputNode.buildNode(output1).addService("s456").build())
                             .addNode(OutputNode.buildNode(output2).addService("s1").build())
                             .build())
@@ -70,6 +68,12 @@ public class MainYK {
         node = pv.getResult();
 
         System.out.println(printVisitor.print(node));
+
+        OutputNode nodeCopy = new CopyVisitor().getCopy(node);
+        System.out.println(printVisitor.print(nodeCopy));
+
+        Optional<OutputNode> singleNode = new FindNodeVisitor(n -> n.getId().orElse("").equals("abcdef")).find(nodeCopy);
+        singleNode.ifPresent(n -> System.out.println(printVisitor.print(n)));
     }
 
     public static void framework(String[] args) throws InterruptedException, IOException {

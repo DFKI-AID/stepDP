@@ -20,6 +20,7 @@ public class PrintVisitor implements OutputNode.Visitor {
     public void visitInnerNode(OutputNode.InnerNode node) {
         addIndentation();
         sb.append(node.getSemantic());
+        node.getId().ifPresent(id -> sb.append(" <" + id + ">"));
         sb.append("\n");
         indentLevel += 4;
         for (OutputNode child : node.getChildNodes()) {

@@ -2,9 +2,7 @@ package de.dfki.tocalog.output.impp;
 
 import de.dfki.tocalog.output.Output;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  */
@@ -19,6 +17,14 @@ public abstract class OutputNode {
     }
 
     protected abstract void accept(Visitor visitor);
+
+    protected Optional<String> id;
+
+    public Optional<String> getId() {
+        return id;
+    }
+
+
 
     public static InnerNode.Builder buildNode(Semantic semantic) {
         return new InnerNode.Builder(semantic);
@@ -39,13 +45,14 @@ public abstract class OutputNode {
         }
     }
 
-    static class Leaf extends OutputNode {
+    public static class Leaf extends OutputNode {
         private Output output;
         private List<String> services;
 
         private Leaf(Builder builder) {
             this.output = builder.output;
             this.services = builder.services;
+            this.id = builder.id;
         }
 
         @Override
@@ -72,6 +79,7 @@ public abstract class OutputNode {
         public static class Builder {
             private Output output;
             private List<String> services = new ArrayList<>();
+            private Optional<String> id = Optional.empty();
 
             public Builder(Output output) {
                 this.output = output;
@@ -82,19 +90,25 @@ public abstract class OutputNode {
                 return this;
             }
 
+            public Builder setId(String id) {
+                this.id = Optional.of(id);
+                return this;
+            }
+
             public Leaf build() {
                 return new Leaf(this);
             }
         }
     }
 
-    static class InnerNode extends OutputNode {
+    public static class InnerNode extends OutputNode {
         private Semantic semantic;
         private List<OutputNode> childNodes = new ArrayList<>();
 
         private InnerNode(Builder builder) {
             this.semantic = builder.semantic;
             this.childNodes = builder.childNodes;
+            this.id = builder.id;
         }
 
         public Semantic getSemantic() {
@@ -113,6 +127,7 @@ public abstract class OutputNode {
         public static class Builder {
             private Semantic semantic;
             private List<OutputNode> childNodes = new ArrayList<>();
+            private Optional<String> id = Optional.empty();
 
             public Builder(Semantic semantic) {
                 this.semantic = semantic;
@@ -127,6 +142,12 @@ public abstract class OutputNode {
                 childNodes = Collections.unmodifiableList(childNodes);
                 return new InnerNode(this);
             }
+
+            public Builder setId(String id) {
+                this.id = Optional.of(id);
+                return this;
+            }
+
         }
     }
 

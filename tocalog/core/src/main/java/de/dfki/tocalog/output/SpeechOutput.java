@@ -1,8 +1,10 @@
 package de.dfki.tocalog.output;
 
+import de.dfki.tocalog.framework.Mode;
+
 /**
  */
-public class SpeechOutput extends AudioOutput {
+public class SpeechOutput implements Output {
     private String utterance;
 
     public SpeechOutput(String utterance) {
@@ -14,5 +16,10 @@ public class SpeechOutput extends AudioOutput {
         return "SpeechOutput{" +
                 "utterance='" + utterance + '\'' +
                 '}';
+    }
+
+    @Override
+    public Mode getMode() {
+        return Mode.Audition;
     }
 }

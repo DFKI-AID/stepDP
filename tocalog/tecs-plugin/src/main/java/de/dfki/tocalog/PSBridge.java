@@ -47,8 +47,8 @@ public class PSBridge implements DialogComponent {
     public void onEvent(EventEngine engine, Event event) {
     }
 
-    public void publish(String target, String topic, TBase payload) {
-        psc.publish(target, topic, payload);
+    public void publish(String topic, TBase payload) {
+        psc.publish(topic, payload);
     }
 
     public static Builder build() {

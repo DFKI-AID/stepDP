@@ -1,6 +1,8 @@
 package de.dfki.tocalog.output;
 
 
+import de.dfki.tocalog.framework.Mode;
+
 /**
  */
 public class TextOutput implements Output {
@@ -19,5 +21,10 @@ public class TextOutput implements Output {
         return "TextOutput{" +
                 "text='" + text + '\'' +
                 '}';
+    }
+
+    @Override
+    public Mode getMode() {
+        return Mode.Vision;
     }
 }
