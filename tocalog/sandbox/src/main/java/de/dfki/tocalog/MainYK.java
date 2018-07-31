@@ -1,7 +1,6 @@
 package de.dfki.tocalog;
 
 import de.dfki.tocalog.framework.ProjectManager;
-import de.dfki.tocalog.framework.AbstractDialogComponent;
 import de.dfki.tocalog.framework.DialogComponent;
 import de.dfki.tocalog.kb.*;
 import de.dfki.tocalog.framework.Event;
@@ -69,7 +68,7 @@ public class MainYK {
 
         System.out.println(printVisitor.print(node));
 
-        OutputNode nodeCopy = new CopyVisitor().getCopy(node);
+        OutputNode nodeCopy = new CopyVisitor().copy(node).build();
         System.out.println(printVisitor.print(nodeCopy));
 
         Optional<OutputNode> singleNode = new FindNodeVisitor(n -> n.getId().orElse("").equals("abcdef")).find(nodeCopy);

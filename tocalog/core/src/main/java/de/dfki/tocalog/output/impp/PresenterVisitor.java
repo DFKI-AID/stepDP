@@ -59,7 +59,7 @@ public class PresenterVisitor implements OutputNode.Visitor {
 
     public void visit(OutputNode node) {
 //        copyVisitor.visit(node);
-//        result = copyVisitor.getCopy();
+//        result = copyVisitor.copy();
         node.accept(this);
     }
 

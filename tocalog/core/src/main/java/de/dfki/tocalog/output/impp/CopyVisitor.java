@@ -6,7 +6,7 @@ import java.util.Stack;
  */
 public class CopyVisitor implements OutputNode.Visitor {
     private Stack<OutputNode.InnerNode.Builder> nodes = new Stack<>();
-    private OutputNode copy;
+    private OutputNode.InnerNode.Builder copy;
 
     @Override
     public void visitLeaf(OutputNode.Leaf leaf) {
@@ -23,13 +23,14 @@ public class CopyVisitor implements OutputNode.Visitor {
             child.accept(this);
         }
         nodes.pop();
-        copy = copyBuilder.build();
         if(!nodes.isEmpty()) {
-            nodes.peek().addNode(copy);
+            nodes.peek().addNode(copy.build());
         }
+        copy = copyBuilder;
+
     }
 
-    public OutputNode getCopy(OutputNode node) {
+    public OutputNode.InnerNode.Builder copy(OutputNode node) {
         nodes.clear();
         node.accept(this);
         return copy;

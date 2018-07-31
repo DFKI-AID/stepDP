@@ -3,7 +3,7 @@
 ## Getting Started
 
 ### Development
-- Install Python, Java 1.7
+- Install Python, Java 1.8
 - Clone this repo
 - Run install.py (in intranet) to install all dependencies
 
