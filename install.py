@@ -1,10 +1,23 @@
 from subprocess import call
 import os
 import re
+import sys
+
+def ask_to_continue():
+	# type: None -> bool
+	print("Do you want to continue? [y/n]: ")
+	if (sys.version_info > (3, 0)):
+		rsp = input()
+	else:
+		rsp = raw_input()
+ 	return rsp is "y"
 
 def init_submodules():
 	call(["git", "submodule", "init"])
 	call(["git", "submodule", "update"])
+
+def version_to_string(version):
+	return "{}.{}.{}".format(version[0], version[1], version[2])
 
 def version_from_pom(pom_path):
 	with open(pom_path, 'r') as pom_file:
@@ -45,9 +58,25 @@ def clean_tools():
 		print("removing " + str(file))
 		os.remove(file)
 	    
+def install_tocalog():
+	install_mvn("tocalog")
 
+def tocalog_version():
+	return version_from_pom("tocalog/pom.xml")
 
-if __name__ == "__main__":
+def print_overview():
+	print("="*30)
+	print("Installing tocalog")
+	print("="*30)
+	print("tocalog version: {}".format(version_to_string(tocalog_version())))
+	print("tecs version: {}".format(version_to_string(tecs_version())))
+	print("clml version: {}".format(version_to_string(generator_version())))
+	print("="*30)
+
+def main():
+	print_overview()
+	if not ask_to_continue():
+		return
 	init_submodules()
 	clean_tools()
 	install_mvn("tecs/libtecs/java")
@@ -55,6 +84,9 @@ if __name__ == "__main__":
 	install_mvn("clml/java")
 	copy_generator()
 	install_mvn("device-platform")
+
+if __name__ == "__main__":
+	main()
 
 
 
