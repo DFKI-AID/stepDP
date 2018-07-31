@@ -1,9 +1,9 @@
 [submodule "device-platform"]
 	path = device-platform
-	url = ssh://git@thrakh.feste-ip.net:8005/home/git/dialogue-system/device-platform.git
-[submodule "idl"]
-	path = idl
-	url = ssh://git@thrakh.feste-ip.net:8005/home/git/dialogue-system/idl.git
+	url = ssh://git@lns-90165.sb.dfki.de:10022/i40/tractat/dialog-system/device-platform.git
+[submodule "clml"]
+	path = clml
+	url = ssh://git@lns-90165.sb.dfki.de:10022/i40/tractat/dialog-system/clml.git
 [submodule "tecs"]
 	path = tecs
-	url = ssh://git@thrakh.feste-ip.net:8005/home/git/tecs/tecs.git
+	url = ssh://git@lns-90165.sb.dfki.de:10022/i40/tractat/tecs/tecs.git
