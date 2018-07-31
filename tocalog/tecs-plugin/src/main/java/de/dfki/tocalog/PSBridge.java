@@ -27,8 +27,8 @@ public class PSBridge implements DialogComponent {
     }
 
     @Override
-    public void init(ProjectManager dialogCore) {
-        EventEngine ee = dialogCore.getEventEngine();
+    public void init(Context context) {
+        EventEngine ee = context.getProjectManager().getEventEngine();
 
         psc.open();
         updateThread = new Thread(() -> {

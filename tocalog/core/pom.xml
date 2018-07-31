@@ -5,7 +5,7 @@
     <parent>
         <artifactId>tocalog</artifactId>
         <groupId>de.dfki.tocalog</groupId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>0.0.2</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -29,7 +29,7 @@
         <dependency>
             <groupId>de.dfki.tractat</groupId>
             <artifactId>idl-lib</artifactId>
-            <version>0.0.6</version>
+            <version>0.0.8</version>
         </dependency>
     </dependencies>
 

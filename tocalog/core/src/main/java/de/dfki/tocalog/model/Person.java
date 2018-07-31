@@ -1,46 +1,35 @@
 package de.dfki.tocalog.model;
 
-public interface Person extends de.dfki.tractat.idl.Base {
+public interface Person extends de.dfki.tractat.idl.Base, de.dfki.tocalog.model.Entity {
     //getter / setter
-    
-    java.util.Optional<java.lang.String> getName();
-    Person setName(java.lang.String value);
-    
-    java.util.Optional<java.util.List<java.lang.String>> getThings();
-    Person setThings(java.util.List<java.lang.String> value);
-    
-    java.util.Optional<java.lang.String> getFriend();
-    Person setFriend(java.lang.String value);
-    
-    java.util.Optional<java.util.Map<java.lang.String,java.lang.Double>> getMeta();
-    Person setMeta(java.util.Map<java.lang.String,java.lang.Double> value);
-    
-    java.util.Optional<Person> getWuhu();
-    Person setWuhu(Person value);
-    
-    java.util.Optional<java.util.List<Person>> getFoo();
-    Person setFoo(java.util.List<Person> value);
-    
-    java.util.Optional<java.lang.String> getId();
-    Person setId(java.lang.String value);
-    
-    java.util.Optional<byte[]> getBin();
-    Person setBin(byte[] value);
-    
+
+    java.util.Optional<String> getName();
+    Person setName(String value);
+
+    java.util.Optional<java.util.List<String>> getThings();
+    Person setThings(java.util.List<String> value);
+
+
+
+    java.util.Optional<String> getId();
+    Person setId(String value);
+
+    java.util.Optional<java.util.List<String>> getYo();
+    Person setYo(java.util.List<String> value);
 
 
     void deserialize(de.dfki.tractat.idl.Deserializer deserializer) throws java.io.IOException;
 
     void serialize(de.dfki.tractat.idl.Serializer serializer) throws java.io.IOException;
 
-    public static Person create() {
-        return new PersonImpl();
+    static Person create() {
+        return new de.dfki.tocalog.model.PersonImpl();
     }
 
     interface Factory {
         Person create();
     }
 
-    Factory factory = () -> new PersonImpl();
+    Factory factory = () -> new de.dfki.tocalog.model.PersonImpl();
 }
 

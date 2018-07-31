@@ -28,7 +28,7 @@ import java.nio.charset.Charset;
 
 /**
  */
-public class Main {
+public class MainYK {
     public static void main(String[] args) throws IOException, InterruptedException {
 //        statechart(args);
 //        impp(args);
@@ -80,13 +80,12 @@ public class Main {
         KnowledgeStore<VisualFocus> ks = new KnowledgeStore<>();
         /**/
 
-        DialogComponent fusion1 = new AbstractDialogComponent() {
+        DialogComponent fusion1 = new DialogComponent() {
             private KnowledgeStore<VisualFocus> ks;
 
             @Override
-            public void init(ProjectManager dialogCore) {
-                super.init(dialogCore);
-                ks = getDialogCore().getKnowledgeBase().initKnowledgeStore(VisualFocus.class);
+            public void init(Context context) {
+                ks = context.getProjectManager().getKnowledgeBase().initKnowledgeStore(VisualFocus.class);
             }
 
             @Override
