@@ -7,6 +7,6 @@ cd device-platform
 mvn install
 cd ..
 
-cd idl
+cd clml/java
 mvn install
 cd ..
