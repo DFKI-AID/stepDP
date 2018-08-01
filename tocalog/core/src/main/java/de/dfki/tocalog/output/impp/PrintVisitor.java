@@ -8,7 +8,7 @@ public class PrintVisitor implements OutputNode.Visitor {
     private StringBuilder sb;
     private int indentLevel;
 
-    public void visitLeaf(OutputNode.Leaf leaf) {
+    public void visitLeaf(OutputNode.External leaf) {
         addIndentation();
         sb.append(leaf.getOutput());
         String servicesStr = leaf.getServices().stream().reduce("", (s1, s2) -> s1 + " | " + s2) + " | ";
@@ -17,7 +17,7 @@ public class PrintVisitor implements OutputNode.Visitor {
     }
 
     @Override
-    public void visitInnerNode(OutputNode.InnerNode node) {
+    public void visitInnerNode(OutputNode.Internal node) {
         addIndentation();
         sb.append(node.getSemantic());
         node.getId().ifPresent(id -> sb.append(" <" + id + ">"));

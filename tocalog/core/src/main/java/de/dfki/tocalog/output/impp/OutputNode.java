@@ -26,30 +26,30 @@ public abstract class OutputNode {
 
 
 
-    public static InnerNode.Builder buildNode(Semantic semantic) {
-        return new InnerNode.Builder(semantic);
+    public static Internal.Builder buildNode(Semantic semantic) {
+        return new Internal.Builder(semantic);
     }
 
-    public static Leaf.Builder buildNode(Output output) {
-        return new Leaf.Builder(output);
+    public static External.Builder buildNode(Output output) {
+        return new External.Builder(output);
     }
 
     public interface Visitor {
 
-        void visitLeaf(Leaf leaf);
+        void visitLeaf(External leaf);
 
-        default void visitInnerNode(InnerNode node) {
+        default void visitInnerNode(Internal node) {
             for (OutputNode childNode : node.getChildNodes()) {
                 childNode.accept(this);
             }
         }
     }
 
-    public static class Leaf extends OutputNode {
+    public static class External extends OutputNode {
         private Output output;
         private List<String> services;
 
-        private Leaf(Builder builder) {
+        private External(Builder builder) {
             this.output = builder.output;
             this.services = builder.services;
             this.id = builder.id;
@@ -68,7 +68,7 @@ public abstract class OutputNode {
             return services;
         }
 
-        public Leaf copy() {
+        public External copy() {
             Builder builder = new Builder(output);
             for(String service : services) {
                 builder.addService(service);
@@ -95,17 +95,17 @@ public abstract class OutputNode {
                 return this;
             }
 
-            public Leaf build() {
-                return new Leaf(this);
+            public External build() {
+                return new External(this);
             }
         }
     }
 
-    public static class InnerNode extends OutputNode {
+    public static class Internal extends OutputNode {
         private Semantic semantic;
         private List<OutputNode> childNodes = new ArrayList<>();
 
-        private InnerNode(Builder builder) {
+        private Internal(Builder builder) {
             this.semantic = builder.semantic;
             this.childNodes = builder.childNodes;
             this.id = builder.id;
@@ -138,9 +138,9 @@ public abstract class OutputNode {
                 return this;
             }
 
-            public InnerNode build() {
+            public Internal build() {
                 childNodes = Collections.unmodifiableList(childNodes);
-                return new InnerNode(this);
+                return new Internal(this);
             }
 
             public Builder setId(String id) {

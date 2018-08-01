@@ -19,7 +19,7 @@ public class PresentableVisitor implements OutputNode.Visitor {
     }
 
     @Override
-    public void visitLeaf(OutputNode.Leaf leaf) {
+    public void visitLeaf(OutputNode.External leaf) {
         Result result = new Result();
         if (leaf.getServices().isEmpty()) {
             result.unassigned.add(leaf.getOutput());
@@ -29,7 +29,7 @@ public class PresentableVisitor implements OutputNode.Visitor {
     }
 
     @Override
-    public void visitInnerNode(OutputNode.InnerNode node) {
+    public void visitInnerNode(OutputNode.Internal node) {
         Result result = new Result();
         result.currentSemantic = node.getSemantic();
         resultStack.push(result);

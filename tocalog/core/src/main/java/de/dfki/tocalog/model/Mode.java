@@ -1,4 +1,4 @@
-package de.dfki.tocalog.framework;
+package de.dfki.tocalog.model;
 
 /**
  */

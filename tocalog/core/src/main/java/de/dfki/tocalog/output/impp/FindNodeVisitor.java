@@ -14,7 +14,7 @@ public class FindNodeVisitor implements OutputNode.Visitor {
     }
 
     @Override
-    public void visitLeaf(OutputNode.Leaf leaf) {
+    public void visitLeaf(OutputNode.External leaf) {
         if (filter.test(leaf)) {
             result = leaf;
             return;
@@ -22,7 +22,7 @@ public class FindNodeVisitor implements OutputNode.Visitor {
     }
 
     @Override
-    public void visitInnerNode(OutputNode.InnerNode node) {
+    public void visitInnerNode(OutputNode.Internal node) {
         if (filter.test(node)) {
             result = node;
             return;

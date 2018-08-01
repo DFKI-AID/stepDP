@@ -1,7 +1,7 @@
 package de.dfki.tocalog.output;
 
 
-import de.dfki.tocalog.framework.Mode;
+import de.dfki.tocalog.model.Mode;
 
 /**
  */

@@ -3,12 +3,12 @@ package de.dfki.tocalog.output.impp;
 /**
  */
 public class PresenterVisitor implements OutputNode.Visitor {
-    private OutputNode.InnerNode.Builder currentBuilder;
+    private OutputNode.Internal.Builder currentBuilder;
     private PresentableVisitor presentableVisitor = new PresentableVisitor();
     private CopyVisitor copyVisitor = new CopyVisitor();
 
-    public void visitInnerNode(OutputNode.InnerNode node) {
-        OutputNode.InnerNode.Builder builder = currentBuilder;
+    public void visitInnerNode(OutputNode.Internal node) {
+        OutputNode.Internal.Builder builder = currentBuilder;
         currentBuilder = OutputNode.buildNode(node.getSemantic());
         node.getId().ifPresent(id -> currentBuilder.setId(id));
 
@@ -50,10 +50,10 @@ public class PresenterVisitor implements OutputNode.Visitor {
         }
     }
 
-    public void visitLeaf(OutputNode.Leaf leaf) {
+    public void visitLeaf(OutputNode.External leaf) {
         //TODO does not work leaf only trees
 
-        OutputNode.Leaf leafCopy = leaf.copy();
+        OutputNode.External leafCopy = leaf.copy();
         currentBuilder.addNode(leafCopy);
     }
 

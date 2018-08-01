@@ -5,18 +5,18 @@ import java.util.Stack;
 /**
  */
 public class CopyVisitor implements OutputNode.Visitor {
-    private Stack<OutputNode.InnerNode.Builder> nodes = new Stack<>();
-    private OutputNode.InnerNode.Builder copy;
+    private Stack<OutputNode.Internal.Builder> nodes = new Stack<>();
+    private OutputNode.Internal.Builder copy;
 
     @Override
-    public void visitLeaf(OutputNode.Leaf leaf) {
+    public void visitLeaf(OutputNode.External leaf) {
         nodes.peek().addNode(leaf.copy());
     }
 
     @Override
-    public void visitInnerNode(OutputNode.InnerNode node) {
+    public void visitInnerNode(OutputNode.Internal node) {
 
-        OutputNode.InnerNode.Builder copyBuilder = OutputNode.buildNode(node.getSemantic());
+        OutputNode.Internal.Builder copyBuilder = OutputNode.buildNode(node.getSemantic());
         node.getId().ifPresent(id -> copyBuilder.setId(id));
         nodes.push(copyBuilder);
         for(OutputNode child : node.getChildNodes()) {
@@ -30,7 +30,7 @@ public class CopyVisitor implements OutputNode.Visitor {
 
     }
 
-    public OutputNode.InnerNode.Builder copy(OutputNode node) {
+    public OutputNode.Internal.Builder copy(OutputNode node) {
         nodes.clear();
         node.accept(this);
         return copy;
