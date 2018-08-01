@@ -23,7 +23,7 @@ def version_from_pom(pom_path):
 	with open(pom_path, 'r') as pom_file:
 		data = pom_file.read()
 
-	version_match = re.search('<version>([0-9])\.([0-9])\.([0-9])</version>', data)
+	version_match = re.search('<version>([0-9]+)\.([0-9]+)\.([0-9]+)</version>', data)
 	major = version_match.group(1)
 	minor = version_match.group(2)
 	patch = version_match.group(3)
