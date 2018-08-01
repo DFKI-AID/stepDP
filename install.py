@@ -29,6 +29,9 @@ def version_from_pom(pom_path):
 	patch = version_match.group(3)
 	return (major, minor, patch)
 
+def update_pom_version(version, wd="."):
+	call(["mvn", "versions:set", "-DnewVersion=" + version_to_string(version)], cwd=wd)
+
 def tecs_version():
 	return version_from_pom('tecs/libtecs/java/pom.xml')
 
