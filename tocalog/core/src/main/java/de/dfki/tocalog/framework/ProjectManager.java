@@ -72,7 +72,17 @@ public class ProjectManager implements Runnable {
                 fm.init(() -> dc);
             }
             for(InputComponent ic : inputComponents) {
-                ic.init(() -> knowledgeBase);
+                ic.init(new InputComponent.Context() {
+                    @Override
+                    public KnowledgeBase getKnowledgeBase() {
+                        return dc.knowledgeBase;
+                    }
+
+                    @Override
+                    public EventEngine getEventEngine() {
+                        return dc.eventEngine;
+                    }
+                });
             }
             return dc;
         }

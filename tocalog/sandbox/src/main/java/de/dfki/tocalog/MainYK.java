@@ -81,7 +81,6 @@ public class MainYK {
 
 
         KnowledgeStore<VisualFocus> ks = new KnowledgeStore<>();
-        /**/
 
         DialogComponent fusion1 = new DialogComponent() {
             private KnowledgeStore<VisualFocus> ks;
@@ -127,6 +126,7 @@ public class MainYK {
         timeThread.setDaemon(true);
         timeThread.start();
 
+        dc.getEventEngine().submit(() -> System.out.println("hallo"));
         dc.run();
     }
 
@@ -145,6 +145,8 @@ public class MainYK {
         State stateC = State.create("C").build();
         State stateD = State.create("D").build();
         State stateHello = State.create("Goal").build();
+
+
 
         Transition.Iface helloSaid = event -> {
             //TODO check that hello was said

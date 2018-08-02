@@ -9,5 +9,6 @@ public interface InputComponent extends EventEngine.Listener {
 
     interface Context {
         KnowledgeBase getKnowledgeBase();
+        EventEngine getEventEngine();
     }
 }

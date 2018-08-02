@@ -54,6 +54,11 @@ public class StateChart implements EventEngine.Listener {
         currentState.onEntry();
     }
 
+    /**
+     * transitions from the given state
+     * @param state
+     * @return
+     */
     private Set<Transition> getTransitionCandidates(State state) {
         return transitions.stream()
                 .filter(t -> t.getSource().equals(state))
@@ -68,6 +73,7 @@ public class StateChart implements EventEngine.Listener {
     public void onEvent(EventEngine engine, Event event) {
         Set<Transition> transitions = getTransitionCandidates(currentState);
         for(Transition transition : transitions) {
+            //TODO seelction strategy
             if (transition.fires(event)) {
                 fireTransition(transition, event);
                 return;

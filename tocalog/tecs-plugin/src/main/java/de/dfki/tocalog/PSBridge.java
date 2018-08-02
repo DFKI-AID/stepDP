@@ -2,10 +2,7 @@ package de.dfki.tocalog;
 
 import de.dfki.tecs.ps.PSClient;
 import de.dfki.tecs.ps.PSFactory;
-import de.dfki.tocalog.framework.Event;
-import de.dfki.tocalog.framework.EventEngine;
-import de.dfki.tocalog.framework.ProjectManager;
-import de.dfki.tocalog.framework.DialogComponent;
+import de.dfki.tocalog.framework.*;
 import org.apache.thrift.TBase;
 
 import java.util.HashSet;
@@ -13,7 +10,7 @@ import java.util.Set;
 
 /**
  */
-public class PSBridge implements DialogComponent {
+public class PSBridge implements InputComponent {
     private final String uri;
     private PSClient psc;
     private Thread updateThread;
@@ -28,7 +25,7 @@ public class PSBridge implements DialogComponent {
 
     @Override
     public void init(Context context) {
-        EventEngine ee = context.getProjectManager().getEventEngine();
+        EventEngine ee = context.getEventEngine();
 
         psc.open();
         updateThread = new Thread(() -> {
