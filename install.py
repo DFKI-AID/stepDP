@@ -99,10 +99,13 @@ def which(program):
     return None
 
 def main():
+	init_submodules()
 	print_overview()
+	if not which("mvn"):
+		print("maven not found on PATH. Quitting.")
+
 	if not ask_to_continue():
 		return
-	init_submodules()
 	clean_tools()
 	install_mvn("tecs/libtecs/java")
 	copy_tecs_server()	
