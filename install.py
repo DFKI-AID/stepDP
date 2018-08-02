@@ -98,8 +98,7 @@ def which(program):
 
     return None
 
-def main():
-	init_submodules()
+def install():
 	print_overview()
 	if not which("mvn"):
 		print("maven not found on PATH. Quitting.")
@@ -115,7 +114,8 @@ def main():
 	install_tocalog()
 
 if __name__ == "__main__":
-	main()
+	init_submodules()
+	install()
 
 
 
