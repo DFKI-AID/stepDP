@@ -109,6 +109,7 @@ def main():
 	install_mvn("clml/java")
 	copy_generator()
 	install_mvn("device-platform")
+	install_tocalog()
 
 if __name__ == "__main__":
 	main()
