@@ -10,7 +10,7 @@ def ask_to_continue():
 		rsp = input()
 	else:
 		rsp = raw_input()
- 	return rsp is "y"
+	return rsp is "y"
 
 def init_submodules():
 	call(["git", "submodule", "init"])
@@ -68,13 +68,35 @@ def tocalog_version():
 	return version_from_pom("tocalog/pom.xml")
 
 def print_overview():
-	print("="*30)
+	print("="*40)
 	print("Installing tocalog")
-	print("="*30)
+	print("="*10 + " Platform " +"="*20 )
 	print("tocalog version: {}".format(version_to_string(tocalog_version())))
 	print("tecs version: {}".format(version_to_string(tecs_version())))
 	print("clml version: {}".format(version_to_string(generator_version())))
-	print("="*30)
+	print("="*10 + " Build Tools " + "="*17)
+	print("[update your PATH or use 'source' to change them]")
+	print("maven: {}".format(which("mvn")))
+	print("python: {}".format(which("python")))
+	print("cmake: {}".format(which("cmake")))
+	print("dotnet: {}".format(which("dotnet")))
+	print("="*40)
+
+def which(program):
+    def is_exe(fpath):
+        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+
+    fpath, fname = os.path.split(program)
+    if fpath:
+        if is_exe(program):
+            return program
+    else:
+        for path in os.environ["PATH"].split(os.pathsep):
+            exe_file = os.path.join(path, program)
+            if is_exe(exe_file):
+                return exe_file
+
+    return None
 
 def main():
 	print_overview()
