@@ -94,7 +94,7 @@ public class MainYK {
                         .setSource("kinect")
                         .setTimestamp(System.currentTimeMillis()));
 
-                kset.removeIf(f -> f.getTimestamp().orElse(0L) + 5000L < System.currentTimeMillis()); //remove old entries
+                KBHelper.removeOld(kset, 5000L);
             }
         };
 
