@@ -1,15 +1,12 @@
 package de.dfki.tocalog;
 
-import de.dfki.tocalog.framework.ProjectManager;
-import de.dfki.tocalog.framework.DialogComponent;
+import de.dfki.tocalog.framework.*;
 import de.dfki.tocalog.kb.*;
-import de.dfki.tocalog.framework.Event;
-import de.dfki.tocalog.framework.EventEngine;
+import de.dfki.tocalog.model.Focus;
 import de.dfki.tocalog.model.Person;
 import de.dfki.tocalog.dialog.sc.State;
 import de.dfki.tocalog.dialog.sc.StateChart;
 import de.dfki.tocalog.dialog.sc.Transition;
-import de.dfki.tocalog.model.VisualFocus;
 import de.dfki.tocalog.output.Output;
 import de.dfki.tocalog.output.impp.*;
 import de.dfki.tocalog.output.SpeechOutput;
@@ -80,20 +77,24 @@ public class MainYK {
         org.apache.log4j.Logger.getRootLogger().setLevel(Level.INFO);
 
 
-        KnowledgeStore<VisualFocus> ks = new KnowledgeStore<>();
 
-        DialogComponent fusion1 = new DialogComponent() {
-            private KnowledgeStore<VisualFocus> ks;
 
-            @Override
-            public void init(Context context) {
-                ks = context.getProjectManager().getKnowledgeBase().initKnowledgeStore(VisualFocus.class);
-            }
+
+        DialogComponent fusion1 = new AbstractDialogComponent() {
 
             @Override
             public void onEvent(EventEngine engine, Event event) {
+                // a fusion component would check the person ks_map for available persons and then init the set for all persons
+                KnowledgeSet<Focus> kset = getKnowledgeBase().initKnowledgeSet(Focus.class, "mechanic1");
+
                 //if event is visual focus event
-                ks.put("mechanic1", VisualFocus.create().setId("mechanic1").setFocus("car"));
+                kset.add(Focus.create()
+                        .setId("mechanic1")
+                        .setFocus("car")
+                        .setSource("kinect")
+                        .setTimestamp(System.currentTimeMillis()));
+
+                kset.removeIf(f -> f.getTimestamp().orElse(0L) + 5000L < System.currentTimeMillis()); //remove old entries
             }
         };
 
@@ -125,6 +126,9 @@ public class MainYK {
         });
         timeThread.setDaemon(true);
         timeThread.start();
+
+
+
 
         dc.getEventEngine().submit(() -> System.out.println("hallo"));
         dc.run();

@@ -1,5 +1,7 @@
 package de.dfki.tocalog.framework;
 
+import de.dfki.tocalog.kb.KnowledgeBase;
+
 /**
  */
 public abstract class AbstractDialogComponent implements DialogComponent {
@@ -13,4 +15,6 @@ public abstract class AbstractDialogComponent implements DialogComponent {
     protected ProjectManager getProjectManager() {
         return dc;
     }
+
+    protected KnowledgeBase getKnowledgeBase() { return dc.getKnowledgeBase(); }
 }

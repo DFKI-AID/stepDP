@@ -1,22 +1,28 @@
 package de.dfki.tocalog.model;
 
-public interface Person extends de.dfki.tractat.idl.Base, de.dfki.tocalog.model.Entity {
+public interface Person extends de.dfki.tractat.idl.Base, de.dfki.tocalog.model.Agent {
     //getter / setter
+    
+    java.util.Optional<java.lang.Long> getAge();
+    Person setAge(java.lang.Long value);
+    
+    java.util.Optional<java.lang.String> getGender();
+    Person setGender(java.lang.String value);
+    
 
-    java.util.Optional<String> getName();
-    Person setName(String value);
-
-    java.util.Optional<java.util.List<String>> getThings();
-    Person setThings(java.util.List<String> value);
-
-
-
-    java.util.Optional<String> getId();
-    Person setId(String value);
-
-    java.util.Optional<java.util.List<String>> getYo();
-    Person setYo(java.util.List<String> value);
-
+    
+    java.util.Optional<java.lang.String> getName();
+    Person setName(java.lang.String value);
+    
+    java.util.Optional<java.lang.String> getId();
+    Person setId(java.lang.String value);
+    
+    java.util.Optional<java.lang.Long> getTimestamp();
+    Person setTimestamp(java.lang.Long value);
+    
+    java.util.Optional<java.lang.String> getSource();
+    Person setSource(java.lang.String value);
+    
 
     void deserialize(de.dfki.tractat.idl.Deserializer deserializer) throws java.io.IOException;
 

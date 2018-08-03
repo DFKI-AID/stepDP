@@ -1,0 +1,67 @@
+namespace java de.dfki.tocalog.model;
+
+class Entity {
+	1 string id;
+	2 i64 timestamp;
+	3 string source;
+}
+
+class Agent {
+	1 base Entity;
+	2 string name;
+}
+
+class Person {
+	1 base Agent;
+	2 i64 age;
+	3 string gender;
+}
+
+class Robot {
+	1 base Agent;
+}
+
+class Session {
+	1 base Entity;
+	2 list<string> agents;
+}
+
+
+class Vector3 {
+	1 double x;
+	2 double y;
+	3 double z;
+}
+
+
+class Device {
+	1 base Entity;
+	2 string name;
+}
+
+class DeviceComponent {
+	1 base Entity;
+	2 string device;	
+}
+
+class Service {
+	1 base Entity;
+	2 string uri;
+	3 string type;
+	4 list<string> components;
+}
+
+
+class Focus {
+	1 base Entity;
+	2 string agent;
+	3 string focus;
+}
+
+
+
+
+
+
+
+

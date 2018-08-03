@@ -2,44 +2,55 @@ package de.dfki.tocalog.model;
 
 public class EntityImpl implements de.dfki.tocalog.model.Entity{
 
-    //fields
-    private java.util.Optional<String> id;
-    private java.util.Optional<java.util.List<String>> yo;
+    //fields 
+    private java.util.Optional<java.lang.String> id; 
+    private java.util.Optional<java.lang.Long> timestamp; 
+    private java.util.Optional<java.lang.String> source; 
 
-    //fields for base class composition
+    //fields for base class composition 
 
     public EntityImpl() {
         super();
-
+    
         this.id = java.util.Optional.empty();
-
-        this.yo = java.util.Optional.empty();
-
+    
+        this.timestamp = java.util.Optional.empty();
+    
+        this.source = java.util.Optional.empty();
+    
     }
 
-    //getter / setter
-    public java.util.Optional<String> getId() {
+    //getter / setter 
+    public java.util.Optional<java.lang.String> getId() {
         return this.id;
     }
-    public EntityImpl setId(String value) {
+    public EntityImpl setId(java.lang.String value) {
         this.id = java.util.Optional.ofNullable(value);
         return this;
     }
-
-    public java.util.Optional<java.util.List<String>> getYo() {
-        return this.yo;
+    
+    public java.util.Optional<java.lang.Long> getTimestamp() {
+        return this.timestamp;
     }
-    public EntityImpl setYo(java.util.List<String> value) {
-        this.yo = java.util.Optional.ofNullable(value);
+    public EntityImpl setTimestamp(java.lang.Long value) {
+        this.timestamp = java.util.Optional.ofNullable(value);
         return this;
     }
-
+    
+    public java.util.Optional<java.lang.String> getSource() {
+        return this.source;
+    }
+    public EntityImpl setSource(java.lang.String value) {
+        this.source = java.util.Optional.ofNullable(value);
+        return this;
+    }
+    
 
 
 
 
     //getter / setter for base class
-
+    
 
 
 
@@ -47,22 +58,26 @@ public class EntityImpl implements de.dfki.tocalog.model.Entity{
     public static final java.util.Map<String, Integer> FIELD_TO_ID_MAP;
     static {
         java.util.Map<String, Integer> tmp = new java.util.HashMap<String, Integer>();
-
+    
         tmp.put("id", 1);
-
-        tmp.put("yo", 2);
-
+    
+        tmp.put("timestamp", 2);
+    
+        tmp.put("source", 3);
+    
         FIELD_TO_ID_MAP = java.util.Collections.unmodifiableMap(tmp);
     }
 
     public static final java.util.Map<Integer, String> ID_TO_FIELD_MAP;
     static {
         java.util.Map<Integer, String> tmp = new java.util.HashMap<Integer, String>();
-
+        
         tmp.put(1, "id");
-
-        tmp.put(2, "yo");
-
+        
+        tmp.put(2, "timestamp");
+        
+        tmp.put(3, "source");
+        
         ID_TO_FIELD_MAP = java.util.Collections.unmodifiableMap(tmp);
     }
 
@@ -78,23 +93,20 @@ public class EntityImpl implements de.dfki.tocalog.model.Entity{
                 break;
             }
             switch (fieldId) {
-
+                
                 case 1: {
-                        String tmp_id;tmp_id = deserializer.readString();this.id = java.util.Optional.of(tmp_id);
+                        java.lang.String tmp_id;tmp_id = deserializer.readString();this.id = java.util.Optional.of(tmp_id);
                     } break;
-
+                
                 case 2: {
-                        java.util.ArrayList<String> tmp_yo;int n = deserializer.beginReadList();
-                        tmp_yo = new java.util.ArrayList<>();
-                        for(int i=0; i<n; i++) {
-                            String tmp;
-                            tmp = deserializer.readString();
-                            tmp_yo.add(tmp);
-                        }
-                        deserializer.endReadList();this.yo = java.util.Optional.of(tmp_yo);
+                        java.lang.Long tmp_timestamp;tmp_timestamp = deserializer.readI64();this.timestamp = java.util.Optional.of(tmp_timestamp);
                     } break;
-
-
+                
+                case 3: {
+                        java.lang.String tmp_source;tmp_source = deserializer.readString();this.source = java.util.Optional.of(tmp_source);
+                    } break;
+                
+                
             }
         }
         //deserializer.endReadObject(this);
@@ -102,22 +114,26 @@ public class EntityImpl implements de.dfki.tocalog.model.Entity{
 
     public void serialize(de.dfki.tractat.idl.Serializer serializer) throws java.io.IOException {
         serializer.beginWriteObject(this);
-
+        
         if(this.id.isPresent()) {
             serializer.beginWriteField(1, "id");
             serializer.writeString(id.get());
             serializer.endWriteField(1, "id");
         }
-
-        if(this.yo.isPresent()) {
-            serializer.beginWriteField(2, "yo");
-            serializer.beginWriteList(yo.get().size());
-            for(String tmp : yo.get()) { serializer.writeString(tmp); }
-            serializer.endWriteList();;
-            serializer.endWriteField(2, "yo");
+        
+        if(this.timestamp.isPresent()) {
+            serializer.beginWriteField(2, "timestamp");
+            serializer.writeI64(timestamp.get());
+            serializer.endWriteField(2, "timestamp");
         }
-
-
+        
+        if(this.source.isPresent()) {
+            serializer.beginWriteField(3, "source");
+            serializer.writeString(source.get());
+            serializer.endWriteField(3, "source");
+        }
+        
+        
         serializer.endWriteObject(this);
     }
 
@@ -126,12 +142,14 @@ public class EntityImpl implements de.dfki.tocalog.model.Entity{
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("Entity{ ");
-
-
+            
+            
             id.ifPresent(x -> sb.append(" id=" +x.toString()));
-
-            yo.ifPresent(x -> sb.append(" yo=" +x.toString()));
-
+            
+            timestamp.ifPresent(x -> sb.append(" timestamp=" +x.toString()));
+            
+            source.ifPresent(x -> sb.append(" source=" +x.toString()));
+            
         sb.append("}");
         return sb.toString();
     }

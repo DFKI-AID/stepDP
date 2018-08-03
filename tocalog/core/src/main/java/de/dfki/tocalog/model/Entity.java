@@ -3,14 +3,17 @@ package de.dfki.tocalog.model;
 public interface Entity extends de.dfki.tractat.idl.Base {
     //getter / setter
     
-    java.util.Optional<String> getId();
-    Entity setId(String value);
+    java.util.Optional<java.lang.String> getId();
+    Entity setId(java.lang.String value);
+    
+    java.util.Optional<java.lang.Long> getTimestamp();
+    Entity setTimestamp(java.lang.Long value);
+    
+    java.util.Optional<java.lang.String> getSource();
+    Entity setSource(java.lang.String value);
+    
 
-    java.util.Optional<java.util.List<String>> getYo();
-    Entity setYo(java.util.List<String> value);
-
-
-
+    
 
     void deserialize(de.dfki.tractat.idl.Deserializer deserializer) throws java.io.IOException;
 

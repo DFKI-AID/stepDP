@@ -10,9 +10,9 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 /**
- * TODO maybe add timestamp and source for entry
+ *
  */
-public class KnowledgeStore<T extends Base> {
+public class KnowledgeMap<T extends Base> {
     private Map<String, T> store = new HashMap<>();
     private CborSerializer serializer = new CborSerializer();
     private CborDeserializer deserializer = new CborDeserializer();
@@ -28,12 +28,16 @@ public class KnowledgeStore<T extends Base> {
 
     public synchronized Set<T> getIf(Predicate<T> filter) {
         Set<T> result = new HashSet<>();
-        for(T entity : store.values()) {
-            if(filter.test(entity)) {
+        for (T entity : store.values()) {
+            if (filter.test(entity)) {
                 result.add(copy(entity));
             }
         }
         return result;
+    }
+
+    public synchronized Set<T> getAll() {
+        return getIf((e) -> true);
     }
 
     public synchronized boolean removeIf(Predicate<T> condition) {
