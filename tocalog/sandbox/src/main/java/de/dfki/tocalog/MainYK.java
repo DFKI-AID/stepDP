@@ -31,7 +31,7 @@ public class MainYK {
     }
 
     public static void impp(String[] args) {
-        KnowledgeMap<Service> services = new KnowledgeMap<>();
+        EKnowledgeMap<Service> services = new EKnowledgeMap<>();
         services.put("c1", Service.create().setId("c1").setType("console"));
 
         Output output1 = new SpeechOutput("hello world");

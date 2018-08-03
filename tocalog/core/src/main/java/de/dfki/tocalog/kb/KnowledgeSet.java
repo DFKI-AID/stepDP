@@ -6,6 +6,7 @@ import de.dfki.tractat.idl.CborSerializer;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.*;
@@ -89,6 +90,17 @@ public class KnowledgeSet<T extends Base> {
         return locked;
     }
 
+    public Optional<Locked<T>> tryLock(long timeout, TimeUnit unit) {
+        try {
+            if(this.lock.tryLock(timeout, unit)) {
+                return Optional.of(locked);
+            }
+            return Optional.empty();
+        } catch (InterruptedException e) {
+            return Optional.empty();
+        }
+    }
+
     public void unlock() {
         this.lock.unlock();
     }
@@ -97,38 +109,43 @@ public class KnowledgeSet<T extends Base> {
         return entries.stream();
     }
 
-    interface Locked<T extends Base> {
-        Stream<T> getStream();
 
-        void remove(T t);
 
-        default void removeAll(Collection<T> ts) {
-            for (T t : ts) {
-                remove(t);
-            }
+    private Locked<T> locked = new Locked<>(this);
+
+    public static class Locked<T extends Base> {
+        private KnowledgeSet<T> ks;
+
+        public Locked(KnowledgeSet<T> ks) {
+            this.ks = ks;
         }
 
-        T copy(T base);
-    }
-
-    private Locked<T> locked = new Locked<T>() {
-        @Override
         public Stream<T> getStream() {
-            return getStream();
+            return ks.getStream();
         }
 
-        @Override
+        public Collection<T> getData() {
+            return ks.entries;
+        }
+
         public void remove(T t) {
-            entries.remove(t);
+            ks.entries.remove(t);
         }
 
-        @Override
         public T copy(T base) {
             try {
-                return (T) base.copy(serializer, deserializer);
+                return (T) base.copy(ks.serializer, ks.deserializer);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+        }
+
+        public int getSize() {
+            return ks.entries.size();
+        }
+
+        public void removeAll(Collection<T> c) {
+            ks.entries.removeAll(c);
         }
     };
 
