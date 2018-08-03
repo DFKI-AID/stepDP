@@ -33,7 +33,7 @@ public class PrintVisitor implements OutputNode.Visitor {
         sb.append(StringUtils.repeat(" ", indentLevel));
     }
 
-    public String print(OutputNode node) {
+    public synchronized String printNode(OutputNode node) {
         sb = new StringBuilder();
         indentLevel = 0;
         node.accept(this);
@@ -41,5 +41,11 @@ public class PrintVisitor implements OutputNode.Visitor {
             return "Empty Output Node";
         }
         return sb.toString();
+    }
+
+    public static PrintVisitor instance = new PrintVisitor();
+
+    public static String print(OutputNode node) {
+        return instance.printNode(node);
     }
 }

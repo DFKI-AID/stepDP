@@ -7,6 +7,7 @@ import de.dfki.tocalog.model.Person;
 import de.dfki.tocalog.dialog.sc.State;
 import de.dfki.tocalog.dialog.sc.StateChart;
 import de.dfki.tocalog.dialog.sc.Transition;
+import de.dfki.tocalog.model.Service;
 import de.dfki.tocalog.output.Output;
 import de.dfki.tocalog.output.impp.*;
 import de.dfki.tocalog.output.SpeechOutput;
@@ -30,6 +31,9 @@ public class MainYK {
     }
 
     public static void impp(String[] args) {
+        KnowledgeMap<Service> services = new KnowledgeMap<>();
+        services.put("c1", Service.create().setId("c1").setType("console"));
+
         Output output1 = new SpeechOutput("hello world");
         Output output2 = new TextOutput("hello world 2");
         Output output3 = new TextOutput("how are you?");
@@ -43,33 +47,41 @@ public class MainYK {
                             .build())
                     .addNode(OutputNode.buildNode(OutputNode.Semantic.alternative)
                             .addNode(OutputNode.buildNode(output3)
-                                    .addService("blubb-textview")
+//                                    .addService("blubb-textview")
                                     .build())
                             .addNode(OutputNode.buildNode(output4)
-                                    .addService("blubb-loudspeaker1")
-                                    .addService("blubb-loudspeaker2")
+//                                    .addService("blubb-loudspeaker1")
+//                                    .addService("blubb-loudspeaker2")
                                     .build())
                             .build())
                     .build();
 
+        ConsoleAssigner consoleAssigner = new ConsoleAssigner(services);
+        consoleAssigner.assignConsoleService(node);
+        System.out.println(PrintVisitor.print(node));
+
         boolean isPresentable = new PresentableVisitor().isPresentable(node);
         System.out.println("can be presented: " + isPresentable);
 
-        PrintVisitor printVisitor = new PrintVisitor();
-        System.out.println(printVisitor.print(node));
+        System.out.println(PrintVisitor.print(node));
 
 
         PresenterVisitor pv = new PresenterVisitor();
         pv.visit(node);
         node = pv.getResult();
 
-        System.out.println(printVisitor.print(node));
+        System.out.println(PrintVisitor.print(node));
 
         OutputNode nodeCopy = new CopyVisitor().copy(node).build();
-        System.out.println(printVisitor.print(nodeCopy));
+        System.out.println(PrintVisitor.print(nodeCopy));
 
         Optional<OutputNode> singleNode = new FindNodeVisitor(n -> n.getId().orElse("").equals("abcdef")).find(nodeCopy);
-        singleNode.ifPresent(n -> System.out.println(printVisitor.print(n)));
+        singleNode.ifPresent(n -> System.out.println(PrintVisitor.print(n)));
+
+
+
+
+
     }
 
     public static void framework(String[] args) throws InterruptedException, IOException {
@@ -85,7 +97,7 @@ public class MainYK {
             @Override
             public void onEvent(EventEngine engine, Event event) {
                 // a fusion component would check the person ks_map for available persons and then init the set for all persons
-                KnowledgeSet<Focus> kset = getKnowledgeBase().initKnowledgeSet(Focus.class, "mechanic1");
+                EKnowledgeSet<Focus> kset = getKnowledgeBase().initKnowledgeSet(Focus.class, "mechanic1");
 
                 //if event is visual focus event
                 kset.add(Focus.create()
@@ -94,7 +106,7 @@ public class MainYK {
                         .setSource("kinect")
                         .setTimestamp(System.currentTimeMillis()));
 
-                KBHelper.removeOld(kset, 5000L);
+                kset.removeOld(5000L);
             }
         };
 

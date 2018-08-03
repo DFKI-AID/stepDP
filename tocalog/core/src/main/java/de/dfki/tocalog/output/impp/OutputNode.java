@@ -76,6 +76,10 @@ public abstract class OutputNode {
             return builder.build();
         }
 
+        public void addService(String service) {
+            this.services.add(service);
+        }
+
         public static class Builder {
             private Output output;
             private List<String> services = new ArrayList<>();

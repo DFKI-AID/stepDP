@@ -23,10 +23,10 @@ public class CopyVisitor implements OutputNode.Visitor {
             child.accept(this);
         }
         nodes.pop();
+        copy = copyBuilder;
         if(!nodes.isEmpty()) {
             nodes.peek().addNode(copy.build());
         }
-        copy = copyBuilder;
 
     }
 

@@ -1,5 +1,6 @@
 package de.dfki.tocalog.kb;
 
+import de.dfki.tocalog.model.Entity;
 import de.dfki.tractat.idl.Base;
 
 import java.util.HashMap;
@@ -10,29 +11,29 @@ import java.util.Optional;
 /**
  */
 public class KnowledgeBase {
-    private Map<Class, KnowledgeMap> kmap = new HashMap<>();
-    private Map<Key, KnowledgeSet> kset = new HashMap<>();
+    private Map<Class, EKnowledgeMap> kmap = new HashMap<>();
+    private Map<Key, EKnowledgeSet> kset = new HashMap<>();
 
-    public <S extends Base> void initKnowledgeMap(Class<S> type, KnowledgeMap<S> ks) {
+    public <S extends Entity> void initEKnowledgeMap(Class<S> type, EKnowledgeMap<S> ks) {
         if (kmap.containsKey(type)) {
             throw new IllegalArgumentException("KnowledgeBase already contains a KnowledgeStore for the type " + type);
         }
         kmap.put(type, ks);
     }
 
-    public <S extends Base> KnowledgeMap<S> initKnowledgeMap(Class<S> type) {
+    public <S extends Entity> EKnowledgeMap<S> initEKnowledgeMap(Class<S> type) {
         if (kmap.containsKey(type)) {
             //TODO print warning
             return kmap.get(type);
         }
-        KnowledgeMap ks = new KnowledgeMap();
+        EKnowledgeMap ks = new EKnowledgeMap();
         kmap.put(type, ks);
         return ks;
     }
 
 
-    public <S extends Base> Optional<KnowledgeMap<S>> getKnowledgeStore(Class<S> type) {
-        KnowledgeMap ks = kmap.get(type);
+    public <S extends Entity> Optional<EKnowledgeMap<S>> getKnowledgeStore(Class<S> type) {
+        EKnowledgeMap ks = kmap.get(type);
         if (ks == null) {
             return Optional.empty();
         }
@@ -40,20 +41,20 @@ public class KnowledgeBase {
     }
 
 
-    public <S extends Base> KnowledgeSet<S> initKnowledgeSet(Class<S> type, String id) {
+    public <S extends Entity> EKnowledgeSet<S> initKnowledgeSet(Class<S> type, String id) {
         Key key = new Key(type, id);
         if (kset.containsKey(key)) {
             //TODO print warning
             return kset.get(type);
         }
-        KnowledgeSet<S> k = new KnowledgeSet<S>(id);
+        EKnowledgeSet<S> k = new EKnowledgeSet<S>(id);
         kset.put(key, k);
         return k;
     }
 
 
-    public <S extends Base> Optional<KnowledgeSet<S>> getKnowledgeSet(Class<S> type, String id) {
-        KnowledgeSet ks = kset.get(type);
+    public <S extends Entity> Optional<EKnowledgeSet<S>> getEKnowledgeSet(Class<S> type, String id) {
+        EKnowledgeSet ks = kset.get(type);
         if (ks == null) {
             return Optional.empty();
         }
