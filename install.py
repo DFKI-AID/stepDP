@@ -33,14 +33,14 @@ def update_pom_version(version, wd="."):
 	call(["mvn", "versions:set", "-DnewVersion=" + version_to_string(version)], cwd=wd)
 
 def tecs_version():
-	return version_from_pom('tecs/libtecs/java/pom.xml')
+	return version_from_pom('external/tecs/libtecs/java/pom.xml')
 
 def copy_tecs_server(version=None):
 	# type: (int, int, int) -> None
 	if not version:
 		version = tecs_version()
 	version_str = version[0] + "." + version[1] + "." + version[2]
-	call(["cp", "tecs/libtecs/java/server/target/tecs-server-" + version_str + "-shaded.jar", "tools/tecs-server.jar"], cwd=".")
+	call(["cp", "external/tecs/libtecs/java/server/target/tecs-server-" + version_str + "-shaded.jar", "tools/tecs-server.jar"], cwd=".")
 
 def copy_generator():
 	version = sire_version()
@@ -106,7 +106,7 @@ def install():
 	if not ask_to_continue():
 		return
 	clean_tools()
-	install_mvn("tecs/libtecs/java")
+	install_mvn("external/tecs/libtecs/java")
 	copy_tecs_server()	
 	install_mvn("external/sire/java")
 	copy_generator()
