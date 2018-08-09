@@ -110,7 +110,7 @@ def install():
 	copy_tecs_server()	
 	install_mvn("external/sire/java")
 	copy_generator()
-	install_mvn("device-platform")
+	install_mvn("external/device-platform")
 	install_tocalog()
 
 if __name__ == "__main__":

@@ -1,9 +1,9 @@
-[submodule "device-platform"]
-	path = device-platform
-	url = ssh://git@lns-90165.sb.dfki.de:10022/i40/tractat/dialog-system/device-platform.git
 [submodule "external/sire"]
 	path = external/sire
 	url = ssh://git@lns-90165.sb.dfki.de:10022/i40/tractat/dialog-system/sire.git
 [submodule "external/tecs"]
 	path = external/tecs
 	url = ssh://git@lns-90165.sb.dfki.de:10022/i40/tractat/tecs/tecs.git
+[submodule "external/device-platform"]
+	path = external/device-platform
+	url = ssh://git@lns-90165.sb.dfki.de:10022/i40/tractat/dialog-system/device-platform.git
