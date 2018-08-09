@@ -28,6 +28,9 @@ public class EntityImpl implements de.dfki.tocalog.model.Entity{
         this.id = java.util.Optional.ofNullable(value);
         return this;
     }
+    public boolean isIdPresent() {
+        return this.id.isPresent();
+    }
     
     public java.util.Optional<java.lang.Long> getTimestamp() {
         return this.timestamp;
@@ -36,6 +39,9 @@ public class EntityImpl implements de.dfki.tocalog.model.Entity{
         this.timestamp = java.util.Optional.ofNullable(value);
         return this;
     }
+    public boolean isTimestampPresent() {
+        return this.timestamp.isPresent();
+    }
     
     public java.util.Optional<java.lang.String> getSource() {
         return this.source;
@@ -43,6 +49,9 @@ public class EntityImpl implements de.dfki.tocalog.model.Entity{
     public EntityImpl setSource(java.lang.String value) {
         this.source = java.util.Optional.ofNullable(value);
         return this;
+    }
+    public boolean isSourcePresent() {
+        return this.source.isPresent();
     }
     
 
@@ -82,7 +91,7 @@ public class EntityImpl implements de.dfki.tocalog.model.Entity{
     }
 
 
-    public void deserialize(de.dfki.tractat.idl.Deserializer deserializer) throws java.io.IOException {
+    public void deserialize(de.dfki.sire.Deserializer deserializer) throws java.io.IOException {
         deserializer.beginReadObject(this);
         while(true) {
             int fieldId = deserializer.beginReadField();
@@ -112,7 +121,7 @@ public class EntityImpl implements de.dfki.tocalog.model.Entity{
         //deserializer.endReadObject(this);
     }
 
-    public void serialize(de.dfki.tractat.idl.Serializer serializer) throws java.io.IOException {
+    public void serialize(de.dfki.sire.Serializer serializer) throws java.io.IOException {
         serializer.beginWriteObject(this);
         
         if(this.id.isPresent()) {
@@ -157,7 +166,7 @@ public class EntityImpl implements de.dfki.tocalog.model.Entity{
 
 
     @Override
-    public Entity copy(de.dfki.tractat.idl.Serializer serializer, de.dfki.tractat.idl.Deserializer deserializer) throws java.io.IOException {
+    public Entity copy(de.dfki.sire.Serializer serializer, de.dfki.sire.Deserializer deserializer) throws java.io.IOException {
         byte[] buf = serializer.serialize(this);
         Entity copy = de.dfki.tocalog.model.Entity.factory.create();
         deserializer.deserialize(buf, copy);

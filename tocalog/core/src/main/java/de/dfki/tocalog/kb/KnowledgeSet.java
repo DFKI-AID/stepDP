@@ -1,8 +1,8 @@
 package de.dfki.tocalog.kb;
 
-import de.dfki.tractat.idl.Base;
-import de.dfki.tractat.idl.CborDeserializer;
-import de.dfki.tractat.idl.CborSerializer;
+import de.dfki.sire.Base;
+import de.dfki.sire.CborDeserializer;
+import de.dfki.sire.CborSerializer;
 
 import java.io.IOException;
 import java.util.*;

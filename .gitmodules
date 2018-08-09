@@ -4,3 +4,6 @@
 [submodule "tecs"]
 	path = tecs
 	url = ssh://git@lns-90165.sb.dfki.de:10022/i40/tractat/tecs/tecs.git
+[submodule "external/sire"]
+	path = external/sire
+	url = ssh://git@lns-90165.sb.dfki.de:10022/i40/tractat/dialog-system/sire.git

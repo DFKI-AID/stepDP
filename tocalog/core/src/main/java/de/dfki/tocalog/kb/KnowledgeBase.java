@@ -1,7 +1,6 @@
 package de.dfki.tocalog.kb;
 
 import de.dfki.tocalog.model.Entity;
-import de.dfki.tractat.idl.Base;
 
 import java.util.HashMap;
 import java.util.Map;

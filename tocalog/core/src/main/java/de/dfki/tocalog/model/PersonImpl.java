@@ -27,6 +27,9 @@ public class PersonImpl implements de.dfki.tocalog.model.Person{
         this.age = java.util.Optional.ofNullable(value);
         return this;
     }
+    public boolean isAgePresent() {
+        return this.age.isPresent();
+    }
     
     public java.util.Optional<java.lang.String> getGender() {
         return this.gender;
@@ -34,6 +37,9 @@ public class PersonImpl implements de.dfki.tocalog.model.Person{
     public PersonImpl setGender(java.lang.String value) {
         this.gender = java.util.Optional.ofNullable(value);
         return this;
+    }
+    public boolean isGenderPresent() {
+        return this.gender.isPresent();
     }
     
 
@@ -49,6 +55,9 @@ public class PersonImpl implements de.dfki.tocalog.model.Person{
         this.Agent_composite.get().setName(value);
         return this;
     }
+    public boolean isNamePresent() {
+        return this.Agent_composite.get().getName().isPresent();
+    }
     
     public java.util.Optional<java.lang.String> getId() {
         return this.Agent_composite.get().getId();
@@ -56,6 +65,9 @@ public class PersonImpl implements de.dfki.tocalog.model.Person{
     public PersonImpl setId(java.lang.String value) {
         this.Agent_composite.get().setId(value);
         return this;
+    }
+    public boolean isIdPresent() {
+        return this.Agent_composite.get().getId().isPresent();
     }
     
     public java.util.Optional<java.lang.Long> getTimestamp() {
@@ -65,6 +77,9 @@ public class PersonImpl implements de.dfki.tocalog.model.Person{
         this.Agent_composite.get().setTimestamp(value);
         return this;
     }
+    public boolean isTimestampPresent() {
+        return this.Agent_composite.get().getTimestamp().isPresent();
+    }
     
     public java.util.Optional<java.lang.String> getSource() {
         return this.Agent_composite.get().getSource();
@@ -72,6 +87,9 @@ public class PersonImpl implements de.dfki.tocalog.model.Person{
     public PersonImpl setSource(java.lang.String value) {
         this.Agent_composite.get().setSource(value);
         return this;
+    }
+    public boolean isSourcePresent() {
+        return this.Agent_composite.get().getSource().isPresent();
     }
     
 
@@ -101,7 +119,7 @@ public class PersonImpl implements de.dfki.tocalog.model.Person{
     }
 
 
-    public void deserialize(de.dfki.tractat.idl.Deserializer deserializer) throws java.io.IOException {
+    public void deserialize(de.dfki.sire.Deserializer deserializer) throws java.io.IOException {
         deserializer.beginReadObject(this);
         while(true) {
             int fieldId = deserializer.beginReadField();
@@ -131,7 +149,7 @@ public class PersonImpl implements de.dfki.tocalog.model.Person{
         //deserializer.endReadObject(this);
     }
 
-    public void serialize(de.dfki.tractat.idl.Serializer serializer) throws java.io.IOException {
+    public void serialize(de.dfki.sire.Serializer serializer) throws java.io.IOException {
         serializer.beginWriteObject(this);
         
         if(this.age.isPresent()) {
@@ -175,7 +193,7 @@ public class PersonImpl implements de.dfki.tocalog.model.Person{
 
 
     @Override
-    public Person copy(de.dfki.tractat.idl.Serializer serializer, de.dfki.tractat.idl.Deserializer deserializer) throws java.io.IOException {
+    public Person copy(de.dfki.sire.Serializer serializer, de.dfki.sire.Deserializer deserializer) throws java.io.IOException {
         byte[] buf = serializer.serialize(this);
         Person copy = de.dfki.tocalog.model.Person.factory.create();
         deserializer.deserialize(buf, copy);

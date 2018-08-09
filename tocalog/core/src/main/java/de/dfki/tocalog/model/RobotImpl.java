@@ -27,6 +27,9 @@ public class RobotImpl implements de.dfki.tocalog.model.Robot{
         this.Agent_composite.get().setName(value);
         return this;
     }
+    public boolean isNamePresent() {
+        return this.Agent_composite.get().getName().isPresent();
+    }
     
     public java.util.Optional<java.lang.String> getId() {
         return this.Agent_composite.get().getId();
@@ -34,6 +37,9 @@ public class RobotImpl implements de.dfki.tocalog.model.Robot{
     public RobotImpl setId(java.lang.String value) {
         this.Agent_composite.get().setId(value);
         return this;
+    }
+    public boolean isIdPresent() {
+        return this.Agent_composite.get().getId().isPresent();
     }
     
     public java.util.Optional<java.lang.Long> getTimestamp() {
@@ -43,6 +49,9 @@ public class RobotImpl implements de.dfki.tocalog.model.Robot{
         this.Agent_composite.get().setTimestamp(value);
         return this;
     }
+    public boolean isTimestampPresent() {
+        return this.Agent_composite.get().getTimestamp().isPresent();
+    }
     
     public java.util.Optional<java.lang.String> getSource() {
         return this.Agent_composite.get().getSource();
@@ -50,6 +59,9 @@ public class RobotImpl implements de.dfki.tocalog.model.Robot{
     public RobotImpl setSource(java.lang.String value) {
         this.Agent_composite.get().setSource(value);
         return this;
+    }
+    public boolean isSourcePresent() {
+        return this.Agent_composite.get().getSource().isPresent();
     }
     
 
@@ -71,7 +83,7 @@ public class RobotImpl implements de.dfki.tocalog.model.Robot{
     }
 
 
-    public void deserialize(de.dfki.tractat.idl.Deserializer deserializer) throws java.io.IOException {
+    public void deserialize(de.dfki.sire.Deserializer deserializer) throws java.io.IOException {
         deserializer.beginReadObject(this);
         while(true) {
             int fieldId = deserializer.beginReadField();
@@ -93,7 +105,7 @@ public class RobotImpl implements de.dfki.tocalog.model.Robot{
         //deserializer.endReadObject(this);
     }
 
-    public void serialize(de.dfki.tractat.idl.Serializer serializer) throws java.io.IOException {
+    public void serialize(de.dfki.sire.Serializer serializer) throws java.io.IOException {
         serializer.beginWriteObject(this);
         
         
@@ -121,7 +133,7 @@ public class RobotImpl implements de.dfki.tocalog.model.Robot{
 
 
     @Override
-    public Robot copy(de.dfki.tractat.idl.Serializer serializer, de.dfki.tractat.idl.Deserializer deserializer) throws java.io.IOException {
+    public Robot copy(de.dfki.sire.Serializer serializer, de.dfki.sire.Deserializer deserializer) throws java.io.IOException {
         byte[] buf = serializer.serialize(this);
         Robot copy = de.dfki.tocalog.model.Robot.factory.create();
         deserializer.deserialize(buf, copy);

@@ -27,8 +27,8 @@
             <version>1.7.12</version>
         </dependency>
         <dependency>
-            <groupId>de.dfki.tractat</groupId>
-            <artifactId>idl-lib</artifactId>
+            <groupId>de.dfki.sire</groupId>
+            <artifactId>sire-lib</artifactId>
             <version>LATEST</version>
         </dependency>
         <dependency>

@@ -43,12 +43,12 @@ def copy_tecs_server(version=None):
 	call(["cp", "tecs/libtecs/java/server/target/tecs-server-" + version_str + "-shaded.jar", "tools/tecs-server.jar"], cwd=".")
 
 def copy_generator():
-	version = generator_version()
+	version = sire_version()
 	version_str = version[0] + "." + version[1] + "." + version[2]
-	call(["cp", "clml/java/generator/target/idl-generator-" + version_str + ".jar", "tools/clml-generator.jar"], cwd=".")
+	call(["cp", "external/sire/java/generator/target/sire-generator-" + version_str + ".jar", "tools/sire.jar"], cwd=".")
 
-def generator_version():
-	return version_from_pom('clml/java/pom.xml')
+def sire_version():
+	return version_from_pom('external/sire/java/pom.xml')
 
 def install_mvn(path):
 	call(["mvn", "install", "-DskipTests"], cwd=path)
@@ -73,7 +73,7 @@ def print_overview():
 	print("="*10 + " Platform " +"="*20 )
 	print("tocalog version: {}".format(version_to_string(tocalog_version())))
 	print("tecs version: {}".format(version_to_string(tecs_version())))
-	print("clml version: {}".format(version_to_string(generator_version())))
+	print("sire version: {}".format(version_to_string(sire_version())))
 	print("="*10 + " Build Tools " + "="*17)
 	print("[update your PATH or use 'source' to change them]")
 	print("maven: {}".format(which("mvn")))
@@ -108,7 +108,7 @@ def install():
 	clean_tools()
 	install_mvn("tecs/libtecs/java")
 	copy_tecs_server()	
-	install_mvn("clml/java")
+	install_mvn("external/sire/java")
 	copy_generator()
 	install_mvn("device-platform")
 	install_tocalog()

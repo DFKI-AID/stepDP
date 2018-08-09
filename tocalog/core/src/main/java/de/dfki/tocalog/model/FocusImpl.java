@@ -27,6 +27,9 @@ public class FocusImpl implements de.dfki.tocalog.model.Focus{
         this.agent = java.util.Optional.ofNullable(value);
         return this;
     }
+    public boolean isAgentPresent() {
+        return this.agent.isPresent();
+    }
     
     public java.util.Optional<java.lang.String> getFocus() {
         return this.focus;
@@ -34,6 +37,9 @@ public class FocusImpl implements de.dfki.tocalog.model.Focus{
     public FocusImpl setFocus(java.lang.String value) {
         this.focus = java.util.Optional.ofNullable(value);
         return this;
+    }
+    public boolean isFocusPresent() {
+        return this.focus.isPresent();
     }
     
 
@@ -49,6 +55,9 @@ public class FocusImpl implements de.dfki.tocalog.model.Focus{
         this.Entity_composite.get().setId(value);
         return this;
     }
+    public boolean isIdPresent() {
+        return this.Entity_composite.get().getId().isPresent();
+    }
     
     public java.util.Optional<java.lang.Long> getTimestamp() {
         return this.Entity_composite.get().getTimestamp();
@@ -57,6 +66,9 @@ public class FocusImpl implements de.dfki.tocalog.model.Focus{
         this.Entity_composite.get().setTimestamp(value);
         return this;
     }
+    public boolean isTimestampPresent() {
+        return this.Entity_composite.get().getTimestamp().isPresent();
+    }
     
     public java.util.Optional<java.lang.String> getSource() {
         return this.Entity_composite.get().getSource();
@@ -64,6 +76,9 @@ public class FocusImpl implements de.dfki.tocalog.model.Focus{
     public FocusImpl setSource(java.lang.String value) {
         this.Entity_composite.get().setSource(value);
         return this;
+    }
+    public boolean isSourcePresent() {
+        return this.Entity_composite.get().getSource().isPresent();
     }
     
 
@@ -93,7 +108,7 @@ public class FocusImpl implements de.dfki.tocalog.model.Focus{
     }
 
 
-    public void deserialize(de.dfki.tractat.idl.Deserializer deserializer) throws java.io.IOException {
+    public void deserialize(de.dfki.sire.Deserializer deserializer) throws java.io.IOException {
         deserializer.beginReadObject(this);
         while(true) {
             int fieldId = deserializer.beginReadField();
@@ -123,7 +138,7 @@ public class FocusImpl implements de.dfki.tocalog.model.Focus{
         //deserializer.endReadObject(this);
     }
 
-    public void serialize(de.dfki.tractat.idl.Serializer serializer) throws java.io.IOException {
+    public void serialize(de.dfki.sire.Serializer serializer) throws java.io.IOException {
         serializer.beginWriteObject(this);
         
         if(this.agent.isPresent()) {
@@ -167,7 +182,7 @@ public class FocusImpl implements de.dfki.tocalog.model.Focus{
 
 
     @Override
-    public Focus copy(de.dfki.tractat.idl.Serializer serializer, de.dfki.tractat.idl.Deserializer deserializer) throws java.io.IOException {
+    public Focus copy(de.dfki.sire.Serializer serializer, de.dfki.sire.Deserializer deserializer) throws java.io.IOException {
         byte[] buf = serializer.serialize(this);
         Focus copy = de.dfki.tocalog.model.Focus.factory.create();
         deserializer.deserialize(buf, copy);

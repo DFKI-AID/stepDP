@@ -28,6 +28,9 @@ public class Vector3Impl implements de.dfki.tocalog.model.Vector3{
         this.x = java.util.Optional.ofNullable(value);
         return this;
     }
+    public boolean isXPresent() {
+        return this.x.isPresent();
+    }
     
     public java.util.Optional<java.lang.Double> getY() {
         return this.y;
@@ -36,6 +39,9 @@ public class Vector3Impl implements de.dfki.tocalog.model.Vector3{
         this.y = java.util.Optional.ofNullable(value);
         return this;
     }
+    public boolean isYPresent() {
+        return this.y.isPresent();
+    }
     
     public java.util.Optional<java.lang.Double> getZ() {
         return this.z;
@@ -43,6 +49,9 @@ public class Vector3Impl implements de.dfki.tocalog.model.Vector3{
     public Vector3Impl setZ(java.lang.Double value) {
         this.z = java.util.Optional.ofNullable(value);
         return this;
+    }
+    public boolean isZPresent() {
+        return this.z.isPresent();
     }
     
 
@@ -82,7 +91,7 @@ public class Vector3Impl implements de.dfki.tocalog.model.Vector3{
     }
 
 
-    public void deserialize(de.dfki.tractat.idl.Deserializer deserializer) throws java.io.IOException {
+    public void deserialize(de.dfki.sire.Deserializer deserializer) throws java.io.IOException {
         deserializer.beginReadObject(this);
         while(true) {
             int fieldId = deserializer.beginReadField();
@@ -112,7 +121,7 @@ public class Vector3Impl implements de.dfki.tocalog.model.Vector3{
         //deserializer.endReadObject(this);
     }
 
-    public void serialize(de.dfki.tractat.idl.Serializer serializer) throws java.io.IOException {
+    public void serialize(de.dfki.sire.Serializer serializer) throws java.io.IOException {
         serializer.beginWriteObject(this);
         
         if(this.x.isPresent()) {
@@ -157,7 +166,7 @@ public class Vector3Impl implements de.dfki.tocalog.model.Vector3{
 
 
     @Override
-    public Vector3 copy(de.dfki.tractat.idl.Serializer serializer, de.dfki.tractat.idl.Deserializer deserializer) throws java.io.IOException {
+    public Vector3 copy(de.dfki.sire.Serializer serializer, de.dfki.sire.Deserializer deserializer) throws java.io.IOException {
         byte[] buf = serializer.serialize(this);
         Vector3 copy = de.dfki.tocalog.model.Vector3.factory.create();
         deserializer.deserialize(buf, copy);

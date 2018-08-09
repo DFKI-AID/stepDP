@@ -30,6 +30,9 @@ public class ServiceImpl implements de.dfki.tocalog.model.Service{
         this.uri = java.util.Optional.ofNullable(value);
         return this;
     }
+    public boolean isUriPresent() {
+        return this.uri.isPresent();
+    }
     
     public java.util.Optional<java.lang.String> getType() {
         return this.type;
@@ -38,6 +41,9 @@ public class ServiceImpl implements de.dfki.tocalog.model.Service{
         this.type = java.util.Optional.ofNullable(value);
         return this;
     }
+    public boolean isTypePresent() {
+        return this.type.isPresent();
+    }
     
     public java.util.Optional<java.util.List<java.lang.String>> getComponents() {
         return this.components;
@@ -45,6 +51,9 @@ public class ServiceImpl implements de.dfki.tocalog.model.Service{
     public ServiceImpl setComponents(java.util.List<java.lang.String> value) {
         this.components = java.util.Optional.ofNullable(value);
         return this;
+    }
+    public boolean isComponentsPresent() {
+        return this.components.isPresent();
     }
     
 
@@ -60,6 +69,9 @@ public class ServiceImpl implements de.dfki.tocalog.model.Service{
         this.Entity_composite.get().setId(value);
         return this;
     }
+    public boolean isIdPresent() {
+        return this.Entity_composite.get().getId().isPresent();
+    }
     
     public java.util.Optional<java.lang.Long> getTimestamp() {
         return this.Entity_composite.get().getTimestamp();
@@ -68,6 +80,9 @@ public class ServiceImpl implements de.dfki.tocalog.model.Service{
         this.Entity_composite.get().setTimestamp(value);
         return this;
     }
+    public boolean isTimestampPresent() {
+        return this.Entity_composite.get().getTimestamp().isPresent();
+    }
     
     public java.util.Optional<java.lang.String> getSource() {
         return this.Entity_composite.get().getSource();
@@ -75,6 +90,9 @@ public class ServiceImpl implements de.dfki.tocalog.model.Service{
     public ServiceImpl setSource(java.lang.String value) {
         this.Entity_composite.get().setSource(value);
         return this;
+    }
+    public boolean isSourcePresent() {
+        return this.Entity_composite.get().getSource().isPresent();
     }
     
 
@@ -108,7 +126,7 @@ public class ServiceImpl implements de.dfki.tocalog.model.Service{
     }
 
 
-    public void deserialize(de.dfki.tractat.idl.Deserializer deserializer) throws java.io.IOException {
+    public void deserialize(de.dfki.sire.Deserializer deserializer) throws java.io.IOException {
         deserializer.beginReadObject(this);
         while(true) {
             int fieldId = deserializer.beginReadField();
@@ -149,7 +167,7 @@ public class ServiceImpl implements de.dfki.tocalog.model.Service{
         //deserializer.endReadObject(this);
     }
 
-    public void serialize(de.dfki.tractat.idl.Serializer serializer) throws java.io.IOException {
+    public void serialize(de.dfki.sire.Serializer serializer) throws java.io.IOException {
         serializer.beginWriteObject(this);
         
         if(this.uri.isPresent()) {
@@ -203,7 +221,7 @@ public class ServiceImpl implements de.dfki.tocalog.model.Service{
 
 
     @Override
-    public Service copy(de.dfki.tractat.idl.Serializer serializer, de.dfki.tractat.idl.Deserializer deserializer) throws java.io.IOException {
+    public Service copy(de.dfki.sire.Serializer serializer, de.dfki.sire.Deserializer deserializer) throws java.io.IOException {
         byte[] buf = serializer.serialize(this);
         Service copy = de.dfki.tocalog.model.Service.factory.create();
         deserializer.deserialize(buf, copy);
