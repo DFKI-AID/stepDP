@@ -67,6 +67,10 @@ def install_tocalog():
 def tocalog_version():
 	return version_from_pom("tocalog/pom.xml")
 
+def install_jwiki():
+	# TODO windows...
+	call(["./gradlew", "build", "publishToMavenLocal"], cwd="external/jwiki/")
+
 def print_overview():
 	print("="*40)
 	print("Installing tocalog")
@@ -111,6 +115,7 @@ def install():
 	install_mvn("external/sire/java")
 	copy_generator()
 	install_mvn("external/device-platform")
+	install_jwiki()
 	install_tocalog()
 
 if __name__ == "__main__":
