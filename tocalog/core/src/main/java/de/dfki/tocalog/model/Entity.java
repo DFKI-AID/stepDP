@@ -22,6 +22,8 @@ public interface Entity extends de.dfki.sire.Base {
 
     void serialize(de.dfki.sire.Serializer serializer) throws java.io.IOException;
 
+    Entity copy();
+
     static Entity create() {
         return new de.dfki.tocalog.model.EntityImpl();
     }

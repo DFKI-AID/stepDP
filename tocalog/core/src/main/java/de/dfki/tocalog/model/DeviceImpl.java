@@ -152,11 +152,35 @@ public class DeviceImpl implements de.dfki.tocalog.model.Device{
 
 
     @Override
-    public Device copy(de.dfki.sire.Serializer serializer, de.dfki.sire.Deserializer deserializer) throws java.io.IOException {
-        byte[] buf = serializer.serialize(this);
+    public Device copy() {
         Device copy = de.dfki.tocalog.model.Device.factory.create();
-        deserializer.deserialize(buf, copy);
+        if(name.isPresent()) {
+        	java.lang.String fieldCopy;
+        	fieldCopy = name.get();
+        	copy.setName(fieldCopy);
+        }
+        
         return copy;
     }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DeviceImpl o_cast = (DeviceImpl) o;
+        return 
+            java.util.Objects.equals(name, o_cast.name) &
+        
+            true;
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(
+            name
+        );
+    }
+
 }
 

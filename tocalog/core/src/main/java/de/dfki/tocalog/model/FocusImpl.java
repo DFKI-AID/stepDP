@@ -182,11 +182,42 @@ public class FocusImpl implements de.dfki.tocalog.model.Focus{
 
 
     @Override
-    public Focus copy(de.dfki.sire.Serializer serializer, de.dfki.sire.Deserializer deserializer) throws java.io.IOException {
-        byte[] buf = serializer.serialize(this);
+    public Focus copy() {
         Focus copy = de.dfki.tocalog.model.Focus.factory.create();
-        deserializer.deserialize(buf, copy);
+        if(agent.isPresent()) {
+        	java.lang.String fieldCopy;
+        	fieldCopy = agent.get();
+        	copy.setAgent(fieldCopy);
+        }
+        if(focus.isPresent()) {
+        	java.lang.String fieldCopy;
+        	fieldCopy = focus.get();
+        	copy.setFocus(fieldCopy);
+        }
+        
         return copy;
     }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        FocusImpl o_cast = (FocusImpl) o;
+        return 
+            java.util.Objects.equals(agent, o_cast.agent) &
+        
+            java.util.Objects.equals(focus, o_cast.focus) &
+        
+            true;
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(
+            agent,focus
+        );
+    }
+
 }
 

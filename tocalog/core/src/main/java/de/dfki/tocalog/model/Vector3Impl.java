@@ -166,11 +166,49 @@ public class Vector3Impl implements de.dfki.tocalog.model.Vector3{
 
 
     @Override
-    public Vector3 copy(de.dfki.sire.Serializer serializer, de.dfki.sire.Deserializer deserializer) throws java.io.IOException {
-        byte[] buf = serializer.serialize(this);
+    public Vector3 copy() {
         Vector3 copy = de.dfki.tocalog.model.Vector3.factory.create();
-        deserializer.deserialize(buf, copy);
+        if(x.isPresent()) {
+        	java.lang.Double fieldCopy;
+        	fieldCopy = x.get();
+        	copy.setX(fieldCopy);
+        }
+        if(y.isPresent()) {
+        	java.lang.Double fieldCopy;
+        	fieldCopy = y.get();
+        	copy.setY(fieldCopy);
+        }
+        if(z.isPresent()) {
+        	java.lang.Double fieldCopy;
+        	fieldCopy = z.get();
+        	copy.setZ(fieldCopy);
+        }
+        
         return copy;
     }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Vector3Impl o_cast = (Vector3Impl) o;
+        return 
+            java.util.Objects.equals(x, o_cast.x) &
+        
+            java.util.Objects.equals(y, o_cast.y) &
+        
+            java.util.Objects.equals(z, o_cast.z) &
+        
+            true;
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(
+            x,y,z
+        );
+    }
+
 }
 

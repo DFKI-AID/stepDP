@@ -221,11 +221,54 @@ public class ServiceImpl implements de.dfki.tocalog.model.Service{
 
 
     @Override
-    public Service copy(de.dfki.sire.Serializer serializer, de.dfki.sire.Deserializer deserializer) throws java.io.IOException {
-        byte[] buf = serializer.serialize(this);
+    public Service copy() {
         Service copy = de.dfki.tocalog.model.Service.factory.create();
-        deserializer.deserialize(buf, copy);
+        if(uri.isPresent()) {
+        	java.lang.String fieldCopy;
+        	fieldCopy = uri.get();
+        	copy.setUri(fieldCopy);
+        }
+        if(type.isPresent()) {
+        	java.lang.String fieldCopy;
+        	fieldCopy = type.get();
+        	copy.setType(fieldCopy);
+        }
+        if(components.isPresent()) {
+        	java.util.ArrayList<java.lang.String> fieldCopy;
+        	fieldCopy = new java.util.ArrayList<>();
+            for(java.lang.String tmp : components.get()) {
+                java.lang.String tmpCopy;
+                tmpCopy = tmp;
+                fieldCopy.add(tmpCopy);
+            }
+        	copy.setComponents(fieldCopy);
+        }
+        
         return copy;
     }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ServiceImpl o_cast = (ServiceImpl) o;
+        return 
+            java.util.Objects.equals(uri, o_cast.uri) &
+        
+            java.util.Objects.equals(type, o_cast.type) &
+        
+            java.util.Objects.equals(components, o_cast.components) &
+        
+            true;
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(
+            uri,type,components
+        );
+    }
+
 }
 

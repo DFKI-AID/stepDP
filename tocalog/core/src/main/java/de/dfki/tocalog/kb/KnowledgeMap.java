@@ -79,11 +79,7 @@ public class KnowledgeMap<T extends Base> {
     }
 
     protected synchronized T copy(T base) {
-        try {
-            return (T) base.copy(serializer, deserializer);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return (T) base.copy();
     }
 
     public KnowledgeMap.Locked<T> lock() {

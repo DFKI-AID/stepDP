@@ -77,9 +77,7 @@ public class KnowledgeSet<T extends Base> {
     public T copy(T base) {
         try {
             lock();
-            return (T) base.copy(serializer, deserializer);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            return (T) base.copy();
         } finally {
             unlock();
         }
@@ -92,7 +90,7 @@ public class KnowledgeSet<T extends Base> {
 
     public Optional<Locked<T>> tryLock(long timeout, TimeUnit unit) {
         try {
-            if(this.lock.tryLock(timeout, unit)) {
+            if (this.lock.tryLock(timeout, unit)) {
                 return Optional.of(locked);
             }
             return Optional.empty();
@@ -108,7 +106,6 @@ public class KnowledgeSet<T extends Base> {
     private Stream<T> getStream() {
         return entries.stream();
     }
-
 
 
     private Locked<T> locked = new Locked<>(this);
@@ -133,11 +130,7 @@ public class KnowledgeSet<T extends Base> {
         }
 
         public T copy(T base) {
-            try {
-                return (T) base.copy(ks.serializer, ks.deserializer);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            return (T) base.copy();
         }
 
         public int getSize() {
@@ -147,6 +140,8 @@ public class KnowledgeSet<T extends Base> {
         public void removeAll(Collection<T> c) {
             ks.entries.removeAll(c);
         }
-    };
+    }
+
+    ;
 
 }

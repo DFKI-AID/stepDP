@@ -161,11 +161,40 @@ public class SessionImpl implements de.dfki.tocalog.model.Session{
 
 
     @Override
-    public Session copy(de.dfki.sire.Serializer serializer, de.dfki.sire.Deserializer deserializer) throws java.io.IOException {
-        byte[] buf = serializer.serialize(this);
+    public Session copy() {
         Session copy = de.dfki.tocalog.model.Session.factory.create();
-        deserializer.deserialize(buf, copy);
+        if(agents.isPresent()) {
+        	java.util.ArrayList<java.lang.String> fieldCopy;
+        	fieldCopy = new java.util.ArrayList<>();
+            for(java.lang.String tmp : agents.get()) {
+                java.lang.String tmpCopy;
+                tmpCopy = tmp;
+                fieldCopy.add(tmpCopy);
+            }
+        	copy.setAgents(fieldCopy);
+        }
+        
         return copy;
     }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SessionImpl o_cast = (SessionImpl) o;
+        return 
+            java.util.Objects.equals(agents, o_cast.agents) &
+        
+            true;
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(
+            agents
+        );
+    }
+
 }
 

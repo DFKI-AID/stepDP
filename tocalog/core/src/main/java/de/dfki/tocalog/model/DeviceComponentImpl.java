@@ -152,11 +152,35 @@ public class DeviceComponentImpl implements de.dfki.tocalog.model.DeviceComponen
 
 
     @Override
-    public DeviceComponent copy(de.dfki.sire.Serializer serializer, de.dfki.sire.Deserializer deserializer) throws java.io.IOException {
-        byte[] buf = serializer.serialize(this);
+    public DeviceComponent copy() {
         DeviceComponent copy = de.dfki.tocalog.model.DeviceComponent.factory.create();
-        deserializer.deserialize(buf, copy);
+        if(device.isPresent()) {
+        	java.lang.String fieldCopy;
+        	fieldCopy = device.get();
+        	copy.setDevice(fieldCopy);
+        }
+        
         return copy;
     }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DeviceComponentImpl o_cast = (DeviceComponentImpl) o;
+        return 
+            java.util.Objects.equals(device, o_cast.device) &
+        
+            true;
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(
+            device
+        );
+    }
+
 }
 

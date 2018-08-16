@@ -26,6 +26,8 @@ public interface DeviceComponent extends de.dfki.sire.Base, de.dfki.tocalog.mode
 
     void serialize(de.dfki.sire.Serializer serializer) throws java.io.IOException;
 
+    DeviceComponent copy();
+
     static DeviceComponent create() {
         return new de.dfki.tocalog.model.DeviceComponentImpl();
     }

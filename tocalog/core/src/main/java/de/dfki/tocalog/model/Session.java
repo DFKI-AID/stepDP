@@ -26,6 +26,8 @@ public interface Session extends de.dfki.sire.Base, de.dfki.tocalog.model.Entity
 
     void serialize(de.dfki.sire.Serializer serializer) throws java.io.IOException;
 
+    Session copy();
+
     static Session create() {
         return new de.dfki.tocalog.model.SessionImpl();
     }

@@ -22,6 +22,8 @@ public interface Vector3 extends de.dfki.sire.Base {
 
     void serialize(de.dfki.sire.Serializer serializer) throws java.io.IOException;
 
+    Vector3 copy();
+
     static Vector3 create() {
         return new de.dfki.tocalog.model.Vector3Impl();
     }

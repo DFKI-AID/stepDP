@@ -152,11 +152,35 @@ public class AgentImpl implements de.dfki.tocalog.model.Agent{
 
 
     @Override
-    public Agent copy(de.dfki.sire.Serializer serializer, de.dfki.sire.Deserializer deserializer) throws java.io.IOException {
-        byte[] buf = serializer.serialize(this);
+    public Agent copy() {
         Agent copy = de.dfki.tocalog.model.Agent.factory.create();
-        deserializer.deserialize(buf, copy);
+        if(name.isPresent()) {
+        	java.lang.String fieldCopy;
+        	fieldCopy = name.get();
+        	copy.setName(fieldCopy);
+        }
+        
         return copy;
     }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AgentImpl o_cast = (AgentImpl) o;
+        return 
+            java.util.Objects.equals(name, o_cast.name) &
+        
+            true;
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(
+            name
+        );
+    }
+
 }
 

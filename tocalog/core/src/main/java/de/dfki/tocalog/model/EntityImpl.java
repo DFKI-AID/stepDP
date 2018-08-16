@@ -166,11 +166,49 @@ public class EntityImpl implements de.dfki.tocalog.model.Entity{
 
 
     @Override
-    public Entity copy(de.dfki.sire.Serializer serializer, de.dfki.sire.Deserializer deserializer) throws java.io.IOException {
-        byte[] buf = serializer.serialize(this);
+    public Entity copy() {
         Entity copy = de.dfki.tocalog.model.Entity.factory.create();
-        deserializer.deserialize(buf, copy);
+        if(id.isPresent()) {
+        	java.lang.String fieldCopy;
+        	fieldCopy = id.get();
+        	copy.setId(fieldCopy);
+        }
+        if(timestamp.isPresent()) {
+        	java.lang.Long fieldCopy;
+        	fieldCopy = timestamp.get();
+        	copy.setTimestamp(fieldCopy);
+        }
+        if(source.isPresent()) {
+        	java.lang.String fieldCopy;
+        	fieldCopy = source.get();
+        	copy.setSource(fieldCopy);
+        }
+        
         return copy;
     }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        EntityImpl o_cast = (EntityImpl) o;
+        return 
+            java.util.Objects.equals(id, o_cast.id) &
+        
+            java.util.Objects.equals(timestamp, o_cast.timestamp) &
+        
+            java.util.Objects.equals(source, o_cast.source) &
+        
+            true;
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(
+            id,timestamp,source
+        );
+    }
+
 }
 

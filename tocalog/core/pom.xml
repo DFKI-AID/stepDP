@@ -29,7 +29,7 @@
         <dependency>
             <groupId>de.dfki.sire</groupId>
             <artifactId>sire-lib</artifactId>
-            <version>LATEST</version>
+            <version>0.0.18</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

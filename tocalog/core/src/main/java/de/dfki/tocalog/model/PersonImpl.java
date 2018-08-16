@@ -193,11 +193,42 @@ public class PersonImpl implements de.dfki.tocalog.model.Person{
 
 
     @Override
-    public Person copy(de.dfki.sire.Serializer serializer, de.dfki.sire.Deserializer deserializer) throws java.io.IOException {
-        byte[] buf = serializer.serialize(this);
+    public Person copy() {
         Person copy = de.dfki.tocalog.model.Person.factory.create();
-        deserializer.deserialize(buf, copy);
+        if(age.isPresent()) {
+        	java.lang.Long fieldCopy;
+        	fieldCopy = age.get();
+        	copy.setAge(fieldCopy);
+        }
+        if(gender.isPresent()) {
+        	java.lang.String fieldCopy;
+        	fieldCopy = gender.get();
+        	copy.setGender(fieldCopy);
+        }
+        
         return copy;
     }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PersonImpl o_cast = (PersonImpl) o;
+        return 
+            java.util.Objects.equals(age, o_cast.age) &
+        
+            java.util.Objects.equals(gender, o_cast.gender) &
+        
+            true;
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(
+            age,gender
+        );
+    }
+
 }
 

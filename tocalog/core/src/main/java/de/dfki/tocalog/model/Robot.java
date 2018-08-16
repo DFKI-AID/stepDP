@@ -26,6 +26,8 @@ public interface Robot extends de.dfki.sire.Base, de.dfki.tocalog.model.Agent {
 
     void serialize(de.dfki.sire.Serializer serializer) throws java.io.IOException;
 
+    Robot copy();
+
     static Robot create() {
         return new de.dfki.tocalog.model.RobotImpl();
     }

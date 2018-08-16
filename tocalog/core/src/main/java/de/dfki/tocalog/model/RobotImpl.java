@@ -133,11 +133,28 @@ public class RobotImpl implements de.dfki.tocalog.model.Robot{
 
 
     @Override
-    public Robot copy(de.dfki.sire.Serializer serializer, de.dfki.sire.Deserializer deserializer) throws java.io.IOException {
-        byte[] buf = serializer.serialize(this);
+    public Robot copy() {
         Robot copy = de.dfki.tocalog.model.Robot.factory.create();
-        deserializer.deserialize(buf, copy);
+        
         return copy;
     }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RobotImpl o_cast = (RobotImpl) o;
+        return 
+            true;
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(
+            
+        );
+    }
+
 }
 

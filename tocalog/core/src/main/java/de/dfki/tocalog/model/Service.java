@@ -34,6 +34,8 @@ public interface Service extends de.dfki.sire.Base, de.dfki.tocalog.model.Entity
 
     void serialize(de.dfki.sire.Serializer serializer) throws java.io.IOException;
 
+    Service copy();
+
     static Service create() {
         return new de.dfki.tocalog.model.ServiceImpl();
     }

@@ -30,6 +30,8 @@ public interface Focus extends de.dfki.sire.Base, de.dfki.tocalog.model.Entity {
 
     void serialize(de.dfki.sire.Serializer serializer) throws java.io.IOException;
 
+    Focus copy();
+
     static Focus create() {
         return new de.dfki.tocalog.model.FocusImpl();
     }
