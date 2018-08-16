@@ -1,17 +1,13 @@
 package de.dfki.tocalog;
 
 
-import de.dfki.tocalog.input.rasa_input.RasaInputHandler;
-import de.dfki.tocalog.input.rasa_input.RasaResponse;
-import de.dfki.tocalog.input.rasa_input.RasaResponseHandler;
+import de.dfki.tocalog.input.rasa.RasaResponse;
+import de.dfki.tocalog.input.rasa.RasaResponseHandler;
 
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-
-import javax.net.ssl.HttpsURLConnection;
 
 public class MainMK {
 

@@ -1,9 +1,6 @@
-package de.dfki.tocalog.input.rasa_input;
+package de.dfki.tocalog.input.rasa;
 
 import com.google.gson.*;
-import de.dfki.tocalog.framework.Event;
-import de.dfki.tocalog.framework.EventEngine;
-import de.dfki.tocalog.framework.InputComponent;
 
 import java.util.ArrayList;
 import java.util.List;
