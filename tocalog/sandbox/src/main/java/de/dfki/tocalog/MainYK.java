@@ -1,17 +1,27 @@
 package de.dfki.tocalog;
 
-import de.dfki.tocalog.framework.*;
-import de.dfki.tocalog.kb.*;
-import de.dfki.tocalog.model.Focus;
-import de.dfki.tocalog.model.Person;
+import de.dfki.tocalog.dialog.Intent;
+import de.dfki.tocalog.dialog.IntentProducer;
+import de.dfki.tocalog.dialog.MetaDialog;
 import de.dfki.tocalog.dialog.sc.State;
 import de.dfki.tocalog.dialog.sc.StateChart;
+import de.dfki.tocalog.dialog.sc.StateChartEvent;
 import de.dfki.tocalog.dialog.sc.Transition;
+import de.dfki.tocalog.framework.DialogComponent;
+import de.dfki.tocalog.framework.Event;
+import de.dfki.tocalog.framework.ProjectManager;
+import de.dfki.tocalog.input.Input;
+import de.dfki.tocalog.input.TextInput;
+import de.dfki.tocalog.kb.EKnowledgeMap;
+import de.dfki.tocalog.model.Person;
 import de.dfki.tocalog.model.Service;
 import de.dfki.tocalog.output.Output;
-import de.dfki.tocalog.output.impp.*;
 import de.dfki.tocalog.output.SpeechOutput;
 import de.dfki.tocalog.output.TextOutput;
+import de.dfki.tocalog.output.impp.*;
+import de.dfki.tocalog.rasa.RasaHelper;
+import de.dfki.tocalog.rasa.RasaResponse;
+import de.dfki.tocalog.telegram.TelegramBot;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
@@ -19,15 +29,19 @@ import org.apache.log4j.Level;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.ArrayDeque;
 import java.util.Optional;
+import java.util.Queue;
 
 /**
  */
 public class MainYK {
     public static void main(String[] args) throws IOException, InterruptedException {
+        BasicConfigurator.configure();
+        org.apache.log4j.Logger.getRootLogger().setLevel(Level.INFO);
 //        statechart(args);
-        impp(args);
-//        framework(args);
+//        impp(args);
+        framework(args);
     }
 
     public static void impp(String[] args) {
@@ -41,20 +55,20 @@ public class MainYK {
 
         OutputNode node =
                 OutputNode.buildNode(OutputNode.Semantic.concurrent)
-                    .addNode(OutputNode.buildNode(OutputNode.Semantic.complementary).setId("abcdef")
-                            .addNode(OutputNode.buildNode(output1).addService("s456").build())
-                            .addNode(OutputNode.buildNode(output2).addService("s1").build())
-                            .build())
-                    .addNode(OutputNode.buildNode(OutputNode.Semantic.alternative)
-                            .addNode(OutputNode.buildNode(output3)
+                        .addNode(OutputNode.buildNode(OutputNode.Semantic.complementary).setId("abcdef")
+                                .addNode(OutputNode.buildNode(output1).addService("s456").build())
+                                .addNode(OutputNode.buildNode(output2).addService("s1").build())
+                                .build())
+                        .addNode(OutputNode.buildNode(OutputNode.Semantic.alternative)
+                                .addNode(OutputNode.buildNode(output3)
 //                                    .addService("blubb-textview")
-                                    .build())
-                            .addNode(OutputNode.buildNode(output4)
+                                        .build())
+                                .addNode(OutputNode.buildNode(output4)
 //                                    .addService("blubb-loudspeaker1")
 //                                    .addService("blubb-loudspeaker2")
-                                    .build())
-                            .build())
-                    .build();
+                                        .build())
+                                .build())
+                        .build();
 
         ConsoleAssigner consoleAssigner = new ConsoleAssigner(services);
         consoleAssigner.assignConsoleService(node);
@@ -79,45 +93,115 @@ public class MainYK {
         singleNode.ifPresent(n -> System.out.println(PrintVisitor.print(n)));
 
 
-
-
-
     }
 
     public static void framework(String[] args) throws InterruptedException, IOException {
-        BasicConfigurator.configure();
-        org.apache.log4j.Logger.getRootLogger().setLevel(Level.INFO);
 
 
 
+//        DialogComponent fusion1 = new AbstractDialogComponent() {
+//
+//            @Override
+//            public void onEvent(EventEngine engine, Event event) {
+//                // a fusion component would check the person ks_map for available persons and then init the set for all persons
+//                EKnowledgeSet<Focus> kset = getKnowledgeBase().initKnowledgeSet(Focus.class, "mechanic1");
+//
+//                //if event is visual focus event
+//                kset.add(Focus.create()
+//                        .setId("mechanic1")
+//                        .setFocus("car")
+//                        .setSource("kinect")
+//                        .setTimestamp(System.currentTimeMillis()));
+//
+//                kset.removeOld(5000L);
+//            }
+//        };
 
+        IntentProducer rasaIc = new IntentProducer() {
+            private Queue<Intent> intentQueue = new ArrayDeque<>();
+            private RasaHelper rasaHelper = new RasaHelper();
+            @Override
+            public void add(Input input) {
+                if (!(input instanceof TextInput)) {
+                    return;
+                }
 
-        DialogComponent fusion1 = new AbstractDialogComponent() {
+                try {
+                    TextInput ti = (TextInput) input;
+                    String rasaJson = rasaHelper.nlu(ti.getText());
+                    RasaResponse rasaIntent = rasaHelper.parseJson(rasaJson);
+//                    System.out.println(rasaIntent);
+                    if (rasaIntent.getRasaIntent().getConfidence() < 0.4) {
+                        return;
+                    }
+                    Intent intent = new Intent(Intent.CommunicativeFunction.Statement, rasaIntent.getRasaIntent().getName());
+                    ti.getSource().ifPresent(s -> intent.setNominative(s));
+                    intentQueue.add(intent);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
 
             @Override
-            public void onEvent(EventEngine engine, Event event) {
-                // a fusion component would check the person ks_map for available persons and then init the set for all persons
-                EKnowledgeSet<Focus> kset = getKnowledgeBase().initKnowledgeSet(Focus.class, "mechanic1");
-
-                //if event is visual focus event
-                kset.add(Focus.create()
-                        .setId("mechanic1")
-                        .setFocus("car")
-                        .setSource("kinect")
-                        .setTimestamp(System.currentTimeMillis()));
-
-                kset.removeOld(5000L);
+            public Optional<Intent> getIntent() {
+                if(intentQueue.isEmpty()) {
+                    return Optional.empty();
+                }
+                return Optional.of(intentQueue.poll());
             }
+
+
+
         };
+
+//        DialogComponent greetingDc = new DialogComponent() {
+//            private TelegramBot tb;
+//
+//            @Override
+//            public void init(Context context) {
+//                tb = (TelegramBot) context.getProjectManager().getInputComponent(ic -> ic instanceof TelegramBot).get();
+//            }
+//
+//            @Override
+//            public void onEvent(EventEngine engine, Event event) {
+//                if (!event.is(Intent.class)) {
+//                    return;
+//                }
+//                Intent intent = (Intent) event.get();
+//                if (Objects.equals(intent.getType(), "greeting")) {
+//                    tb.send("hi " + intent.getNominative());
+//                }
+//                if (Objects.equals(intent.getType(), "thanking")) {
+//                    Random random = new Random();
+//                    if (random.nextBoolean()) {
+//                        tb.send("no problem, " + intent.getNominative());
+//                    } else {
+//                        tb.send("you're welcome");
+//                    }
+//                }
+//                if (Objects.equals(intent.getType(), "goodbye")) {
+//                    tb.send("see you :)");
+//                }
+//
+//            }
+//        };
+        DialogComponent greetingDc = new GreetingBehavior();
+
+        TelegramBot tbot = new TelegramBot();
 
         PSBridge psBridge = PSBridge.build()
                 .subscribe("SheepEvent")
                 .subscribe("BinaryEvent")
                 .build();
 
-        ProjectManager dc = ProjectManager.build()
-                .add(fusion1)
-                .add(psBridge)
+        MetaDialog dialog = new MetaDialog();
+        dialog.addDialogComponent(greetingDc);
+        dialog.addIntentProducer(rasaIc);
+
+        ProjectManager dc = ProjectManager.create(dialog)
+//                .add(fusion1)
+//                .add(psBridge)
+                .add(tbot)
                 .build();
 
 
@@ -140,18 +224,16 @@ public class MainYK {
         timeThread.start();
 
 
+        tbot.start();
 
-
-        dc.getEventEngine().submit(() -> System.out.println("hallo"));
+        dc.getEventEngine().submit(() -> System.out.println("hallo from event queue"));
         dc.run();
     }
 
 
     public static void statechart(String[] args) throws IOException {
         State stateA = State.create("A")
-                .onEntry(() -> {
-                    System.out.println("entered A!");
-                })
+                .onEntry(() -> System.out.println("entered A!"))
                 .onExit(() -> {
 
                 })
@@ -163,26 +245,24 @@ public class MainYK {
         State stateHello = State.create("Goal").build();
 
 
-
-        Transition.Iface helloSaid = event -> {
-            //TODO check that hello was said
-            return true;
+        Transition helloSaid = new Transition("hello", stateA, stateB) {
+            @Override
+            public boolean fires(StateChartEvent eve) {
+                return false;
+            }
         };
 
-        Transition.Iface t2 = event -> {
-            return true;
-        };
 
         StateChart sc = StateChart.create()
                 .setInitialState(stateA)
-                .addTransition("in hello", stateA, stateB, helloSaid)
-                .addTransition("out hello", stateB, stateA, e -> {
-                    return false;
-                })
-                .addTransition("finish", stateB, stateC, t2)
-                .addTransition("D", stateC, stateD, t2)
-                .addTransition("back", stateD, stateA, t2)
-                .addTransition("test", stateD, stateHello, helloSaid)
+                .addTransition(helloSaid)
+//                .addTransition("out hello", stateB, stateA, e -> {
+//                    return false;
+//                })
+//                .addTransition("finish", stateB, stateC, t2)
+//                .addTransition("D", stateC, stateD, t2)
+//                .addTransition("back", stateD, stateA, t2)
+//                .addTransition("test", stateD, stateHello, helloSaid)
                 .build();
 
 

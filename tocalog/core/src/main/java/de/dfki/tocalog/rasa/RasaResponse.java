@@ -1,4 +1,4 @@
-package de.dfki.tocalog.input.rasa;
+package de.dfki.tocalog.rasa;
 
 import java.util.List;
 

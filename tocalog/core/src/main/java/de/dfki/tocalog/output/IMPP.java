@@ -16,7 +16,7 @@ public class IMPP implements AllocationModule {
     private CopyVisitor copyVisitor = new CopyVisitor();
 
     public IMPP() {
-//        root = OutputNode.buildNode(OutputNode.Semantic.concurrent).build();
+//        root = OutputNode.buildNode(OutputNode.Semantic.concurrent).create();
 //        root.
     }
 

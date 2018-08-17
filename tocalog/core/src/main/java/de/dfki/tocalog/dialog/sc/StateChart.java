@@ -1,5 +1,6 @@
 package de.dfki.tocalog.dialog.sc;
 
+import de.dfki.tocalog.dialog.Intent;
 import de.dfki.tocalog.framework.Event;
 import de.dfki.tocalog.framework.EventEngine;
 import org.slf4j.Logger;
@@ -12,7 +13,7 @@ import java.util.stream.Collectors;
 
 /**
  */
-public class StateChart implements EventEngine.Listener {
+public class StateChart {
     private static Logger log = LoggerFactory.getLogger(StateChart.class);
     private final State initialState;
     private final Set<State> states;
@@ -27,7 +28,8 @@ public class StateChart implements EventEngine.Listener {
     }
 
 
-    protected void fireTransition(Transition transition, Event event) {
+    protected void fireTransition(Transition transition, StateChartEvent eve) {
+        log.info("transition fired: {} -{}-> {}", currentState.getId(), transition.getId(), transition.getTarget().getId());
         setCurrentState(transition.getTarget());
     }
 
@@ -48,7 +50,7 @@ public class StateChart implements EventEngine.Listener {
         if(!states.contains(state)) {
             throw new IllegalArgumentException();
         }
-        log.info("state transition {} -> {}", currentState, state);
+        log.debug("state change {} -> {}", currentState.getId(), state.getId());
         currentState.onExit();
         currentState = state;
         currentState.onEntry();
@@ -69,16 +71,21 @@ public class StateChart implements EventEngine.Listener {
         return new Builder();
     }
 
-    @Override
-    public void onEvent(EventEngine engine, Event event) {
+    /**
+     *
+     * @param eve
+     * @return true iff the intent was consumed
+     */
+    public boolean onEvent(StateChartEvent eve) {
         Set<Transition> transitions = getTransitionCandidates(currentState);
         for(Transition transition : transitions) {
-            //TODO seelction strategy
-            if (transition.fires(event)) {
-                fireTransition(transition, event);
-                return;
+            //TODO selection strategy
+            if (transition.fires(eve)) {
+                fireTransition(transition, eve);
+                return true;
             }
         }
+        return false;
     }
 
     public static class Builder {
@@ -86,8 +93,8 @@ public class StateChart implements EventEngine.Listener {
         private Set<Transition> transitions = new HashSet<>();
         private State initialState;
 
-        public Builder addTransition(String id, State source, State target, Transition.Iface fireFnc) {
-            transitions.add(Transition.create(id, source, target, fireFnc));
+        public Builder addTransition(Transition transition) {
+            transitions.add(transition);
             return this;
         }
 

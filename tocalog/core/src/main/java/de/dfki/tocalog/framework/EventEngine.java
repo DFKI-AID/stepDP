@@ -5,6 +5,7 @@ import java.util.*;
 /**
  * Event system, that notifies all registered listeners if an event was submitted.
  * It can also execute arbitrary functions in the same thread.
+ * TODO rename EventQueue
  */
 public class EventEngine implements Runnable {
     private Queue<Runnable> tasks = new ArrayDeque<>();

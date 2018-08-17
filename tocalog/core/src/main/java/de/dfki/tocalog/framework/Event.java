@@ -6,7 +6,7 @@ import java.util.Optional;
  */
 public interface Event<T> {
     default boolean is(Class type) {
-        return get().getClass().isAssignableFrom(type);
+        return type.isAssignableFrom(get().getClass());
     }
 
     String getSource();

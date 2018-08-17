@@ -1,7 +1,5 @@
 package de.dfki.tocalog.dialog.sc;
 
-import de.dfki.tocalog.framework.Event;
-
 /**
  */
 public abstract class Transition {
@@ -26,18 +24,5 @@ public abstract class Transition {
         return id;
     }
 
-    public abstract boolean fires(Event event);
-
-    public interface Iface {
-        boolean fires(Event event);
-    }
-
-    public static Transition create(String id, State source, State target, Iface fireFnc) {
-        return new Transition(id, source, target) {
-            @Override
-            public boolean fires(Event event) {
-                return fireFnc.fires(event);
-            }
-        };
-    }
+    public abstract boolean fires(StateChartEvent eve);
 }

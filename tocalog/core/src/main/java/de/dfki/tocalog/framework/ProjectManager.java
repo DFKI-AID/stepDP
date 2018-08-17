@@ -1,8 +1,16 @@
 package de.dfki.tocalog.framework;
 
+import de.dfki.tocalog.dialog.IntentProducer;
+import de.dfki.tocalog.dialog.MetaDialog;
+import de.dfki.tocalog.input.Input;
+import de.dfki.tocalog.input.TextInput;
 import de.dfki.tocalog.kb.KnowledgeBase;
+import de.dfki.tocalog.output.AllocationModule;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 /**
@@ -12,14 +20,13 @@ import java.util.function.Predicate;
 public class ProjectManager implements Runnable {
     private final EventEngine eventEngine;
     private final KnowledgeBase knowledgeBase;
-    private final List<DialogComponent> dialogComponents;
     private final List<InputComponent> inputComponents;
-
+    private final MetaDialog dialog;
 
     protected ProjectManager(Builder builder) {
         this.eventEngine = builder.eventEngineBuilder.build();
         this.knowledgeBase = builder.knowledgeBase;
-        this.dialogComponents = Collections.unmodifiableList(builder.dialogComponents);
+        this.dialog = builder.metaDialog;
         this.inputComponents = Collections.unmodifiableList(builder.inputComponents);
     }
 
@@ -31,34 +38,35 @@ public class ProjectManager implements Runnable {
         return knowledgeBase;
     }
 
-    public Optional<DialogComponent> getModule(Predicate<DialogComponent> filter) {
-        return dialogComponents.stream()
+
+    public Optional<InputComponent> getInputComponent(Predicate<InputComponent> filter) {
+        return inputComponents.stream()
                 .filter(filter)
                 .findAny();
     }
 
     public void run() {
+        Thread dialogThread = new Thread(dialog);
+        dialogThread.setDaemon(true);
+        dialogThread.start();
         eventEngine.run();
     }
 
-    public static Builder build() {
-        return new Builder();
+    public static Builder create(MetaDialog dialog) {
+        return new Builder(dialog);
     }
 
     public static class Builder {
         protected EventEngine.Builder eventEngineBuilder = EventEngine.build();
         protected KnowledgeBase knowledgeBase = new KnowledgeBase();
-        protected List<DialogComponent> dialogComponents = new ArrayList<>();
         protected List<InputComponent> inputComponents = new ArrayList<>();
+        protected MetaDialog metaDialog; //TODO maybe accept dialog as arg
 
-        public Builder() {
+
+        protected Builder(MetaDialog dialog) {
+            this.metaDialog = dialog;
         }
 
-        public Builder add(DialogComponent fusionModule) {
-            eventEngineBuilder.addListener(fusionModule);
-            dialogComponents.add(fusionModule);
-            return this;
-        }
 
         public Builder add(InputComponent component) {
             eventEngineBuilder.addListener(component);
@@ -67,11 +75,28 @@ public class ProjectManager implements Runnable {
         }
 
         public ProjectManager build() {
+            //glue Inputs from event system to dialog
+            eventEngineBuilder.addListener((ee, eve) -> {
+                if (!eve.is(Input.class)) {
+                    return;
+                }
+                metaDialog.getIntentProducer().add((Input) eve.get());
+            });
+
             ProjectManager dc = new ProjectManager(this);
-            for(DialogComponent fm : dialogComponents) {
-                fm.init(() -> dc);
-            }
-            for(InputComponent ic : inputComponents) {
+            metaDialog.init(new DialogComponent.Context() {
+                @Override
+                public KnowledgeBase getKnowledgeBase() {
+                    return knowledgeBase;
+                }
+
+                @Override
+                public AllocationModule getAllocatioModule() {
+                    return null; //TODO
+                }
+            });
+
+            for (InputComponent ic : inputComponents) {
                 ic.init(new InputComponent.Context() {
                     @Override
                     public KnowledgeBase getKnowledgeBase() {
@@ -84,6 +109,9 @@ public class ProjectManager implements Runnable {
                     }
                 });
             }
+
+
+
             return dc;
         }
     }

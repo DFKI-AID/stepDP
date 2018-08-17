@@ -1,7 +1,11 @@
 package de.dfki.tocalog.telegram;
 
-import de.dfki.tocalog.input.rasa.RasaInputHandler;
-import de.dfki.tocalog.input.rasa.RasaResponse;
+import de.dfki.tocalog.input.TextInput;
+import de.dfki.tocalog.framework.Event;
+import de.dfki.tocalog.framework.EventEngine;
+import de.dfki.tocalog.framework.InputComponent;
+import de.dfki.tocalog.rasa.RasaHelper;
+import de.dfki.tocalog.rasa.RasaResponse;
 import de.dfki.tocalog.wiki.WikiMedia;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,24 +18,39 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.io.IOException;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
  */
-public class TelegramBot extends TelegramLongPollingBot {
+public class TelegramBot extends TelegramLongPollingBot implements InputComponent {
     private static Logger log = LoggerFactory.getLogger(TelegramBot.class);
     private Pattern commandPattern = Pattern.compile("/([a-zA-Z0-9_]+)\\s*([a-zA-Z0-9\\s]*)");
-    private WikiMedia wikiMedia = new WikiMedia();
+    private WikiMedia wikiMedia;// = new WikiMedia();
+    private Context context;
+    private TelegramBotsApi botsApi;
+    private long lastChatId;
 
-    public static void main(String[] args) {
+    static {
         ApiContextInitializer.init();
+    }
 
-        TelegramBotsApi botsApi = new TelegramBotsApi();
+    public void start() {
+
+        botsApi = new TelegramBotsApi();
 
         try {
-            botsApi.registerBot(new TelegramBot());
+            botsApi.registerBot(this);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void send(String msg) {
+        SendMessage message = new SendMessage() // Create a SendMessage object with mandatory fields
+                .setChatId(lastChatId)
+                .setText(msg);
+        try {
+            execute(message); // Call method to send the message
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
@@ -45,33 +64,39 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
 
 
+
         Message msg = update.getMessage();
         if (!msg.hasText()) {
             return;
         }
         String text = msg.getText();
-        Matcher matcher = commandPattern.matcher(text);
-        if (!matcher.matches()) {
-            return;
-        }
-        String command = matcher.group(1);
-        String arg = matcher.group(2);
-        log.info("received command {} {}", command, arg);
 
-
-        User user = msg.getFrom();
-        if (user == null) {
-            return;
-        }
-
-        if(command.equals("gender")) {
-            handleGenderCommand(update);
-        }
-
-
-        if(command.equals("rasa")) {
-            handleRasaCommand(update, arg);
-        }
+        lastChatId = msg.getChatId();
+        TextInput ti = new TextInput(text);
+        ti.setSource(msg.getFrom().getFirstName());
+        context.getEventEngine().submit(Event.build(ti).setSource(TelegramBot.class.getSimpleName()).build());
+//        Matcher matcher = commandPattern.matcher(text);
+//        if (!matcher.matches()) {
+//            return;
+//        }
+//        String command = matcher.group(1);
+//        String arg = matcher.group(2);
+//        log.info("received command {} {}", command, arg);
+//
+//
+//        User user = msg.getFrom();
+//        if (user == null) {
+//            return;
+//        }
+//
+//        if (command.equals("gender")) {
+//            handleGenderCommand(update);
+//        }
+//
+//
+//        if (command.equals("rasa")) {
+//            handleRasaCommand(update, arg);
+//        }
 
     }
 
@@ -90,12 +115,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     private void handleRasaCommand(Update update, String arg) {
-        RasaInputHandler rsh = new RasaInputHandler() {
-            @Override
-            public void handleIntent(RasaResponse response) {
-
-            }
-        };
+        RasaHelper rsh = new RasaHelper();
         try {
             String rasaJson = rsh.nlu(arg);
             RasaResponse rasaRsp = rsh.parseJson(rasaJson);
@@ -118,5 +138,15 @@ public class TelegramBot extends TelegramLongPollingBot {
     @Override
     public String getBotToken() {
         return "620685796:AAGaZtrIThApilcLvNBNyqnhJEMNDyDpZl4";
+    }
+
+    @Override
+    public void init(Context context) {
+        this.context = context;
+    }
+
+    @Override
+    public void onEvent(EventEngine engine, Event event) {
+
     }
 }

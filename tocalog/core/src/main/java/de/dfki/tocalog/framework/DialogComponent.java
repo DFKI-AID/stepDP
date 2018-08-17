@@ -1,17 +1,27 @@
 package de.dfki.tocalog.framework;
 
+import de.dfki.tocalog.dialog.Intent;
 import de.dfki.tocalog.kb.KnowledgeBase;
+import de.dfki.tocalog.output.AllocationModule;
 
 /**
  */
-public interface DialogComponent extends EventEngine.Listener {
+public interface DialogComponent {
     void init(Context context);
 
-    interface Context {
-        ProjectManager getProjectManager();
+    /**
+     * @param intent
+     * @return true iff the intent was consumed by this component
+     */
+    boolean onIntent(Intent intent);
 
-        default KnowledgeBase getKnowledgeBase() {
-            return getProjectManager().getKnowledgeBase();
-        }
+    void update();
+
+    interface Context {
+//        ProjectManager getProjectManager();
+
+        KnowledgeBase getKnowledgeBase();
+
+        AllocationModule getAllocatioModule();
     }
 }

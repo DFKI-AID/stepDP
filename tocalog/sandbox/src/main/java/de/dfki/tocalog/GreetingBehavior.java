@@ -1,0 +1,103 @@
+package de.dfki.tocalog;
+
+import de.dfki.tecs.util.IntervalHelper;
+import de.dfki.tocalog.dialog.Intent;
+import de.dfki.tocalog.dialog.sc.State;
+import de.dfki.tocalog.dialog.sc.StateChart;
+import de.dfki.tocalog.dialog.sc.StateChartEvent;
+import de.dfki.tocalog.dialog.sc.Transition;
+import de.dfki.tocalog.framework.DialogComponent;
+import de.dfki.tocalog.output.AllocationModule;
+import de.dfki.tocalog.output.TextOutput;
+import de.dfki.tocalog.output.impp.OutputNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class GreetingBehavior implements DialogComponent {
+    private Logger log = LoggerFactory.getLogger(GreetingBehavior.class);
+    private StateChart sc;
+    private IntervalHelper ih = new IntervalHelper(500);
+    private long greetedTimestamp;
+    private long greetedTimeout = 3000L;
+
+    @Override
+    public void init(Context context) {
+//            TelegramBot tb = (TelegramBot) context.getProjectManager().getInputComponent(ic -> ic instanceof TelegramBot).get();
+        AllocationModule out = context.getAllocatioModule();
+        State ngs = new State("NotGreeted") {
+            @Override
+            protected void onEntry() {
+
+            }
+
+            @Override
+            protected void onExit() {
+
+            }
+        };
+        State gs = new State("Greeted") {
+
+            @Override
+            protected void onEntry() {
+                greetedTimestamp = System.currentTimeMillis();
+            }
+
+            @Override
+            protected void onExit() {
+
+            }
+        };
+        Transition greetingTransition = new Transition("greetings", ngs, gs) {
+            @Override
+            public boolean fires(StateChartEvent eve) {
+                if (!eve.getIntent().isPresent()) {
+                    return false;
+                }
+                Intent intent = eve.getIntent().get();
+                if (!intent.getType().equals("greeting")) {
+                    return false;
+                }
+                TextOutput output = new TextOutput("hi " + intent.getNominative());
+                OutputNode node =
+                        OutputNode.buildNode(OutputNode.Semantic.concurrent)
+                                .addNode(OutputNode.buildNode(output).build())
+                                .build();
+                log.info("would output something :)");
+//                    out.allocate(node);
+//                    out.send("hi " + intent.getNominative());
+                return true;
+            }
+        };
+
+        Transition resetTransition = new Transition("reset", gs, ngs) {
+            @Override
+            public boolean fires(StateChartEvent eve) {
+                if (greetedTimestamp + 3000 < System.currentTimeMillis()) {
+                    log.debug("resetting greeting");
+                    return true;
+                }
+                return false;
+            }
+        };
+
+        sc = StateChart.create()
+                .setInitialState(ngs)
+                .addTransition(greetingTransition)
+                .addTransition(resetTransition)
+                .build();
+    }
+
+    @Override
+    public boolean onIntent(Intent intent) {
+        return sc.onEvent(new StateChartEvent(intent));
+    }
+
+    @Override
+    public void update() {
+        if (!ih.shouldExecute()) {
+            return;
+        }
+        sc.onEvent(new StateChartEvent());
+    }
+
+}

@@ -1,19 +1,20 @@
-package de.dfki.tocalog.input.rasa;
+package de.dfki.tocalog.rasa;
 
 import com.google.gson.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class RasaInputHandler {
+public class RasaHelper {
+    private static Logger log = LoggerFactory.getLogger(RasaHelper.class);
 
     /**
      * text -> rasa json
@@ -36,9 +37,9 @@ public abstract class RasaInputHandler {
         byte[] binPayload = payload.getBytes(StandardCharsets.UTF_8);
         con.getOutputStream().write(binPayload);
 
+        log.debug("Sending 'GET' request to URL {}", url);
         int responseCode = con.getResponseCode();
-        System.out.println("\nSending 'GET' request to URL : " + url);
-        System.out.println("Response Code : " + responseCode);
+        log.debug("Response Code: {}", responseCode);
 
         BufferedReader in = new BufferedReader(
                 new InputStreamReader(con.getInputStream()));
@@ -50,7 +51,7 @@ public abstract class RasaInputHandler {
         }
         in.close();
 
-        System.out.println(response.toString());
+        log.debug("Response: {}", response.toString());
         return response.toString();
     }
 
@@ -61,7 +62,7 @@ public abstract class RasaInputHandler {
         //get intent
         JsonObject jsonIntent = obj.getAsJsonObject("intent");
         RasaIntent rasaIntent = gson.fromJson(jsonIntent, RasaIntent.class);
-        System.out.println(rasaIntent.getName());
+        log.debug("rasaIntent={}", rasaIntent);
 
         //get entities
         JsonArray jsonEntities = obj.getAsJsonArray("entities");
@@ -71,8 +72,8 @@ public abstract class RasaInputHandler {
                 rasaEntities.add(gson.fromJson(entity, RasaEntity.class));
             }
 
-            System.out.println(rasaEntities.get(0).getValue());
-            System.out.println(rasaEntities.get(0).getEntity());
+            log.debug("{}", rasaEntities.get(0).getValue());
+            log.debug("{}", rasaEntities.get(0).getEntity());
         }
 
         //get intent ranking
@@ -83,8 +84,8 @@ public abstract class RasaInputHandler {
                 rasaIntents.add(gson.fromJson(intent, RasaIntent.class));
             }
 
-            System.out.println(rasaIntents.get(0).getName());
-            System.out.println(rasaIntents.get(1).getName());
+            log.debug("{}", rasaIntents.get(0).getName());
+            log.debug("{}", rasaIntents.get(1).getName());
         }
 
         //get text
@@ -97,13 +98,8 @@ public abstract class RasaInputHandler {
         rasaResponse.setRasaEntityList(rasaEntities);
         rasaResponse.setIntentRankingList(rasaIntents);
         rasaResponse.setRequestString(text);
-        System.out.println("Rasaresponse: " + rasaResponse.toString());
+        log.debug("Rasaresponse: {}", rasaResponse.toString());
 
         return rasaResponse;
-
     }
-
-    public abstract void handleIntent(RasaResponse response);
-
-
 }

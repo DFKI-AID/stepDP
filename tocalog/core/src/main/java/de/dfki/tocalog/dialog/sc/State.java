@@ -35,8 +35,8 @@ public abstract class State {
         }
 
         private final String id;
-        private OnEntry onEntryFnc;
-        private OnExit onExitFnc;
+        private Runnable onEntryFnc;
+        private Runnable onExitFnc;
 
         public Builder(String id) {
             this.id = id;
@@ -49,7 +49,7 @@ public abstract class State {
                     if (onEntryFnc == null) {
                         return;
                     }
-                    onEntryFnc.onEntry();
+                    onEntryFnc.run();
                 }
 
                 @Override
@@ -57,19 +57,21 @@ public abstract class State {
                     if (onExitFnc == null) {
                         return;
                     }
-                    onExitFnc.onExit();
+                    onExitFnc.run();
                 }
             };
         }
 
-        public Builder onExit(OnExit onExit) {
+        public Builder onExit(Runnable onExit) {
             this.onExitFnc = onExit;
             return this;
         }
 
-        public Builder onEntry(OnEntry onEntry) {
+        public Builder onEntry(Runnable onEntry) {
             this.onEntryFnc = onEntry;
             return this;
         }
     }
+
+
 }

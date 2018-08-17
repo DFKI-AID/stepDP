@@ -1,8 +1,10 @@
 package de.dfki.tocalog;
 
 
-import de.dfki.tocalog.input.rasa.RasaResponse;
-import de.dfki.tocalog.input.rasa.RasaResponseHandler;
+import de.dfki.tocalog.rasa.RasaResponse;
+import de.dfki.tocalog.rasa.RasaResponseHandler;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -14,6 +16,8 @@ public class MainMK {
 
 
     public static void main(String[] args) throws Exception {
+        BasicConfigurator.configure();
+        org.apache.log4j.Logger.getRootLogger().setLevel(Level.INFO);
 
         MainMK http = new MainMK();
 
@@ -21,7 +25,7 @@ public class MainMK {
         String responseString = http.sendGet();
         RasaResponseHandler responseHandler = new RasaResponseHandler();
         RasaResponse response = responseHandler.parseJson(responseString);
-        responseHandler.handleIntent(response);
+//        responseHandler.handleIntent(response);
 
     }
 
