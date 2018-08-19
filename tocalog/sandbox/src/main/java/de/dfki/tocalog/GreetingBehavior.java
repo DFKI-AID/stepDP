@@ -7,7 +7,7 @@ import de.dfki.tocalog.dialog.sc.StateChart;
 import de.dfki.tocalog.dialog.sc.StateChartEvent;
 import de.dfki.tocalog.dialog.sc.Transition;
 import de.dfki.tocalog.framework.DialogComponent;
-import de.dfki.tocalog.output.AllocationModule;
+import de.dfki.tocalog.output.OutputComponent;
 import de.dfki.tocalog.output.TextOutput;
 import de.dfki.tocalog.output.impp.OutputNode;
 import org.slf4j.Logger;
@@ -23,7 +23,7 @@ public class GreetingBehavior implements DialogComponent {
     @Override
     public void init(Context context) {
 //            TelegramBot tb = (TelegramBot) context.getProjectManager().getInputComponent(ic -> ic instanceof TelegramBot).get();
-        AllocationModule out = context.getAllocatioModule();
+        OutputComponent out = context.getAllocatioModule();
         State ngs = new State("NotGreeted") {
             @Override
             protected void onEntry() {

@@ -4,6 +4,8 @@ import de.dfki.tocalog.input.TextInput;
 import de.dfki.tocalog.framework.Event;
 import de.dfki.tocalog.framework.EventEngine;
 import de.dfki.tocalog.framework.InputComponent;
+import de.dfki.tocalog.kb.EKnowledgeMap;
+import de.dfki.tocalog.model.Service;
 import de.dfki.tocalog.rasa.RasaHelper;
 import de.dfki.tocalog.rasa.RasaResponse;
 import de.dfki.tocalog.wiki.WikiMedia;
@@ -18,6 +20,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 /**
@@ -143,6 +146,10 @@ public class TelegramBot extends TelegramLongPollingBot implements InputComponen
     @Override
     public void init(Context context) {
         this.context = context;
+        EKnowledgeMap<Service> ks = context.getKnowledgeBase().getKnowledgeStore(Service.class);
+        Service s = Service.create();
+        s.setType("telegram");
+        s.setId(UUID.randomUUID().toString());
     }
 
     @Override

@@ -18,7 +18,7 @@ public abstract class OutputNode {
 
     protected abstract void accept(Visitor visitor);
 
-    protected Optional<String> id;
+    protected Optional<String> id; //TODO remove optional, id should always be present
 
     public Optional<String> getId() {
         return id;
@@ -47,7 +47,7 @@ public abstract class OutputNode {
 
     public static class External extends OutputNode {
         private Output output;
-        private List<String> services;
+        private List<String> services; //TODO remove, service assignment should be stored in extra data structure
 
         private External(Builder builder) {
             this.output = builder.output;

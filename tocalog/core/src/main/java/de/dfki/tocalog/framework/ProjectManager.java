@@ -1,11 +1,9 @@
 package de.dfki.tocalog.framework;
 
-import de.dfki.tocalog.dialog.IntentProducer;
 import de.dfki.tocalog.dialog.MetaDialog;
 import de.dfki.tocalog.input.Input;
-import de.dfki.tocalog.input.TextInput;
 import de.dfki.tocalog.kb.KnowledgeBase;
-import de.dfki.tocalog.output.AllocationModule;
+import de.dfki.tocalog.output.OutputComponent;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -91,7 +89,7 @@ public class ProjectManager implements Runnable {
                 }
 
                 @Override
-                public AllocationModule getAllocatioModule() {
+                public OutputComponent getAllocatioModule() {
                     return null; //TODO
                 }
             });
