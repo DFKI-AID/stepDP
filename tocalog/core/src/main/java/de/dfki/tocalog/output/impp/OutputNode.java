@@ -7,6 +7,11 @@ import java.util.*;
 /**
  */
 public abstract class OutputNode {
+
+    protected OutputNode(String id) {
+        this.id = id == null ? UUID.randomUUID().toString() : id;
+    }
+
     public enum Semantic {
         redundant,
         complementary,
@@ -18,12 +23,11 @@ public abstract class OutputNode {
 
     protected abstract void accept(Visitor visitor);
 
-    protected Optional<String> id; //TODO remove optional, id should always be present
+    protected final String id;
 
-    public Optional<String> getId() {
+    public String getId() {
         return id;
     }
-
 
 
     public static Internal.Builder buildNode(Semantic semantic) {
@@ -50,9 +54,9 @@ public abstract class OutputNode {
         private List<String> services; //TODO remove, service assignment should be stored in extra data structure
 
         private External(Builder builder) {
+            super(builder.id);
             this.output = builder.output;
             this.services = builder.services;
-            this.id = builder.id;
         }
 
         @Override
@@ -70,7 +74,7 @@ public abstract class OutputNode {
 
         public External copy() {
             Builder builder = new Builder(output);
-            for(String service : services) {
+            for (String service : services) {
                 builder.addService(service);
             }
             return builder.build();
@@ -83,7 +87,7 @@ public abstract class OutputNode {
         public static class Builder {
             private Output output;
             private List<String> services = new ArrayList<>();
-            private Optional<String> id = Optional.empty();
+            private String id = null;
 
             public Builder(Output output) {
                 this.output = output;
@@ -95,7 +99,7 @@ public abstract class OutputNode {
             }
 
             public Builder setId(String id) {
-                this.id = Optional.of(id);
+                this.id = id;
                 return this;
             }
 
@@ -110,9 +114,9 @@ public abstract class OutputNode {
         private List<OutputNode> childNodes = new ArrayList<>();
 
         private Internal(Builder builder) {
+            super(builder.id);
             this.semantic = builder.semantic;
             this.childNodes = builder.childNodes;
-            this.id = builder.id;
         }
 
         public Semantic getSemantic() {
@@ -131,7 +135,7 @@ public abstract class OutputNode {
         public static class Builder {
             private Semantic semantic;
             private List<OutputNode> childNodes = new ArrayList<>();
-            private Optional<String> id = Optional.empty();
+            private String id = null;
 
             public Builder(Semantic semantic) {
                 this.semantic = semantic;
@@ -148,7 +152,7 @@ public abstract class OutputNode {
             }
 
             public Builder setId(String id) {
-                this.id = Optional.of(id);
+                this.id = id;
                 return this;
             }
 

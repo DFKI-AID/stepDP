@@ -162,7 +162,7 @@ public class SessionImpl implements de.dfki.tocalog.model.Session{
 
     @Override
     public Session copy() {
-        Session copy = de.dfki.tocalog.model.Session.factory.create();
+        SessionImpl copy = new SessionImpl();
         if(agents.isPresent()) {
         	java.util.ArrayList<java.lang.String> fieldCopy;
         	fieldCopy = new java.util.ArrayList<>();
@@ -173,6 +173,9 @@ public class SessionImpl implements de.dfki.tocalog.model.Session{
             }
         	copy.setAgents(fieldCopy);
         }
+        
+
+        copy.Entity_composite = java.util.Optional.of(this.Entity_composite.get().copy());
         
         return copy;
     }

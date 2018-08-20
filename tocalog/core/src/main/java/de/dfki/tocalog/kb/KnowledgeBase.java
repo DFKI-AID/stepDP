@@ -13,7 +13,7 @@ public class KnowledgeBase {
     private Map<Class, EKnowledgeMap> kmap = new HashMap<>();
     private Map<Key, EKnowledgeSet> kset = new HashMap<>();
 
-    public synchronized <S extends Entity> EKnowledgeMap<S> getKnowledgeStore(Class<S> type) {
+    public synchronized <S extends Entity> EKnowledgeMap<S> getKnowledgeMap(Class<S> type) {
         EKnowledgeMap ks = kmap.get(type);
         if (ks == null) {
             ks = new EKnowledgeMap();
@@ -22,7 +22,7 @@ public class KnowledgeBase {
         return ks;
     }
 
-    public synchronized <S extends Entity> EKnowledgeSet<S> getEKnowledgeSet(Class<S> type, String id) {
+    public synchronized <S extends Entity> EKnowledgeSet<S> getKnowledgeSet(Class<S> type, String id) {
         Key key = new Key(type, id);
         EKnowledgeSet ks = kset.get(type);
         if (ks == null) {

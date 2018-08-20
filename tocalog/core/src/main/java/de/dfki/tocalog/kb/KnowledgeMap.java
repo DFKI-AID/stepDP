@@ -50,6 +50,19 @@ public class KnowledgeMap<T extends Base> {
             unlock();
         }
     }
+
+    public Set<T> getAll() {
+        try {
+            lock();
+            Set<T> result = new HashSet<>();
+            for (T entity : store.values()) {
+                result.add(copy(entity));
+            }
+            return result;
+        } finally {
+            unlock();
+        }
+    }
 //
 //    public synchronized Set<T> getAll() {
 //        return getIf((e) -> true);

@@ -183,7 +183,7 @@ public class FocusImpl implements de.dfki.tocalog.model.Focus{
 
     @Override
     public Focus copy() {
-        Focus copy = de.dfki.tocalog.model.Focus.factory.create();
+        FocusImpl copy = new FocusImpl();
         if(agent.isPresent()) {
         	java.lang.String fieldCopy;
         	fieldCopy = agent.get();
@@ -194,6 +194,9 @@ public class FocusImpl implements de.dfki.tocalog.model.Focus{
         	fieldCopy = focus.get();
         	copy.setFocus(fieldCopy);
         }
+        
+
+        copy.Entity_composite = java.util.Optional.of(this.Entity_composite.get().copy());
         
         return copy;
     }

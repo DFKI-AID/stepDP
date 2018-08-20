@@ -153,12 +153,15 @@ public class DeviceComponentImpl implements de.dfki.tocalog.model.DeviceComponen
 
     @Override
     public DeviceComponent copy() {
-        DeviceComponent copy = de.dfki.tocalog.model.DeviceComponent.factory.create();
+        DeviceComponentImpl copy = new DeviceComponentImpl();
         if(device.isPresent()) {
         	java.lang.String fieldCopy;
         	fieldCopy = device.get();
         	copy.setDevice(fieldCopy);
         }
+        
+
+        copy.Entity_composite = java.util.Optional.of(this.Entity_composite.get().copy());
         
         return copy;
     }

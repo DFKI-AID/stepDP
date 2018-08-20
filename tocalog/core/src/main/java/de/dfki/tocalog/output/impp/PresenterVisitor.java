@@ -10,7 +10,7 @@ public class PresenterVisitor implements OutputNode.Visitor {
     public void visitInnerNode(OutputNode.Internal node) {
         OutputNode.Internal.Builder builder = currentBuilder;
         currentBuilder = OutputNode.buildNode(node.getSemantic());
-        node.getId().ifPresent(id -> currentBuilder.setId(id));
+        currentBuilder.setId(node.getId());
 
         switch (node.getSemantic()) {
             case redundant:
@@ -51,7 +51,7 @@ public class PresenterVisitor implements OutputNode.Visitor {
     }
 
     public void visitLeaf(OutputNode.External leaf) {
-        //TODO does not work leaf only trees
+        //TODO does not work for leaf-only trees
 
         OutputNode.External leafCopy = leaf.copy();
         currentBuilder.addNode(leafCopy);

@@ -4,6 +4,7 @@ package de.dfki.tocalog.output.impp;
  */
 public class AllocationState {
     public enum State {
+        UNKNOWN,
         NONE,
         INIT,
         PRESENTING,
@@ -44,4 +45,8 @@ public class AllocationState {
     }
 
     public static AllocationState NONE = new AllocationState(State.NONE);
+
+    public static AllocationState Error(Exception error) {
+        return new AllocationState(State.ERROR, error);
+    }
 }

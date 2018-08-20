@@ -167,7 +167,7 @@ public class EntityImpl implements de.dfki.tocalog.model.Entity{
 
     @Override
     public Entity copy() {
-        Entity copy = de.dfki.tocalog.model.Entity.factory.create();
+        EntityImpl copy = new EntityImpl();
         if(id.isPresent()) {
         	java.lang.String fieldCopy;
         	fieldCopy = id.get();
@@ -183,6 +183,8 @@ public class EntityImpl implements de.dfki.tocalog.model.Entity{
         	fieldCopy = source.get();
         	copy.setSource(fieldCopy);
         }
+        
+
         
         return copy;
     }

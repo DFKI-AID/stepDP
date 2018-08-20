@@ -6,6 +6,10 @@ import de.dfki.tocalog.framework.EventEngine;
 import de.dfki.tocalog.framework.InputComponent;
 import de.dfki.tocalog.kb.EKnowledgeMap;
 import de.dfki.tocalog.model.Service;
+import de.dfki.tocalog.output.Output;
+import de.dfki.tocalog.output.OutputComponent;
+import de.dfki.tocalog.output.TextOutput;
+import de.dfki.tocalog.output.impp.AllocationState;
 import de.dfki.tocalog.rasa.RasaHelper;
 import de.dfki.tocalog.rasa.RasaResponse;
 import de.dfki.tocalog.wiki.WikiMedia;
@@ -20,12 +24,14 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
 /**
  */
-public class TelegramBot extends TelegramLongPollingBot implements InputComponent {
+public class TelegramBot extends TelegramLongPollingBot implements InputComponent, OutputComponent {
     private static Logger log = LoggerFactory.getLogger(TelegramBot.class);
     private Pattern commandPattern = Pattern.compile("/([a-zA-Z0-9_]+)\\s*([a-zA-Z0-9\\s]*)");
     private WikiMedia wikiMedia;// = new WikiMedia();
@@ -66,15 +72,17 @@ public class TelegramBot extends TelegramLongPollingBot implements InputComponen
             return;
         }
 
-
-
         Message msg = update.getMessage();
         if (!msg.hasText()) {
             return;
         }
         String text = msg.getText();
 
-        lastChatId = msg.getChatId();
+        Long userId = msg.getChatId();
+        EKnowledgeMap<Service> km = context.getKnowledgeBase().getKnowledgeMap(Service.class);
+        Service service = Service.create().setType("telegram").setId(userId.toString());
+        km.add(service);
+
         TextInput ti = new TextInput(text);
         ti.setSource(msg.getFrom().getFirstName());
         context.getEventEngine().submit(Event.build(ti).setSource(TelegramBot.class.getSimpleName()).build());
@@ -100,6 +108,14 @@ public class TelegramBot extends TelegramLongPollingBot implements InputComponen
 //        if (command.equals("rasa")) {
 //            handleRasaCommand(update, arg);
 //        }
+
+    }
+
+    private void sendText(long chatId, String text) throws TelegramApiException {
+        SendMessage message = new SendMessage()
+                .setChatId(chatId)
+                .setText(text);
+        execute(message);
 
     }
 
@@ -146,14 +162,59 @@ public class TelegramBot extends TelegramLongPollingBot implements InputComponen
     @Override
     public void init(Context context) {
         this.context = context;
-        EKnowledgeMap<Service> ks = context.getKnowledgeBase().getKnowledgeStore(Service.class);
-        Service s = Service.create();
-        s.setType("telegram");
-        s.setId(UUID.randomUUID().toString());
+//        EKnowledgeMap<Service> ks = context.getKnowledgeBase().getKnowledgeMap(Service.class);
+//        Service s = Service.create();
+//        s.setType("telegram");
+//        s.setId(UUID.randomUUID().toString());
+//        ks.add(s);
     }
 
     @Override
     public void onEvent(EventEngine engine, Event event) {
 
+    }
+
+
+    private Map<String, AllocationState> allocationStates = new HashMap<>();
+
+    @Override
+    public String allocate(Output output, Service service) {
+        String id = UUID.randomUUID().toString();
+        if (!handles(output, service)) {
+            String errMsg = String.format("Can't output {} on {}", output, service);
+            log.warn(errMsg);
+            allocationStates.put(id, new AllocationState(AllocationState.State.ERROR, new IllegalArgumentException(errMsg)));
+            return id;
+        }
+
+        TextOutput to = (TextOutput) output;
+        try {
+            allocationStates.put(id, new AllocationState(AllocationState.State.INIT));
+            //TODO is this blocking?
+            sendText(Long.parseLong(service.getId().get()), to.getText());
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+            allocationStates.put(id, new AllocationState(AllocationState.State.ERROR, e));
+        }
+        return id;
+    }
+
+    @Override
+    public AllocationState getState(String id) {
+        return new AllocationState(AllocationState.State.UNKNOWN);
+    }
+
+    @Override
+    public boolean handles(Output output, Service service) {
+        if (!(output instanceof TextOutput)) {
+            return false;
+        }
+        if (!service.getType().isPresent()) {
+            return false;
+        }
+        if (!service.getId().isPresent()) {
+            return false;
+        }
+        return service.getType().get().equals("telegram");
     }
 }

@@ -17,7 +17,7 @@ public class CopyVisitor implements OutputNode.Visitor {
     public void visitInnerNode(OutputNode.Internal node) {
 
         OutputNode.Internal.Builder copyBuilder = OutputNode.buildNode(node.getSemantic());
-        node.getId().ifPresent(id -> copyBuilder.setId(id));
+        copyBuilder.setId(node.getId());
         nodes.push(copyBuilder);
         for(OutputNode child : node.getChildNodes()) {
             child.accept(this);

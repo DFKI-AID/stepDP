@@ -2,6 +2,7 @@ package de.dfki.tocalog.framework;
 
 import de.dfki.tocalog.dialog.Intent;
 import de.dfki.tocalog.kb.KnowledgeBase;
+import de.dfki.tocalog.output.IMPP;
 import de.dfki.tocalog.output.OutputComponent;
 
 /**
@@ -22,6 +23,6 @@ public interface DialogComponent {
 
         KnowledgeBase getKnowledgeBase();
 
-        OutputComponent getAllocatioModule();
+        IMPP getAllocatioModule();
     }
 }

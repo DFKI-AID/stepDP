@@ -7,6 +7,7 @@ import de.dfki.tocalog.dialog.sc.StateChart;
 import de.dfki.tocalog.dialog.sc.StateChartEvent;
 import de.dfki.tocalog.dialog.sc.Transition;
 import de.dfki.tocalog.framework.DialogComponent;
+import de.dfki.tocalog.output.IMPP;
 import de.dfki.tocalog.output.OutputComponent;
 import de.dfki.tocalog.output.TextOutput;
 import de.dfki.tocalog.output.impp.OutputNode;
@@ -23,7 +24,7 @@ public class GreetingBehavior implements DialogComponent {
     @Override
     public void init(Context context) {
 //            TelegramBot tb = (TelegramBot) context.getProjectManager().getInputComponent(ic -> ic instanceof TelegramBot).get();
-        OutputComponent out = context.getAllocatioModule();
+        IMPP out = context.getAllocatioModule();
         State ngs = new State("NotGreeted") {
             @Override
             protected void onEntry() {
@@ -58,11 +59,10 @@ public class GreetingBehavior implements DialogComponent {
                     return false;
                 }
                 TextOutput output = new TextOutput("hi " + intent.getNominative());
-                OutputNode node =
-                        OutputNode.buildNode(OutputNode.Semantic.concurrent)
-                                .addNode(OutputNode.buildNode(output).build())
-                                .build();
-                log.info("would output something :)");
+                OutputNode node = OutputNode.buildNode(output).build();
+                out.allocate(node);
+
+                //log.info("would output something :)");
 //                    out.allocate(node);
 //                    out.send("hi " + intent.getNominative());
                 return true;
@@ -97,7 +97,7 @@ public class GreetingBehavior implements DialogComponent {
         if (!ih.shouldExecute()) {
             return;
         }
-        sc.onEvent(new StateChartEvent());
+        sc.onEvent(new StateChartEvent()); //will trigger the reset transition at some point
     }
 
 }

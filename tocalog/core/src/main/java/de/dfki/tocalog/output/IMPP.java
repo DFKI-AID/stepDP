@@ -1,32 +1,36 @@
 package de.dfki.tocalog.output;
 
-import de.dfki.tocalog.model.Service;
-import de.dfki.tocalog.output.impp.AllocationState;
-import de.dfki.tocalog.output.impp.CopyVisitor;
-import de.dfki.tocalog.output.impp.OutputNode;
+import de.dfki.tocalog.kb.KnowledgeBase;
+import de.dfki.tocalog.output.impp.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  */
-public class IMPP implements OutputComponent {
+public class IMPP {
+    private final KnowledgeBase kb;
     private OutputNode root;
     private Map<String, OutputNode> allocations = new HashMap<>();
     private Map<String, AllocationState> allocationStates = new HashMap<>();
     private CopyVisitor copyVisitor = new CopyVisitor();
-    private List<OutputComponent> components = new ArrayList<>();
+    private Set<OutputComponent> components = new HashSet<>();
 
-    public IMPP() {
+    public IMPP(KnowledgeBase kb) {
+        this.kb = kb;
 //        root = OutputNode.buildNode(OutputNode.Semantic.concurrent).create();
 //        root.
     }
 
-    @Override
-    public String allocate(OutputNode output) {
-        output = copyVisitor.copy(output).build();
+    public String allocate(OutputNode output) { //TODO OutputRequest? what, when, whom? how?
+        //output = copyVisitor.copy(output).build();
+
+
+        FindCandidateVisitor cf = new FindCandidateVisitor(this);
+        Map<String, Assignment> assignments = cf.visit(output);
+
+        AllocateVisitor av = new AllocateVisitor(this);
+        Map<String, String> allocationIds = av.visit(output, assignments);
+
 
         // AssignServiceVisitor ... a set of them
         // find suitable services for output
@@ -44,12 +48,11 @@ public class IMPP implements OutputComponent {
         // create AllocationState for each node
         // create visitor that updates the allocation state
 
-        copyVisitor.copy(output);
+        //copyVisitor.copy(output);
 
         return null;
     }
 
-    @Override
     public AllocationState getState(String id) {
 
         if (!allocationStates.containsKey(id)) {
@@ -59,17 +62,25 @@ public class IMPP implements OutputComponent {
         return null;
     }
 
-    @Override
-    public boolean handles(Service service) {
-        for (OutputComponent component : components) {
-            if (component.handles(service)) {
-                return true;
-            }
-        }
-        return false;
-    }
+//    @Override
+//    public boolean handles(Service service) {
+//        for (OutputComponent component : components) {
+//            if (component.handles(service)) {
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
 
     public void addOutputComponent(OutputComponent component) {
         this.components.add(component);
+    }
+
+    public Set<OutputComponent> getComponents() {
+        return components;
+    }
+
+    public KnowledgeBase getKb() {
+        return kb;
     }
 }

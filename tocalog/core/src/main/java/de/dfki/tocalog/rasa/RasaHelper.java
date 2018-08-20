@@ -28,7 +28,7 @@ public class RasaHelper {
         URL obj = new URL(url);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 
-        //add request header
+        //addInputComponent request header
         con.setRequestMethod("POST");
         con.setRequestProperty("User-Agent", "Tocalog");
         con.setRequestProperty("Content-Type", "application/json");

@@ -37,7 +37,7 @@ public class MainMK {
         URL obj = new URL(url);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 
-        //add request header
+        //addInputComponent request header
         con.setRequestMethod("GET");
         con.setRequestProperty("User-Agent", "Java Client");
         con.setRequestProperty("Content-Type", "application/json");

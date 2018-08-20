@@ -89,14 +89,13 @@ public class MainYK {
         OutputNode nodeCopy = new CopyVisitor().copy(node).build();
         System.out.println(PrintVisitor.print(nodeCopy));
 
-        Optional<OutputNode> singleNode = new FindNodeVisitor(n -> n.getId().orElse("").equals("abcdef")).find(nodeCopy);
+        Optional<OutputNode> singleNode = new FindNodeVisitor(n -> n.getId().equals("abcdef")).find(nodeCopy);
         singleNode.ifPresent(n -> System.out.println(PrintVisitor.print(n)));
 
 
     }
 
     public static void framework(String[] args) throws InterruptedException, IOException {
-
 
 
 //        DialogComponent fusion1 = new AbstractDialogComponent() {
@@ -107,7 +106,7 @@ public class MainYK {
 //                EKnowledgeSet<Focus> kset = getKnowledgeBase().initKnowledgeSet(Focus.class, "mechanic1");
 //
 //                //if event is visual focus event
-//                kset.add(Focus.create()
+//                kset.addInputComponent(Focus.create()
 //                        .setId("mechanic1")
 //                        .setFocus("car")
 //                        .setSource("kinect")
@@ -117,74 +116,8 @@ public class MainYK {
 //            }
 //        };
 
-        IntentProducer rasaIc = new IntentProducer() {
-            private Queue<Intent> intentQueue = new ArrayDeque<>();
-            private RasaHelper rasaHelper = new RasaHelper();
-            @Override
-            public void add(Input input) {
-                if (!(input instanceof TextInput)) {
-                    return;
-                }
+        IntentProducer rasaIc = new RasaIntentProducer();
 
-                try {
-                    TextInput ti = (TextInput) input;
-                    String rasaJson = rasaHelper.nlu(ti.getText());
-                    RasaResponse rasaIntent = rasaHelper.parseJson(rasaJson);
-//                    System.out.println(rasaIntent);
-                    if (rasaIntent.getRasaIntent().getConfidence() < 0.4) {
-                        return;
-                    }
-                    Intent intent = new Intent(Intent.CommunicativeFunction.Statement, rasaIntent.getRasaIntent().getName());
-                    ti.getSource().ifPresent(s -> intent.setNominative(s));
-                    intentQueue.add(intent);
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            }
-
-            @Override
-            public Optional<Intent> getIntent() {
-                if(intentQueue.isEmpty()) {
-                    return Optional.empty();
-                }
-                return Optional.of(intentQueue.poll());
-            }
-
-
-
-        };
-
-//        DialogComponent greetingDc = new DialogComponent() {
-//            private TelegramBot tb;
-//
-//            @Override
-//            public void init(Context context) {
-//                tb = (TelegramBot) context.getProjectManager().getInputComponent(ic -> ic instanceof TelegramBot).get();
-//            }
-//
-//            @Override
-//            public void onEvent(EventEngine engine, Event event) {
-//                if (!event.is(Intent.class)) {
-//                    return;
-//                }
-//                Intent intent = (Intent) event.get();
-//                if (Objects.equals(intent.getType(), "greeting")) {
-//                    tb.send("hi " + intent.getNominative());
-//                }
-//                if (Objects.equals(intent.getType(), "thanking")) {
-//                    Random random = new Random();
-//                    if (random.nextBoolean()) {
-//                        tb.send("no problem, " + intent.getNominative());
-//                    } else {
-//                        tb.send("you're welcome");
-//                    }
-//                }
-//                if (Objects.equals(intent.getType(), "goodbye")) {
-//                    tb.send("see you :)");
-//                }
-//
-//            }
-//        };
         DialogComponent greetingDc = new GreetingBehavior();
 
         TelegramBot tbot = new TelegramBot();
@@ -199,9 +132,10 @@ public class MainYK {
         dialog.addIntentProducer(rasaIc);
 
         ProjectManager dc = ProjectManager.create(dialog)
-//                .add(fusion1)
-//                .add(psBridge)
-                .add(tbot)
+//                .addInputComponent(fusion1)
+//                .addInputComponent(psBridge)
+                .addInputComponent(tbot)
+                .addOutputComponent(tbot)
                 .build();
 
 

@@ -167,7 +167,7 @@ public class Vector3Impl implements de.dfki.tocalog.model.Vector3{
 
     @Override
     public Vector3 copy() {
-        Vector3 copy = de.dfki.tocalog.model.Vector3.factory.create();
+        Vector3Impl copy = new Vector3Impl();
         if(x.isPresent()) {
         	java.lang.Double fieldCopy;
         	fieldCopy = x.get();
@@ -183,6 +183,8 @@ public class Vector3Impl implements de.dfki.tocalog.model.Vector3{
         	fieldCopy = z.get();
         	copy.setZ(fieldCopy);
         }
+        
+
         
         return copy;
     }

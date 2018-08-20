@@ -194,7 +194,7 @@ public class PersonImpl implements de.dfki.tocalog.model.Person{
 
     @Override
     public Person copy() {
-        Person copy = de.dfki.tocalog.model.Person.factory.create();
+        PersonImpl copy = new PersonImpl();
         if(age.isPresent()) {
         	java.lang.Long fieldCopy;
         	fieldCopy = age.get();
@@ -205,6 +205,9 @@ public class PersonImpl implements de.dfki.tocalog.model.Person{
         	fieldCopy = gender.get();
         	copy.setGender(fieldCopy);
         }
+        
+
+        copy.Agent_composite = java.util.Optional.of(this.Agent_composite.get().copy());
         
         return copy;
     }

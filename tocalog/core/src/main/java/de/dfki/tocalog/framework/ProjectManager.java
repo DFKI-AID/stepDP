@@ -3,6 +3,7 @@ package de.dfki.tocalog.framework;
 import de.dfki.tocalog.dialog.MetaDialog;
 import de.dfki.tocalog.input.Input;
 import de.dfki.tocalog.kb.KnowledgeBase;
+import de.dfki.tocalog.output.IMPP;
 import de.dfki.tocalog.output.OutputComponent;
 
 import java.util.ArrayList;
@@ -59,16 +60,21 @@ public class ProjectManager implements Runnable {
         protected KnowledgeBase knowledgeBase = new KnowledgeBase();
         protected List<InputComponent> inputComponents = new ArrayList<>();
         protected MetaDialog metaDialog; //TODO maybe accept dialog as arg
-
+        protected IMPP impp = new IMPP(knowledgeBase);
 
         protected Builder(MetaDialog dialog) {
             this.metaDialog = dialog;
         }
 
 
-        public Builder add(InputComponent component) {
+        public Builder addInputComponent(InputComponent component) {
             eventEngineBuilder.addListener(component);
             inputComponents.add(component);
+            return this;
+        }
+
+        public Builder addOutputComponent(OutputComponent component) {
+            impp.addOutputComponent(component);
             return this;
         }
 
@@ -89,8 +95,8 @@ public class ProjectManager implements Runnable {
                 }
 
                 @Override
-                public OutputComponent getAllocatioModule() {
-                    return null; //TODO
+                public IMPP getAllocatioModule() {
+                    return impp;
                 }
             });
 

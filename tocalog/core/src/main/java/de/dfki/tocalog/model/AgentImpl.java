@@ -153,12 +153,15 @@ public class AgentImpl implements de.dfki.tocalog.model.Agent{
 
     @Override
     public Agent copy() {
-        Agent copy = de.dfki.tocalog.model.Agent.factory.create();
+        AgentImpl copy = new AgentImpl();
         if(name.isPresent()) {
         	java.lang.String fieldCopy;
         	fieldCopy = name.get();
         	copy.setName(fieldCopy);
         }
+        
+
+        copy.Entity_composite = java.util.Optional.of(this.Entity_composite.get().copy());
         
         return copy;
     }

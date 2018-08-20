@@ -222,7 +222,7 @@ public class ServiceImpl implements de.dfki.tocalog.model.Service{
 
     @Override
     public Service copy() {
-        Service copy = de.dfki.tocalog.model.Service.factory.create();
+        ServiceImpl copy = new ServiceImpl();
         if(uri.isPresent()) {
         	java.lang.String fieldCopy;
         	fieldCopy = uri.get();
@@ -243,6 +243,9 @@ public class ServiceImpl implements de.dfki.tocalog.model.Service{
             }
         	copy.setComponents(fieldCopy);
         }
+        
+
+        copy.Entity_composite = java.util.Optional.of(this.Entity_composite.get().copy());
         
         return copy;
     }

@@ -134,7 +134,10 @@ public class RobotImpl implements de.dfki.tocalog.model.Robot{
 
     @Override
     public Robot copy() {
-        Robot copy = de.dfki.tocalog.model.Robot.factory.create();
+        RobotImpl copy = new RobotImpl();
+        
+
+        copy.Agent_composite = java.util.Optional.of(this.Agent_composite.get().copy());
         
         return copy;
     }
