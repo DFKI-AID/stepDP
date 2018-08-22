@@ -15,6 +15,7 @@ import de.dfki.tocalog.input.TextInput;
 import de.dfki.tocalog.kb.EKnowledgeMap;
 import de.dfki.tocalog.model.Person;
 import de.dfki.tocalog.model.Service;
+import de.dfki.tocalog.model.Triple;
 import de.dfki.tocalog.output.Output;
 import de.dfki.tocalog.output.SpeechOutput;
 import de.dfki.tocalog.output.TextOutput;
@@ -32,6 +33,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayDeque;
 import java.util.Optional;
 import java.util.Queue;
+import java.util.Set;
 
 /**
  */
@@ -138,6 +140,27 @@ public class MainYK {
                 .addOutputComponent(tbot)
                 .build();
 
+        EKnowledgeMap<Triple> focuskm = dc.getKnowledgeBase().getKnowledgeMap(Triple.class, "VisualFocus");
+        focuskm.add(Triple.create().setSubject("mechanic1").setPredicate("focus").setObject("car")
+                .setSource("kinect").setConfidence(0.7));
+        focuskm.add(Triple.create().setSubject("mechanic1").setPredicate("focus").setObject("bike")
+                .setSource("hololens").setConfidence(0.4));
+
+
+        EKnowledgeMap<Triple> gesturekm = dc.getKnowledgeBase().getKnowledgeMap(Triple.class, "mechanic1.Gesture");
+        focuskm.add(Triple.create().setSubject("mechanic1").setPredicate("gesture").setObject("SwipeUp")
+                .setSource("kinect"));
+        focuskm.add(Triple.create().setSubject("mechanic1").setPredicate("gesture").setObject("SwipeLeft")
+                .setSource("hololens"));
+
+        EKnowledgeMap<Service> skm = dc.getKnowledgeBase().getKnowledgeMap(Service.class);
+//        skm.add(Service.create().set);
+
+
+        gesturekm.removeOld(5000L);
+        if (gesturekm.getAny(t -> t.getObject().orElse("").equals("car")).isPresent()) {
+
+        }
 
         Thread timeThread = new Thread(() -> {
             while (!Thread.currentThread().isInterrupted()) {

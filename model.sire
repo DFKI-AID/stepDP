@@ -4,6 +4,7 @@ class Entity {
 	1 string id;
 	2 i64 timestamp;
 	3 string source;
+	4 double confidence;
 }
 
 class Agent {
@@ -26,12 +27,23 @@ class Session {
 	2 list<string> agents;
 }
 
+class Zone {
+	1 base Entity;
+	2 string zone;	
+}
+
+class Position {
+	1 base Entity;
+	2 Vector3 position;
+}
 
 class Vector3 {
 	1 double x;
 	2 double y;
 	3 double z;
 }
+
+
 
 
 class Device {
@@ -44,11 +56,16 @@ class DeviceComponent {
 	2 string device;	
 }
 
+class Battery {
+	1 base DeviceComponent;
+	2 double charge;
+}
+
 class Service {
 	1 base Entity;
 	2 string uri;
 	3 string type;
-	4 list<string> components;
+	4 string device;
 }
 
 
@@ -59,7 +76,12 @@ class Focus {
 }
 
 
-
+class Triple {
+	1 base Entity;
+	2 string subject;
+	3 string predicate;
+	4 string object;
+}
 
 
 

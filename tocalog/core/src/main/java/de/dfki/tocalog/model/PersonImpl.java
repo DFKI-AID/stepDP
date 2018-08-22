@@ -92,6 +92,17 @@ public class PersonImpl implements de.dfki.tocalog.model.Person{
         return this.Agent_composite.get().getSource().isPresent();
     }
     
+    public java.util.Optional<java.lang.Double> getConfidence() {
+        return this.Agent_composite.get().getConfidence();
+    }
+    public PersonImpl setConfidence(java.lang.Double value) {
+        this.Agent_composite.get().setConfidence(value);
+        return this;
+    }
+    public boolean isConfidencePresent() {
+        return this.Agent_composite.get().getConfidence().isPresent();
+    }
+    
 
 
 

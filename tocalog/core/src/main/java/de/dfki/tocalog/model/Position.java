@@ -1,28 +1,28 @@
 package de.dfki.tocalog.model;
 
-public interface Agent extends de.dfki.sire.Base, de.dfki.tocalog.model.Entity {
+public interface Position extends de.dfki.sire.Base, de.dfki.tocalog.model.Entity {
     //getter / setter
     
-    java.util.Optional<java.lang.String> getName();
-    Agent setName(java.lang.String value);
-    boolean isNamePresent();
+    java.util.Optional<Vector3> getPosition();
+    Position setPosition(Vector3 value);
+    boolean isPositionPresent();
     
 
     
     java.util.Optional<java.lang.String> getId();
-    Agent setId(java.lang.String value);
+    Position setId(java.lang.String value);
     boolean isIdPresent();
     
     java.util.Optional<java.lang.Long> getTimestamp();
-    Agent setTimestamp(java.lang.Long value);
+    Position setTimestamp(java.lang.Long value);
     boolean isTimestampPresent();
     
     java.util.Optional<java.lang.String> getSource();
-    Agent setSource(java.lang.String value);
+    Position setSource(java.lang.String value);
     boolean isSourcePresent();
     
     java.util.Optional<java.lang.Double> getConfidence();
-    Agent setConfidence(java.lang.Double value);
+    Position setConfidence(java.lang.Double value);
     boolean isConfidencePresent();
     
 
@@ -30,16 +30,16 @@ public interface Agent extends de.dfki.sire.Base, de.dfki.tocalog.model.Entity {
 
     void serialize(de.dfki.sire.Serializer serializer) throws java.io.IOException;
 
-    Agent copy();
+    Position copy();
 
-    static Agent create() {
-        return new de.dfki.tocalog.model.AgentImpl();
+    static Position create() {
+        return new de.dfki.tocalog.model.PositionImpl();
     }
 
     interface Factory {
-        Agent create();
+        Position create();
     }
 
-    Factory factory = () -> new de.dfki.tocalog.model.AgentImpl();
+    Factory factory = () -> new de.dfki.tocalog.model.PositionImpl();
 }
 

@@ -25,6 +25,10 @@ public interface Focus extends de.dfki.sire.Base, de.dfki.tocalog.model.Entity {
     Focus setSource(java.lang.String value);
     boolean isSourcePresent();
     
+    java.util.Optional<java.lang.Double> getConfidence();
+    Focus setConfidence(java.lang.Double value);
+    boolean isConfidencePresent();
+    
 
     void deserialize(de.dfki.sire.Deserializer deserializer) throws java.io.IOException;
 

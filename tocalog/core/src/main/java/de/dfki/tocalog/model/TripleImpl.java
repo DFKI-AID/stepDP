@@ -1,31 +1,59 @@
 package de.dfki.tocalog.model;
 
-public class AgentImpl implements de.dfki.tocalog.model.Agent{
+public class TripleImpl implements de.dfki.tocalog.model.Triple{
 
     //fields 
-    private java.util.Optional<java.lang.String> name; 
+    private java.util.Optional<java.lang.String> subject; 
+    private java.util.Optional<java.lang.String> predicate; 
+    private java.util.Optional<java.lang.String> object; 
 
     //fields for base class composition 
     private java.util.Optional<de.dfki.tocalog.model.Entity> Entity_composite = java.util.Optional.of(de.dfki.tocalog.model.Entity.create());
     
 
-    public AgentImpl() {
+    public TripleImpl() {
         super();
     
-        this.name = java.util.Optional.empty();
+        this.subject = java.util.Optional.empty();
+    
+        this.predicate = java.util.Optional.empty();
+    
+        this.object = java.util.Optional.empty();
     
     }
 
     //getter / setter 
-    public java.util.Optional<java.lang.String> getName() {
-        return this.name;
+    public java.util.Optional<java.lang.String> getSubject() {
+        return this.subject;
     }
-    public AgentImpl setName(java.lang.String value) {
-        this.name = java.util.Optional.ofNullable(value);
+    public TripleImpl setSubject(java.lang.String value) {
+        this.subject = java.util.Optional.ofNullable(value);
         return this;
     }
-    public boolean isNamePresent() {
-        return this.name.isPresent();
+    public boolean isSubjectPresent() {
+        return this.subject.isPresent();
+    }
+    
+    public java.util.Optional<java.lang.String> getPredicate() {
+        return this.predicate;
+    }
+    public TripleImpl setPredicate(java.lang.String value) {
+        this.predicate = java.util.Optional.ofNullable(value);
+        return this;
+    }
+    public boolean isPredicatePresent() {
+        return this.predicate.isPresent();
+    }
+    
+    public java.util.Optional<java.lang.String> getObject() {
+        return this.object;
+    }
+    public TripleImpl setObject(java.lang.String value) {
+        this.object = java.util.Optional.ofNullable(value);
+        return this;
+    }
+    public boolean isObjectPresent() {
+        return this.object.isPresent();
     }
     
 
@@ -37,7 +65,7 @@ public class AgentImpl implements de.dfki.tocalog.model.Agent{
     public java.util.Optional<java.lang.String> getId() {
         return this.Entity_composite.get().getId();
     }
-    public AgentImpl setId(java.lang.String value) {
+    public TripleImpl setId(java.lang.String value) {
         this.Entity_composite.get().setId(value);
         return this;
     }
@@ -48,7 +76,7 @@ public class AgentImpl implements de.dfki.tocalog.model.Agent{
     public java.util.Optional<java.lang.Long> getTimestamp() {
         return this.Entity_composite.get().getTimestamp();
     }
-    public AgentImpl setTimestamp(java.lang.Long value) {
+    public TripleImpl setTimestamp(java.lang.Long value) {
         this.Entity_composite.get().setTimestamp(value);
         return this;
     }
@@ -59,7 +87,7 @@ public class AgentImpl implements de.dfki.tocalog.model.Agent{
     public java.util.Optional<java.lang.String> getSource() {
         return this.Entity_composite.get().getSource();
     }
-    public AgentImpl setSource(java.lang.String value) {
+    public TripleImpl setSource(java.lang.String value) {
         this.Entity_composite.get().setSource(value);
         return this;
     }
@@ -70,7 +98,7 @@ public class AgentImpl implements de.dfki.tocalog.model.Agent{
     public java.util.Optional<java.lang.Double> getConfidence() {
         return this.Entity_composite.get().getConfidence();
     }
-    public AgentImpl setConfidence(java.lang.Double value) {
+    public TripleImpl setConfidence(java.lang.Double value) {
         this.Entity_composite.get().setConfidence(value);
         return this;
     }
@@ -86,7 +114,11 @@ public class AgentImpl implements de.dfki.tocalog.model.Agent{
     static {
         java.util.Map<String, Integer> tmp = new java.util.HashMap<String, Integer>();
     
-        tmp.put("name", 2);
+        tmp.put("subject", 2);
+    
+        tmp.put("predicate", 3);
+    
+        tmp.put("object", 4);
     
         FIELD_TO_ID_MAP = java.util.Collections.unmodifiableMap(tmp);
     }
@@ -95,7 +127,11 @@ public class AgentImpl implements de.dfki.tocalog.model.Agent{
     static {
         java.util.Map<Integer, String> tmp = new java.util.HashMap<Integer, String>();
         
-        tmp.put(2, "name");
+        tmp.put(2, "subject");
+        
+        tmp.put(3, "predicate");
+        
+        tmp.put(4, "object");
         
         ID_TO_FIELD_MAP = java.util.Collections.unmodifiableMap(tmp);
     }
@@ -114,7 +150,15 @@ public class AgentImpl implements de.dfki.tocalog.model.Agent{
             switch (fieldId) {
                 
                 case 2: {
-                        java.lang.String tmp_name;tmp_name = deserializer.readString();this.name = java.util.Optional.of(tmp_name);
+                        java.lang.String tmp_subject;tmp_subject = deserializer.readString();this.subject = java.util.Optional.of(tmp_subject);
+                    } break;
+                
+                case 3: {
+                        java.lang.String tmp_predicate;tmp_predicate = deserializer.readString();this.predicate = java.util.Optional.of(tmp_predicate);
+                    } break;
+                
+                case 4: {
+                        java.lang.String tmp_object;tmp_object = deserializer.readString();this.object = java.util.Optional.of(tmp_object);
                     } break;
                 
                 
@@ -130,10 +174,22 @@ public class AgentImpl implements de.dfki.tocalog.model.Agent{
     public void serialize(de.dfki.sire.Serializer serializer) throws java.io.IOException {
         serializer.beginWriteObject(this);
         
-        if(this.name.isPresent()) {
-            serializer.beginWriteField(2, "name");
-            serializer.writeString(name.get());
-            serializer.endWriteField(2, "name");
+        if(this.subject.isPresent()) {
+            serializer.beginWriteField(2, "subject");
+            serializer.writeString(subject.get());
+            serializer.endWriteField(2, "subject");
+        }
+        
+        if(this.predicate.isPresent()) {
+            serializer.beginWriteField(3, "predicate");
+            serializer.writeString(predicate.get());
+            serializer.endWriteField(3, "predicate");
+        }
+        
+        if(this.object.isPresent()) {
+            serializer.beginWriteField(4, "object");
+            serializer.writeString(object.get());
+            serializer.endWriteField(4, "object");
         }
         
         
@@ -149,12 +205,16 @@ public class AgentImpl implements de.dfki.tocalog.model.Agent{
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("Agent{ ");
+        sb.append("Triple{ ");
             
             sb.append(this.Entity_composite.get() + " ");
             
             
-            name.ifPresent(x -> sb.append(" name=" +x.toString()));
+            subject.ifPresent(x -> sb.append(" subject=" +x.toString()));
+            
+            predicate.ifPresent(x -> sb.append(" predicate=" +x.toString()));
+            
+            object.ifPresent(x -> sb.append(" object=" +x.toString()));
             
         sb.append("}");
         return sb.toString();
@@ -163,12 +223,22 @@ public class AgentImpl implements de.dfki.tocalog.model.Agent{
 
 
     @Override
-    public Agent copy() {
-        AgentImpl copy = new AgentImpl();
-        if(name.isPresent()) {
+    public Triple copy() {
+        TripleImpl copy = new TripleImpl();
+        if(subject.isPresent()) {
         	java.lang.String fieldCopy;
-        	fieldCopy = name.get();
-        	copy.setName(fieldCopy);
+        	fieldCopy = subject.get();
+        	copy.setSubject(fieldCopy);
+        }
+        if(predicate.isPresent()) {
+        	java.lang.String fieldCopy;
+        	fieldCopy = predicate.get();
+        	copy.setPredicate(fieldCopy);
+        }
+        if(object.isPresent()) {
+        	java.lang.String fieldCopy;
+        	fieldCopy = object.get();
+        	copy.setObject(fieldCopy);
         }
         
 
@@ -182,9 +252,13 @@ public class AgentImpl implements de.dfki.tocalog.model.Agent{
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        AgentImpl o_cast = (AgentImpl) o;
+        TripleImpl o_cast = (TripleImpl) o;
         return 
-            java.util.Objects.equals(name, o_cast.name) &
+            java.util.Objects.equals(subject, o_cast.subject) &
+        
+            java.util.Objects.equals(predicate, o_cast.predicate) &
+        
+            java.util.Objects.equals(object, o_cast.object) &
         
             true;
     }
@@ -192,7 +266,7 @@ public class AgentImpl implements de.dfki.tocalog.model.Agent{
     @Override
     public int hashCode() {
         return java.util.Objects.hash(
-            name
+            subject,predicate,object
         );
     }
 

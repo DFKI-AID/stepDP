@@ -17,7 +17,7 @@ public class DeviceControlBehavior implements DialogComponent {
 
     @Override
     public void init(Context context) {
-
+//        context.getKnowledgeBase()
     }
 
     @Override

@@ -29,6 +29,10 @@ public interface Person extends de.dfki.sire.Base, de.dfki.tocalog.model.Agent {
     Person setSource(java.lang.String value);
     boolean isSourcePresent();
     
+    java.util.Optional<java.lang.Double> getConfidence();
+    Person setConfidence(java.lang.Double value);
+    boolean isConfidencePresent();
+    
 
     void deserialize(de.dfki.sire.Deserializer deserializer) throws java.io.IOException;
 

@@ -15,6 +15,10 @@ public interface Entity extends de.dfki.sire.Base {
     Entity setSource(java.lang.String value);
     boolean isSourcePresent();
     
+    java.util.Optional<java.lang.Double> getConfidence();
+    Entity setConfidence(java.lang.Double value);
+    boolean isConfidencePresent();
+    
 
     
 

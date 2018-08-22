@@ -67,6 +67,17 @@ public class DeviceComponentImpl implements de.dfki.tocalog.model.DeviceComponen
         return this.Entity_composite.get().getSource().isPresent();
     }
     
+    public java.util.Optional<java.lang.Double> getConfidence() {
+        return this.Entity_composite.get().getConfidence();
+    }
+    public DeviceComponentImpl setConfidence(java.lang.Double value) {
+        this.Entity_composite.get().setConfidence(value);
+        return this;
+    }
+    public boolean isConfidencePresent() {
+        return this.Entity_composite.get().getConfidence().isPresent();
+    }
+    
 
 
 

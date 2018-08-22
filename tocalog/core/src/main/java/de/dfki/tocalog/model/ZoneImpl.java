@@ -1,31 +1,31 @@
 package de.dfki.tocalog.model;
 
-public class AgentImpl implements de.dfki.tocalog.model.Agent{
+public class ZoneImpl implements de.dfki.tocalog.model.Zone{
 
     //fields 
-    private java.util.Optional<java.lang.String> name; 
+    private java.util.Optional<java.lang.String> zone; 
 
     //fields for base class composition 
     private java.util.Optional<de.dfki.tocalog.model.Entity> Entity_composite = java.util.Optional.of(de.dfki.tocalog.model.Entity.create());
     
 
-    public AgentImpl() {
+    public ZoneImpl() {
         super();
     
-        this.name = java.util.Optional.empty();
+        this.zone = java.util.Optional.empty();
     
     }
 
     //getter / setter 
-    public java.util.Optional<java.lang.String> getName() {
-        return this.name;
+    public java.util.Optional<java.lang.String> getZone() {
+        return this.zone;
     }
-    public AgentImpl setName(java.lang.String value) {
-        this.name = java.util.Optional.ofNullable(value);
+    public ZoneImpl setZone(java.lang.String value) {
+        this.zone = java.util.Optional.ofNullable(value);
         return this;
     }
-    public boolean isNamePresent() {
-        return this.name.isPresent();
+    public boolean isZonePresent() {
+        return this.zone.isPresent();
     }
     
 
@@ -37,7 +37,7 @@ public class AgentImpl implements de.dfki.tocalog.model.Agent{
     public java.util.Optional<java.lang.String> getId() {
         return this.Entity_composite.get().getId();
     }
-    public AgentImpl setId(java.lang.String value) {
+    public ZoneImpl setId(java.lang.String value) {
         this.Entity_composite.get().setId(value);
         return this;
     }
@@ -48,7 +48,7 @@ public class AgentImpl implements de.dfki.tocalog.model.Agent{
     public java.util.Optional<java.lang.Long> getTimestamp() {
         return this.Entity_composite.get().getTimestamp();
     }
-    public AgentImpl setTimestamp(java.lang.Long value) {
+    public ZoneImpl setTimestamp(java.lang.Long value) {
         this.Entity_composite.get().setTimestamp(value);
         return this;
     }
@@ -59,7 +59,7 @@ public class AgentImpl implements de.dfki.tocalog.model.Agent{
     public java.util.Optional<java.lang.String> getSource() {
         return this.Entity_composite.get().getSource();
     }
-    public AgentImpl setSource(java.lang.String value) {
+    public ZoneImpl setSource(java.lang.String value) {
         this.Entity_composite.get().setSource(value);
         return this;
     }
@@ -70,7 +70,7 @@ public class AgentImpl implements de.dfki.tocalog.model.Agent{
     public java.util.Optional<java.lang.Double> getConfidence() {
         return this.Entity_composite.get().getConfidence();
     }
-    public AgentImpl setConfidence(java.lang.Double value) {
+    public ZoneImpl setConfidence(java.lang.Double value) {
         this.Entity_composite.get().setConfidence(value);
         return this;
     }
@@ -86,7 +86,7 @@ public class AgentImpl implements de.dfki.tocalog.model.Agent{
     static {
         java.util.Map<String, Integer> tmp = new java.util.HashMap<String, Integer>();
     
-        tmp.put("name", 2);
+        tmp.put("zone", 2);
     
         FIELD_TO_ID_MAP = java.util.Collections.unmodifiableMap(tmp);
     }
@@ -95,7 +95,7 @@ public class AgentImpl implements de.dfki.tocalog.model.Agent{
     static {
         java.util.Map<Integer, String> tmp = new java.util.HashMap<Integer, String>();
         
-        tmp.put(2, "name");
+        tmp.put(2, "zone");
         
         ID_TO_FIELD_MAP = java.util.Collections.unmodifiableMap(tmp);
     }
@@ -114,7 +114,7 @@ public class AgentImpl implements de.dfki.tocalog.model.Agent{
             switch (fieldId) {
                 
                 case 2: {
-                        java.lang.String tmp_name;tmp_name = deserializer.readString();this.name = java.util.Optional.of(tmp_name);
+                        java.lang.String tmp_zone;tmp_zone = deserializer.readString();this.zone = java.util.Optional.of(tmp_zone);
                     } break;
                 
                 
@@ -130,10 +130,10 @@ public class AgentImpl implements de.dfki.tocalog.model.Agent{
     public void serialize(de.dfki.sire.Serializer serializer) throws java.io.IOException {
         serializer.beginWriteObject(this);
         
-        if(this.name.isPresent()) {
-            serializer.beginWriteField(2, "name");
-            serializer.writeString(name.get());
-            serializer.endWriteField(2, "name");
+        if(this.zone.isPresent()) {
+            serializer.beginWriteField(2, "zone");
+            serializer.writeString(zone.get());
+            serializer.endWriteField(2, "zone");
         }
         
         
@@ -149,12 +149,12 @@ public class AgentImpl implements de.dfki.tocalog.model.Agent{
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("Agent{ ");
+        sb.append("Zone{ ");
             
             sb.append(this.Entity_composite.get() + " ");
             
             
-            name.ifPresent(x -> sb.append(" name=" +x.toString()));
+            zone.ifPresent(x -> sb.append(" zone=" +x.toString()));
             
         sb.append("}");
         return sb.toString();
@@ -163,12 +163,12 @@ public class AgentImpl implements de.dfki.tocalog.model.Agent{
 
 
     @Override
-    public Agent copy() {
-        AgentImpl copy = new AgentImpl();
-        if(name.isPresent()) {
+    public Zone copy() {
+        ZoneImpl copy = new ZoneImpl();
+        if(zone.isPresent()) {
         	java.lang.String fieldCopy;
-        	fieldCopy = name.get();
-        	copy.setName(fieldCopy);
+        	fieldCopy = zone.get();
+        	copy.setZone(fieldCopy);
         }
         
 
@@ -182,9 +182,9 @@ public class AgentImpl implements de.dfki.tocalog.model.Agent{
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        AgentImpl o_cast = (AgentImpl) o;
+        ZoneImpl o_cast = (ZoneImpl) o;
         return 
-            java.util.Objects.equals(name, o_cast.name) &
+            java.util.Objects.equals(zone, o_cast.zone) &
         
             true;
     }
@@ -192,7 +192,7 @@ public class AgentImpl implements de.dfki.tocalog.model.Agent{
     @Override
     public int hashCode() {
         return java.util.Objects.hash(
-            name
+            zone
         );
     }
 

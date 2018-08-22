@@ -5,7 +5,7 @@ public class ServiceImpl implements de.dfki.tocalog.model.Service{
     //fields 
     private java.util.Optional<java.lang.String> uri; 
     private java.util.Optional<java.lang.String> type; 
-    private java.util.Optional<java.util.List<java.lang.String>> components; 
+    private java.util.Optional<java.lang.String> device; 
 
     //fields for base class composition 
     private java.util.Optional<de.dfki.tocalog.model.Entity> Entity_composite = java.util.Optional.of(de.dfki.tocalog.model.Entity.create());
@@ -18,7 +18,7 @@ public class ServiceImpl implements de.dfki.tocalog.model.Service{
     
         this.type = java.util.Optional.empty();
     
-        this.components = java.util.Optional.empty();
+        this.device = java.util.Optional.empty();
     
     }
 
@@ -45,15 +45,15 @@ public class ServiceImpl implements de.dfki.tocalog.model.Service{
         return this.type.isPresent();
     }
     
-    public java.util.Optional<java.util.List<java.lang.String>> getComponents() {
-        return this.components;
+    public java.util.Optional<java.lang.String> getDevice() {
+        return this.device;
     }
-    public ServiceImpl setComponents(java.util.List<java.lang.String> value) {
-        this.components = java.util.Optional.ofNullable(value);
+    public ServiceImpl setDevice(java.lang.String value) {
+        this.device = java.util.Optional.ofNullable(value);
         return this;
     }
-    public boolean isComponentsPresent() {
-        return this.components.isPresent();
+    public boolean isDevicePresent() {
+        return this.device.isPresent();
     }
     
 
@@ -95,6 +95,17 @@ public class ServiceImpl implements de.dfki.tocalog.model.Service{
         return this.Entity_composite.get().getSource().isPresent();
     }
     
+    public java.util.Optional<java.lang.Double> getConfidence() {
+        return this.Entity_composite.get().getConfidence();
+    }
+    public ServiceImpl setConfidence(java.lang.Double value) {
+        this.Entity_composite.get().setConfidence(value);
+        return this;
+    }
+    public boolean isConfidencePresent() {
+        return this.Entity_composite.get().getConfidence().isPresent();
+    }
+    
 
 
 
@@ -107,7 +118,7 @@ public class ServiceImpl implements de.dfki.tocalog.model.Service{
     
         tmp.put("type", 3);
     
-        tmp.put("components", 4);
+        tmp.put("device", 4);
     
         FIELD_TO_ID_MAP = java.util.Collections.unmodifiableMap(tmp);
     }
@@ -120,7 +131,7 @@ public class ServiceImpl implements de.dfki.tocalog.model.Service{
         
         tmp.put(3, "type");
         
-        tmp.put(4, "components");
+        tmp.put(4, "device");
         
         ID_TO_FIELD_MAP = java.util.Collections.unmodifiableMap(tmp);
     }
@@ -147,14 +158,7 @@ public class ServiceImpl implements de.dfki.tocalog.model.Service{
                     } break;
                 
                 case 4: {
-                        java.util.ArrayList<java.lang.String> tmp_components;int n = deserializer.beginReadList();
-                        tmp_components = new java.util.ArrayList<>();
-                        for(int i=0; i<n; i++) {
-                            java.lang.String tmp;
-                            tmp = deserializer.readString();
-                            tmp_components.add(tmp);
-                        }
-                        deserializer.endReadList();this.components = java.util.Optional.of(tmp_components);
+                        java.lang.String tmp_device;tmp_device = deserializer.readString();this.device = java.util.Optional.of(tmp_device);
                     } break;
                 
                 
@@ -182,12 +186,10 @@ public class ServiceImpl implements de.dfki.tocalog.model.Service{
             serializer.endWriteField(3, "type");
         }
         
-        if(this.components.isPresent()) {
-            serializer.beginWriteField(4, "components");
-            serializer.beginWriteList(components.get().size());
-            for(java.lang.String tmp : components.get()) { serializer.writeString(tmp); }
-            serializer.endWriteList();;
-            serializer.endWriteField(4, "components");
+        if(this.device.isPresent()) {
+            serializer.beginWriteField(4, "device");
+            serializer.writeString(device.get());
+            serializer.endWriteField(4, "device");
         }
         
         
@@ -212,7 +214,7 @@ public class ServiceImpl implements de.dfki.tocalog.model.Service{
             
             type.ifPresent(x -> sb.append(" type=" +x.toString()));
             
-            components.ifPresent(x -> sb.append(" components=" +x.toString()));
+            device.ifPresent(x -> sb.append(" device=" +x.toString()));
             
         sb.append("}");
         return sb.toString();
@@ -233,15 +235,10 @@ public class ServiceImpl implements de.dfki.tocalog.model.Service{
         	fieldCopy = type.get();
         	copy.setType(fieldCopy);
         }
-        if(components.isPresent()) {
-        	java.util.ArrayList<java.lang.String> fieldCopy;
-        	fieldCopy = new java.util.ArrayList<>();
-            for(java.lang.String tmp : components.get()) {
-                java.lang.String tmpCopy;
-                tmpCopy = tmp;
-                fieldCopy.add(tmpCopy);
-            }
-        	copy.setComponents(fieldCopy);
+        if(device.isPresent()) {
+        	java.lang.String fieldCopy;
+        	fieldCopy = device.get();
+        	copy.setDevice(fieldCopy);
         }
         
 
@@ -261,7 +258,7 @@ public class ServiceImpl implements de.dfki.tocalog.model.Service{
         
             java.util.Objects.equals(type, o_cast.type) &
         
-            java.util.Objects.equals(components, o_cast.components) &
+            java.util.Objects.equals(device, o_cast.device) &
         
             true;
     }
@@ -269,7 +266,7 @@ public class ServiceImpl implements de.dfki.tocalog.model.Service{
     @Override
     public int hashCode() {
         return java.util.Objects.hash(
-            uri,type,components
+            uri,type,device
         );
     }
 

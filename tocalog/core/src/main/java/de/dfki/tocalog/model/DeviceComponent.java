@@ -21,6 +21,10 @@ public interface DeviceComponent extends de.dfki.sire.Base, de.dfki.tocalog.mode
     DeviceComponent setSource(java.lang.String value);
     boolean isSourcePresent();
     
+    java.util.Optional<java.lang.Double> getConfidence();
+    DeviceComponent setConfidence(java.lang.Double value);
+    boolean isConfidencePresent();
+    
 
     void deserialize(de.dfki.sire.Deserializer deserializer) throws java.io.IOException;
 

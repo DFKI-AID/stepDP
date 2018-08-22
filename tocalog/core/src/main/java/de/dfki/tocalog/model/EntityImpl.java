@@ -6,6 +6,7 @@ public class EntityImpl implements de.dfki.tocalog.model.Entity{
     private java.util.Optional<java.lang.String> id; 
     private java.util.Optional<java.lang.Long> timestamp; 
     private java.util.Optional<java.lang.String> source; 
+    private java.util.Optional<java.lang.Double> confidence; 
 
     //fields for base class composition 
 
@@ -17,6 +18,8 @@ public class EntityImpl implements de.dfki.tocalog.model.Entity{
         this.timestamp = java.util.Optional.empty();
     
         this.source = java.util.Optional.empty();
+    
+        this.confidence = java.util.Optional.empty();
     
     }
 
@@ -54,6 +57,17 @@ public class EntityImpl implements de.dfki.tocalog.model.Entity{
         return this.source.isPresent();
     }
     
+    public java.util.Optional<java.lang.Double> getConfidence() {
+        return this.confidence;
+    }
+    public EntityImpl setConfidence(java.lang.Double value) {
+        this.confidence = java.util.Optional.ofNullable(value);
+        return this;
+    }
+    public boolean isConfidencePresent() {
+        return this.confidence.isPresent();
+    }
+    
 
 
 
@@ -74,6 +88,8 @@ public class EntityImpl implements de.dfki.tocalog.model.Entity{
     
         tmp.put("source", 3);
     
+        tmp.put("confidence", 4);
+    
         FIELD_TO_ID_MAP = java.util.Collections.unmodifiableMap(tmp);
     }
 
@@ -86,6 +102,8 @@ public class EntityImpl implements de.dfki.tocalog.model.Entity{
         tmp.put(2, "timestamp");
         
         tmp.put(3, "source");
+        
+        tmp.put(4, "confidence");
         
         ID_TO_FIELD_MAP = java.util.Collections.unmodifiableMap(tmp);
     }
@@ -115,6 +133,10 @@ public class EntityImpl implements de.dfki.tocalog.model.Entity{
                         java.lang.String tmp_source;tmp_source = deserializer.readString();this.source = java.util.Optional.of(tmp_source);
                     } break;
                 
+                case 4: {
+                        java.lang.Double tmp_confidence;tmp_confidence = deserializer.readDouble();this.confidence = java.util.Optional.of(tmp_confidence);
+                    } break;
+                
                 
             }
         }
@@ -142,6 +164,12 @@ public class EntityImpl implements de.dfki.tocalog.model.Entity{
             serializer.endWriteField(3, "source");
         }
         
+        if(this.confidence.isPresent()) {
+            serializer.beginWriteField(4, "confidence");
+            serializer.writeDouble(confidence.get());
+            serializer.endWriteField(4, "confidence");
+        }
+        
         
         serializer.endWriteObject(this);
     }
@@ -158,6 +186,8 @@ public class EntityImpl implements de.dfki.tocalog.model.Entity{
             timestamp.ifPresent(x -> sb.append(" timestamp=" +x.toString()));
             
             source.ifPresent(x -> sb.append(" source=" +x.toString()));
+            
+            confidence.ifPresent(x -> sb.append(" confidence=" +x.toString()));
             
         sb.append("}");
         return sb.toString();
@@ -183,6 +213,11 @@ public class EntityImpl implements de.dfki.tocalog.model.Entity{
         	fieldCopy = source.get();
         	copy.setSource(fieldCopy);
         }
+        if(confidence.isPresent()) {
+        	java.lang.Double fieldCopy;
+        	fieldCopy = confidence.get();
+        	copy.setConfidence(fieldCopy);
+        }
         
 
         
@@ -202,13 +237,15 @@ public class EntityImpl implements de.dfki.tocalog.model.Entity{
         
             java.util.Objects.equals(source, o_cast.source) &
         
+            java.util.Objects.equals(confidence, o_cast.confidence) &
+        
             true;
     }
 
     @Override
     public int hashCode() {
         return java.util.Objects.hash(
-            id,timestamp,source
+            id,timestamp,source,confidence
         );
     }
 

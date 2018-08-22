@@ -36,12 +36,41 @@ public class KnowledgeMap<T extends Base> {
         }
     }
 
-    public Set<T> getIf(Predicate<T> filter) {
+    public Set<T> get(Set<String> ids) {
+        Set<T> result = new HashSet<>();
+        try {
+            lock();
+            for (String id : ids) {
+                if (store.containsKey(id)) {
+                    result.add(store.get(id));
+                }
+            }
+        } finally {
+            unlock();
+        }
+        return result;
+    }
+
+    public Optional<T> getAny(Predicate<T> predicate) {
+        try {
+            lock();
+            for (T entity : store.values()) {
+                if (predicate.test(entity)) {
+                    return Optional.of((T) entity.copy());
+                }
+            }
+        } finally {
+            unlock();
+        }
+        return Optional.empty();
+    }
+
+    public Set<T> getIf(Predicate<T> predicate) {
         try {
             lock();
             Set<T> result = new HashSet<>();
             for (T entity : store.values()) {
-                if (filter.test(entity)) {
+                if (predicate.test(entity)) {
                     result.add(copy(entity));
                 }
             }

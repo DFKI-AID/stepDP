@@ -64,6 +64,17 @@ public class RobotImpl implements de.dfki.tocalog.model.Robot{
         return this.Agent_composite.get().getSource().isPresent();
     }
     
+    public java.util.Optional<java.lang.Double> getConfidence() {
+        return this.Agent_composite.get().getConfidence();
+    }
+    public RobotImpl setConfidence(java.lang.Double value) {
+        this.Agent_composite.get().setConfidence(value);
+        return this;
+    }
+    public boolean isConfidencePresent() {
+        return this.Agent_composite.get().getConfidence().isPresent();
+    }
+    
 
 
 
