@@ -29,7 +29,7 @@ public class IMPP {
         Map<String, Assignment> assignments = cf.visit(output);
 
         AllocateVisitor av = new AllocateVisitor(this);
-        Map<String, String> allocationIds = av.visit(output, assignments);
+        Allocation allocation = av.visit(output, assignments);
 
 
         // AssignServiceVisitor ... a set of them
@@ -52,6 +52,7 @@ public class IMPP {
 
         return null;
     }
+
 
     public AllocationState getState(String id) {
 

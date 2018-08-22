@@ -24,7 +24,7 @@ public class GreetingBehavior implements DialogComponent {
     @Override
     public void init(Context context) {
 //            TelegramBot tb = (TelegramBot) context.getProjectManager().getInputComponent(ic -> ic instanceof TelegramBot).get();
-        IMPP out = context.getAllocatioModule();
+        IMPP impp = context.getAllocatioModule();
         State ngs = new State("NotGreeted") {
             @Override
             protected void onEntry() {
@@ -71,7 +71,8 @@ public class GreetingBehavior implements DialogComponent {
                 }
                 TextOutput output = new TextOutput(msg);
                 OutputNode node = OutputNode.buildNode(output).build();
-                out.allocate(node);
+                impp.allocate(node);
+
 
                 //log.info("would output something :)");
 //                    out.allocate(node);

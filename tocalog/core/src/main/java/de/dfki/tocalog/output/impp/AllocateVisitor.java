@@ -7,39 +7,46 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
+ * Uses the first service of a node and allocates the output for it.
+ * The result is a map that contains the allocation ids for each node.
  */
 public class AllocateVisitor implements OutputNode.Visitor {
     private static Logger log = LoggerFactory.getLogger(AllocateVisitor.class);
-    private final IMPP immp;
+    private final IMPP impp;
     private Map<String, Assignment> assignments;
     private Map<String, String> allocationsIds;
 
-    public AllocateVisitor(IMPP immp) {
-        this.immp = immp;
+    public AllocateVisitor(IMPP impp) {
+        this.impp = impp;
     }
 
     @Override
     public void visitLeaf(OutputNode.External leaf) {
         Assignment assignment = assignments.get(leaf.getId());
         assignment.limit(1);
-        List<Service> services = assignment.getServices();
-        if (services.isEmpty()) {
+
+        Optional<Service> service = assignment.getBest();
+//        List<Service> services = assignment.getServices();
+        if (!service.isPresent()) {
             log.warn("can't assign service to {}. no suitable service available", leaf.getOutput());
             return;
         }
 
-        Service service = services.get(0);
+        //TODO case: service is lost and output component can't assign anymore
+        // could try again with the second best?
+        // or fail here and try reschedule on higher level? <- easier to reason
+
         boolean assigned = false;
-        for (OutputComponent oc : immp.getComponents()) {
-            if (!oc.handles(leaf.getOutput(), service)) {
+        for (OutputComponent oc : impp.getComponents()) {
+            if (!oc.handles(leaf.getOutput(), service.get())) {
                 continue;
             }
 
-            String id = oc.allocate(leaf.getOutput(), service);
+            String id = oc.allocate(leaf.getOutput(), service.get());
             allocationsIds.put(leaf.getId(), id);
             assigned = true;
             break;
@@ -56,10 +63,10 @@ public class AllocateVisitor implements OutputNode.Visitor {
         //TODO store allocation state object with the semantic of the inner node
     }
 
-    public Map<String, String> visit(OutputNode node, Map<String, Assignment> assignments) {
+    public Allocation visit(OutputNode node, Map<String, Assignment> assignments) {
         this.allocationsIds = new HashMap<>();
         this.assignments = assignments;
         node.accept(this);
-        return allocationsIds;
+        return new Allocation(impp, node, allocationsIds);
     }
 }

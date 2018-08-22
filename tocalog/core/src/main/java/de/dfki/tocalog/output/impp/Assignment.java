@@ -29,7 +29,7 @@ public class Assignment {
     }
 
     protected void sort() {
-        services.sort((s1, s2) -> Score.compare(serviceScore.get(s2), serviceScore.get(s1)));
+        services.sort((s1, s2) -> Score.compare(serviceScore.get(s1), serviceScore.get(s2)));
     }
 
     public void limit(int n) {
@@ -37,6 +37,14 @@ public class Assignment {
         while (services.size() > n) {
             services.remove(n - 1);
         }
+    }
+
+    public Optional<Service> getBest() {
+        if(services.isEmpty()) {
+            return Optional.empty();
+        }
+        sort();
+        return Optional.of(services.get(0));
     }
 
     public List<Service> getServices() {

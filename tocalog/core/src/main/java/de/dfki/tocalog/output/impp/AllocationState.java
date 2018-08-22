@@ -4,7 +4,6 @@ package de.dfki.tocalog.output.impp;
  */
 public class AllocationState {
     public enum State {
-        UNKNOWN,
         NONE,
         INIT,
         PRESENTING,
@@ -18,6 +17,11 @@ public class AllocationState {
 
     private State state;
     private Exception error;
+
+    public AllocationState(AllocationState other) {
+        this.state = other.state;
+        this.error = other.error;
+    }
 
     public AllocationState(State state) {
         this.state = state;
@@ -48,5 +52,29 @@ public class AllocationState {
 
     public static AllocationState Error(Exception error) {
         return new AllocationState(State.ERROR, error);
+    }
+
+    public boolean presenting() {
+        return state == State.PRESENTING;
+    }
+
+    public boolean initializing() {
+        return state == State.INIT;
+    }
+
+    public boolean successful() {
+        return state == State.SUCCESS;
+    }
+
+    public boolean cancelling() {
+        return state == State.CANCEL;
+    }
+
+    public boolean cancelled() {
+        return state == State.CANCELED;
+    }
+
+    public boolean unknown() {
+        return state == State.NONE;
     }
 }

@@ -18,11 +18,14 @@ import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
+import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
+import org.telegram.telegrambots.meta.updateshandlers.SentCallback;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -116,7 +119,13 @@ public class TelegramBot extends TelegramLongPollingBot implements InputComponen
                 .setChatId(chatId)
                 .setText(text);
         execute(message);
+    }
 
+    private void sendTextAsync(long chatId, String text, SentCallback<Message> callback) throws TelegramApiException {
+        SendMessage message = new SendMessage()
+                .setChatId(chatId)
+                .setText(text);
+        executeAsync(message, callback);
     }
 
     private void handleGenderCommand(Update update) {
@@ -177,31 +186,54 @@ public class TelegramBot extends TelegramLongPollingBot implements InputComponen
 
     private Map<String, AllocationState> allocationStates = new HashMap<>();
 
+    private synchronized void setAllocationState(String id, AllocationState allocationState) {
+        this.allocationStates.put(id, allocationState);
+    }
+
     @Override
     public String allocate(Output output, Service service) {
         String id = UUID.randomUUID().toString();
         if (!handles(output, service)) {
             String errMsg = String.format("Can't output {} on {}", output, service);
             log.warn(errMsg);
-            allocationStates.put(id, new AllocationState(AllocationState.State.ERROR, new IllegalArgumentException(errMsg)));
+            setAllocationState(id, new AllocationState(AllocationState.State.ERROR, new IllegalArgumentException(errMsg)));
             return id;
         }
 
         TextOutput to = (TextOutput) output;
         try {
-            allocationStates.put(id, new AllocationState(AllocationState.State.INIT));
+            setAllocationState(id, new AllocationState(AllocationState.State.INIT));
             //TODO is this blocking?
-            sendText(Long.parseLong(service.getId().get()), to.getText());
+
+            sendTextAsync(Long.parseLong(service.getId().get()), to.getText(), new SentCallback<Message>() {
+                @Override
+                public void onResult(BotApiMethod<Message> method, Message response) {
+                    setAllocationState(id, new AllocationState(AllocationState.State.SUCCESS));
+                }
+
+                @Override
+                public void onError(BotApiMethod<Message> method, TelegramApiRequestException apiException) {
+                    setAllocationState(id, new AllocationState(AllocationState.State.ERROR, apiException));
+                }
+
+                @Override
+                public void onException(BotApiMethod<Message> method, Exception exception) {
+                    setAllocationState(id, new AllocationState(AllocationState.State.ERROR, exception));
+                }
+            });
         } catch (TelegramApiException e) {
             e.printStackTrace();
-            allocationStates.put(id, new AllocationState(AllocationState.State.ERROR, e));
+            setAllocationState(id, new AllocationState(AllocationState.State.ERROR, e));
         }
         return id;
     }
 
     @Override
-    public AllocationState getState(String id) {
-        return new AllocationState(AllocationState.State.UNKNOWN);
+    public synchronized AllocationState getState(String id) {
+        if(!allocationStates.containsKey(id)) {
+            return new AllocationState(AllocationState.State.NONE);
+        }
+        return allocationStates.get(id);
     }
 
     @Override
