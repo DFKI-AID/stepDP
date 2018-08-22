@@ -10,6 +10,10 @@ import org.slf4j.LoggerFactory;
  */
 public class DeviceControlBehavior implements DialogComponent {
     private static Logger log = LoggerFactory.getLogger(DeviceControlBehavior.class);
+    private boolean fanOn = false;
+    private boolean tvOn = false;
+    private boolean radioOn = false;
+    private boolean lampOn = false;
 
     @Override
     public void init(Context context) {
@@ -18,7 +22,21 @@ public class DeviceControlBehavior implements DialogComponent {
 
     @Override
     public boolean onIntent(Intent intent) {
-        return false;
+        if (!intent.getType().equals("turnOn")) {
+            return false;
+        }
+
+        if(intent.getAccusative().getEntities().isEmpty()) {
+            log.warn("could not find entities in turn on request");
+            //TODO could ask for more information
+            return true;
+        }
+
+        for (String device : intent.getAccusative().getEntities()) {
+            log.info("turning on \"{}\"", device);
+        }
+
+        return true;
     }
 
     @Override

@@ -67,7 +67,7 @@ public class TelegramBot extends TelegramLongPollingBot implements InputComponen
 
     @Override
     public void onUpdateReceived(Update update) {
-        // We check if the update has a message and the message has text
+        // check if we received a text message and forward it as TextInput
         if (!update.hasMessage()) {
             return;
         }

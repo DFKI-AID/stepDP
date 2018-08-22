@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * Assigns all services that can present an output to the corresponding leaves
  */
 public class FindCandidateVisitor implements OutputNode.Visitor {
     private final IMPP immp;

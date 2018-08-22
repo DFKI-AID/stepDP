@@ -4,6 +4,7 @@ import de.dfki.tocalog.dialog.Intent;
 import de.dfki.tocalog.dialog.IntentProducer;
 import de.dfki.tocalog.input.Input;
 import de.dfki.tocalog.input.TextInput;
+import de.dfki.tocalog.rasa.RasaEntity;
 import de.dfki.tocalog.rasa.RasaHelper;
 import de.dfki.tocalog.rasa.RasaResponse;
 import org.slf4j.Logger;
@@ -46,10 +47,29 @@ public class RasaIntentProducer implements IntentProducer {
 
     protected void onRasaResponse(TextInput ti, RasaResponse rasaResponse) {
         if (rasaResponse.getRasaIntent().getConfidence() < 0.4) {
+            log.info("confidence to low for rasa intent {}: {}", rasaResponse.getRasaIntent().getName(),
+                    rasaResponse.getRasaIntent().getConfidence());
             return;
         }
-        Intent intent = new Intent(Intent.CommunicativeFunction.Statement, rasaResponse.getRasaIntent().getName());
-        ti.getSource().ifPresent(s -> intent.setNominative(s));
-        intentQueue.add(intent);
+
+        if (rasaResponse.getRasaIntent().getName().equals("greeting")) {
+            Intent intent = new Intent(Intent.CommunicativeFunction.Statement, rasaResponse.getRasaIntent().getName());
+            ti.getSource().ifPresent(s -> intent.addNominative(s));
+            intentQueue.add(intent);
+        }
+
+        if (rasaResponse.getRasaIntent().getName().equals("turnOn")) {
+            Intent intent = new Intent(Intent.CommunicativeFunction.Request, rasaResponse.getRasaIntent().getName());
+            ti.getSource().ifPresent(s -> intent.addNominative(s));
+            for (RasaEntity rasaEntity : rasaResponse.getRasaEntityList()) {
+                if (rasaEntity.getEntity().equals("device")) {
+                    intent.addAccusative(rasaEntity.getValue());
+                }
+                if (rasaEntity.getEntity().equals("location")) {
+//                    intent.addLocation(rasaEntity.getValue());
+                }
+            }
+            intentQueue.add(intent);
+        }
     }
 }

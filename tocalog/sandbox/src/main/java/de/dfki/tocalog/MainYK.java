@@ -118,7 +118,6 @@ public class MainYK {
 
         IntentProducer rasaIc = new RasaIntentProducer();
 
-        DialogComponent greetingDc = new GreetingBehavior();
 
         TelegramBot tbot = new TelegramBot();
 
@@ -128,7 +127,8 @@ public class MainYK {
                 .build();
 
         MetaDialog dialog = new MetaDialog();
-        dialog.addDialogComponent(greetingDc);
+        dialog.addDialogComponent(new GreetingBehavior());
+        dialog.addDialogComponent(new DeviceControlBehavior());
         dialog.addIntentProducer(rasaIc);
 
         ProjectManager dc = ProjectManager.create(dialog)

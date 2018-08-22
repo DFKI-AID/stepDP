@@ -2,22 +2,38 @@ package de.dfki.tocalog.dialog;
 
 import de.dfki.tocalog.model.Confidence;
 
-import java.util.Optional;
+import java.util.*;
 
 /**
  */
 public class Intent {
     private CommunicativeFunction communicativeFunction;
     private String type;
-    private String nominative; //wer oder was
+    private Entity nominative = new Entity(); //wer oder was
     private String genetive; //wessen
     private String dative; //wem
-    private String accusative; //wen
+    private Entity accusative = new Entity(); //wen
     private Optional<Confidence> confidence = Optional.empty();
+    private Entity location = new Entity();
+
+
+    public static class Entity {
+        private List<String> entities = new ArrayList<>();
+
+        public void addEntity(String entity) {
+            entities.add(entity);
+        }
+
+        public List<String> getEntities() {
+            return entities;
+        }
+    }
+
 
     public enum CommunicativeFunction {
         Question,
-        Statement
+        Statement,
+        Request
     }
 
     public Intent(CommunicativeFunction communicativeFunction, String intent) {
@@ -25,12 +41,12 @@ public class Intent {
         this.type = intent;
     }
 
-    public String getNominative() {
+    public Entity getNominative() {
         return nominative;
     }
 
-    public void setNominative(String nominative) {
-        this.nominative = nominative;
+    public void addNominative(String nominative) {
+        this.nominative.addEntity(nominative);
     }
 
     public String getGenetive() {
@@ -49,12 +65,12 @@ public class Intent {
         this.dative = dative;
     }
 
-    public String getAccusative() {
+    public Entity getAccusative() {
         return accusative;
     }
 
-    public void setAccusative(String accusative) {
-        this.accusative = accusative;
+    public void addAccusative(String entity) {
+        this.accusative.addEntity(entity);
     }
 
     public CommunicativeFunction getCommunicativeFunction() {

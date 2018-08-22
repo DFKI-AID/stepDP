@@ -58,7 +58,18 @@ public class GreetingBehavior implements DialogComponent {
                 if (!intent.getType().equals("greeting")) {
                     return false;
                 }
-                TextOutput output = new TextOutput("hi " + intent.getNominative());
+
+                String msg = "hi ";
+                if(intent.getNominative().getEntities().size() == 1) {
+                    msg += intent.getNominative().getEntities().get(0);
+                } else if(intent.getNominative().getEntities().size() == 2) {
+                    msg += intent.getNominative().getEntities().get(0);
+                    msg += " and ";
+                    msg += intent.getNominative().getEntities().get(1);
+                } else {
+                    msg += "together!";
+                }
+                TextOutput output = new TextOutput(msg);
                 OutputNode node = OutputNode.buildNode(output).build();
                 out.allocate(node);
 
