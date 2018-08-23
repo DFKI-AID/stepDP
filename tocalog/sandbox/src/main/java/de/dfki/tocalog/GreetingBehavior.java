@@ -9,14 +9,13 @@ import de.dfki.tocalog.dialog.sc.Transition;
 import de.dfki.tocalog.framework.DialogComponent;
 import de.dfki.tocalog.framework.Event;
 import de.dfki.tocalog.framework.EventEngine;
-import de.dfki.tocalog.output.IMPP;
-import de.dfki.tocalog.output.OutputComponent;
-import de.dfki.tocalog.output.SpeechOutput;
-import de.dfki.tocalog.output.TextOutput;
+import de.dfki.tocalog.output.*;
 import de.dfki.tocalog.output.impp.Allocation;
 import de.dfki.tocalog.output.impp.OutputNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
 
 public class GreetingBehavior implements DialogComponent {
     private Logger log = LoggerFactory.getLogger(GreetingBehavior.class);
@@ -73,10 +72,9 @@ public class GreetingBehavior implements DialogComponent {
                 } else {
                     msg += "together!";
                 }
-                TextOutput output = new TextOutput(msg);
                 OutputNode node =
                         OutputNode.buildNode(OutputNode.Semantic.complementary)
-                                .addNode(OutputNode.buildNode(output).build())
+                                .addNode(OutputNode.buildNode(new TextOutput(msg)).build())
                                 .addNode(OutputNode.buildNode(OutputNode.Semantic.optional)
                                         .addNode(OutputNode.buildNode(new TextOutput("second msg!")).build())
                                         .build()
@@ -84,6 +82,7 @@ public class GreetingBehavior implements DialogComponent {
                                 .addNode(OutputNode.buildNode(OutputNode.Semantic.optional)
                                         .addNode(OutputNode.buildNode(new SpeechOutput("blaaa blubb")).build())
                                         .build())
+                                .addNode(OutputNode.buildNode(new ImageOutput(new File("/Users/yk/Desktop/direct.jpg"))).build())
                                 .build();
                 Allocation allocation = impp.allocate(node);
 

@@ -6,6 +6,7 @@ import de.dfki.tocalog.framework.EventEngine;
 import de.dfki.tocalog.framework.InputComponent;
 import de.dfki.tocalog.kb.EKnowledgeMap;
 import de.dfki.tocalog.model.Service;
+import de.dfki.tocalog.output.ImageOutput;
 import de.dfki.tocalog.output.Output;
 import de.dfki.tocalog.output.OutputComponent;
 import de.dfki.tocalog.output.TextOutput;
@@ -18,8 +19,11 @@ import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
+import org.telegram.telegrambots.meta.api.methods.ActionType;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
+import org.telegram.telegrambots.meta.api.methods.send.SendChatAction;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
@@ -27,9 +31,9 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 import org.telegram.telegrambots.meta.updateshandlers.SentCallback;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.io.File;
+import java.io.Serializable;
+import java.util.*;
 import java.util.regex.Pattern;
 
 /**
@@ -41,6 +45,8 @@ public class TelegramBot extends TelegramLongPollingBot implements InputComponen
     private Context context;
     private TelegramBotsApi botsApi;
     private long lastChatId;
+    private Thread outputThread;
+    private Queue<Runnable> outputQueue = new ArrayDeque<>();
 
     static {
         ApiContextInitializer.init();
@@ -55,6 +61,29 @@ public class TelegramBot extends TelegramLongPollingBot implements InputComponen
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
+
+        outputThread = new Thread() {
+            @Override
+            public void run() {
+                while (!Thread.currentThread().isInterrupted()) {
+                    Runnable run;
+                    synchronized (TelegramBot.this) {
+                        if (outputQueue.isEmpty()) {
+                            try {
+                                TelegramBot.this.wait();
+                            } catch (InterruptedException e) {
+                            }
+                            continue;
+                        }
+                        run = outputQueue.poll();
+                    }
+
+                    run.run();
+                }
+            }
+        };
+        outputThread.setDaemon(true);
+        outputThread.start();
     }
 
     public void send(String msg) {
@@ -126,6 +155,13 @@ public class TelegramBot extends TelegramLongPollingBot implements InputComponen
                 .setChatId(chatId)
                 .setText(text);
         executeAsync(message, callback);
+    }
+
+    private void sendImage(long chatId, File file) throws TelegramApiException {
+        SendPhoto sendPhoto = new SendPhoto()
+                .setChatId(chatId)
+                .setPhoto(file);
+        execute(sendPhoto);
     }
 
     private void handleGenderCommand(Update update) {
@@ -200,37 +236,52 @@ public class TelegramBot extends TelegramLongPollingBot implements InputComponen
             return id;
         }
 
-        TextOutput to = (TextOutput) output;
-        try {
-            setAllocationState(id, new AllocationState(AllocationState.State.INIT));
-            //TODO is this blocking?
 
-            sendTextAsync(Long.parseLong(service.getId().get()), to.getText(), new SentCallback<Message>() {
-                @Override
-                public void onResult(BotApiMethod<Message> method, Message response) {
-                    setAllocationState(id, new AllocationState(AllocationState.State.SUCCESS));
-                }
+        setAllocationState(id, new AllocationState(AllocationState.State.INIT));
 
-                @Override
-                public void onError(BotApiMethod<Message> method, TelegramApiRequestException apiException) {
-                    setAllocationState(id, new AllocationState(AllocationState.State.ERROR, apiException));
-                }
-
-                @Override
-                public void onException(BotApiMethod<Message> method, Exception exception) {
-                    setAllocationState(id, new AllocationState(AllocationState.State.ERROR, exception));
-                }
-            });
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
-            setAllocationState(id, new AllocationState(AllocationState.State.ERROR, e));
+        if (output instanceof TextOutput) {
+            allocateTextOutput(id, (TextOutput) output, service);
+            return id;
         }
-        return id;
+
+        if (output instanceof ImageOutput) {
+            allocateImageOutput(id, (ImageOutput) output, service);
+            return id;
+        }
+
+
+        throw new IllegalStateException();
+    }
+
+    private synchronized void allocateTextOutput(String id, TextOutput to, Service service) {
+        outputQueue.add(() -> {
+            try {
+                setAllocationState(id, new AllocationState(AllocationState.State.PRESENTING));
+                sendText(Long.parseLong(service.getId().get()), to.getText());
+                setAllocationState(id, new AllocationState(AllocationState.State.SUCCESS));
+            } catch (TelegramApiException e) {
+                setAllocationState(id, new AllocationState(AllocationState.State.ERROR, e));
+            }
+        });
+        this.notify();
+    }
+
+    private synchronized void allocateImageOutput(String id, ImageOutput io, Service service) {
+        outputQueue.add(() -> {
+            try {
+                setAllocationState(id, new AllocationState(AllocationState.State.PRESENTING));
+                sendImage(Long.parseLong(service.getId().get()), io.getFile());
+                setAllocationState(id, new AllocationState(AllocationState.State.SUCCESS));
+            } catch (TelegramApiException e) {
+                setAllocationState(id, new AllocationState(AllocationState.State.ERROR, e));
+            }
+        });
+        this.notify();
     }
 
     @Override
     public synchronized AllocationState getState(String id) {
-        if(!allocationStates.containsKey(id)) {
+        if (!allocationStates.containsKey(id)) {
             return new AllocationState(AllocationState.State.NONE);
         }
         return allocationStates.get(id);
@@ -238,7 +289,7 @@ public class TelegramBot extends TelegramLongPollingBot implements InputComponen
 
     @Override
     public boolean handles(Output output, Service service) {
-        if (!(output instanceof TextOutput)) {
+        if (!(output instanceof TextOutput) && !(output instanceof ImageOutput)) {
             return false;
         }
         if (!service.getType().isPresent()) {
