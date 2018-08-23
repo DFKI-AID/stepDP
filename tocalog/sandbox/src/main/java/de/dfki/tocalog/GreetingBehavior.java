@@ -7,6 +7,8 @@ import de.dfki.tocalog.dialog.sc.StateChart;
 import de.dfki.tocalog.dialog.sc.StateChartEvent;
 import de.dfki.tocalog.dialog.sc.Transition;
 import de.dfki.tocalog.framework.DialogComponent;
+import de.dfki.tocalog.framework.Event;
+import de.dfki.tocalog.framework.EventEngine;
 import de.dfki.tocalog.output.IMPP;
 import de.dfki.tocalog.output.OutputComponent;
 import de.dfki.tocalog.output.SpeechOutput;
@@ -127,11 +129,10 @@ public class GreetingBehavior implements DialogComponent {
     }
 
     @Override
-    public void update() {
+    public void onEvent(EventEngine engine, Event event) {
         if (!ih.shouldExecute()) {
             return;
         }
-        sc.onEvent(new StateChartEvent()); //will trigger the reset transition at some point
+//        sc.onEvent(new StateChartEvent()); //will trigger the reset transition at some point
     }
-
 }

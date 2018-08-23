@@ -45,9 +45,6 @@ public class ProjectManager implements Runnable {
     }
 
     public void run() {
-        Thread dialogThread = new Thread(dialog);
-        dialogThread.setDaemon(true);
-        dialogThread.start();
         eventEngine.run();
     }
 
@@ -68,7 +65,6 @@ public class ProjectManager implements Runnable {
 
 
         public Builder addInputComponent(InputComponent component) {
-            eventEngineBuilder.addListener(component);
             inputComponents.add(component);
             return this;
         }
@@ -79,26 +75,13 @@ public class ProjectManager implements Runnable {
         }
 
         public ProjectManager build() {
-            //glue Inputs from event system to dialog
-            eventEngineBuilder.addListener((ee, eve) -> {
-                if (!eve.is(Input.class)) {
-                    return;
-                }
-                metaDialog.getIntentProducer().add((Input) eve.get());
-            });
+            //connect to event queue
+            for(InputComponent ic : inputComponents) {
+                eventEngineBuilder.addListener(ic);
+            }
+            eventEngineBuilder.addListener(metaDialog);
 
             ProjectManager dc = new ProjectManager(this);
-            metaDialog.init(new DialogComponent.Context() {
-                @Override
-                public KnowledgeBase getKnowledgeBase() {
-                    return knowledgeBase;
-                }
-
-                @Override
-                public IMPP getAllocatioModule() {
-                    return impp;
-                }
-            });
 
             for (InputComponent ic : inputComponents) {
                 ic.init(new InputComponent.Context() {
@@ -113,8 +96,17 @@ public class ProjectManager implements Runnable {
                     }
                 });
             }
+            metaDialog.init(new DialogComponent.Context() {
+                @Override
+                public KnowledgeBase getKnowledgeBase() {
+                    return knowledgeBase;
+                }
 
-
+                @Override
+                public IMPP getAllocatioModule() {
+                    return impp;
+                }
+            });
 
             return dc;
         }

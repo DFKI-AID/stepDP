@@ -1,7 +1,6 @@
 package de.dfki.tocalog;
 
 import de.dfki.tocalog.dialog.Intent;
-import de.dfki.tocalog.dialog.IntentProducer;
 import de.dfki.tocalog.dialog.MetaDialog;
 import de.dfki.tocalog.dialog.sc.State;
 import de.dfki.tocalog.dialog.sc.StateChart;
@@ -99,28 +98,6 @@ public class MainYK {
 
     public static void framework(String[] args) throws InterruptedException, IOException {
 
-
-//        DialogComponent fusion1 = new AbstractDialogComponent() {
-//
-//            @Override
-//            public void onEvent(EventEngine engine, Event event) {
-//                // a fusion component would check the person ks_map for available persons and then init the set for all persons
-//                EKnowledgeSet<Focus> kset = getKnowledgeBase().initKnowledgeSet(Focus.class, "mechanic1");
-//
-//                //if event is visual focus event
-//                kset.addInputComponent(Focus.create()
-//                        .setId("mechanic1")
-//                        .setFocus("car")
-//                        .setSource("kinect")
-//                        .setTimestamp(System.currentTimeMillis()));
-//
-//                kset.removeOld(5000L);
-//            }
-//        };
-
-        IntentProducer rasaIc = new RasaIntentProducer();
-
-
         TelegramBot tbot = new TelegramBot();
 
         PSBridge psBridge = PSBridge.build()
@@ -131,13 +108,12 @@ public class MainYK {
         MetaDialog dialog = new MetaDialog();
         dialog.addDialogComponent(new GreetingBehavior());
         dialog.addDialogComponent(new DeviceControlBehavior());
-        dialog.addIntentProducer(rasaIc);
 
         ProjectManager dc = ProjectManager.create(dialog)
-//                .addInputComponent(fusion1)
 //                .addInputComponent(psBridge)
                 .addInputComponent(tbot)
                 .addOutputComponent(tbot)
+                .addInputComponent(new RasaIntentProducer())
                 .build();
 
         EKnowledgeMap<Triple> focuskm = dc.getKnowledgeBase().getKnowledgeMap(Triple.class, "VisualFocus");

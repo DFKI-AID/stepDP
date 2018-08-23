@@ -2,6 +2,8 @@ package de.dfki.tocalog;
 
 import de.dfki.tocalog.dialog.Intent;
 import de.dfki.tocalog.framework.DialogComponent;
+import de.dfki.tocalog.framework.Event;
+import de.dfki.tocalog.framework.EventEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +42,7 @@ public class DeviceControlBehavior implements DialogComponent {
     }
 
     @Override
-    public void update() {
+    public void onEvent(EventEngine engine, Event event) {
 
     }
 }

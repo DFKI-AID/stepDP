@@ -11,6 +11,7 @@ public class EventEngine implements Runnable {
     private Queue<Runnable> tasks = new ArrayDeque<>();
     private List<Listener> listeners;
 
+
     protected EventEngine(Builder builder) {
         //copy from set to list to avoid duplicates and keep a fixed order during runtime
         this.listeners = new ArrayList<>(builder.listeners);
@@ -41,6 +42,8 @@ public class EventEngine implements Runnable {
         }
     }
 
+
+
     public void submit(Event event) {
         this.submit(() -> publishEvent(event));
     }
@@ -69,4 +72,6 @@ public class EventEngine implements Runnable {
             return new EventEngine(this);
         }
     }
+
+
 }

@@ -7,7 +7,7 @@ import de.dfki.tocalog.output.OutputComponent;
 
 /**
  */
-public interface DialogComponent {
+public interface DialogComponent extends EventEngine.Listener {
     void init(Context context);
 
     /**
@@ -15,8 +15,6 @@ public interface DialogComponent {
      * @return true iff the intent was consumed by this component
      */
     boolean onIntent(Intent intent);
-
-    void update();
 
     interface Context {
 //        ProjectManager getProjectManager();

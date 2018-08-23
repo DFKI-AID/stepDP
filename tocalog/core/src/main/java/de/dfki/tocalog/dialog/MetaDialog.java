@@ -1,15 +1,16 @@
 package de.dfki.tocalog.dialog;
 
 import de.dfki.tocalog.framework.DialogComponent;
+import de.dfki.tocalog.framework.Event;
+import de.dfki.tocalog.framework.EventEngine;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class MetaDialog implements Runnable {
+public class MetaDialog implements EventEngine.Listener {
     private DialogComponent.Context context;
     private List<DialogComponent> dialogComponents = new ArrayList<>();
-    private CIntentProducer intentProducer = new CIntentProducer();
 
     public MetaDialog() {
     }
@@ -19,39 +20,25 @@ public class MetaDialog implements Runnable {
         dialogComponents.forEach(dc -> dc.init(context));
     }
 
-    public void run() {
-        while (!Thread.currentThread().isInterrupted()) {
-            dialogComponents.forEach(dc -> dc.update()); //TODO update rate
-
-            Optional<Intent> intent = intentProducer.getIntent();
-            if (!intent.isPresent()) {
-                synchronized (this) {
-                    try {
-                        this.wait(500); //TODO give intent producer a "notify object"
-                    } catch (InterruptedException e) {
-                        break;
-                    }
-                }
-                continue;
-            }
-
-            for (DialogComponent dc : dialogComponents) {
-                if (dc.onIntent(intent.get())) {
-                    break;
-                }
-            }
-        }
-    }
-
     public void addDialogComponent(DialogComponent dc) {
         this.dialogComponents.add(dc);
     }
 
-    public void addIntentProducer(IntentProducer intentProducer) {
-        this.intentProducer.add(intentProducer);
-    }
+    @Override
+    public void onEvent(EventEngine engine, Event event) {
+        if(!event.is(Intent.class)) {
+            for(DialogComponent dc : dialogComponents) {
+                dc.onEvent(engine, event);
+            }
+            return;
+        }
 
-    public CIntentProducer getIntentProducer() {
-        return intentProducer;
+        //TODO coordination
+        for(DialogComponent dc : dialogComponents) {
+            if(dc.onIntent((Intent) event.get())) {
+                //consumed
+                return;
+            }
+        }
     }
 }
