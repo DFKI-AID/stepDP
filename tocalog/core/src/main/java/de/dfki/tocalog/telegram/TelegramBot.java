@@ -44,7 +44,6 @@ public class TelegramBot extends TelegramLongPollingBot implements InputComponen
     private WikiMedia wikiMedia;// = new WikiMedia();
     private Context context;
     private TelegramBotsApi botsApi;
-    private long lastChatId;
     private Thread outputThread;
     private Queue<Runnable> outputQueue = new ArrayDeque<>();
 
@@ -86,16 +85,7 @@ public class TelegramBot extends TelegramLongPollingBot implements InputComponen
         outputThread.start();
     }
 
-    public void send(String msg) {
-        SendMessage message = new SendMessage() // Create a SendMessage object with mandatory fields
-                .setChatId(lastChatId)
-                .setText(msg);
-        try {
-            execute(message); // Call method to send the message
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
-        }
-    }
+
 
     @Override
     public void onUpdateReceived(Update update) {
@@ -298,6 +288,8 @@ public class TelegramBot extends TelegramLongPollingBot implements InputComponen
         if (!service.getId().isPresent()) {
             return false;
         }
+
+        //TODO check if image type is supported by telegram
         return service.getType().get().equals("telegram");
     }
 }
