@@ -1,6 +1,7 @@
 package de.dfki.tocalog.output.impp;
 
 /**
+ * TODO: encapsulate enum inside the class
  */
 public class AllocationState {
     public enum State {
@@ -70,11 +71,72 @@ public class AllocationState {
         return state == State.CANCEL;
     }
 
-    public boolean cancelled() {
+    public boolean canceled() {
         return state == State.CANCELED;
     }
 
     public boolean unknown() {
         return state == State.NONE;
+    }
+
+    public Exception getErrorCause() {
+        return error;
+    }
+
+    private static final AllocationState None = new AllocationState(State.NONE);
+    private static final AllocationState Init = new AllocationState(State.INIT);
+    private static final AllocationState Presenting = new AllocationState(State.PRESENTING);
+    private static final AllocationState Paused = new AllocationState(State.PAUSED);
+    private static final AllocationState Cancel = new AllocationState(State.CANCEL);
+    private static final AllocationState Canceled = new AllocationState(State.CANCELED);
+    private static final AllocationState Success = new AllocationState(State.SUCCESS);
+    private static final AllocationState Timeout = new AllocationState(State.TIMEOUT);
+
+    public static AllocationState getNone() {
+        return None;
+    }
+
+    public static AllocationState getInit() {
+        return Init;
+    }
+
+    public static AllocationState getPresenting() {
+        return Presenting;
+    }
+
+    public static AllocationState getPaused() {
+        return Paused;
+    }
+
+    public static AllocationState getCancel() {
+        return Cancel;
+    }
+
+    public static AllocationState getCanceled() {
+        return Canceled;
+    }
+
+    public static AllocationState getSuccess() {
+        return Success;
+    }
+
+    public static AllocationState getTimeout() {
+        return Timeout;
+    }
+
+    public static AllocationState getError(Exception ex) {
+        return new AllocationState(State.ERROR, ex);
+    }
+
+    public static AllocationState getError(String err) {
+        return getError(new Exception(err));
+    }
+
+    @Override
+    public String toString() {
+        return "AllocationState{" +
+                "state=" + state +
+                (error == null ? "" : (", error=" + error)) +
+                '}';
     }
 }

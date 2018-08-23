@@ -20,7 +20,6 @@ public class Allocation {
     }
 
     public synchronized AllocationState getAllocationState() {
-        //TODO use visitor
         return allocationState;
     }
 

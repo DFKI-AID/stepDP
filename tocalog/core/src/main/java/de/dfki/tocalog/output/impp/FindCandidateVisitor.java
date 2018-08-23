@@ -25,16 +25,15 @@ public class FindCandidateVisitor implements OutputNode.Visitor {
 
     @Override
     public void visitLeaf(OutputNode.External leaf) {
+        if (!assignments.containsKey(leaf.getId())) {
+            assignments.put(leaf.getId(), new Assignment(leaf.getOutput(), null));
+        }
+
         for (OutputComponent oc : immp.getComponents()) {
             for (Service service : services) {
                 if (!oc.handles(leaf.getOutput(), service)) {
                     continue;
                 }
-
-                if (!assignments.containsKey(leaf.getId())) {
-                    assignments.put(leaf.getId(), new Assignment(leaf.getOutput(), null));
-                }
-
                 assignments.get(leaf.getId()).addService(service);
             }
         }

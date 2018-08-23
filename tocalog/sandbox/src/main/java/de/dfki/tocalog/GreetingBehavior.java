@@ -9,7 +9,9 @@ import de.dfki.tocalog.dialog.sc.Transition;
 import de.dfki.tocalog.framework.DialogComponent;
 import de.dfki.tocalog.output.IMPP;
 import de.dfki.tocalog.output.OutputComponent;
+import de.dfki.tocalog.output.SpeechOutput;
 import de.dfki.tocalog.output.TextOutput;
+import de.dfki.tocalog.output.impp.Allocation;
 import de.dfki.tocalog.output.impp.OutputNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,9 +62,9 @@ public class GreetingBehavior implements DialogComponent {
                 }
 
                 String msg = "hi ";
-                if(intent.getNominative().getEntities().size() == 1) {
+                if (intent.getNominative().getEntities().size() == 1) {
                     msg += intent.getNominative().getEntities().get(0);
-                } else if(intent.getNominative().getEntities().size() == 2) {
+                } else if (intent.getNominative().getEntities().size() == 2) {
                     msg += intent.getNominative().getEntities().get(0);
                     msg += " and ";
                     msg += intent.getNominative().getEntities().get(1);
@@ -70,8 +72,28 @@ public class GreetingBehavior implements DialogComponent {
                     msg += "together!";
                 }
                 TextOutput output = new TextOutput(msg);
-                OutputNode node = OutputNode.buildNode(output).build();
-                impp.allocate(node);
+                OutputNode node =
+                        OutputNode.buildNode(OutputNode.Semantic.complementary)
+                                .addNode(OutputNode.buildNode(output).build())
+                                .addNode(OutputNode.buildNode(OutputNode.Semantic.optional)
+                                        .addNode(OutputNode.buildNode(new TextOutput("second msg!")).build())
+                                        .build()
+                                )
+                                .addNode(OutputNode.buildNode(OutputNode.Semantic.optional)
+                                        .addNode(OutputNode.buildNode(new SpeechOutput("blaaa blubb")).build())
+                                        .build())
+                                .build();
+                Allocation allocation = impp.allocate(node);
+
+                while (!allocation.getAllocationState().finished()) {
+                    allocation.updateAllocationState();
+                    System.out.println(allocation.getAllocationState());
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
 
 
                 //log.info("would output something :)");

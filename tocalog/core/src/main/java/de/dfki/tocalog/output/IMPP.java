@@ -21,7 +21,7 @@ public class IMPP {
 //        root.
     }
 
-    public String allocate(OutputNode output) { //TODO OutputRequest? what, when, whom? how?
+    public Allocation allocate(OutputNode output) { //TODO OutputRequest? what, when, whom? how?
         //output = copyVisitor.copy(output).build();
 
 
@@ -31,6 +31,7 @@ public class IMPP {
         AllocateVisitor av = new AllocateVisitor(this);
         Allocation allocation = av.visit(output, assignments);
 
+        return allocation;
 
         // AssignServiceVisitor ... a set of them
         // find suitable services for output
@@ -50,7 +51,7 @@ public class IMPP {
 
         //copyVisitor.copy(output);
 
-        return null;
+//        return null;
     }
 
 

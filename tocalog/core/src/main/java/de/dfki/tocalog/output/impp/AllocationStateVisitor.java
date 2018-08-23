@@ -2,6 +2,8 @@ package de.dfki.tocalog.output.impp;
 
 import de.dfki.tocalog.output.IMPP;
 import de.dfki.tocalog.output.OutputComponent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +12,7 @@ import java.util.stream.Collectors;
 /**
  */
 public class AllocationStateVisitor implements OutputNode.Visitor {
+    private static Logger log = LoggerFactory.getLogger(AllocationStateVisitor.class);
     private IMPP impp;
     private AllocationState allocationState;
     private Allocation allocation;
@@ -24,10 +27,15 @@ public class AllocationStateVisitor implements OutputNode.Visitor {
     @Override
     public void visitLeaf(OutputNode.External leaf) {
         //TODO id not available
+        allocationState = AllocationState.getNone();
         String allocationId = allocation.getAllocationsIds().get(leaf.getId());
-        for(OutputComponent oc : impp.getComponents()) {
-//            oc.getState()
+        for (OutputComponent oc : impp.getComponents()) {
+            allocationState = oc.getState(allocationId);
+            if (!allocationState.unknown()) {
+                return;
+            }
         }
+        log.warn("could not get allocation state for leaf={} output={}", leaf.getId(), leaf.getOutput());
     }
 
     @Override
@@ -39,49 +47,123 @@ public class AllocationStateVisitor implements OutputNode.Visitor {
             allocationStates.add(allocationState);
         }
 
-        allocationState = new AllocationState(AllocationState.State.NONE);
+        allocationState = AllocationState.getNone();
         switch (node.getSemantic()) {
             case redundant:
                 allocationState = mergeRedundant(allocationStates);
                 break;
             case complementary:
-                throw new UnsupportedOperationException("not impl");
-//                break;
+                allocationState = mergeComplementary(allocationStates);
+                break;
             case alternative:
                 throw new UnsupportedOperationException("not impl");
 //                break;
             case concurrent:
-                throw new UnsupportedOperationException("not impl");
-//                break;
+                allocationState = mergeComplementary(allocationStates);
+                break;
             case sequential:
                 throw new UnsupportedOperationException("not impl");
 //                break;
             case optional:
-                throw new UnsupportedOperationException("not impl");
-//                break;
+                allocationState = mergeOptional(allocationStates);
+                break;
         }
 
     }
 
+    private AllocationState mergeOptional(List<AllocationState> states) {
+//        if(states.stream().anyMatch(s -> s.unknown())) {
+//            return AllocationState.getNone();
+//        }
+
+        if (states.stream().allMatch(s -> s.finished() || s.unknown())) {
+            return AllocationState.getSuccess();
+        }
+
+        if(states.stream().anyMatch(s -> s.presenting())) {
+            return AllocationState.getPresenting();
+        }
+
+        if(states.stream().anyMatch(s -> s.initializing())) {
+            return AllocationState.getInit();
+        }
+
+        if(states.stream().anyMatch(s -> s.cancelling())) {
+            return AllocationState.getCancel();
+        }
+
+        if(states.stream().allMatch(s -> s.canceled())) {
+            return AllocationState.getCanceled();
+        }
+
+        throw new IllegalStateException("unhandled presentation state: " +
+                states.stream().map(as -> as.toString()).collect(Collectors.joining(" ")));
+    }
+
+    private AllocationState mergeComplementary(List<AllocationState> states) {
+        if (states.stream().anyMatch(s -> s.failed())) {
+            //if one part of the presentation failed, the whole presentation failed
+            AllocationState state = states.stream().filter(s -> s.failed()).findAny().get();
+            return AllocationState.getError(state.getErrorCause());
+        }
+
+        if (states.stream().allMatch(s -> s.successful())) {
+            return AllocationState.getSuccess();
+        }
+
+        if (states.stream().anyMatch(s -> s.presenting())) {
+            return AllocationState.getPresenting();
+        }
+
+        if (states.stream().anyMatch(s -> s.cancelling())) {
+            return AllocationState.getCancel();
+        }
+
+        if (states.stream().allMatch(s -> s.canceled())) {
+            return AllocationState.getCanceled();
+        }
+
+        if (states.stream().allMatch(s -> s.unknown())) {
+            return AllocationState.getNone();
+        }
+
+        if (states.stream().filter(s -> s.initializing()).findAny().isPresent()) {
+            return AllocationState.getInit();
+        }
+
+        if (states.stream().allMatch(s -> s.unknown() || s.finished())) {
+            return AllocationState.getError("could not find allocation information for a sub allocation");
+        }
+
+        throw new IllegalStateException("unhandled presentation state: " +
+                states.stream().map(as -> as.toString()).collect(Collectors.joining(" ")));
+    }
+
     private AllocationState mergeRedundant(List<AllocationState> states) {
         if (states.stream().filter(s -> s.presenting()).findAny().isPresent()) {
-            return new AllocationState(AllocationState.State.PRESENTING);
+            return AllocationState.getPresenting();
         }
 
         if (states.stream().filter(s -> s.cancelling()).findAny().isPresent()) {
-            return new AllocationState(AllocationState.State.CANCEL);
+            return AllocationState.getCancel();
         }
 
+        if (states.stream().allMatch(s -> s.unknown())) {
+            return AllocationState.getNone();
+        }
 
         if (states.stream().filter(s -> s.initializing()).findAny().isPresent()) {
-            return new AllocationState(AllocationState.State.INIT);
+            return AllocationState.getInit();
         }
 
-        if (states.stream().allMatch(s -> s.finished())) {
-            boolean success = states.stream().filter(s -> s.successful()).findAny().isPresent();
+
+        if (states.stream().anyMatch(s -> s.finished())) {
+            //at least one sub allocation is finished
+
+            boolean success = states.stream().anyMatch(s -> s.successful());
             if (success) {
                 // if one of the redundant presentation was successful the whole presentation is considered successful
-                return new AllocationState(AllocationState.State.SUCCESS);
+                return AllocationState.getSuccess();
             }
 
             //TODO could merge error message of sub allocations
