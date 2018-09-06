@@ -28,7 +28,7 @@ public class LocatedInProperty extends PredicateHelper {
 
     public Set<String> locates(Zone zone) {
         if (!zone.getId().isPresent()) {
-            log.warn("can 'locates' with a zone without a zone. got {}", zone);
+            log.warn("can't  'locates' with a zone without an id. got {}", zone);
             return Collections.EMPTY_SET;
         }
         return inverseRelation(LOCATED_IN_PRED, zone.getId().get());
