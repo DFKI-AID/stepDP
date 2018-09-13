@@ -22,7 +22,6 @@ public class FindCandidateVisitor implements OutputNode.Visitor {
         this.immp = immp;
     }
 
-
     @Override
     public void visitLeaf(OutputNode.External leaf) {
         if (!assignments.containsKey(leaf.getId())) {

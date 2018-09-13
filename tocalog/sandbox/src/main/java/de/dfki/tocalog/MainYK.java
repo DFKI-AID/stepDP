@@ -129,7 +129,7 @@ public class MainYK {
         focuskm.add(Triple.create().setSubject("mechanic1").setPredicate("gesture").setObject("SwipeLeft")
                 .setSource("hololens"));
 
-        EKnowledgeMap<Service> skm = dc.getKnowledgeBase().getKnowledgeMap(Service.class);
+//        EKnowledgeMap<Service> skm = dc.getKnowledgeBase().getKnowledgeMap(Service.class);
 //        skm.add(Service.create().set);
 
 
