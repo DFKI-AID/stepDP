@@ -1,9 +1,9 @@
 package de.dfki.tocalog;
 
 import de.dfki.tocalog.dialog.Intent;
-import de.dfki.tocalog.framework.DialogComponent;
-import de.dfki.tocalog.framework.Event;
-import de.dfki.tocalog.framework.EventEngine;
+import de.dfki.tocalog.core.DialogComponent;
+import de.dfki.tocalog.core.Event;
+import de.dfki.tocalog.core.EventEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

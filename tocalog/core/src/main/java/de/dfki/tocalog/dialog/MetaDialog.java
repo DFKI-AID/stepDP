@@ -1,12 +1,11 @@
 package de.dfki.tocalog.dialog;
 
-import de.dfki.tocalog.framework.DialogComponent;
-import de.dfki.tocalog.framework.Event;
-import de.dfki.tocalog.framework.EventEngine;
+import de.dfki.tocalog.core.DialogComponent;
+import de.dfki.tocalog.core.Event;
+import de.dfki.tocalog.core.EventEngine;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class MetaDialog implements EventEngine.Listener {
     private DialogComponent.Context context;

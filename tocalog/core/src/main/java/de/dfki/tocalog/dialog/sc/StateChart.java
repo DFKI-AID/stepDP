@@ -1,8 +1,5 @@
 package de.dfki.tocalog.dialog.sc;
 
-import de.dfki.tocalog.dialog.Intent;
-import de.dfki.tocalog.framework.Event;
-import de.dfki.tocalog.framework.EventEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -2,7 +2,7 @@ package de.dfki.tocalog;
 
 import de.dfki.tecs.ps.PSClient;
 import de.dfki.tecs.ps.PSFactory;
-import de.dfki.tocalog.framework.*;
+import de.dfki.tocalog.core.*;
 import org.apache.thrift.TBase;
 
 import java.util.HashSet;

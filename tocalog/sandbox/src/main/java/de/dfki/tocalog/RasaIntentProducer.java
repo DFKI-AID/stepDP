@@ -1,9 +1,9 @@
 package de.dfki.tocalog;
 
 import de.dfki.tocalog.dialog.Intent;
-import de.dfki.tocalog.framework.Event;
-import de.dfki.tocalog.framework.EventEngine;
-import de.dfki.tocalog.framework.InputComponent;
+import de.dfki.tocalog.core.Event;
+import de.dfki.tocalog.core.EventEngine;
+import de.dfki.tocalog.core.InputComponent;
 import de.dfki.tocalog.input.TextInput;
 import de.dfki.tocalog.rasa.RasaEntity;
 import de.dfki.tocalog.rasa.RasaHelper;
@@ -11,9 +11,7 @@ import de.dfki.tocalog.rasa.RasaResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayDeque;
 import java.util.Optional;
-import java.util.Queue;
 
 /**
  */

@@ -1,16 +1,12 @@
 package de.dfki.tocalog;
 
-import de.dfki.tocalog.dialog.Intent;
 import de.dfki.tocalog.dialog.MetaDialog;
 import de.dfki.tocalog.dialog.sc.State;
 import de.dfki.tocalog.dialog.sc.StateChart;
 import de.dfki.tocalog.dialog.sc.StateChartEvent;
 import de.dfki.tocalog.dialog.sc.Transition;
-import de.dfki.tocalog.framework.DialogComponent;
-import de.dfki.tocalog.framework.Event;
-import de.dfki.tocalog.framework.ProjectManager;
-import de.dfki.tocalog.input.Input;
-import de.dfki.tocalog.input.TextInput;
+import de.dfki.tocalog.core.Event;
+import de.dfki.tocalog.core.DialogApp;
 import de.dfki.tocalog.kb.EKnowledgeMap;
 import de.dfki.tocalog.model.Person;
 import de.dfki.tocalog.model.Service;
@@ -19,8 +15,6 @@ import de.dfki.tocalog.output.Output;
 import de.dfki.tocalog.output.SpeechOutput;
 import de.dfki.tocalog.output.TextOutput;
 import de.dfki.tocalog.output.impp.*;
-import de.dfki.tocalog.rasa.RasaHelper;
-import de.dfki.tocalog.rasa.RasaResponse;
 import de.dfki.tocalog.telegram.TelegramBot;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.BasicConfigurator;
@@ -29,10 +23,7 @@ import org.apache.log4j.Level;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.ArrayDeque;
 import java.util.Optional;
-import java.util.Queue;
-import java.util.Set;
 
 /**
  */
@@ -109,7 +100,7 @@ public class MainYK {
         dialog.addDialogComponent(new GreetingBehavior());
         dialog.addDialogComponent(new DeviceControlBehavior());
 
-        ProjectManager dc = ProjectManager.create(dialog)
+        DialogApp dc = DialogApp.create(dialog)
 //                .addInputComponent(psBridge)
                 .addInputComponent(tbot)
                 .addOutputComponent(tbot)
