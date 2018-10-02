@@ -59,8 +59,8 @@ public class RasaHelper {
         Gson gson = new Gson();
         JsonObject obj = new JsonParser().parse(jsonString).getAsJsonObject();
 
-        //get intent
-        JsonObject jsonIntent = obj.getAsJsonObject("intent");
+        //get name
+        JsonObject jsonIntent = obj.getAsJsonObject("name");
         RasaIntent rasaIntent = gson.fromJson(jsonIntent, RasaIntent.class);
         log.debug("rasaIntent={}", rasaIntent);
 
@@ -76,7 +76,7 @@ public class RasaHelper {
             log.debug("{}", rasaEntities.get(0).getEntity());
         }
 
-        //get intent ranking
+        //get name ranking
         JsonArray jsonIntentRanking = obj.getAsJsonArray("intent_ranking");
         List<RasaIntent> rasaIntents = new ArrayList<>();
         if(jsonIntentRanking.size() > 0) {

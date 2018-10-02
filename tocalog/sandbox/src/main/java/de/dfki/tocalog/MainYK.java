@@ -98,7 +98,7 @@ public class MainYK {
 
         MetaDialog dialog = new MetaDialog();
         dialog.addDialogComponent(new GreetingBehavior());
-        dialog.addDialogComponent(new DeviceControlBehavior());
+        dialog.addDialogComponent(new DeviceControlBehavior(imp));
 
         DialogApp dc = DialogApp.create(dialog)
 //                .addInputComponent(psBridge)

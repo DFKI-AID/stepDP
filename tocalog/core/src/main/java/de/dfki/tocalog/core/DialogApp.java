@@ -18,7 +18,6 @@ import java.util.function.Predicate;
 public class DialogApp implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(DialogApp.class);
     private static final long INPUT_TIMEOUT = 5000L;
-//    private final EventEngine eventEngine;
     private final KnowledgeBase knowledgeBase;
     private final MetaDialog dialog;
     private final List<EventProducer> eventProducers;
@@ -26,7 +25,7 @@ public class DialogApp implements Runnable {
     private final List<Store> stores;
     private final List<InputComponent> inputComponents;
     private final List<HypothesisProducer> hypothesisProducers;
-    private final Object monitor = new Object();
+    private final Object monitor;
     private Inputs inputs = new Inputs();
     private final Resolution resolution;
 
@@ -41,6 +40,7 @@ public class DialogApp implements Runnable {
         this.eventProducers = builder.eventProducers;
         this.hypothesisProducers = builder.hypothesisProducers;
         this.resolution = builder.resolution;
+        this.monitor = builder.monitor;
     }
 
 //    public EventEngine getEventEngine() {
@@ -50,7 +50,6 @@ public class DialogApp implements Runnable {
     public KnowledgeBase getKnowledgeBase() {
         return knowledgeBase;
     }
-
 
     public Optional<InputComponent> getInputComponent(Predicate<InputComponent> filter) {
         return inputComponents.stream()
@@ -110,39 +109,48 @@ public class DialogApp implements Runnable {
         if (inputs.isEmpty()) {
             return;
         }
-        List<Hypothesis> hypothesisTrees = new ArrayList<>();
-        hypothesisProducers.forEach(hp -> hp.process(inputs).ifPresent(ht -> hypothesisTrees.add(ht)));
-        Optional<Hypothesis> hypothesisTree = hypothesisTrees.stream().reduce(Hypothesis::or);
-        if (!hypothesisTree.isPresent()) {
-            return;
-        }
 
-        Hypothesis resolvedHypothesisTree = resolution.process(hypothesisTree.get());
+        Hypotheses hypotheses = new Hypotheses();
+        hypothesisProducers.forEach(hp -> hp.process(inputs).ifPresent(ht -> hypotheses.add(ht)));
+//        Optional<HypothesisTree> hypothesisTree = hypotheses.stream().reduce(HypothesisTree::or);
+//        if (!hypothesisTree.isPresent()) {
+//            return;
+//        }
 
-        //TODO dialog
+        Hypotheses resolvedHypotheses = resolution.process(hypotheses);
+        Set<String> consumedHypos = dialog.on(resolvedHypotheses);
 
-        //TODO remove inputs if consumed by the dialog
-        //TODO better: just mark them as consumed but keep 'em for 'correcting' an output
+        // get all inputs that were consumed in form of a hypothesis
+        Set<String> consumedInputs = new HashSet<>();
+        consumedHypos.forEach(hid -> resolvedHypotheses.getHypothesis(hid)
+                .ifPresent(h -> consumedInputs.addAll(h.getInputs())));
+
+
+        //TODO atm: simply removes all inputs. However, they might still be interesting and put into
+        //something like a discourse history?
+        inputs.remove(consumedInputs);
+
     }
 
-    public static Builder create(MetaDialog dialog) {
-        return new Builder(dialog);
+    public static Builder create() {
+        return new Builder();
     }
 
     public static class Builder {
-//        protected EventEngine.Builder eventEngineBuilder = EventEngine.build();
-        protected KnowledgeBase knowledgeBase = new KnowledgeBase();
+        //        protected EventEngine.Builder eventEngineBuilder = EventEngine.build();
+        protected KnowledgeBase knowledgeBase;
         private List<EventProducer> eventProducers = new ArrayList<>();
         private List<SensorComponent> sensorComponents = new ArrayList();
         private List<Store> stores = new ArrayList<>();
         protected List<InputComponent> inputComponents = new ArrayList<>();
         private List<HypothesisProducer> hypothesisProducers;
         protected MetaDialog metaDialog; //TODO maybe accept dialog as arg
-        protected IMPP impp = new IMPP(knowledgeBase);
+        protected IMPP impp;
         private Resolution resolution;
+        private Object monitor = new Object();
 
-        protected Builder(MetaDialog dialog) {
-            this.metaDialog = dialog;
+        protected Builder() {
+
         }
 
 
@@ -156,28 +164,48 @@ public class DialogApp implements Runnable {
             return this;
         }
 
+        public KnowledgeBase getKnowledgeBase() {
+            return knowledgeBase;
+        }
+
+        public Builder setKnowledgeBase(KnowledgeBase knowledgeBase) {
+            this.knowledgeBase = knowledgeBase;
+            return this;
+        }
+
+        public MetaDialog getMetaDialog() {
+            return metaDialog;
+        }
+
+        public Builder setMetaDialog(MetaDialog metaDialog) {
+            this.metaDialog = metaDialog;
+            return this;
+        }
+
+        public IMPP getImpp() {
+            return impp;
+        }
+
+        public Builder setImpp(IMPP impp) {
+            this.impp = impp;
+            return this;
+        }
+
+        public Resolution getResolution() {
+            return resolution;
+        }
+
+        public void setResolution(Resolution resolution) {
+            this.resolution = resolution;
+        }
+
         public DialogApp build() {
-            //connect to event queue
-//            for (InputComponent ic : inputComponents) {
-//                eventEngineBuilder.addListener(ic);
-//            }
-//            eventEngineBuilder.addListener(metaDialog);
-
             DialogApp dc = new DialogApp(this);
-
-            metaDialog.init(new DialogComponent.Context() {
-                @Override
-                public KnowledgeBase getKnowledgeBase() {
-                    return knowledgeBase;
-                }
-
-                @Override
-                public IMPP getAllocatioModule() {
-                    return impp;
-                }
-            });
-
             return dc;
+        }
+
+        public Object getMonitor() {
+            return monitor;
         }
     }
 }

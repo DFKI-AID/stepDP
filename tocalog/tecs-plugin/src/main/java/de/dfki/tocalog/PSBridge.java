@@ -5,43 +5,42 @@ import de.dfki.tecs.ps.PSFactory;
 import de.dfki.tocalog.core.*;
 import org.apache.thrift.TBase;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  */
-public class PSBridge implements InputComponent {
+public class PSBridge implements EventProducer {
     private final String uri;
-    private PSClient psc;
+    private final PSClient psc;
+    private final Object monitor;
     private Thread updateThread;
+    private Queue<Event> queue = new ConcurrentLinkedQueue<>();
 
     public PSBridge(Builder builder) {
         this.uri = builder.uri;
+        this.monitor = builder.monitor;
         psc = PSFactory.create(uri);
         for(String sub : builder.subscriptions) {
             psc.subscribe(sub);
         }
     }
 
-    @Override
-    public void init(Context context) {
-        EventEngine ee = context.getEventEngine();
-
+    protected void start() {
         psc.open();
         updateThread = new Thread(() -> {
             psc.recv().ifPresent(tecsEvent -> {
                 Event dialogEvent = Event.build(tecsEvent)
                         .setSource(this.getClass().getSimpleName())
                         .build();
-                ee.submit(dialogEvent);
+                queue.add(dialogEvent);
+                synchronized (monitor) {
+                    monitor.notifyAll();
+                }
             });
         });
         updateThread.setDaemon(true);
         updateThread.start();
-    }
-
-    @Override
-    public void onEvent(EventEngine engine, Event event) {
     }
 
     public void publish(String topic, TBase payload) {
@@ -52,15 +51,26 @@ public class PSBridge implements InputComponent {
         return new Builder();
     }
 
+    @Override
+    public Optional<Event> nextEvent() {
+        return Optional.ofNullable(queue.poll());
+    }
+
     public static class Builder {
         private String uri = "tecs://dialog@localhost:9000/ps";
         private Set<String> subscriptions = new HashSet<>();
+        private Object monitor;
 
         public Builder() {
         }
 
         public Builder setUri(String uri) {
             this.uri = uri;
+            return this;
+        }
+
+        public Builder setMonitor(Object monitor) {
+            this.monitor = monitor;
             return this;
         }
 

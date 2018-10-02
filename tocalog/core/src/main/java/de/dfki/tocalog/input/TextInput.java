@@ -1,8 +1,9 @@
 package de.dfki.tocalog.input;
 
 import java.util.Optional;
+import java.util.UUID;
 
-public class TextInput implements Input {
+public class TextInput extends AbsInput {
     private String text;
     private Optional<String> source = Optional.empty();
 

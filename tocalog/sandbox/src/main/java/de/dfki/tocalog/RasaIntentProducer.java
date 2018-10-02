@@ -4,6 +4,7 @@ import de.dfki.tocalog.dialog.Intent;
 import de.dfki.tocalog.core.Event;
 import de.dfki.tocalog.core.EventEngine;
 import de.dfki.tocalog.core.InputComponent;
+import de.dfki.tocalog.input.Input;
 import de.dfki.tocalog.input.TextInput;
 import de.dfki.tocalog.rasa.RasaEntity;
 import de.dfki.tocalog.rasa.RasaHelper;
@@ -11,6 +12,9 @@ import de.dfki.tocalog.rasa.RasaResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Optional;
 
 /**
@@ -21,7 +25,7 @@ public class RasaIntentProducer implements InputComponent {
 
     protected Optional<Intent> onRasaResponse(TextInput ti, RasaResponse rasaResponse) {
         if (rasaResponse.getRasaIntent().getConfidence() < 0.4) {
-            log.info("confidence to low for rasa intent {}: {}", rasaResponse.getRasaIntent().getName(),
+            log.info("confidence to low for rasa name {}: {}", rasaResponse.getRasaIntent().getName(),
                     rasaResponse.getRasaIntent().getConfidence());
             return null;
         }
@@ -40,7 +44,7 @@ public class RasaIntentProducer implements InputComponent {
                     intent.addAccusative(rasaEntity.getValue());
                 }
                 if (rasaEntity.getEntity().equals("location")) {
-//                    intent.addLocation(rasaEntity.getValue());
+//                    name.addLocation(rasaEntity.getValue());
                 }
             }
             return Optional.of(intent);
@@ -49,23 +53,23 @@ public class RasaIntentProducer implements InputComponent {
     }
 
     @Override
-    public void init(Context context) {
-    }
-
-    @Override
-    public void onEvent(EventEngine engine, Event event) {
+    public Collection<Input> process(Event event) {
         if (!event.is(TextInput.class)) {
-            return;
+            return Collections.EMPTY_SET;
         }
 
         TextInput input = (TextInput) event.get();
 
+        Collection result = new HashSet();
         try {
             String rasaJson = rasaHelper.nlu(input.getText());
             RasaResponse rasaRsp = rasaHelper.parseJson(rasaJson);
-            onRasaResponse(input, rasaRsp).ifPresent(i -> engine.submit(Event.build(i).build()));
+            onRasaResponse(input, rasaRsp).ifPresent(
+                    i -> result.add(Event.build(i).build())
+            );
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+        return result;
     }
 }

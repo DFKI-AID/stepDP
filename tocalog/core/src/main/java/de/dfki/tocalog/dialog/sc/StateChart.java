@@ -71,7 +71,7 @@ public class StateChart {
     /**
      *
      * @param eve
-     * @return true iff the intent was consumed
+     * @return true iff the name was consumed
      */
     public boolean onEvent(StateChartEvent eve) {
         Set<Transition> transitions = getTransitionCandidates(currentState);

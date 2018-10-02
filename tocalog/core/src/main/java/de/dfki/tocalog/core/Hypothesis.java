@@ -1,58 +1,116 @@
 package de.dfki.tocalog.core;
 
+import de.dfki.tocalog.input.Input;
 import de.dfki.tocalog.kb.KnowledgeBase;
+import de.dfki.tocalog.model.Device;
+import de.dfki.tocalog.model.Entity;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  */
-public abstract class Hypothesis {
-    public static Hypothesis or(Hypothesis h1, Hypothesis h2) {
-        Node node = new Node(Semantic.OR);
-        node.getChildNodes().add(h1);
-        node.getChildNodes().add(h2);
-        return node;
+public class Hypothesis {
+    private final String id = UUID.randomUUID().toString().substring(0,10);
+    private final String intent;
+    private final Map<String, Slot> slots;
+    private final Set<String> inputs;
+
+
+    public Hypothesis(Builder builder) {
+        this.intent = builder.intent;
+        this.slots = Collections.unmodifiableMap(new HashMap<>(builder.slots));
+        this.inputs = Collections.unmodifiableSet(new HashSet<>(builder.inputs));
     }
 
-    enum Semantic {
-        OR,
-        AND
+    public String getIntent() {
+        return intent;
     }
 
-    public abstract void accept(Visitor v);
-
-
-    public interface Visitor {
-        void visit(Leaf leaf);
-        void visit(Node node);
+    public Map<String, Slot> getSlots() {
+        return slots;
     }
 
-    public static abstract class Leaf extends Hypothesis {
-        public void accept(Visitor v) {
-            v.visit(this);
+    public Optional<Slot> getSlot(String slot) {
+        return Optional.ofNullable(slots.get(slot));
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    /**
+     * @param other
+     * @return The number of inputs this Hypothesis was based on, which also part of the other provided Hypothesis
+     */
+    public int overlaps(Hypothesis other) {
+        int count = 0;
+        for(String id : inputs) {
+            if(other.inputs.contains(id)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public Set<String> getInputs() {
+        return inputs;
+    }
+
+    interface Query<T extends Entity> {
+        Collection<T> findMatches(KnowledgeBase kb);
+    }
+
+    public static abstract class Slot<T extends Entity> {
+        private String name;
+
+        public Slot() {
         }
 
-        public abstract Collection<Object> findMatches(KnowledgeBase kb);
+        public String getName() {
+            return name;
+        }
+
+        public abstract Collection<T> findMatches(KnowledgeBase kb);
     }
 
-    public static class Node extends Hypothesis {
-        private final Semantic semantic;
-        private List<Hypothesis> childNodes = new ArrayList<>();
-
-        public Node(Semantic semantic) {
-            this.semantic = semantic;
-        }
-
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
-
-        public List<Hypothesis> getChildNodes() {
-            return childNodes;
-        }
+    public static Builder build(String intent) {
+        return new Builder(intent);
     }
 
-    public static class
+    public static class Builder {
+        private String intent;
+        private Map<String, Slot> slots = new HashMap<>();
+        private Set<String> inputs = new HashSet<>();
+
+        public Builder(String intent) {
+            this.intent = intent;
+        }
+
+        public <T extends Entity> Builder addSlot(String name, Query<T> query) {
+            return addSlot(name, new Slot() {
+                @Override
+                public Collection<? extends Entity> findMatches(KnowledgeBase kb) {
+                    return query.findMatches(kb);
+                }
+            });
+        }
+
+        public <T extends Entity> Builder addSlot(String name, Slot<T> slot) {
+            slots.put(name, slot);
+            slots.get(name).name = name;
+            return this;
+        }
+
+        public Hypothesis build() {
+            return new Hypothesis(this);
+        }
+
+        /**
+         * Add an Input that was used to derive the hypothesis
+         * @param input
+         */
+        public void addInput(Input input) {
+            inputs.add(input.getId());
+        }
+    }
 }

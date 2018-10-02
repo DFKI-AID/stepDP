@@ -1,43 +1,37 @@
 package de.dfki.tocalog.dialog;
 
-import de.dfki.tocalog.core.DialogComponent;
-import de.dfki.tocalog.core.Event;
-import de.dfki.tocalog.core.EventEngine;
+import de.dfki.tocalog.core.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
-public class MetaDialog implements EventEngine.Listener {
-    private DialogComponent.Context context;
+//TODO create interface
+public class MetaDialog {
     private List<DialogComponent> dialogComponents = new ArrayList<>();
 
     public MetaDialog() {
     }
 
-    public void init(DialogComponent.Context context) {
-        this.context = context;
-        dialogComponents.forEach(dc -> dc.init(context));
-    }
 
-    public void addDialogComponent(DialogComponent dc) {
-        this.dialogComponents.add(dc);
-    }
+    public Set<String> on(Hypotheses hypotheses) {
+        Set<String> consumed = new HashSet<>();
+        for(Hypothesis h : hypotheses.getHypotheses()) {
+            for (DialogComponent dc : dialogComponents) {
+                Optional<DialogFunction> df = dc.process(h);
 
-    @Override
-    public void onEvent(EventEngine engine, Event event) {
-        if(!event.is(Intent.class)) {
-            for(DialogComponent dc : dialogComponents) {
-                dc.onEvent(engine, event);
-            }
-            return;
-        }
-
-        //TODO coordination
-        for(DialogComponent dc : dialogComponents) {
-            if(dc.onIntent((Intent) event.get())) {
-                //consumed
-                return;
+                //no real coordination, just execute first DialogFunction
+                if(df.isPresent()) {
+                    df.get().run();
+                    if(df.get().consumesHypothesis()) {
+                        consumed.add(h.getId());
+                    }
+                    break;
+                }
             }
         }
+        return consumed;
+    }
+
+    public void add(DialogComponent dialogComponent) {
+        this.dialogComponents.add(dialogComponent);
     }
 }
