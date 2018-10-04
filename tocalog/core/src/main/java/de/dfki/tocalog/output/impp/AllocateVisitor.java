@@ -1,7 +1,7 @@
 package de.dfki.tocalog.output.impp;
 
 import de.dfki.tocalog.model.Service;
-import de.dfki.tocalog.output.IMPP;
+import de.dfki.tocalog.output.Imp;
 import de.dfki.tocalog.output.OutputComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,11 +16,11 @@ import java.util.Optional;
  */
 public class AllocateVisitor implements OutputNode.Visitor {
     private static Logger log = LoggerFactory.getLogger(AllocateVisitor.class);
-    private final IMPP impp;
+    private final Imp impp;
     private Map<String, Assignment> assignments;
     private Map<String, String> allocationsIds;
 
-    public AllocateVisitor(IMPP impp) {
+    public AllocateVisitor(Imp impp) {
         this.impp = impp;
     }
 

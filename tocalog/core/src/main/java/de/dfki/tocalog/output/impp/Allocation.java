@@ -1,6 +1,6 @@
 package de.dfki.tocalog.output.impp;
 
-import de.dfki.tocalog.output.IMPP;
+import de.dfki.tocalog.output.Imp;
 
 import java.util.Map;
 
@@ -8,11 +8,11 @@ import java.util.Map;
  */
 public class Allocation {
     private final Map<String, String> allocationsIds;
-    private final IMPP impp;
+    private final Imp impp;
     private OutputNode outputNode;
     private AllocationState allocationState;
 
-    public Allocation(IMPP impp, OutputNode outputNode, Map<String, String> allocationsIds) {
+    public Allocation(Imp impp, OutputNode outputNode, Map<String, String> allocationsIds) {
         this.impp = impp;
         this.outputNode = outputNode;
         this.allocationsIds = allocationsIds;
@@ -32,7 +32,7 @@ public class Allocation {
         return allocationsIds;
     }
 
-    public IMPP getImpp() {
+    public Imp getImpp() {
         return impp;
     }
 

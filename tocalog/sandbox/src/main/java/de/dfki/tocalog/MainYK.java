@@ -1,6 +1,5 @@
 package de.dfki.tocalog;
 
-import de.dfki.tocalog.dialog.MetaDialog;
 import de.dfki.tocalog.dialog.sc.State;
 import de.dfki.tocalog.dialog.sc.StateChart;
 import de.dfki.tocalog.dialog.sc.StateChartEvent;
@@ -15,7 +14,6 @@ import de.dfki.tocalog.output.Output;
 import de.dfki.tocalog.output.SpeechOutput;
 import de.dfki.tocalog.output.TextOutput;
 import de.dfki.tocalog.output.impp.*;
-import de.dfki.tocalog.telegram.TelegramBot;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
@@ -32,7 +30,7 @@ public class MainYK {
         BasicConfigurator.configure();
         org.apache.log4j.Logger.getRootLogger().setLevel(Level.INFO);
 //        statechart(args);
-//        impp(args);
+//        imp(args);
         framework(args);
     }
 
@@ -89,7 +87,6 @@ public class MainYK {
 
     public static void framework(String[] args) throws InterruptedException, IOException {
 
-        TelegramBot tbot = new TelegramBot();
 
         PSBridge psBridge = PSBridge.build()
                 .subscribe("SheepEvent")
@@ -98,7 +95,7 @@ public class MainYK {
 
         MetaDialog dialog = new MetaDialog();
         dialog.addDialogComponent(new GreetingBehavior());
-        dialog.addDialogComponent(new DeviceControlBehavior(imp));
+        dialog.addDialogComponent(new LightControlComponent(imp));
 
         DialogApp dc = DialogApp.create(dialog)
 //                .addInputComponent(psBridge)

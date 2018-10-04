@@ -12,10 +12,7 @@ import de.dfki.tocalog.rasa.RasaResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Optional;
+import java.util.*;
 
 /**
  */
@@ -53,14 +50,14 @@ public class RasaIntentProducer implements InputComponent {
     }
 
     @Override
-    public Collection<Input> process(Event event) {
+    public List<Input> process(Event event) {
         if (!event.is(TextInput.class)) {
-            return Collections.EMPTY_SET;
+            return Collections.EMPTY_LIST;
         }
 
         TextInput input = (TextInput) event.get();
 
-        Collection result = new HashSet();
+        List result = new ArrayList();
         try {
             String rasaJson = rasaHelper.nlu(input.getText());
             RasaResponse rasaRsp = rasaHelper.parseJson(rasaJson);

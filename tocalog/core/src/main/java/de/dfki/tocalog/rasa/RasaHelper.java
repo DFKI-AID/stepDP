@@ -11,10 +11,27 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class RasaHelper {
     private static Logger log = LoggerFactory.getLogger(RasaHelper.class);
+    private final URL url; //e.g. "http://localhost:5000/parse"
+    private static final Map<String, String> cache = new HashMap<>();
+    private boolean cacheEnabled = false;
+
+    public RasaHelper(URL url) {
+        this.url = url;
+    }
+
+    public void enableCache() {
+        cacheEnabled = true;
+    }
+
+    public void disableCache() {
+        cacheEnabled = false;
+    }
 
     /**
      * text -> rasa json
@@ -23,10 +40,11 @@ public class RasaHelper {
      * @throws IOException
      */
     public String nlu(String q) throws IOException {
+        if(cacheEnabled && cache.containsKey(q)) {
+            return cache.get(q);
+        }
 
-        String url = "http://localhost:5000/parse";
-        URL obj = new URL(url);
-        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
 
         //addInputComponent request header
         con.setRequestMethod("POST");
@@ -52,7 +70,9 @@ public class RasaHelper {
         in.close();
 
         log.debug("Response: {}", response.toString());
-        return response.toString();
+        String rspStr = response.toString();
+        cache.put(q, rspStr);
+        return rspStr;
     }
 
     public RasaResponse parseJson(String jsonString) {

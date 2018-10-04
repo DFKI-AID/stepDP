@@ -10,7 +10,7 @@ import de.dfki.tocalog.output.ImageOutput;
 import de.dfki.tocalog.output.Output;
 import de.dfki.tocalog.output.OutputComponent;
 import de.dfki.tocalog.output.TextOutput;
-import de.dfki.tocalog.output.impp.AllocationState;
+import de.dfki.tocalog.output.imp.AllocationState;
 import de.dfki.tocalog.rasa.RasaHelper;
 import de.dfki.tocalog.rasa.RasaResponse;
 import de.dfki.tocalog.wiki.WikiMedia;

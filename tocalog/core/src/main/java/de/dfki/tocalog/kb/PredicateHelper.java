@@ -1,4 +1,4 @@
-package de.dfki.tocalog.input;
+package de.dfki.tocalog.kb;
 
 import de.dfki.tocalog.kb.EKnowledgeMap;
 import de.dfki.tocalog.kb.KnowledgeBase;

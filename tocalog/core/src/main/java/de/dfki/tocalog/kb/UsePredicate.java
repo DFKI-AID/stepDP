@@ -1,7 +1,5 @@
-package de.dfki.tocalog.input;
+package de.dfki.tocalog.kb;
 
-import de.dfki.tocalog.kb.EKnowledgeMap;
-import de.dfki.tocalog.kb.KnowledgeBase;
 import de.dfki.tocalog.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

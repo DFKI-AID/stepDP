@@ -1,40 +1,40 @@
 package de.dfki.tocalog;
 
 import de.dfki.tocalog.core.*;
-import de.dfki.tocalog.dialog.Intent;
 import de.dfki.tocalog.model.Device;
 import de.dfki.tocalog.model.Entity;
-import de.dfki.tocalog.output.IMPP;
+import de.dfki.tocalog.output.Imp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * Simulates simple device control
+ *
  */
-public class DeviceControlBehavior implements DialogComponent {
-    private static Logger log = LoggerFactory.getLogger(DeviceControlBehavior.class);
-    private static final String INTENT = "TurnOn";
-    private boolean fanOn = false;
-    private boolean tvOn = false;
-    private boolean radioOn = false;
+public class LightControlComponent implements DialogComponent {
+    private static Logger log = LoggerFactory.getLogger(LightControlComponent.class);
     private boolean lampOn = false;
-    private final IMPP imp;
+    private final Imp imp;
+    private TurnOnHypoProducer<Device> turnOnHypoProducer = new TurnOnHypoProducer();
 
-    public DeviceControlBehavior(IMPP imp) {
+
+    public LightControlComponent(Imp imp) {
         this.imp = imp;
     }
 
     @Override
-    public Optional<DialogFunction> process(Hypothesis h) {
-        h.getIntent();
+    public Optional<DialogFunction> process(Inputs inputs) {
+        Optional<Hypothesis> hOpt = parse(inputs);
+        if(!hOpt.isPresent()) {
+            return Optional.empty();
+        }
+        Hypothesis h = hOpt.get();
 
-        if (!h.getIntent().equals(INTENT)) {
+        if (!h.getIntent().equals(turnOnHypoProducer.getIntent())) {
             return Optional.empty();
         }
 
@@ -64,8 +64,11 @@ public class DeviceControlBehavior implements DialogComponent {
         });
     }
 
-    @Override
-    public Collection<Class<HypothesisProducer>> getRelevantHypoProducers() {
-        return Collections.EMPTY_SET; //TODO
+    protected void handleTurnOn() {
+
+    }
+
+    protected Optional<Hypothesis> parse(Inputs inputs) {
+        return turnOnHypoProducer.process(inputs);
     }
 }

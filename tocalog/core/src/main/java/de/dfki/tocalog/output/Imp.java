@@ -7,7 +7,7 @@ import java.util.*;
 
 /**
  */
-public class IMPP {
+public class Imp {
     private final KnowledgeBase kb;
     private OutputNode root;
     private Map<String, OutputNode> allocations = new HashMap<>();
@@ -15,7 +15,7 @@ public class IMPP {
     private CopyVisitor copyVisitor = new CopyVisitor();
     private Set<OutputComponent> components = new HashSet<>();
 
-    public IMPP(KnowledgeBase kb) {
+    public Imp(KnowledgeBase kb) {
         this.kb = kb;
 //        root = OutputNode.buildNode(OutputNode.Semantic.concurrent).create();
 //        root.

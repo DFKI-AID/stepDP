@@ -1,6 +1,6 @@
 package de.dfki.tocalog.output.impp;
 
-import de.dfki.tocalog.output.IMPP;
+import de.dfki.tocalog.output.Imp;
 import de.dfki.tocalog.output.OutputComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
  */
 public class AllocationStateVisitor implements OutputNode.Visitor {
     private static Logger log = LoggerFactory.getLogger(AllocationStateVisitor.class);
-    private IMPP impp;
+    private Imp impp;
     private AllocationState allocationState;
     private Allocation allocation;
 

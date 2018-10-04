@@ -1,9 +1,8 @@
 package de.dfki.tocalog.core;
 
-import de.dfki.tocalog.dialog.MetaDialog;
 import de.dfki.tocalog.input.Input;
 import de.dfki.tocalog.kb.KnowledgeBase;
-import de.dfki.tocalog.output.IMPP;
+import de.dfki.tocalog.output.Imp;
 import de.dfki.tocalog.output.OutputComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,40 +11,33 @@ import java.util.*;
 import java.util.function.Predicate;
 
 /**
- * Entry point for the dialog application. See ProjectManager::Builder for creating a new instance.
- * Initializes input and dialog components by adding them to the event system and granting knowledge base access.
+ * Entry point for the dialog application. See DialogApp::Builder for creating a new instance.
+ * Implements the main update loop.
  */
 public class DialogApp implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(DialogApp.class);
     private static final long INPUT_TIMEOUT = 5000L;
     private final KnowledgeBase knowledgeBase;
-    private final MetaDialog dialog;
     private final List<EventProducer> eventProducers;
     private final List<SensorComponent> sensorComponents;
     private final List<Store> stores;
     private final List<InputComponent> inputComponents;
-    private final List<HypothesisProducer> hypothesisProducers;
+    private final List<DialogComponent> dialogComponents;
     private final Object monitor;
     private Inputs inputs = new Inputs();
-    private final Resolution resolution;
+    private final DialogCoordinator dialogCoordinator;
 
 
     protected DialogApp(Builder builder) {
-//        this.eventEngine = builder.eventEngineBuilder.build();
         this.knowledgeBase = builder.knowledgeBase;
-        this.dialog = builder.metaDialog;
+        this.dialogCoordinator = builder.dialogCoordinator;
         this.inputComponents = Collections.unmodifiableList(builder.inputComponents);
         this.sensorComponents = builder.sensorComponents;
+        this.dialogComponents = builder.dialogComponents;
         this.stores = builder.stores;
         this.eventProducers = builder.eventProducers;
-        this.hypothesisProducers = builder.hypothesisProducers;
-        this.resolution = builder.resolution;
         this.monitor = builder.monitor;
     }
-
-//    public EventEngine getEventEngine() {
-//        return eventEngine;
-//    }
 
     public KnowledgeBase getKnowledgeBase() {
         return knowledgeBase;
@@ -105,31 +97,15 @@ public class DialogApp implements Runnable {
             }
         }
 
-        // derive hypothesis
-        if (inputs.isEmpty()) {
-            return;
-        }
 
-        Hypotheses hypotheses = new Hypotheses();
-        hypothesisProducers.forEach(hp -> hp.process(inputs).ifPresent(ht -> hypotheses.add(ht)));
-//        Optional<HypothesisTree> hypothesisTree = hypotheses.stream().reduce(HypothesisTree::or);
-//        if (!hypothesisTree.isPresent()) {
-//            return;
-//        }
+        final List<DialogFunction> dfs = new ArrayList<>();
+        dialogComponents.forEach(dc -> dc.process(inputs).ifPresent(df -> dfs.add(df)));
 
-        Hypotheses resolvedHypotheses = resolution.process(hypotheses);
-        Set<String> consumedHypos = dialog.on(resolvedHypotheses);
-
-        // get all inputs that were consumed in form of a hypothesis
-        Set<String> consumedInputs = new HashSet<>();
-        consumedHypos.forEach(hid -> resolvedHypotheses.getHypothesis(hid)
-                .ifPresent(h -> consumedInputs.addAll(h.getInputs())));
-
-
-        //TODO atm: simply removes all inputs. However, they might still be interesting and put into
-        //something like a discourse history?
-        inputs.remove(consumedInputs);
-
+        final List<DialogFunction> coordinatedDfs = dialogCoordinator.coordinate(dfs);
+        coordinatedDfs.forEach(df -> {
+            df.consumedInputs().forEach(ci -> inputs.consume(ci, df.getOrigin()));
+            df.run();
+        });
     }
 
     public static Builder create() {
@@ -137,17 +113,17 @@ public class DialogApp implements Runnable {
     }
 
     public static class Builder {
-        //        protected EventEngine.Builder eventEngineBuilder = EventEngine.build();
         protected KnowledgeBase knowledgeBase;
         private List<EventProducer> eventProducers = new ArrayList<>();
         private List<SensorComponent> sensorComponents = new ArrayList();
         private List<Store> stores = new ArrayList<>();
         protected List<InputComponent> inputComponents = new ArrayList<>();
-        private List<HypothesisProducer> hypothesisProducers;
-        protected MetaDialog metaDialog; //TODO maybe accept dialog as arg
-        protected IMPP impp;
+        protected Imp imp;
         private Resolution resolution;
         private Object monitor = new Object();
+        private List<DialogComponent> dialogComponents = new ArrayList<>();
+        private DialogCoordinator dialogCoordinator;
+
 
         protected Builder() {
 
@@ -160,7 +136,12 @@ public class DialogApp implements Runnable {
         }
 
         public Builder addOutputComponent(OutputComponent component) {
-            impp.addOutputComponent(component);
+            imp.addOutputComponent(component);
+            return this;
+        }
+
+        public Builder addDialogComponent(DialogComponent component) {
+            dialogComponents.add(component);
             return this;
         }
 
@@ -173,21 +154,17 @@ public class DialogApp implements Runnable {
             return this;
         }
 
-        public MetaDialog getMetaDialog() {
-            return metaDialog;
-        }
-
-        public Builder setMetaDialog(MetaDialog metaDialog) {
-            this.metaDialog = metaDialog;
+        public Builder setDialogCoordinator(DialogCoordinator dialogCoordinator) {
+            this.dialogCoordinator = dialogCoordinator;
             return this;
         }
 
-        public IMPP getImpp() {
-            return impp;
+        public Imp getImp() {
+            return imp;
         }
 
-        public Builder setImpp(IMPP impp) {
-            this.impp = impp;
+        public Builder setImp(Imp imp) {
+            this.imp = imp;
             return this;
         }
 

@@ -1,7 +1,9 @@
 package de.dfki.tocalog.core;
 
+import de.dfki.tocalog.input.Input;
 import de.dfki.tocalog.model.Confidence;
 
+import java.util.Collection;
 import java.util.Optional;
 
 /**
@@ -12,10 +14,9 @@ public interface DialogFunction extends Runnable {
     }
 
     /**
-     * should return false, if the Hypothesis is not consumed. e.g. if a request by the system should be outputted
-     * @return
+     * @return All inputs that will be / were consumed by this dialog function
      */
-    default boolean consumesHypothesis() {
-        return true;
-    }
+    Collection<Input> consumedInputs();
+
+    Object getOrigin();
 }
