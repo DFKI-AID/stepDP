@@ -13,6 +13,8 @@ public interface DialogFunction extends Runnable {
         return Optional.empty();
     }
 
+    default Optional<Confidence> getPriorty() { return Optional.empty(); }
+
     /**
      * @return All inputs that will be / were consumed by this dialog function
      */

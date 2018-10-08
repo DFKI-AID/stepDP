@@ -8,6 +8,7 @@ import de.dfki.tocalog.input.TextInput;
 import de.dfki.tocalog.kb.EKnowledgeMap;
 import de.dfki.tocalog.kb.KnowledgeBase;
 import de.dfki.tocalog.model.Agent;
+import de.dfki.tocalog.model.Confidence;
 import de.dfki.tocalog.model.Entity;
 import de.dfki.tocalog.model.Person;
 import de.dfki.tocalog.output.*;
@@ -15,6 +16,7 @@ import de.dfki.tocalog.output.impp.Allocation;
 import de.dfki.tocalog.output.impp.OutputNode;
 import de.dfki.tocalog.rasa.RasaHelper;
 import de.dfki.tocalog.rasa.RasaResponse;
+import fastily.jwiki.core.Conf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,6 +71,11 @@ public class GreetingBehavior implements DialogComponent {
             @Override
             public void run() {
                 greet(agents);
+            }
+
+            @Override
+            public Optional<Confidence> getConfidence() {
+                return Optional.of(Confidence.HIGH);
             }
         });
     }
