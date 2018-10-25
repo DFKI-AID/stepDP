@@ -75,14 +75,14 @@ public class Hypothesis {
             this.intent = intent;
         }
 
-        public <T extends Entity> Builder addSlot(String name, Query<T> query) {
-            return addSlot(name, new Slot() {
-                @Override
-                public Collection<? extends Entity> findMatches(KnowledgeBase kb) {
-                    return query.findMatches(kb);
-                }
-            });
-        }
+//        public <T extends Entity> Builder addSlot(String name, Query<T> query) {
+//            return addSlot(name, new Slot() {
+//                @Override
+//                public Collection<? extends Entity> findMatches(KnowledgeBase kb) {
+//                    return query.findMatches(kb);
+//                }
+//            });
+//        }
 
         public <T extends Entity> Builder addSlot(String name, Slot<T> slot) {
             slots.put(name, slot);

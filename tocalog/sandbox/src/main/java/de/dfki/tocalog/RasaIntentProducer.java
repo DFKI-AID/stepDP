@@ -40,7 +40,7 @@ public class RasaIntentProducer implements InputComponent {
                     intent.addAccusative(rasaEntity.getValue());
                 }
                 if (rasaEntity.getEntity().equals("location")) {
-//                    name.addLocation(rasaEntity.getValue());
+//                    name.addLocation(rasaEntity.get());
                 }
             }
             return Optional.of(intent);
