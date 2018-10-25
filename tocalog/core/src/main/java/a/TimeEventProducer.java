@@ -1,4 +1,7 @@
-package de.dfki.tocalog.core;
+package a;
+
+import de.dfki.tocalog.core.Event;
+import de.dfki.tocalog.core.EventProducer;
 
 import java.util.Optional;
 

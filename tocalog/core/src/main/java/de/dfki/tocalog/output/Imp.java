@@ -21,6 +21,15 @@ public class Imp {
 //        root.
     }
 
+    public void cancel(Allocation allocation) {
+        //TODO impl
+    }
+
+    public Allocation allocation(Output output) {
+        //TODO
+        return null;
+    }
+
     public Allocation allocate(OutputNode output) { //TODO OutputRequest? what, when, whom? how?
         //output = copyVisitor.copy(output).build();
 

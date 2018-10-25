@@ -7,18 +7,22 @@ import java.util.Collection;
 import java.util.Optional;
 
 /**
+ * TODO more meta-info, uses IMP;
  */
 public interface DialogFunction extends Runnable {
-    default Optional<Confidence> getConfidence() { //TODO maybe
-        return Optional.empty();
+    default Confidence getConfidence() {
+        return new Confidence(0.5); //TODO value
     }
 
-    default Optional<Confidence> getPriorty() { return Optional.empty(); }
+//    default Optional<Confidence> getPriorty() { return Optional.empty(); }
 
     /**
      * @return All inputs that will be / were consumed by this dialog function
      */
     Collection<Input> consumedInputs();
 
+    /**
+     * @return The object which created the DialogFunction e.g. DialogComponent
+     */
     Object getOrigin();
 }

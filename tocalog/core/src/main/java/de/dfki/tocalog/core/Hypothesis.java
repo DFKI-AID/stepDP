@@ -2,7 +2,6 @@ package de.dfki.tocalog.core;
 
 import de.dfki.tocalog.input.Input;
 import de.dfki.tocalog.kb.KnowledgeBase;
-import de.dfki.tocalog.model.Device;
 import de.dfki.tocalog.model.Entity;
 
 import java.util.*;
@@ -52,25 +51,15 @@ public class Hypothesis {
         return count;
     }
 
+    /**
+     * @return The inputs this hypothesis is based on.
+     */
     public Set<String> getInputs() {
         return inputs;
     }
 
     interface Query<T extends Entity> {
         Collection<T> findMatches(KnowledgeBase kb);
-    }
-
-    public static abstract class Slot<T extends Entity> {
-        private String name;
-
-        public Slot() {
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public abstract Collection<T> findMatches(KnowledgeBase kb);
     }
 
     public static Builder build(String intent) {

@@ -2,7 +2,7 @@ package de.dfki.tocalog.telegram;
 
 import de.dfki.tocalog.input.TextInput;
 import de.dfki.tocalog.core.Event;
-import de.dfki.tocalog.core.EventEngine;
+import a.EventEngine;
 import de.dfki.tocalog.core.InputComponent;
 import de.dfki.tocalog.kb.EKnowledgeMap;
 import de.dfki.tocalog.model.Service;

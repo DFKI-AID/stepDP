@@ -1,5 +1,6 @@
 package de.dfki.tocalog.core;
 
+import a.Resolution;
 import de.dfki.tocalog.input.Input;
 import de.dfki.tocalog.kb.KnowledgeBase;
 import de.dfki.tocalog.output.Imp;
@@ -16,7 +17,7 @@ import java.util.function.Predicate;
  */
 public class DialogApp implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(DialogApp.class);
-    private static final long INPUT_TIMEOUT = 5000L;
+    private static final long INPUT_TIMEOUT = 20000L;
     private final KnowledgeBase knowledgeBase;
     private final List<EventProducer> eventProducers;
     private final List<SensorComponent> sensorComponents;
@@ -122,7 +123,7 @@ public class DialogApp implements Runnable {
         private Resolution resolution;
         private Object monitor = new Object();
         private List<DialogComponent> dialogComponents = new ArrayList<>();
-        private DialogCoordinator dialogCoordinator;
+        private DialogCoordinator dialogCoordinator = new SimpleDialogCoordinator();
 
 
         protected Builder() {

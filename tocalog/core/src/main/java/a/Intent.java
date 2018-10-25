@@ -1,4 +1,4 @@
-package de.dfki.tocalog.dialog;
+package a;
 
 import de.dfki.tocalog.model.Confidence;
 

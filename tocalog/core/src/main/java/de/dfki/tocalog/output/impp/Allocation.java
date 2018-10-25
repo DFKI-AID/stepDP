@@ -23,9 +23,12 @@ public class Allocation {
         return allocationState;
     }
 
-    public void updateAllocationState() {
+    protected void updateAllocationState() {
         AllocationStateVisitor asv = new AllocationStateVisitor();
-        this.allocationState = asv.visit(this);
+        AllocationState as = asv.visit(this);
+        synchronized (this) {
+            this.allocationState = as;
+        }
     }
 
     public Map<String, String> getAllocationsIds() {

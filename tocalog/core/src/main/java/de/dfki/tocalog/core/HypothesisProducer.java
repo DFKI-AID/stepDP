@@ -1,11 +1,11 @@
 package de.dfki.tocalog.core;
 
-import java.util.Optional;
+import java.util.List;
 
 /**
  */
 public interface HypothesisProducer {
-    Optional<Hypothesis> process(Inputs inputs);
+    List<Hypothesis> process(Inputs inputs);
 
     //SensorSetting
 }

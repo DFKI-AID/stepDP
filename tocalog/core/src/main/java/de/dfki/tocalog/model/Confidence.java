@@ -21,8 +21,10 @@ public class Confidence implements Comparable<Confidence>{
         return confidence;
     }
 
-    public static Confidence HIGH = new Confidence(0.9);
-    public static Confidence VERY_HIGH = new Confidence(1.0);
+    public static final Confidence HIGH = new Confidence(0.9);
+    public static final Confidence VERY_HIGH = new Confidence(1.0);
+//    public static final Confidence UNKNOWN = new Confidence(0);
+
 
     @Override
     public int compareTo(Confidence o) {

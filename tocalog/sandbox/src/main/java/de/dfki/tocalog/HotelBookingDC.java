@@ -1,10 +1,10 @@
 package de.dfki.tocalog;
 
+import a.Slot;
 import de.dfki.tocalog.core.*;
 import de.dfki.tocalog.input.Input;
 import de.dfki.tocalog.input.TextInput;
 import de.dfki.tocalog.kb.KnowledgeBase;
-import de.dfki.tocalog.model.Confidence;
 import de.dfki.tocalog.output.Imp;
 import de.dfki.tocalog.output.SpeechOutput;
 import de.dfki.tocalog.output.impp.Allocation;
@@ -30,7 +30,7 @@ public class HotelBookingDC implements DialogComponent {
     }
 
     protected Optional<DialogFunction> onTimeout(Object timeout) {
-
+        throw new RuntimeException("not impl");
     }
 
     protected Optional<DialogFunction> onTextInput(TextInput textInput) {
@@ -48,7 +48,7 @@ public class HotelBookingDC implements DialogComponent {
                     List<Slot.Entity> slotCandidates = getSlotCandidates(textInput);
                     slotCandidates.forEach(sc -> sc.getSlot().consume(textInput));
                 }
-            };
+            });
         }
 
 //        super.requestYesNo("...");
@@ -88,7 +88,6 @@ public class HotelBookingDC implements DialogComponent {
 //
 //
 
-        return Optional.empty();
     }
 
     protected List<Slot.Entity> getSlotCandidates(Input input) {

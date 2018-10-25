@@ -1,4 +1,6 @@
-package de.dfki.tocalog.core;
+package a;
+
+import de.dfki.tocalog.core.Event;
 
 import java.util.ArrayList;
 import java.util.Iterator;

@@ -1,6 +1,6 @@
 package de.dfki.tocalog.dialog.sc;
 
-import de.dfki.tocalog.dialog.Intent;
+import a.Intent;
 
 import java.util.Optional;
 

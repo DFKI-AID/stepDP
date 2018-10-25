@@ -38,7 +38,7 @@ public class LightControlComponent implements DialogComponent {
             return Optional.empty();
         }
 
-        Optional<Hypothesis.Slot> slot = h.getSlot("target");
+        Optional<Slot> slot = h.getSlot("target");
         if (!slot.isPresent()) {
             log.warn("could find slot 'target' in {} for {}", h, this.getClass().getSimpleName());
             return Optional.empty();
@@ -57,11 +57,7 @@ public class LightControlComponent implements DialogComponent {
             return Optional.empty();
         }
 
-        return Optional.of(() -> {
-            for (Device device : devices) {
-                log.info("turning on \"{}\"", device);
-            }
-        });
+        return null;
     }
 
     protected void handleTurnOn() {

@@ -1,8 +1,7 @@
 package de.dfki.tocalog;
 
-import de.dfki.tocalog.dialog.Intent;
+import a.Intent;
 import de.dfki.tocalog.core.Event;
-import de.dfki.tocalog.core.EventEngine;
 import de.dfki.tocalog.core.InputComponent;
 import de.dfki.tocalog.input.Input;
 import de.dfki.tocalog.input.TextInput;

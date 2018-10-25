@@ -44,6 +44,15 @@
 
 
 
+## Work Packages
+- Slots, interfaces, candidates, Hypothesen
+- Resolution: einzelne Methoden zB für Persondeixis (interfaces)
+- DialogComponent basierend auf state chart (SC als parameter)
+- Task Model generiert bsp state chart?
+- IMP
+- Knowledge Base
+- Dialog Coordination: meta attributes for dialog functions
+
 
 
 
