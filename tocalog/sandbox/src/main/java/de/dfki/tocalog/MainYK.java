@@ -166,7 +166,7 @@ public class MainYK {
         State stateHello = State.create("Goal").build();
 
 
-        Transition helloSaid = new Transition("hello", stateA, stateB) {
+        Transition helloSaid = new Transition(stateA, "hello", stateB) {
             @Override
             public boolean fires(StateChartEvent eve) {
                 return false;

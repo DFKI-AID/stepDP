@@ -111,7 +111,7 @@ public class PersonImpl implements de.dfki.tocalog.model.Person{
     static {
         java.util.Map<String, Integer> tmp = new java.util.HashMap<String, Integer>();
     
-        tmp.put("age", 2);
+        tmp.put("Age", 2);
     
         tmp.put("gender", 3);
     
@@ -122,7 +122,7 @@ public class PersonImpl implements de.dfki.tocalog.model.Person{
     static {
         java.util.Map<Integer, String> tmp = new java.util.HashMap<Integer, String>();
         
-        tmp.put(2, "age");
+        tmp.put(2, "Age");
         
         tmp.put(3, "gender");
         
@@ -164,9 +164,9 @@ public class PersonImpl implements de.dfki.tocalog.model.Person{
         serializer.beginWriteObject(this);
         
         if(this.age.isPresent()) {
-            serializer.beginWriteField(2, "age");
+            serializer.beginWriteField(2, "Age");
             serializer.writeI64(age.get());
-            serializer.endWriteField(2, "age");
+            serializer.endWriteField(2, "Age");
         }
         
         if(this.gender.isPresent()) {
@@ -193,7 +193,7 @@ public class PersonImpl implements de.dfki.tocalog.model.Person{
             sb.append(this.Agent_composite.get() + " ");
             
             
-            age.ifPresent(x -> sb.append(" age=" +x.toString()));
+            age.ifPresent(x -> sb.append(" Age=" +x.toString()));
             
             gender.ifPresent(x -> sb.append(" gender=" +x.toString()));
             

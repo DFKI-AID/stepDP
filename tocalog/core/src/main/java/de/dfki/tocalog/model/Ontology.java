@@ -12,11 +12,11 @@ public class Ontology {
     }
 
     public static Integer getAge(Map<String, Object> data) {
-        return (Integer) data.get("age");
+        return (Integer) data.get("Age");
     }
 
     public static void setAge(Map<String, Object> data, int age) {
-        data.put("age", age);
+        data.put("Age", age);
     }
 
     public static void main(String[] args) {
@@ -29,24 +29,59 @@ public class Ontology {
 //        }
 
         Set<Ent> persons = new HashSet<>();
-        Ent e = new Ent();
-        age.set(e, 342l);
-        long age = Ontology.age.get(e).orElse(0l);
+        Ent person1 = new Ent();
+        person1.set(age, 123l);
+        person1.set(position, new Vector3(1,0,0));
+
+        Ent person2 = new Ent();
+        person2.set(position, new Vector3(2,0,0));
+
+        System.out.println(distance(person1, person2).orElse(-1.0) + "");
+
+        long age = Ontology.age.get(person1).orElse(0l);
         System.out.println(age);
 
-        if (zone.matches(e, z -> z.equals("nearBike"))) {
+        person1.get(Ontology.age).ifPresent(a -> System.out.println("Age is " + a));
+
+        if (zone.matches(person1, z -> z.equals("nearBike"))) {
 
         }
 
+        Ent nexus5 = new Ent()
+                .set(id, "nexus5")
+                .set(battery, 0.5);
+
+
     }
 
-    public static final Attribute<UUID> id = new Attribute<>("tocalog/v1/id");
-    public static final Attribute<Long> age = new Attribute<>("tocalog/v1/age");
-    public static final Attribute<String> zone = new Attribute<>("tocalog/v1/zone");
+    static class Vector3 {
+        public final double x, y, z;
+
+        public Vector3(double x, double y, double z) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
+    }
+
+    public static final Attribute<String> id = new Attribute<>("tocalog/id");
+    public static final Attribute<Long> age = new Attribute<>("tocalog/age");
+    public static final Attribute<String> zone = new Attribute<>("tocalog/zone");
+    public static final Attribute<String> gender = new Attribute<>("tocalog/gender");
+    public static final Attribute<Vector3> position = new Attribute<>("tocalog/position");
+    public static final Attribute<Double> battery = new Attribute<>("tocalog/dp/battery");
 
     public static class Ent {
         protected Map<String, AttributeValue> attributes = new HashMap<>();
 
+        public <T> Ent set(Attribute<T> attr, T value) {
+            attr.set(this, value);
+            return this;
+        }
+
+        public <T> Optional<T> get(Attribute<T> attr) {
+            return attr.get(this);
+        }
     }
 
     private static class AttributeValue<T> {
@@ -101,15 +136,59 @@ public class Ontology {
         boolean matches(Ent ent);
     }
 
-    public static class PersonScheme implements Scheme {
+    public static abstract class AbsScheme implements Scheme {
+        private final List<Attribute> attributes;
+        private final Map<String, Predicate<Attribute>> constraints = new HashMap();
+
+        protected AbsScheme(List<Attribute> attributes) {
+            this.attributes = attributes;
+        }
+
         @Override
         public boolean matches(Ent ent) {
-            if(age.getOrElse(ent, 0l) < 0) {
-                return false;
+            for(Attribute attr : attributes) {
+                Optional optValue = ent.get(attr);
+                if (!optValue.isPresent()) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+
+    public class DeviceScheme implements Scheme {
+
+        @Override
+        public boolean matches(Ent ent) {
+            if(!ent.get(battery).isPresent()) {
+                return true;
             }
             return false;
         }
     }
 
+//    public static class PersonScheme implements Scheme {
+//        @Override
+//        public boolean matches(Ent ent) {
+//            if (Age.getOrElse(ent, 0l) < 0) {
+//                return false;
+//            }
+//            return false;
+//        }
+//    }
+
+
+    public static Optional<Double> distance(Ent ent1, Ent ent2) {
+        Optional<Vector3> v1 = ent1.get(position);
+        Optional<Vector3> v2 = ent2.get(position);
+        if (!v1.isPresent() || !v2.isPresent()) {
+            return Optional.empty();
+        }
+        double distance = v1.get().x * v2.get().x;
+        distance += v1.get().y * v2.get().y;
+        distance += v1.get().z * v2.get().z;
+        distance = Math.sqrt(distance);
+        return Optional.of(distance);
+    }
 
 }
