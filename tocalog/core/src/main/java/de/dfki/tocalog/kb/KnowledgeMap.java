@@ -3,6 +3,7 @@ package de.dfki.tocalog.kb;
 import de.dfki.sire.Base;
 import de.dfki.sire.CborDeserializer;
 import de.dfki.sire.CborSerializer;
+import de.dfki.tocalog.core.Ontology;
 
 import java.io.IOException;
 import java.util.*;
@@ -15,153 +16,139 @@ import java.util.stream.Stream;
 /**
  *
  */
-public class KnowledgeMap<T extends Base> {
-    private Map<String, T> store = new HashMap<>();
+public class KnowledgeMap {
     private CborSerializer serializer = new CborSerializer();
     private CborDeserializer deserializer = new CborDeserializer();
     private Lock lock = new ReentrantLock();
+    private Random rdm = new Random();
 
+    private Map<String, Ontology.Ent> entities = new HashMap<>();
 
-    public Optional<T> get(String id) {
-        try {
-            lock();
-            if (!store.containsKey(id)) {
-                return Optional.empty();
-            }
-            T entity = store.get(id);
-            Optional<T> entryCopy = Optional.of(copy(entity));
-            return entryCopy;
-        } finally {
-            unlock();
+    public synchronized void add(Ontology.Ent ent) {
+        Optional<String> id = ent.get(Ontology.id);
+        if (!id.isPresent()) {
+            throw new IllegalArgumentException("need id for putting entity into kb");
         }
+        this.entities.put(id.get(), ent);
     }
 
-    public Set<T> get(Set<String> ids) {
-        Set<T> result = new HashSet<>();
-        try {
-            lock();
-            for (String id : ids) {
-                if (store.containsKey(id)) {
-                    result.add(store.get(id));
-                }
-            }
-        } finally {
-            unlock();
+    public synchronized String add(Ontology.Ent ent, Ontology.Attribute... attributes) {
+        Optional<String> optId = ent.get(Ontology.id);
+        String id = optId.orElse(UUID.randomUUID().toString());
+
+        Ontology.Ent kbEnt;
+
+        if (this.entities.containsKey(id)) {
+            kbEnt = this.entities.get(id);
+        } else {
+            kbEnt = new Ontology.Ent();
+            kbEnt.set(Ontology.id, id);
         }
-        return result;
+
+        for (Ontology.Attribute attr : attributes) {
+            Optional optValue = ent.get(attr);
+            if (!optValue.isPresent()) {
+                throw new IllegalStateException("value not presented for " + attr);
+            }
+            kbEnt = kbEnt.set(attr, optValue.get());
+        }
+
+        this.entities.put(optId.get(), kbEnt);
+        return id;
     }
 
-    public Optional<T> getAny(Predicate<T> predicate) {
-        try {
-            lock();
-            for (T entity : store.values()) {
-                if (predicate.test(entity)) {
-                    return Optional.of((T) entity.copy());
-                }
-            }
-        } finally {
-            unlock();
+    public synchronized <T> void update(String id, Ontology.Attribute<T> attr, T value) {
+        if (!this.entities.containsKey(id)) {
+            //TODO could also create a new entity
+            return;
         }
-        return Optional.empty();
+        Ontology.Ent ent = this.entities.get(id);
+        ent = ent.set(attr, value);
+        this.entities.put(id, ent);
     }
 
-    public Set<T> getIf(Predicate<T> predicate) {
-        try {
-            lock();
-            Set<T> result = new HashSet<>();
-            for (T entity : store.values()) {
-                if (predicate.test(entity)) {
-                    result.add(copy(entity));
-                }
-            }
-            return result;
-        } finally {
-            unlock();
-        }
+
+    //TODO optional or empty ent?
+    public synchronized Optional<Ontology.Ent> get(String id) {
+        return Optional.ofNullable(this.entities.get(id));
     }
 
-    public Set<T> getAll() {
-        try {
-            lock();
-            Set<T> result = new HashSet<>();
-            for (T entity : store.values()) {
-                result.add(copy(entity));
-            }
-            return result;
-        } finally {
-            unlock();
-        }
+
+    public synchronized Collection<Ontology.Ent> query(Predicate<Ontology.Ent> predicate) {
+
     }
-//
-//    public synchronized Set<T> getAll() {
-//        return getIf((e) -> true);
+
+    public synchronized boolean removeif(Predicate<Ontology.Ent> predicate) {
+        return entities.entrySet().removeIf(e -> predicate.test(e.getValue()));
+    }
+
+
+    public synchronized void removeOld(long timeout) {
+        long now = System.currentTimeMillis();
+        removeif(ent -> ent.get(Ontology.timestamp).orElse(0l) + timeout < now);
+    }
+
+
+    public synchronized void apply(Consumer<Ontology.Ent> consumer) {
+        entities.values().stream().forEach(consumer);
+    }
+
+
+    public synchronized void updateTimestamp(Predicate<Ontology.Ent> pred) {
+        long now = System.currentTimeMillis();
+        entities.entrySet().stream()
+                .filter(e -> pred.test(e.getValue()))
+                .forEach(e -> e.getValue().set(Ontology.timestamp, now));
+
+    }
+
+
+    /**
+     * e.g. store multiple alternative sentences in the map
+     *
+     * @return A random entity from this map.
+     */
+//    public synchronized Optional<Ontology.Ent> getRandom() {
+//        if (entities.isEmpty()) {
+//            return Optional.empty();
+//        }
+//        Iterator<Ontology.Ent> iter = entities.values().iterator();
+//        int index = rdm.nextInt(entities.size());
+//        for (int i = 0; i < index - 1; i++) {
+//            iter.next();
+//        }
+//        return Optional.of(iter.next());
 //    }
-//
-//    public synchronized boolean removeIf(Predicate<T> condition) {
-//        return store.values().removeIf(condition);
+
+//    public void unlock() {
+//        this.lock.unlock();
 //    }
 
-    public void put(String id, T t) {
-        try {
-            lock();
-            T entityCopy = copy(t);
-            store.put(id, entityCopy);
-        } finally {
-            unlock();
-        }
-    }
 
-    public void apply(Consumer<T> consumer) {
-        try {
-            lock();
-            store.values().stream().forEach(consumer);
-        } finally {
-            unlock();
-        }
-    }
-
-    protected synchronized T copy(T base) {
-        return (T) base.copy();
-    }
-
-    public KnowledgeMap.Locked<T> lock() {
-        this.lock.lock();
-        return locked;
-    }
-
-    public void unlock() {
-        this.lock.unlock();
-    }
-
-    private Stream<Map.Entry<String, T>> getStream() {
-        return store.entrySet().stream();
-    }
-
-
-    private Locked<T> locked = new Locked<>(this);
-
-    public static class Locked<T extends Base> {
-        private KnowledgeMap<T> km;
-
-        public Locked(KnowledgeMap km) {
-            this.km = km;
-        }
-
-        public Stream<Map.Entry<String, T>> getStream() {
-            return km.getStream();
-        }
-
-        public Map<String, T> getData() {
-            return km.store;
-        }
-
-        public void remove(String id) {
-            km.store.remove(id);
-        }
-
-        public T copy(T base) {
-            return km.copy(base);
-        }
-    }
+//    private Locked<T> locked = new Locked<>(this);
+//
+//    public static class Locked<T extends Base> {
+//        private KnowledgeMap<T> km;
+//
+//        public Locked(KnowledgeMap km) {
+//            this.km = km;
+//        }
+//
+//        public Stream<Map.Entry<String, T>> getStream() {
+//            return km.getStream();
+//        }
+//
+//        public Map<String, T> getData() {
+//            return km.store;
+//        }
+//
+//        public void remove(String id) {
+//            km.store.remove(id);
+//        }
+//
+//        public T copy(T base) {
+//            return km.copy(base);
+//        }
+//    }
 
 }

@@ -1,7 +1,5 @@
 package de.dfki.tocalog.output.impp;
 
-import de.dfki.tocalog.model.Agent;
-import de.dfki.tocalog.model.Service;
 import de.dfki.tocalog.output.Output;
 
 import java.util.*;
@@ -11,21 +9,18 @@ import java.util.*;
  */
 public class Assignment {
     private final Output output;
-    private final Agent agent;
+    private final String agent;
     private Map<String, Score> serviceScore = new HashMap<>();
-    private List<Service> services = new ArrayList<>();
+    private List<String> services = new ArrayList<>();
 
-    public Assignment(Output output, Agent agent) {
+    public Assignment(Output output, String agent) {
         this.output = output;
         this.agent = agent;
     }
 
-    public void addService(Service service) {
-        if (!service.getId().isPresent()) {
-            throw new IllegalArgumentException("service object does not have an id. service was " + service);
-        }
+    public void addService(String service) {
         this.services.add(service);
-        this.serviceScore.put(service.getId().get(), new Score());
+        this.serviceScore.put(service, new Score());
     }
 
     protected void sort() {
@@ -39,7 +34,7 @@ public class Assignment {
         }
     }
 
-    public Optional<Service> getBest() {
+    public Optional<String> getBest() {
         if(services.isEmpty()) {
             return Optional.empty();
         }
@@ -47,7 +42,7 @@ public class Assignment {
         return Optional.of(services.get(0));
     }
 
-    public List<Service> getServices() {
+    public List<String> getServices() {
         return services;
     }
 

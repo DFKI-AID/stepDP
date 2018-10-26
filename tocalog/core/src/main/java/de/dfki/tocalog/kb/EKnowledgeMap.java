@@ -14,34 +14,6 @@ public class EKnowledgeMap<T extends Entity> extends KnowledgeMap<T> {
     private static Logger log = LoggerFactory.getLogger(EKnowledgeMap.class);
     private Random rdm = new Random();
 
-    public void add(T entity) {
-        entity.setTimestamp(System.currentTimeMillis());
-        if (!entity.getId().isPresent()) {
-            entity.setId(UUID.randomUUID().toString());
-            log.debug("assigning random id to {}", entity);
-        }
-        super.put(entity.getId().get(), entity);
-    }
-
-    public void removeOld(long timeout) {
-        try {
-            long now = System.currentTimeMillis();
-            KnowledgeMap.Locked<T> l = this.lock();
-            l.getData().entrySet().removeIf(e -> e.getValue().getTimestamp().orElse(0l) + timeout < now);
-        } finally {
-            this.unlock();
-        }
-    }
-
-    public void updateTimestamp(String id) {
-        try {
-            long now = System.currentTimeMillis();
-            KnowledgeMap.Locked<T> l = this.lock();
-            l.getData().get(id).setTimestamp(now);
-        } finally {
-            this.unlock();
-        }
-    }
 
     /**
      * e.g. store multiple alternative sentences in the map

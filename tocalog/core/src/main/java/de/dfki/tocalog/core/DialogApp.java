@@ -13,7 +13,7 @@ import java.util.function.Predicate;
 
 /**
  * Entry point for the dialog application. See DialogApp::Builder for creating a new instance.
- * Implements the main update loop.
+ * Implements the main plus loop.
  */
 public class DialogApp implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(DialogApp.class);
