@@ -2,7 +2,6 @@ package de.dfki.tocalog.core;
 
 import de.dfki.tocalog.input.Input;
 import de.dfki.tocalog.kb.KnowledgeBase;
-import de.dfki.tocalog.model.Entity;
 
 import java.util.*;
 
@@ -58,7 +57,7 @@ public class Hypothesis {
         return inputs;
     }
 
-    interface Query<T extends Entity> {
+    interface Query<T extends Ontology.Ent> {
         Collection<T> findMatches(KnowledgeBase kb);
     }
 
@@ -84,7 +83,7 @@ public class Hypothesis {
 //            });
 //        }
 
-        public <T extends Entity> Builder addSlot(String name, Slot<T> slot) {
+        public <T extends Ontology.Ent> Builder addSlot(String name, Slot<T> slot) {
             slots.put(name, slot);
             slots.get(name).name = name;
             return this;

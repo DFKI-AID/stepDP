@@ -1,5 +1,6 @@
 package de.dfki.tocalog.output.impp;
 
+import de.dfki.tocalog.core.Ontology;
 import de.dfki.tocalog.output.Output;
 
 import java.util.*;
@@ -11,16 +12,19 @@ public class Assignment {
     private final Output output;
     private final String agent;
     private Map<String, Score> serviceScore = new HashMap<>();
-    private List<String> services = new ArrayList<>();
+    private List<Ontology.Ent> services = new ArrayList<>();
 
     public Assignment(Output output, String agent) {
         this.output = output;
         this.agent = agent;
     }
 
-    public void addService(String service) {
+    public void addService(Ontology.Ent service) {
+        if (!service.get(Ontology.id).isPresent()) {
+            throw new IllegalArgumentException("service needs an id");
+        }
         this.services.add(service);
-        this.serviceScore.put(service, new Score());
+        this.serviceScore.put(service.get(Ontology.id).get(), new Score());
     }
 
     protected void sort() {
@@ -34,15 +38,15 @@ public class Assignment {
         }
     }
 
-    public Optional<String> getBest() {
-        if(services.isEmpty()) {
+    public Optional<Ontology.Ent> getBest() {
+        if (services.isEmpty()) {
             return Optional.empty();
         }
         sort();
         return Optional.of(services.get(0));
     }
 
-    public List<String> getServices() {
+    public List<Ontology.Ent> getServices() {
         return services;
     }
 

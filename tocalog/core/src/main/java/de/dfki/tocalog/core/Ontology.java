@@ -1,5 +1,7 @@
 package de.dfki.tocalog.core;
 
+import de.dfki.tocalog.kb.KnowledgeBase;
+import de.dfki.tocalog.kb.KnowledgeMap;
 import org.pcollections.*;
 
 import java.util.*;
@@ -25,13 +27,13 @@ public class Ontology {
 //            //
 //        }
 
-        Set<Ent> persons = new HashSet<>();
         Ent person1 = new Ent()
+                .set(id, "mechanic1")
                 .set(age, 123l)
                 .set(position, new Vector3(1, 0, 0));
 
-        Ent person2 = new Ent();
-        person2.set(position, new Vector3(2, 0, 0));
+        Ent person2 = new Ent()
+                .set(position, new Vector3(2, 0, 0));
 
         System.out.println(distance(person1, person2).orElse(-1.0) + "");
 
@@ -44,20 +46,37 @@ public class Ontology {
 
         }
 
-        PMap<String, Ent> kb = HashTreePMap.empty();
+        KnowledgeBase kb = new KnowledgeBase();
+        KnowledgeMap devices = kb.getKnowledgeMap("Device");
+        KnowledgeMap deviceComponents = kb.getKnowledgeMap("DeviceComponent");
+
+
 
         Ent nexus5 = new Ent()
                 .set(id, "nexus5")
                 .set(battery, 0.5);
+        devices.add(nexus5);
+
         Ent nexus6 = nexus5
                 .set(id, "nexus6")
                 .set(owner, "mechanic1");
+        devices.add(nexus6);
+
+
+        Ent display = new Ent()
+                .set(resolution, new Vector2(1024, 2048))
+                .set(type, "lcd")
+                .set(device, "nexus5");
+        deviceComponents.add(display);
+
+
+        Collection<Ent> dcOfNexus5 = deviceComponents.query(e -> e.get(device).orElse("").equals("nexus5"));
+
 
         Ent mergedNexus = nexus5.merge(nexus6);
         System.out.println(mergedNexus);
 
 
-        kb = kb.plus(nexus5.get(id).get(), nexus5);
 
         Ent session = new Ent()
                 .set(id, "session1")
@@ -80,9 +99,37 @@ public class Ontology {
             this.y = y;
             this.z = z;
         }
+
+        @Override
+        public String toString() {
+            return "Vector3{" +
+                    "x=" + x +
+                    ", y=" + y +
+                    ", z=" + z +
+                    '}';
+        }
+    }
+
+    static class Vector2 {
+        public final double x, y;
+
+        public Vector2(double x, double y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        @Override
+        public String toString() {
+            return "Vector2{" +
+                    "x=" + x +
+                    ", y=" + y +
+                    '}';
+        }
     }
 
     public static final Attribute<String> id = new Attribute<>("tocalog/id");
+    public static final Attribute<String> type = new Attribute<>("tocalog/type");
+
     public static final Attribute<String> name = new Attribute<>("tocalog/name"); //human-readable name
     public static final Attribute<Long> age = new Attribute<>("tocalog/age");
     public static final Attribute<String> zone = new Attribute<>("tocalog/zone");
@@ -96,10 +143,21 @@ public class Ontology {
 
     public static final Attribute<Vector3> position = new Attribute<>("tocalog/position");
     public static final Attribute<Double> battery = new Attribute<>("tocalog/battery");
+    /**
+     * a device is owned by none or one human
+     */
+    public static final Attribute<String> owned = new Attribute<>("tocalog/owned");
+    /**
+     * the device of a service or a device component
+     */
+    public static final Attribute<String> device = new Attribute<>("tocalog/device");
+    public static final Attribute<Vector2> resolution = new Attribute<>("tocalog/resolution");
     public static final Attribute<String> partOf = new Attribute<>("tocalog/partOf");
     public static final Attribute<String> owner = new Attribute<>("tocalog/owner");
 
     public static final Attribute<PSet<String>> agents = new Attribute<>("tocalog/session/agents");
+
+    public static final String Service = "tocalog/Service";
 
     public static class KS {
         private Map<String, Ent> entities = new HashMap<>();
@@ -174,7 +232,6 @@ public class Ontology {
         }
 
         public <T> Ent set(Attribute<T> attr, T value) {
-            attr.set(this, value);
             return attr.set(this, value);
         }
 
@@ -196,7 +253,7 @@ public class Ontology {
             Ent out = this;
             for (AttributeValue av : other.attributes.values()) {
                 Object value = av.attribute.get(other).get();
-                out = this.set(av.attribute, value);
+                out = out.set(av.attribute, value);
             }
             return out;
         }
@@ -208,6 +265,7 @@ public class Ontology {
             for (AttributeValue av : attributes.values()) {
                 sb.append(av.name).append("=");
                 sb.append(av.value);
+                sb.append("  ");
             }
             sb.append("}");
             return sb.toString();
@@ -225,6 +283,8 @@ public class Ontology {
             this.value = value;
             this.attribute = attribute;
         }
+
+
     }
 
     public static class Attribute<T> {

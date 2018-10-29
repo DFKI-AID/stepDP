@@ -1,10 +1,6 @@
 package de.dfki.tocalog.core;
 
-import de.dfki.tocalog.kb.KnowledgeBase;
-import de.dfki.tocalog.model.Confidence;
-import de.dfki.tocalog.model.Entity;
 
-import java.util.Arrays;
 import java.util.Collection;
 
 /**

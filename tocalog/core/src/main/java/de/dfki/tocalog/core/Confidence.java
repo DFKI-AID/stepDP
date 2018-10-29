@@ -1,4 +1,4 @@
-package de.dfki.tocalog.model;
+package de.dfki.tocalog.core;
 
 import java.util.Comparator;
 

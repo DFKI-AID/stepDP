@@ -1,10 +1,8 @@
 package de.dfki.tocalog.core;
 
 import de.dfki.tocalog.input.Input;
-import de.dfki.tocalog.model.Confidence;
 
 import java.util.Collection;
-import java.util.Optional;
 
 /**
  * TODO more meta-info, uses IMP;

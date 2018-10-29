@@ -1,5 +1,6 @@
 package de.dfki.tocalog.output.impp;
 
+import de.dfki.tocalog.core.Ontology;
 import de.dfki.tocalog.output.Imp;
 import de.dfki.tocalog.output.OutputComponent;
 import org.slf4j.Logger;
@@ -28,7 +29,7 @@ public class AllocateVisitor implements OutputNode.Visitor {
         Assignment assignment = assignments.get(leaf.getId());
         assignment.limit(1);
 
-        Optional<String> service = assignment.getBest();
+        Optional<Ontology.Ent> service = assignment.getBest();
 //        List<Service> services = assignment.getServices();
         if (!service.isPresent()) {
             log.warn("can't assign service to {}. no suitable service available", leaf.getOutput());

@@ -1,26 +1,30 @@
 package de.dfki.tocalog.output.impp;
 
+import de.dfki.tocalog.core.Ontology;
 import de.dfki.tocalog.kb.KnowledgeMap;
-import de.dfki.tocalog.model.Service;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * assigns 'console output' to each leaf
  */
 public class ConsoleAssigner implements OutputNode.Visitor {
     private static final String type = "console";
-    private KnowledgeMap<Service> serviceKB;
-    private Service service;
+    private KnowledgeMap km;
+    private Ontology.Ent service;
 
-    public ConsoleAssigner(KnowledgeMap<Service> services) {
-        this.serviceKB = services;
+    /**
+     * @param km KnowledgeMap that contains services
+     */
+    public ConsoleAssigner(KnowledgeMap km) {
+        this.km = km;
     }
 
     @Override
     public void visitLeaf(OutputNode.External leaf) {
         if(leaf.getServices().isEmpty()) {
-            leaf.addService(service.getId().get()); //TODO get()
+            leaf.addService(service.get(Ontology.id).get()); //TODO get() -> use scheme
         }
     }
 
@@ -33,7 +37,9 @@ public class ConsoleAssigner implements OutputNode.Visitor {
 
     public void assignConsoleService(OutputNode node) {
         //TODO filter here for services with valid id and type
-        Set<Service> services = serviceKB.getIf(s -> s.getType().orElse("").equals(type));
+        Set<Ontology.Ent> services = km.getStore().values().stream()
+                .filter(s -> s.get(Ontology.type).orElse("").equals(type))
+                .collect(Collectors.toSet());
         if(services.isEmpty()) {
             return;
         }

@@ -1,8 +1,8 @@
 package de.dfki.tocalog.input;
 
-import de.dfki.tocalog.kb.EKnowledgeMap;
+import de.dfki.tocalog.core.Ontology;
 import de.dfki.tocalog.kb.KnowledgeBase;
-import de.dfki.tocalog.model.Entity;
+import de.dfki.tocalog.kb.KnowledgeMap;
 
 import java.util.*;
 
@@ -14,41 +14,29 @@ import java.util.*;
  * [3] no weight was assigned to the source ({@link SourceWeightFusion#setWeight})
  * [4] source of entity is unknown
  */
-public class SourceWeightFusion<T extends Entity> {
-    private final EKnowledgeMap<T> km;
-    private KnowledgeBase knowledgeBase;
-    private KnowledgeBase.Key<T> key;
+public class SourceWeightFusion {
+    private final KnowledgeMap km;
     private Map<String, Integer> sourceWeight = new HashMap<>();
     private long timeout = 3000L;
     private double minConfidence = 0.5;
 
-    public SourceWeightFusion(KnowledgeBase knowledgeBase, KnowledgeBase.Key<T> key) {
-        this.knowledgeBase = knowledgeBase;
-        this.key = key;
-        this.km = knowledgeBase.getKnowledgeMap(key);
+    public SourceWeightFusion(KnowledgeMap km) {
+        this.km = km;
     }
 
-    public Optional<T> get() {
+    public Optional<Ontology.Ent> get() {
         long now = System.currentTimeMillis();
-        try {
-            return km.lock().getStream()
-                    .map(e -> e.getValue())
-                    .filter(e ->
-                            e.getTimestamp().orElse(0l) + timeout > now)
-                    .filter(e ->
-                            e.getConfidence().orElse(-1.0) > minConfidence)
-                    .filter(e ->
-                            e.getSource().isPresent())
-                    .filter(e ->
-                            sourceWeight.containsKey(e.getSource().get()))
-                    .sorted(Comparator.comparingInt(
-                            (Entity e) ->
-                                    sourceWeight.get(e.getSource().get()))
-                            .reversed())
-                    .findFirst();
-        } finally {
-            km.unlock();
-        }
+        //TODO performance can be improved if the km offers a stream function
+        Collection<Ontology.Ent> qr = km.query(e ->
+                (e.get(Ontology.timestamp).orElse(0l) + timeout > now) &&
+                        (e.get(Ontology.confidence).orElse(-1.0) > minConfidence) &&
+                        (e.get(Ontology.source).isPresent()) &&
+                        (sourceWeight.containsKey(e.get(Ontology.source))));
+        return qr.stream().sorted(Comparator.comparingInt(
+                (Ontology.Ent e) ->
+                        sourceWeight.get(e.get(Ontology.source).get()))
+                .reversed())
+                .findFirst();
     }
 
     public void setWeight(String source, int priority) {

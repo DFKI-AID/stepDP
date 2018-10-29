@@ -1,14 +1,15 @@
 package de.dfki.tocalog.output;
 
-import de.dfki.tocalog.model.Session;
+
+import de.dfki.tocalog.core.Ontology;
 
 /**
  */
 public class OutputAct<O extends Output> {
     private O output;
-    private Session session;
+    private Ontology.Ent session;
 
-    public OutputAct(O output, Session session) {
+    public OutputAct(O output, Ontology.Ent session) {
         this.output = output;
         this.session = session;
     }
@@ -17,7 +18,7 @@ public class OutputAct<O extends Output> {
         return output;
     }
 
-    public Session getSession() {
+    public Ontology.Ent getSession() {
         return session;
     }
 }
