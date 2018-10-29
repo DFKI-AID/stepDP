@@ -12,6 +12,8 @@ import java.util.function.Predicate;
 public class Ontology {
 
 
+
+
     public static Optional<Long> getAge(Entity entity) {
         return entity.get(age);
     }
@@ -91,6 +93,9 @@ public class Ontology {
     }
 
     public static final Attribute<String> id = new Attribute<>("tocalog/id");
+    /**
+     * Type of the entity. Can be seen as the class name in a hierarchy
+     */
     public static final Attribute<String> type = new Attribute<>("tocalog/type");
 
     public static final Attribute<String> name = new Attribute<>("tocalog/name"); //human-readable name
@@ -106,6 +111,7 @@ public class Ontology {
 
     public static final Attribute<Vector3> position = new Attribute<>("tocalog/position");
     public static final Attribute<Double> battery = new Attribute<>("tocalog/battery");
+    public static final Attribute<String> serviceType = new Attribute<>("tocalog/serviceType");
     /**
      * a device is owned by none or one human
      */
@@ -124,7 +130,7 @@ public class Ontology {
 
 
     public interface Scheme {
-        boolean matches(Entity entity);
+        boolean validate(Entity entity);
     }
 
     public static abstract class AbsScheme implements Scheme {
@@ -136,7 +142,7 @@ public class Ontology {
         }
 
         @Override
-        public boolean matches(Entity entity) {
+        public boolean validate(Entity entity) {
             for (Attribute attr : attributes) {
                 Optional optValue = entity.get(attr);
                 if (!optValue.isPresent()) {
@@ -150,7 +156,7 @@ public class Ontology {
     public class DeviceScheme implements Scheme {
 
         @Override
-        public boolean matches(Entity entity) {
+        public boolean validate(Entity entity) {
             if (!entity.get(battery).isPresent()) {
                 return true;
             }
@@ -160,7 +166,7 @@ public class Ontology {
 
 //    public static class PersonScheme implements Scheme {
 //        @Override
-//        public boolean matches(Ent ent) {
+//        public boolean validate(Ent ent) {
 //            if (Age.getOrElse(ent, 0l) < 0) {
 //                return false;
 //            }

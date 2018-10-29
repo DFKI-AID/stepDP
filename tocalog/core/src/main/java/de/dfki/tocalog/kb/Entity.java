@@ -42,7 +42,7 @@ public class Entity {
         return this.set(attr, value);
     }
 
-    public <T> Entity merge(Entity other) {
+    public Entity merge(Entity other) {
         Entity out = this;
         for (AttributeValue av : other.attributes.values()) {
             Object value = av.attribute.get(other).get();

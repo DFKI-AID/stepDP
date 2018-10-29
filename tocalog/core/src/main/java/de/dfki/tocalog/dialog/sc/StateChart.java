@@ -18,7 +18,7 @@ public class StateChart {
     private final Callback callback;
     private String currentState;
 
-    interface Callback {
+    public interface Callback {
         void fires(String s1, Transition t, String s2);
     }
 
@@ -112,10 +112,14 @@ public class StateChart {
 
         public Builder addTransition(Transition transition) {
             transitions.add(transition);
-            if(initialState == null) {
+            if (initialState == null) {
                 initialState = transition.getSource();
             }
             return this;
+        }
+
+        public Builder addTransition(String source, String cond, String target) {
+            return this.addTransition(new Transition(source, cond, target));
         }
 
         public Builder setInitialState(String initialState) {
@@ -130,7 +134,7 @@ public class StateChart {
 
         public StateChart build() {
             if (callback == null) {
-                callback = (s1, t, s2) -> log.info("state change {} -{}-> {}", s1, t.getCond(), s2);
+                callback = (s1, t, s2) -> {}; //log.info("state change {} -{}-> {}", s1, t.getCond(), s2);
             }
             states = new HashSet<String>();
             transitions.forEach(t -> {

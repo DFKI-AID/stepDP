@@ -1,44 +1,23 @@
 package de.dfki.tocalog.core;
 
 
+import de.dfki.tocalog.kb.Entity;
+
 import java.util.Collection;
 
 /**
  */
-public abstract class Slot<T> { // TODO replace T with XYZ<T>
-    public String name;
+public abstract class Slot {
+    public final String name;
 
-    public Slot() {
+    protected Slot(String name) {
+        this.name = name;
     }
 
     public String getName() {
         return name;
     }
 
-    public abstract Collection<T> findMatches();
+    public abstract Collection<Entity> findCandidates();
 
-    public static class Candidate<T> {
-        private T candidate;
-        private Confidence confidence;
-    }
-
-//    public static void main(String[] args) {
-//        KnowledgeBase kb;
-//        Slot<String> citySlot = new Slot<String>() {
-//            @Override
-//            public Collection<String> findMatches() {
-//                kb.getKnowledgeMap().
-//                return Arrays.asList("SB, NYC, sfsd");
-//            }
-//        };
-//
-//        DeviceSlot slot = new DeviceSlot(kb) {
-//            public Collection<Device> filter(Collection<Device> devices) {
-//                //filter
-//            }
-//        }
-//
-//        DateSlot, NumberSlot, LocationSlot;
-//
-//    }
 }

@@ -9,16 +9,18 @@ import java.util.*;
 /**
  */
 public class Hypothesis {
-    private final String id = UUID.randomUUID().toString().substring(0,10);
+    private final String id = UUID.randomUUID().toString().substring(0, 10);
     private final String intent;
     private final Map<String, Slot> slots;
     private final Set<String> inputs;
+    private final Confidence confidence;
 
 
     public Hypothesis(Builder builder) {
         this.intent = builder.intent;
         this.slots = Collections.unmodifiableMap(new HashMap<>(builder.slots));
         this.inputs = Collections.unmodifiableSet(new HashSet<>(builder.inputs));
+        this.confidence = builder.confidence;
     }
 
     public String getIntent() {
@@ -37,14 +39,18 @@ public class Hypothesis {
         return id;
     }
 
+    public Confidence getConfidence() {
+        return confidence;
+    }
+
     /**
      * @param other
      * @return The number of inputs this Hypothesis was based on, which also part of the other provided Hypothesis
      */
     public int overlaps(Hypothesis other) {
         int count = 0;
-        for(String id : inputs) {
-            if(other.inputs.contains(id)) {
+        for (String id : inputs) {
+            if (other.inputs.contains(id)) {
                 count++;
             }
         }
@@ -62,7 +68,7 @@ public class Hypothesis {
         Collection<T> findMatches(KnowledgeBase kb);
     }
 
-    public static Builder build(String intent) {
+    public static Builder create(String intent) {
         return new Builder(intent);
     }
 
@@ -70,23 +76,19 @@ public class Hypothesis {
         private String intent;
         private Map<String, Slot> slots = new HashMap<>();
         private Set<String> inputs = new HashSet<>();
+        private Confidence confidence = Confidence.UNKNOWN;
 
         public Builder(String intent) {
             this.intent = intent;
         }
 
-//        public <T extends Entity> Builder addSlot(String name, Query<T> query) {
-//            return addSlot(name, new Slot() {
-//                @Override
-//                public Collection<? extends Entity> findMatches(KnowledgeBase kb) {
-//                    return query.findMatches(kb);
-//                }
-//            });
-//        }
+        public Builder setConfidence(Confidence confidence) {
+            this.confidence = confidence;
+            return this;
+        }
 
-        public <T extends Entity> Builder addSlot(String name, Slot<T> slot) {
-            slots.put(name, slot);
-            slots.get(name).name = name;
+        public Builder addSlot(Slot slot) {
+            slots.put(slot.getName(), slot);
             return this;
         }
 
@@ -96,10 +98,12 @@ public class Hypothesis {
 
         /**
          * Add an Input that was used to derive the hypothesis
+         *
          * @param input
          */
-        public void addInput(Input input) {
+        public Builder addInput(Input input) {
             inputs.add(input.getId());
+            return this;
         }
     }
 }

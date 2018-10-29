@@ -31,7 +31,7 @@ public class Imp {
     }
 
     public Allocation allocate(OutputNode output) { //TODO OutputRequest? what, when, whom? how?
-        //output = copyVisitor.copy(output).build();
+        //output = copyVisitor.copy(output).create();
 
 
         FindCandidateVisitor cf = new FindCandidateVisitor(this);

@@ -49,14 +49,17 @@ public class Inputs {
             consumers.put(input.getId(), new HashSet<>());
         }
 
-        getConsumers(input).add(consumer);
+        if(consumers.get(input.getId()) == null) {
+            consumers.put(input.getId(), new HashSet<>());
+        }
+        consumers.get(input.getId()).add(consumer);
     }
 
     public boolean wasConsumedBy(Input input, Object consumer) {
         return getConsumers(input).contains(consumer);
     }
 
-    public Collection<Input> getInputs() {
+    public List<Input> getInputs() {
         return Collections.unmodifiableList(inputs);
     }
 }

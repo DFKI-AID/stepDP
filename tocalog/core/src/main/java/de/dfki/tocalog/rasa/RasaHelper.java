@@ -76,49 +76,53 @@ public class RasaHelper {
     }
 
     public RasaResponse parseJson(String jsonString) {
-        Gson gson = new Gson();
-        JsonObject obj = new JsonParser().parse(jsonString).getAsJsonObject();
-
-        //get name
-        JsonObject jsonIntent = obj.getAsJsonObject("name");
-        RasaIntent rasaIntent = gson.fromJson(jsonIntent, RasaIntent.class);
-        log.debug("rasaIntent={}", rasaIntent);
-
-        //get entities
-        JsonArray jsonEntities = obj.getAsJsonArray("entities");
-        List<RasaEntity> rasaEntities = new ArrayList<>();
-        if(jsonEntities.size() > 0) {
-            for (JsonElement entity : jsonEntities) {
-                rasaEntities.add(gson.fromJson(entity, RasaEntity.class));
-            }
-
-            log.debug("{}", rasaEntities.get(0).getValue());
-            log.debug("{}", rasaEntities.get(0).getEntity());
-        }
-
-        //get name ranking
-        JsonArray jsonIntentRanking = obj.getAsJsonArray("intent_ranking");
-        List<RasaIntent> rasaIntents = new ArrayList<>();
-        if(jsonIntentRanking.size() > 0) {
-            for (JsonElement intent : jsonIntentRanking) {
-                rasaIntents.add(gson.fromJson(intent, RasaIntent.class));
-            }
-
-            log.debug("{}", rasaIntents.get(0).getName());
-            log.debug("{}", rasaIntents.get(1).getName());
-        }
-
-        //get text
-        String text = obj.get("text").getAsString();
-
-        //create rasa response object
-        RasaResponse rasaResponse = new RasaResponse();
-        rasaResponse.setJsonString(jsonString);
-        rasaResponse.setRasaIntent(rasaIntent);
-        rasaResponse.setRasaEntityList(rasaEntities);
-        rasaResponse.setIntentRankingList(rasaIntents);
-        rasaResponse.setRequestString(text);
+        Gson gson = new GsonBuilder()
+                .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+                .create();
+        RasaResponse rasaResponse = gson.fromJson(jsonString, RasaResponse.class);
+//        JsonObject obj = new JsonParser().parse(jsonString).getAsJsonObject();
+//
+//        //get name
+//        JsonObject jsonIntent = obj.getAsJsonObject("name");
+//        RasaIntent rasaIntent = gson.fromJson(jsonIntent, RasaIntent.class);
+//        log.debug("rasaIntent={}", rasaIntent);
+//
+//        //get entities
+//        JsonArray jsonEntities = obj.getAsJsonArray("entities");
+//        List<RasaEntity> rasaEntities = new ArrayList<>();
+//        if(jsonEntities.size() > 0) {
+//            for (JsonElement entity : jsonEntities) {
+//                rasaEntities.add(gson.fromJson(entity, RasaEntity.class));
+//            }
+//
+//            log.debug("{}", rasaEntities.get(0).getValue());
+//            log.debug("{}", rasaEntities.get(0).getEntity());
+//        }
+//
+//        //get name ranking
+//        JsonArray jsonIntentRanking = obj.getAsJsonArray("intent_ranking");
+//        List<RasaIntent> rasaIntents = new ArrayList<>();
+//        if(jsonIntentRanking.size() > 0) {
+//            for (JsonElement intent : jsonIntentRanking) {
+//                rasaIntents.add(gson.fromJson(intent, RasaIntent.class));
+//            }
+//
+//            log.debug("{}", rasaIntents.get(0).getName());
+//            log.debug("{}", rasaIntents.get(1).getName());
+//        }
+//
+//        //get text
+//        String text = obj.get("text").getAsString();
+//
+//        //create rasa response object
+//        RasaResponse rasaResponse = new RasaResponse();
+//        rasaResponse.setJsonString(jsonString);
+//        rasaResponse.setIntent(rasaIntent);
+//        rasaResponse.setEntities(rasaEntities);
+//        rasaResponse.setIntentRankingList(rasaIntents);
+//        rasaResponse.setRequestString(text);
         log.debug("Rasaresponse: {}", rasaResponse.toString());
+
 
         return rasaResponse;
     }

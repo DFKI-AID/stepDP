@@ -1,8 +1,6 @@
 package de.dfki.tocalog;
 
 
-import de.dfki.tocalog.rasa.RasaResponse;
-import de.dfki.tocalog.rasa.RasaResponseHandler;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 
@@ -23,8 +21,8 @@ public class MainMK {
 
         System.out.println("\nTesting  - Send Http POST request");
         String responseString = http.sendGet();
-        RasaResponseHandler responseHandler = new RasaResponseHandler();
-        RasaResponse response = responseHandler.parseJson(responseString);
+//        RasaResponseHandler responseHandler = new RasaResponseHandler();
+//        RasaResponse response = responseHandler.parseJson(responseString);
 //        responseHandler.handleIntent(response);
 
     }

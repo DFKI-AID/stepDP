@@ -4,39 +4,29 @@ import java.util.List;
 
 public class RasaResponse {
 
-    private String jsonString;
+    private RasaIntent intent;
 
-    private RasaIntent rasaIntent;
-
-    private List<RasaEntity> rasaEntityList;
+    private List<RasaEntity> entities;
 
     private List<RasaIntent> intentRankingList;
 
     private String requestString;
 
 
-    public String getJsonString() {
-        return jsonString;
+    public RasaIntent getIntent() {
+        return intent;
     }
 
-    public void setJsonString(String jsonString) {
-        this.jsonString = jsonString;
+    public void setIntent(RasaIntent intent) {
+        this.intent = intent;
     }
 
-    public RasaIntent getRasaIntent() {
-        return rasaIntent;
+    public List<RasaEntity> getEntities() {
+        return entities;
     }
 
-    public void setRasaIntent(RasaIntent rasaIntent) {
-        this.rasaIntent = rasaIntent;
-    }
-
-    public List<RasaEntity> getRasaEntityList() {
-        return rasaEntityList;
-    }
-
-    public void setRasaEntityList(List<RasaEntity> rasaEntityList) {
-        this.rasaEntityList = rasaEntityList;
+    public void setEntities(List<RasaEntity> entities) {
+        this.entities = entities;
     }
 
     public List<RasaIntent> getIntentRankingList() {
@@ -58,9 +48,8 @@ public class RasaResponse {
     @Override
     public String toString() {
         return "RasaResponse{" +
-                "jsonString='" + jsonString + '\'' +
-                ", rasaIntent=" + rasaIntent +
-                ", rasaEntityList=" + rasaEntityList +
+                ", intent=" + intent +
+                ", entities=" + entities +
                 ", intentRankingList=" + intentRankingList +
                 ", requestString='" + requestString + '\'' +
                 '}';

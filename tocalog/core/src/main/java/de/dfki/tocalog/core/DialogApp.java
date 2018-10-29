@@ -130,6 +130,10 @@ public class DialogApp implements Runnable {
 
         }
 
+        public Builder addEventProducer(EventProducer ep) {
+            this.eventProducers.add(ep);
+            return this;
+        }
 
         public Builder addInputComponent(InputComponent component) {
             inputComponents.add(component);
