@@ -1,7 +1,7 @@
 package de.dfki.tocalog.input;
 
-import de.dfki.tocalog.core.Ontology;
-import de.dfki.tocalog.kb.KnowledgeBase;
+import de.dfki.tocalog.kb.Entity;
+import de.dfki.tocalog.kb.Ontology;
 import de.dfki.tocalog.kb.KnowledgeMap;
 
 import java.util.*;
@@ -24,16 +24,16 @@ public class SourceWeightFusion {
         this.km = km;
     }
 
-    public Optional<Ontology.Ent> get() {
+    public Optional<Entity> get() {
         long now = System.currentTimeMillis();
         //TODO performance can be improved if the km offers a stream function
-        Collection<Ontology.Ent> qr = km.query(e ->
+        Collection<Entity> qr = km.query(e ->
                 (e.get(Ontology.timestamp).orElse(0l) + timeout > now) &&
                         (e.get(Ontology.confidence).orElse(-1.0) > minConfidence) &&
                         (e.get(Ontology.source).isPresent()) &&
                         (sourceWeight.containsKey(e.get(Ontology.source))));
         return qr.stream().sorted(Comparator.comparingInt(
-                (Ontology.Ent e) ->
+                (Entity e) ->
                         sourceWeight.get(e.get(Ontology.source).get()))
                 .reversed())
                 .findFirst();

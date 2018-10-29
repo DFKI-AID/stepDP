@@ -1,13 +1,13 @@
 package de.dfki.tocalog.output.impp;
 
-import de.dfki.tocalog.core.Ontology;
+import de.dfki.tocalog.kb.Entity;
+import de.dfki.tocalog.kb.Ontology;
 import de.dfki.tocalog.output.Imp;
 import de.dfki.tocalog.output.OutputComponent;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Assigns all services that can present an output to the corresponding leaves
@@ -15,7 +15,7 @@ import java.util.Set;
 public class FindCandidateVisitor implements OutputNode.Visitor {
     private final Imp immp;
     private Map<String, Assignment> assignments;
-    private Collection<Ontology.Ent> services;
+    private Collection<Entity> services;
 
     public FindCandidateVisitor(Imp immp) {
         this.immp = immp;
@@ -28,7 +28,7 @@ public class FindCandidateVisitor implements OutputNode.Visitor {
         }
 
         for (OutputComponent oc : immp.getComponents()) {
-            for (Ontology.Ent service : services) {
+            for (Entity service : services) {
                 if (!oc.handles(leaf.getOutput(), service)) {
                     continue;
                 }

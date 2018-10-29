@@ -1,7 +1,5 @@
 package de.dfki.tocalog.kb;
 
-import de.dfki.tocalog.core.Ontology;
-
 import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -33,7 +31,7 @@ public class PredicateHelper {
 //    }
 
     public Set<String> relation(String subjectId, KnowledgeMap predicateKm) {
-        Collection<Ontology.Ent> objects = predicateKm.query(e -> e.get(Relation.subject).orElse("").equals(subjectId));
+        Collection<Entity> objects = predicateKm.query(e -> e.get(Relation.subject).orElse("").equals(subjectId));
         Set<String> objectIds = objects.stream()
                     .map(e -> e.get(Relation.subject).get())
                     .collect(Collectors.toSet());

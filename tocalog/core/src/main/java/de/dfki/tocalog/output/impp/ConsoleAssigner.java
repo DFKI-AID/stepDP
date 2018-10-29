@@ -1,6 +1,7 @@
 package de.dfki.tocalog.output.impp;
 
-import de.dfki.tocalog.core.Ontology;
+import de.dfki.tocalog.kb.Entity;
+import de.dfki.tocalog.kb.Ontology;
 import de.dfki.tocalog.kb.KnowledgeMap;
 
 import java.util.Set;
@@ -12,7 +13,7 @@ import java.util.stream.Collectors;
 public class ConsoleAssigner implements OutputNode.Visitor {
     private static final String type = "console";
     private KnowledgeMap km;
-    private Ontology.Ent service;
+    private Entity service;
 
     /**
      * @param km KnowledgeMap that contains services
@@ -37,7 +38,7 @@ public class ConsoleAssigner implements OutputNode.Visitor {
 
     public void assignConsoleService(OutputNode node) {
         //TODO filter here for services with valid id and type
-        Set<Ontology.Ent> services = km.getStore().values().stream()
+        Set<Entity> services = km.getStore().values().stream()
                 .filter(s -> s.get(Ontology.type).orElse("").equals(type))
                 .collect(Collectors.toSet());
         if(services.isEmpty()) {
