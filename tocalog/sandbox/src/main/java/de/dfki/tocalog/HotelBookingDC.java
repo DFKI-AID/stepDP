@@ -35,7 +35,7 @@ public class HotelBookingDC implements DialogComponent {
 
     protected Optional<DialogFunction> onTextInput(TextInput textInput) {
         // TODO interface for grammar-based and intent-based recognizer
-        // grammer.match(textInput.getText())
+        // grammer.match(textInput.getGestureType())
 
 
         if (!active && textInput.getText().matches("i want to book a hotel")) {

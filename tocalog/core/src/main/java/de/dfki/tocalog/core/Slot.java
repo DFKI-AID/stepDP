@@ -6,24 +6,68 @@ import de.dfki.tocalog.model.Entity;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  */
 public abstract class Slot<T> { // TODO replace T with XYZ<T>
     public String name;
+    private List<Candidate<T>> candidates;
+    private Map<String, String> annotations;
 
     public Slot() {
     }
 
-    public String getName() {
-        return name;
+
+    public List<Candidate<T>> getCandidates() {
+        return candidates;
     }
 
+    public void setCandidates(List<Candidate<T>> candidates) {
+        this.candidates = candidates;
+    }
+
+    public void addCandidate(Candidate<T> candidate) {
+        candidates.add(candidate);
+    }
+
+    public Map<String,String> getAnnotations() {
+        return annotations;
+    }
+
+    public void addAnnotation(String key, String value) {
+        annotations.put(key,value);
+    }
+    public void setAnnotations(Map<String, String> annotations) {
+        this.annotations = annotations;
+    }
+
+
     public abstract Collection<T> findMatches();
+
+
 
     public static class Candidate<T> {
         private T candidate;
         private Confidence confidence;
+
+        public T getCandidate() {
+            return candidate;
+        }
+
+        public void setCandidate(T candidate) {
+            this.candidate = candidate;
+        }
+
+
+        public Confidence getConfidence() {
+            return confidence;
+        }
+
+        public void setConfidence(Confidence confidence) {
+            this.confidence = confidence;
+        }
     }
 
 //    public static void main(String[] args) {

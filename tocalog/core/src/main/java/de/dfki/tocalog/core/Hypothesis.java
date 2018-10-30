@@ -12,6 +12,7 @@ public class Hypothesis {
     private final String id = UUID.randomUUID().toString().substring(0,10);
     private final String intent;
     private final Map<String, Slot> slots;
+    //warum string und nicht input?
     private final Set<String> inputs;
 
 
