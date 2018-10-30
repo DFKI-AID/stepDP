@@ -17,7 +17,7 @@ public class KBTest {
 //        try {
 //            KnowledgeSet.Locked<Person> l = kset.lock();
 //            for (int i = 0; i < 51; i++) {
-//                kset.add(Person.create().setId("mechanic" + i).setTimestamp(i * 1000L));
+//                kset.add(Person.of().setId("mechanic" + i).setTimestamp(i * 1000L));
 //            }
 //            kset.limitTimestamp(30);
 //
@@ -42,13 +42,13 @@ public class KBTest {
 //        EKnowledgeMap km = kb.getKnowledgeMap(key);
 //
 //        //test filter missing confidence
-//        km.add(Triple.create().setSource("kinect").setObject("k"));
-//        km.add(Triple.create().setSource("hololens").setObject("h"));
+//        km.add(Triple.of().setSource("kinect").setObject("k"));
+//        km.add(Triple.of().setSource("hololens").setObject("h"));
 //        Assert.assertFalse(swf.get().isPresent());
 //
 //        //test setting confidence
-//        km.add(Triple.create().setSource("kinect").setObject("k").setConfidence(0.5));
-//        km.add(Triple.create().setSource("hololens").setObject("h").setConfidence(0.8));
+//        km.add(Triple.of().setSource("kinect").setObject("k").setConfidence(0.5));
+//        km.add(Triple.of().setSource("hololens").setObject("h").setConfidence(0.8));
 //        Optional<Triple> result = swf.get();
 //        Assert.assertTrue(result.isPresent());
 //        Assert.assertTrue(result.get().getObject().get().equals("h"));

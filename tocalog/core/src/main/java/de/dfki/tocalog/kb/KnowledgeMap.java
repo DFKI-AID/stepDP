@@ -69,7 +69,7 @@ public class KnowledgeMap {
 
     public synchronized <T> void update(String id, Attribute<T> attr, T value) {
         if (!this.entities.containsKey(id)) {
-            //TODO could also create a new entity
+            //TODO could also of a new entity
             return;
         }
         Entity entity = this.entities.get(id);

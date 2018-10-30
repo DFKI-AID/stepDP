@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
  * Confidence for slots will be stored in the attribute {@link de.dfki.tocalog.kb.Ontology#confidence}
  *
  * TODO could also concat multiple inputs to derive different intent
+ * TODO parse inputs other than TextInput
  */
 public class RasaHypoProducer implements HypothesisProducer {
     private static final Logger log = LoggerFactory.getLogger(RasaHypoProducer.class);
@@ -34,11 +35,11 @@ public class RasaHypoProducer implements HypothesisProducer {
                 .filter(i -> !inputs.isConsumed(i))
                 .filter(i -> i instanceof TextInput)
                 .map(i -> (TextInput) i)
-                .map(ti -> Pair.create(ti, nlu(ti.getText())))
+                .map(ti -> Pair.of(ti, nlu(ti.getText())))
                 .filter(p -> p.second.isPresent())
-                .map(p -> Pair.create(p.first, p.second.get()))
+                .map(p -> Pair.of(p.first, p.second.get()))
                 .sorted((o1, o2) -> Double.compare(o2.second.getIntent().getConfidence(), o1.second.getIntent().getConfidence()))
-                .map(p -> Pair.create(p.first, parse(p.second)))
+                .map(p -> Pair.of(p.first, parse(p.second)))
                 .map(p -> p.second.addInput(p.first).build())
                 .collect(Collectors.toList());
         return rsps;
@@ -52,11 +53,14 @@ public class RasaHypoProducer implements HypothesisProducer {
     }
 
     protected Slot parse(RasaEntity re) {
+        //TODO case: multiple slot with the same entity? slot would be lost
+
         return new Slot(re.getEntity()) {
             @Override
             public Collection<Entity> findCandidates() {
                 Entity entity = new Entity()
                         .set(Ontology.name, re.getValue())
+                        .set(Ontology.type, re.getEntity())
                         .set(Ontology.confidence, re.getConfidence());
                 return List.of(entity);
             }
@@ -87,7 +91,7 @@ public class RasaHypoProducer implements HypothesisProducer {
             this.second = second;
         }
 
-        public static <X, Y> Pair<X, Y> create(X first, Y second) {
+        public static <X, Y> Pair<X, Y> of(X first, Y second) {
             return new Pair<>(first, second);
         }
     }

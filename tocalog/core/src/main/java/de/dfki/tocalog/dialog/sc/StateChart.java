@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 /**
  */
-public class StateChart {
+public class StateChart<T> {
     private static Logger log = LoggerFactory.getLogger(StateChart.class);
     private final String initialState;
     private final Set<String> states;
@@ -18,35 +18,49 @@ public class StateChart {
     private final Callback callback;
     private String currentState;
 
-    public interface Callback {
-        void fires(String s1, Transition t, String s2);
+    public static class FireEvent<T> {
+        public final String source;
+        public final String target;
+        public final Transition<T> transition;
+        public final T event;
+
+        public FireEvent(String source, String target, Transition<T> transition, T event) {
+            this.source = source;
+            this.target = target;
+            this.transition = transition;
+            this.event = event;
+        }
     }
 
-    public static Builder create() {
-        return new Builder();
+    public interface Callback<T> {
+        void onFire(FireEvent<T> event);
+    }
+
+    public static <T> Builder<T> create() {
+        return new Builder<>();
     }
 
 
     /**
-     * @param eve
+     * @param event
      * @return true iff the name was consumed
      */
-    public boolean update(String eve) {
+    public boolean fire(T event) {
         Set<Transition> transitions = getTransitionCandidates(currentState);
         for (Transition transition : transitions) {
             //TODO selection strategy
-            if (transition.getCond().equals(eve)) {
-                fireTransition(transition);
+            if (transition.canFire(event)) {
+                fireTransition(transition, event);
                 return true;
             }
         }
         return false;
     }
 
-    public boolean canUpdate(String eve) {
+    public boolean canFire(T event) {
         Set<Transition> transitions = getTransitionCandidates(currentState);
         for (Transition transition : transitions) {
-            if (transition.getCond().equals(eve)) {
+            if (transition.canFire(event)) {
                 return true;
             }
         }
@@ -62,7 +76,7 @@ public class StateChart {
                 "init", "init", initialState, initialState));
         this.transitions.forEach(t -> {
             sb.append(String.format("%s --> |%s| %s(%s)\n",
-                    t.getSource(), t.getCond(), t.getTarget(), t.getTarget()));
+                    t.getSource(), "todo", t.getTarget(), t.getTarget()));
         });
         return sb.toString();
     }
@@ -77,10 +91,10 @@ public class StateChart {
     }
 
 
-    protected void fireTransition(Transition transition) {
+    protected void fireTransition(Transition transition, T event) {
         String srcState = transition.getSource();
         String targetState = transition.getTarget();
-        log.info("transition fired: {} -{}-> {}", srcState, transition.getCond(), targetState);
+        log.info("transition fired: {} --> {}", srcState, targetState);
         if (!states.contains(targetState)) {
             throw new IllegalArgumentException();
         }
@@ -88,7 +102,7 @@ public class StateChart {
             throw new IllegalStateException(String.format("can't fire transition %s. not in %s", transition, srcState));
         }
         this.currentState = targetState;
-        callback.fires(srcState, transition, targetState);
+        callback.onFire(new FireEvent<>(srcState, targetState, transition, event));
     }
 
     /**
@@ -104,13 +118,17 @@ public class StateChart {
     }
 
 
-    public static class Builder {
+    public static class Builder<T> {
         private Set<String> states;
-        private Set<Transition> transitions = new HashSet<>();
+        private Set<Transition<T>> transitions = new HashSet<>();
         private String initialState;
         private Callback callback;
 
-        public Builder addTransition(Transition transition) {
+        public interface TransitionImpl<T> {
+            boolean canFire(T event);
+        }
+
+        public Builder<T> addTransition(Transition<T> transition) {
             transitions.add(transition);
             if (initialState == null) {
                 initialState = transition.getSource();
@@ -118,23 +136,28 @@ public class StateChart {
             return this;
         }
 
-        public Builder addTransition(String source, String cond, String target) {
-            return this.addTransition(new Transition(source, cond, target));
+        public Builder<T> addTransition(String source, String target, TransitionImpl<T> transitionImpl) {
+            return this.addTransition(new Transition<>(source, target) {
+                @Override
+                public boolean canFire(T event) {
+                    return transitionImpl.canFire(event);
+                }
+            });
         }
 
-        public Builder setInitialState(String initialState) {
+        public Builder<T> setInitialState(String initialState) {
             this.initialState = initialState;
             return this;
         }
 
-        public Builder setCallback(Callback callback) {
+        public Builder<T> setCallback(Callback callback) {
             this.callback = callback;
             return this;
         }
 
-        public StateChart build() {
+        public StateChart<T> build() {
             if (callback == null) {
-                callback = (s1, t, s2) -> {}; //log.info("state change {} -{}-> {}", s1, t.getCond(), s2);
+                callback = (eve) -> {}; //log.info("state change {} -{}-> {}", s1, t.getCond(), s2);
             }
             states = new HashSet<String>();
             transitions.forEach(t -> {
@@ -149,17 +172,4 @@ public class StateChart {
         }
     }
 
-    public static void main(String[] args) {
-//        Callback c = (s1, t, s2) -> {
-//
-//        };
-        StateChart sc = StateChart.create()
-                .addTransition(new Transition("init", "asks_for_tool", "looking_for_tool"))
-                .addTransition(new Transition("looking_for_tool", "found_tool", "exit"))
-                .build();
-
-        sc.update("asks_for_tool");
-        sc.update("asks_for_tool");
-        sc.update("found_tool");
-    }
 }

@@ -114,7 +114,7 @@ public class RasaHelper {
 //        //get text
 //        String text = obj.get("text").getAsString();
 //
-//        //create rasa response object
+//        //of rasa response object
 //        RasaResponse rasaResponse = new RasaResponse();
 //        rasaResponse.setJsonString(jsonString);
 //        rasaResponse.setIntent(rasaIntent);

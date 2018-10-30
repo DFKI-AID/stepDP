@@ -88,6 +88,9 @@ public class Hypothesis {
         }
 
         public Builder addSlot(Slot slot) {
+            if(slots.containsKey(slot.getName())) {
+                throw new IllegalArgumentException("contains already a slot with the name: " + slot.getName());
+            }
             slots.put(slot.getName(), slot);
             return this;
         }

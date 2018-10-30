@@ -18,7 +18,10 @@ import org.apache.log4j.Level;
 import java.io.*;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.Collection;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  */
@@ -91,12 +94,41 @@ public class MainYK {
         ConsoleReader consoleReader = new ConsoleReader();
         consoleReader.start();
 
+        StateChart.Callback<Hypothesis> callback = new StateChart.Callback<Hypothesis>() {
+            @Override
+            public void onFire(StateChart.FireEvent<Hypothesis> event) {
+                System.out.println("ok: " + event.event);
+            }
+        };
 
-
-        StateChart sc = StateChart.create()
+        StateChart<Hypothesis> sc = new StateChart.Builder<Hypothesis>()
                 .setInitialState("A")
-                .addTransition("A", "turnOn", "B")
-                .addTransition("B", "turnOff", "A")
+                .addTransition("A", "B", (h -> {
+                    if (!h.getIntent().equals("turnOn")) {
+                        return false;
+                    }
+                    Collection<Entity> devices = h.getSlot("device").orElse(Slot.Empty).findCandidates();
+                    Set<Entity> fans = devices.stream()
+                            .filter(d -> d.get(Ontology.name).orElse("").equals("fan"))
+                            .collect(Collectors.toSet());
+                    if (fans.isEmpty()) {
+                        return false;
+                    }
+                    return true;
+                }))
+                .addTransition("B", "A", (h -> h.getIntent().equals("turnOff")))
+                .setCallback(callback)
+                .build();
+
+
+        StateChart<Hypothesis> scGreeting = new StateChart.Builder<Hypothesis>()
+                .setInitialState("Greeting")
+                .addTransition("Greeting", "Greeting", (h -> {
+                    if (!h.getIntent().equals("greeting")) {
+                        return false;
+                    }
+                    return true;
+                }))
                 .build();
 
         HypothesisProducer rasaHp = new RasaHypoProducer(new RasaHelper(new URL("http://localhost:5000/parse")));
@@ -106,6 +138,7 @@ public class MainYK {
                 .addEventProducer(consoleReader)
                 .addInputComponent(consoleReader)
                 .addDialogComponent(dc)
+                .addDialogComponent(new SCDialogComponent(scGreeting, rasaHp))
                 .build();
 
         app.run();

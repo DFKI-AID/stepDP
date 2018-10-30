@@ -17,7 +17,7 @@ public class Imp {
 
     public Imp(KnowledgeBase kb) {
         this.kb = kb;
-//        root = OutputNode.buildNode(OutputNode.Semantic.concurrent).create();
+//        root = OutputNode.buildNode(OutputNode.Semantic.concurrent).of();
 //        root.
     }
 
@@ -31,7 +31,7 @@ public class Imp {
     }
 
     public Allocation allocate(OutputNode output) { //TODO OutputRequest? what, when, whom? how?
-        //output = copyVisitor.copy(output).create();
+        //output = copyVisitor.copy(output).of();
 
 
         FindCandidateVisitor cf = new FindCandidateVisitor(this);
@@ -55,8 +55,8 @@ public class Imp {
         //assign service to each leaf (store mapping)
 
         //assign id to each intern node
-        // create AllocationState for each node
-        // create visitor that updates the allocation state
+        // of AllocationState for each node
+        // of visitor that updates the allocation state
 
         //copyVisitor.copy(output);
 

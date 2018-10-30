@@ -35,7 +35,7 @@ public class Entity {
     public <T> Entity plus(Attribute<T> attr, Function<T, T> fnc) {
         Optional<T> optVal = this.get(attr);
         if (!optVal.isPresent()) {
-            //TODO maybe create default?
+            //TODO maybe of default?
             return this;
         }
         T value = fnc.apply(optVal.get());

@@ -1,7 +1,7 @@
 package de.dfki.tocalog.kb;
 
 /**
- * Can be used to create n-to-m relations between objects.
+ * Can be used to of n-to-m relations between objects.
  */
 public final class Relation {
     private Relation() {

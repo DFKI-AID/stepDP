@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 /**
  */
 public class SCDialogComponent implements DialogComponent {
-    private final StateChart sc;
+    private final StateChart<Hypothesis> sc;
     private LHypothesisProducer hp;
     private final double minConfidence = 0.5;
 
@@ -32,13 +32,13 @@ public class SCDialogComponent implements DialogComponent {
         //TODO check if multiple hypos have high confidence
 
         for (Hypothesis h : sortedHypos) {
-            if (sc.canUpdate(h.getIntent())) {
+            if (sc.canFire(h)) {
                 //TODO origin does not work if multiple SCDialogComponent are used
                 //TODO entities are missing
                 return Optional.of(new AbsDialogFunction(this, inputs, h.getInputs()) {
                     @Override
                     public void run() {
-                        sc.update(h.getIntent());
+                        sc.fire(h);
                     }
                 });
             }

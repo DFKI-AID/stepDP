@@ -52,11 +52,15 @@ public class Ontology {
         KnowledgeMap deviceComponents = kb.getKnowledgeMap("DeviceComponent");
 
 
+        Collection<Entity> fans = devices.query(d -> d.get(type).orElse("").equals("Fan"));
+
 
         Entity nexus5 = new Entity()
                 .set(id, "nexus5")
                 .set(battery, 0.5);
         devices.add(nexus5);
+
+
 
         Entity nexus6 = nexus5
                 .set(id, "nexus6")
@@ -154,7 +158,6 @@ public class Ontology {
     }
 
     public class DeviceScheme implements Scheme {
-
         @Override
         public boolean validate(Entity entity) {
             if (!entity.get(battery).isPresent()) {

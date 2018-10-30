@@ -2,12 +2,10 @@ package de.dfki.tocalog.dialog.sc;
 
 /**
  */
-public class Transition {
-    private final String cond;
+public abstract class Transition<T> {
     private final String source, target;
 
-    public Transition(String source, String cond, String target) {
-        this.cond = cond;
+    public Transition(String source, String target) {
         this.source = source;
         this.target = target;
     }
@@ -20,8 +18,5 @@ public class Transition {
         return target;
     }
 
-    public String getCond() {
-        return cond;
-    }
-
+    public abstract boolean canFire(T event);
 }
