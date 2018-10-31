@@ -1,7 +1,9 @@
 package de.dfki.tocalog.kb;
 
-import de.dfki.sire.CborDeserializer;
-import de.dfki.sire.CborSerializer;
+import de.dfki.sire.BinDeserializer;
+import de.dfki.sire.BinSerializer;
+import de.dfki.sire.Deserializer;
+import de.dfki.sire.Serializer;
 import org.pcollections.HashPMap;
 import org.pcollections.IntTreePMap;
 import org.pcollections.PMap;
@@ -17,8 +19,8 @@ import java.util.stream.Collectors;
 /**
  */
 public class KnowledgeMap {
-    private CborSerializer serializer = new CborSerializer();
-    private CborDeserializer deserializer = new CborDeserializer();
+    private Serializer serializer = new BinSerializer();
+    private Deserializer deserializer = new BinDeserializer();
     private Lock lock = new ReentrantLock();
     private Random rdm = new Random();
 
