@@ -1,27 +1,25 @@
 package de.dfki.tocalog;
 
-import de.dfki.tocalog.dialog.sc.State;
-import de.dfki.tocalog.dialog.sc.StateChart;
-import de.dfki.tocalog.dialog.sc.StateChartEvent;
-import de.dfki.tocalog.dialog.sc.Transition;
-import de.dfki.tocalog.core.Event;
-import de.dfki.tocalog.core.DialogApp;
-import de.dfki.tocalog.kb.EKnowledgeMap;
-import de.dfki.tocalog.model.Person;
-import de.dfki.tocalog.model.Service;
-import de.dfki.tocalog.model.Triple;
+import de.dfki.tocalog.core.*;
+import de.dfki.tocalog.dialog.sc.*;
+import de.dfki.tocalog.kb.Entity;
+import de.dfki.tocalog.kb.KnowledgeMap;
+import de.dfki.tocalog.kb.Ontology;
 import de.dfki.tocalog.output.Output;
 import de.dfki.tocalog.output.SpeechOutput;
 import de.dfki.tocalog.output.TextOutput;
 import de.dfki.tocalog.output.impp.*;
-import org.apache.commons.io.FileUtils;
+import de.dfki.tocalog.rasa.RasaHelper;
+import de.dfki.tocalog.rasa.RasaHypoProducer;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.Charset;
+import java.io.*;
+import java.net.URL;
+import java.util.Collection;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  */
@@ -29,14 +27,17 @@ public class MainYK {
     public static void main(String[] args) throws IOException, InterruptedException {
         BasicConfigurator.configure();
         org.apache.log4j.Logger.getRootLogger().setLevel(Level.INFO);
-//        statechart(args);
+        statechart(args);
 //        imp(args);
-        framework(args);
+//        framework(args);
     }
 
     public static void impp(String[] args) {
-        EKnowledgeMap<Service> services = new EKnowledgeMap<>();
-        services.put("c1", Service.create().setId("c1").setType("console"));
+        KnowledgeMap services = new KnowledgeMap();
+        Entity consoleService = new Entity()
+                .set(Ontology.id, "c1")
+                .set(Ontology.serviceType, "console");
+        services.add(consoleService);
 
         Output output1 = new SpeechOutput("hello world");
         Output output2 = new TextOutput("hello world 2");
@@ -85,110 +86,62 @@ public class MainYK {
 
     }
 
-    public static void framework(String[] args) throws InterruptedException, IOException {
-
-
-        PSBridge psBridge = PSBridge.build()
-                .subscribe("SheepEvent")
-                .subscribe("BinaryEvent")
-                .build();
-
-        MetaDialog dialog = new MetaDialog();
-        dialog.addDialogComponent(new GreetingBehavior());
-        dialog.addDialogComponent(new LightControlComponent(imp));
-
-        DialogApp dc = DialogApp.create(dialog)
-//                .addInputComponent(psBridge)
-                .addInputComponent(tbot)
-                .addOutputComponent(tbot)
-                .addInputComponent(new RasaIntentProducer())
-                .build();
-
-        EKnowledgeMap<Triple> focuskm = dc.getKnowledgeBase().getKnowledgeMap(Triple.class, "VisualFocus");
-        focuskm.add(Triple.create().setSubject("mechanic1").setPredicate("focus").setObject("car")
-                .setSource("kinect").setConfidence(0.7));
-        focuskm.add(Triple.create().setSubject("mechanic1").setPredicate("focus").setObject("bike")
-                .setSource("hololens").setConfidence(0.4));
-
-
-        EKnowledgeMap<Triple> gesturekm = dc.getKnowledgeBase().getKnowledgeMap(Triple.class, "mechanic1.Gesture");
-        focuskm.add(Triple.create().setSubject("mechanic1").setPredicate("gesture").setObject("SwipeUp")
-                .setSource("kinect"));
-        focuskm.add(Triple.create().setSubject("mechanic1").setPredicate("gesture").setObject("SwipeLeft")
-                .setSource("hololens"));
-
-//        EKnowledgeMap<Service> skm = dc.getKnowledgeBase().getKnowledgeMap(Service.class);
-//        skm.add(Service.create().set);
-
-
-        gesturekm.removeOld(5000L);
-        if (gesturekm.getAny(t -> t.getObject().orElse("").equals("car")).isPresent()) {
-
-        }
-
-        Thread timeThread = new Thread(() -> {
-            while (!Thread.currentThread().isInterrupted()) {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    continue;
-                }
-
-                Person p = Person.create()
-                        .setId("mechanic1")
-                        .setName("der mechaniker");
-//                ks.put(p);
-                dc.getEventEngine().submit(Event.build(p).build());
-            }
-        });
-        timeThread.setDaemon(true);
-        timeThread.start();
-
-
-        tbot.start();
-
-        dc.getEventEngine().submit(() -> System.out.println("hallo from event queue"));
-        dc.run();
-    }
-
 
     public static void statechart(String[] args) throws IOException {
-        State stateA = State.create("A")
-                .onEntry(() -> System.out.println("entered A!"))
-                .onExit(() -> {
 
-                })
-                .build();
+        ConsoleReader consoleReader = new ConsoleReader();
+        consoleReader.start();
 
-        State stateB = State.create("B").build();
-        State stateC = State.create("C").build();
-        State stateD = State.create("D").build();
-        State stateHello = State.create("Goal").build();
-
-
-        Transition helloSaid = new Transition("hello", stateA, stateB) {
+        StateChart.Callback<Hypothesis> callback = new StateChart.Callback<Hypothesis>() {
             @Override
-            public boolean fires(StateChartEvent eve) {
-                return false;
+            public void onFire(StateChart.FireEvent<Hypothesis> event) {
+                System.out.println("ok: " + event.event);
             }
         };
 
-
-        StateChart sc = StateChart.create()
-                .setInitialState(stateA)
-                .addTransition(helloSaid)
-//                .addTransition("out hello", stateB, stateA, e -> {
-//                    return false;
-//                })
-//                .addTransition("finish", stateB, stateC, t2)
-//                .addTransition("D", stateC, stateD, t2)
-//                .addTransition("back", stateD, stateA, t2)
-//                .addTransition("test", stateD, stateHello, helloSaid)
+        StateChart<Hypothesis> sc = new StateChart.Builder<Hypothesis>()
+                .setInitialState("A")
+                .addTransition("A", "B", (h -> {
+                    if (!h.getIntent().equals("turnOn")) {
+                        return false;
+                    }
+                    Collection<Entity> devices = h.getSlot("device").orElse(Slot.Empty).getCandidates();
+                    Set<Entity> fans = devices.stream()
+                            .filter(d -> d.get(Ontology.name).orElse("").equals("fan"))
+                            .collect(Collectors.toSet());
+                    if (fans.isEmpty()) {
+                        return false;
+                    }
+                    return true;
+                }))
+                .addTransition("B", "A", (h -> h.getIntent().equals("turnOff")))
+                .setCallback(callback)
                 .build();
 
 
-        String mmGraph = sc.toMermaid();
-        FileUtils.writeStringToFile(new File("~/tmp/graph.txt"), mmGraph, Charset.defaultCharset());
+        StateChart<Hypothesis> scGreeting = new StateChart.Builder<Hypothesis>()
+                .setInitialState("Greeting")
+                .addTransition("Greeting", "Greeting", (h -> {
+                    if (!h.getIntent().equals("greeting")) {
+                        return false;
+                    }
+                    return true;
+                }))
+                .build();
+
+        HypothesisProducer rasaHp = new RasaHypoProducer(new RasaHelper(new URL("http://localhost:5000/parse")));
+        DialogComponent dc = new SCDialogComponent(sc, rasaHp);
+
+        DialogApp app = DialogApp.create()
+                .addEventProducer(consoleReader)
+                .addInputComponent(consoleReader)
+                .addDialogComponent(dc)
+                .addDialogComponent(new SCDialogComponent(scGreeting, rasaHp))
+                .build();
+
+        app.run();
+//        String mmGraph = sc.toMermaid();
+//        FileUtils.writeStringToFile(new File("~/tmp/graph.txt"), mmGraph, Charset.defaultCharset());
     }
 
 

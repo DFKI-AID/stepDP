@@ -3,9 +3,7 @@ package de.dfki.tocalog.core.resolution;
 import de.dfki.tocalog.core.Hypothesis;
 import de.dfki.tocalog.core.Inputs;
 import de.dfki.tocalog.input.Input;
-import de.dfki.tocalog.input.TextInput;
 import de.dfki.tocalog.kb.KnowledgeBase;
-import de.dfki.tocalog.model.Person;
 
 public class ObjectReferenceResolver {
     private KnowledgeBase kb;

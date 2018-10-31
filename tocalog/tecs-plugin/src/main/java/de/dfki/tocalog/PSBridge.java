@@ -30,7 +30,7 @@ public class PSBridge implements EventProducer {
         psc.open();
         updateThread = new Thread(() -> {
             psc.recv().ifPresent(tecsEvent -> {
-                Event dialogEvent = Event.build(tecsEvent)
+                Event dialogEvent = Event.create(tecsEvent)
                         .setSource(this.getClass().getSimpleName())
                         .build();
                 queue.add(dialogEvent);

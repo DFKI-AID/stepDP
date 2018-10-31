@@ -21,7 +21,7 @@ public class TimeEventProducer implements EventProducer {
         long now = System.currentTimeMillis();
         if (now - lastUpdate > updateInterval) {
             lastUpdate = now;
-            return Optional.of(Event.build(new Object())
+            return Optional.of(Event.create(new Object())
                     .setSource(this.getClass().getSimpleName())
                     .build()
             );

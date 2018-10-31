@@ -22,7 +22,7 @@ public interface Event<T> {
         return Optional.of((S) get());
     }
 
-    static <T> Builder build(T t) {
+    static <T> Builder create(T t) {
         return new Builder(t);
     }
 

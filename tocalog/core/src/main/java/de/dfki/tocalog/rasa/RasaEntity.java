@@ -6,7 +6,7 @@ public class RasaEntity {
 
     private String entity;
 
-    private float confidence;
+    private double confidence;
 
     public String getValue() {
         return value;
@@ -24,11 +24,11 @@ public class RasaEntity {
         this.entity = entity;
     }
 
-    public float getConfidence() {
+    public double getConfidence() {
         return confidence;
     }
 
-    public void setConfidence(float confidence) {
+    public void setConfidence(double confidence) {
         this.confidence = confidence;
     }
 

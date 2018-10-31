@@ -1,6 +1,6 @@
 package a;
 
-import de.dfki.tocalog.model.Confidence;
+import de.dfki.tocalog.core.Confidence;
 
 import java.util.*;
 

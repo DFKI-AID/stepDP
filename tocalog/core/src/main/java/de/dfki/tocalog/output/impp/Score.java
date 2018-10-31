@@ -15,7 +15,7 @@ public class Score {
     }
 
     public static int compare(Score s1, Score s2) {
-        //create value is better -> put better scores at the start
+        //of value is better -> put better scores at the start
         return Double.compare(s2.score, s1.score);
     }
 }

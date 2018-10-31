@@ -1,35 +1,20 @@
 package de.dfki.tocalog.core;
 
-import de.dfki.tocalog.kb.KnowledgeBase;
-import de.dfki.tocalog.model.Confidence;
-import de.dfki.tocalog.model.Entity;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import de.dfki.tocalog.kb.Entity;
+
+import java.util.*;
 
 /**
+ * TODO scheme
  */
-public abstract class Slot<T> { // TODO replace T with XYZ<T>
-    public String name;
-    private List<Candidate<T>> candidates;
-    private Map<String, String> annotations;
+public class Slot {
+    public final String name;
+    private Map<String, String> annotations; //TODO maybe replace with Base / Entity class
+    private Set<Entity> candidates = new HashSet<>();
 
-    public Slot() {
-    }
-
-
-    public List<Candidate<T>> getCandidates() {
-        return candidates;
-    }
-
-    public void setCandidates(List<Candidate<T>> candidates) {
-        this.candidates = candidates;
-    }
-
-    public void addCandidate(Candidate<T> candidate) {
-        candidates.add(candidate);
+    public Slot(String name) {
+        this.name = name;
     }
 
     public Map<String,String> getAnnotations() {
@@ -39,54 +24,35 @@ public abstract class Slot<T> { // TODO replace T with XYZ<T>
     public void addAnnotation(String key, String value) {
         annotations.put(key,value);
     }
+
     public void setAnnotations(Map<String, String> annotations) {
         this.annotations = annotations;
     }
 
+    public Collection<Entity> getCandidates() {
+        return Collections.unmodifiableSet(candidates);
+    }
 
-    public abstract Collection<T> findMatches();
+    public void setCandidates(Collection<Entity> candidates) {
+        this.candidates = new HashSet<>();
+        this.candidates.addAll(candidates);
+    }
 
-
-
-    public static class Candidate<T> {
-        private T candidate;
-        private Confidence confidence;
-
-        public T getCandidate() {
-            return candidate;
+    private static final class EmptySlot extends Slot {
+        protected EmptySlot() {
+            super("EMPTY_SLOT");
         }
 
-        public void setCandidate(T candidate) {
-            this.candidate = candidate;
-        }
-
-
-        public Confidence getConfidence() {
-            return confidence;
-        }
-
-        public void setConfidence(Confidence confidence) {
-            this.confidence = confidence;
+        @Override
+        public Collection<Entity> getCandidates() {
+            return Collections.EMPTY_LIST;
         }
     }
 
-//    public static void main(String[] args) {
-//        KnowledgeBase kb;
-//        Slot<String> citySlot = new Slot<String>() {
-//            @Override
-//            public Collection<String> findMatches() {
-//                kb.getKnowledgeMap().
-//                return Arrays.asList("SB, NYC, sfsd");
-//            }
-//        };
-//
-//        DeviceSlot slot = new DeviceSlot(kb) {
-//            public Collection<Device> filter(Collection<Device> devices) {
-//                //filter
-//            }
-//        }
-//
-//        DateSlot, NumberSlot, LocationSlot;
-//
-//    }
+    public String getName() {
+        return name;
+    }
+
+    public static final Slot Empty = new EmptySlot();
+
 }

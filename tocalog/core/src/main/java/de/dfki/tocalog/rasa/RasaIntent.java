@@ -4,13 +4,13 @@ public class RasaIntent {
 
     private String name;
 
-    private float confidence;
+    private double confidence;
 
-    public float getConfidence() {
+    public double getConfidence() {
         return confidence;
     }
 
-    public void setConfidence(float confidence) {
+    public void setConfidence(double confidence) {
         this.confidence = confidence;
     }
 

@@ -58,14 +58,18 @@
 
 ## Concepts
 ### KnowledgeBase
-- ACID: Durability not necessary
-- copy on get and put to avoid concurrent modification (especially useful if collections are modified)
-- components and ensure that their copy (after get) is not altered
-- update queries are possible (no copy)
-- ref to other objects are encoded as strings -> easier serialization and transmission
-  - ~db table entry character
-- no-refs are embedded
-- backwards compatible serialization
+- using persistance collections to provide a map and list based implementation for storing entities
+    - sync not necessary for reading
+    - entities won't change once a component request them
+- Ontology: 
+    - Entity class 
+      - supports arbitrary attributes
+      - persistent data structure / immutable (if the type of all used attribute is persistent)
+        - components can return Entities without thinking about concurrency
+    - Schemes ensure that necessary properties are set
+      - each function / component has different requirements can thus define different schemes
+    - If multiple components write attributes of the same entity, they should use the **update** function. This avoids that changes of other components are overwritten
+- TODO: serialization for external access
 
 
 

@@ -1,7 +1,7 @@
 package a;
 
 import de.dfki.tocalog.input.Input;
-import de.dfki.tocalog.model.Confidence;
+import de.dfki.tocalog.core.Confidence;
 
 /**
  */
