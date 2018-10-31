@@ -10,6 +10,7 @@ import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -75,6 +76,17 @@ public class KnowledgeMap {
         Entity entity = this.entities.get(id);
         entity = entity.set(attr, value);
         this.entities = this.entities.plus(id, entity);
+    }
+
+    public synchronized void update(Function<Entity, Entity> updateFnc) {
+        for (Map.Entry<String, Entity> entry : entities.entrySet()) {
+            Entity entity = updateFnc.apply(entry.getValue());
+            if (entity == entry.getValue()) {
+                //no update
+                continue;
+            }
+            this.entities = this.entities.plus(entry.getKey(), entity);
+        }
     }
 
 

@@ -51,7 +51,7 @@ public class ConsoleReader implements EventProducer, InputComponent {
     }
 
 
-    public synchronized void setInput(String input) {
+    protected synchronized void setInput(String input) {
         this.input = input;
     }
 
