@@ -66,6 +66,7 @@
       - supports arbitrary attributes
       - persistent data structure / immutable (if the type of all used attribute is persistent)
         - components can return Entities without thinking about concurrency
+        - easier to track changes like Add, Delete, Update (check)
     - Schemes ensure that necessary properties are set
       - each function / component has different requirements can thus define different schemes
     - If multiple components write attributes of the same entity, they should use the **update** function. This avoids that changes of other components are overwritten
