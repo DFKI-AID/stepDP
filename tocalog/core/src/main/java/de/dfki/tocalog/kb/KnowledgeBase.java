@@ -11,6 +11,10 @@ public class KnowledgeBase {
     private Map<String, KnowledgeMap> kmap = new HashMap<>();
 //    private Map<String, KnowledgeSet> kset = new HashMap<>();
 
+    public synchronized KnowledgeMap getKnowledgeMap(Type type) {
+        return getKnowledgeMap(type.getName());
+    }
+
     public synchronized KnowledgeMap getKnowledgeMap(String id) {
         KnowledgeMap ks = kmap.get(id);
         if (ks == null) {

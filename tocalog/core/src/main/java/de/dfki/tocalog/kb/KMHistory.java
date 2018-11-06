@@ -4,6 +4,7 @@ import okhttp3.Call;
 import org.pcollections.*;
 
 /**
+ * TODO rename: RecordHistory?
  * Keeps a history of changes done in a {@link KnowledgeMap}
  */
 public class KMHistory {
