@@ -12,6 +12,8 @@ import java.util.function.Predicate;
 public class Ontology {
 
 
+
+
     public static Optional<Long> getAge(Entity entity) {
         return entity.get(age);
     }
@@ -129,7 +131,12 @@ public class Ontology {
 
     public static final Type Service = new Type("tocalog/Service");
     public static final Type Person = new Type("tocalog/Person");
+    public static final Type Robot = new Type("tocalog/Robot");
     public static final Type Device = new Type("tocalog/Device");
+    public static final Type Entity = new Type("tocalog/Entity");
+    public static final Type PhysicalEntity = new Type("tocalog/PhysicalEntity");
+    public static final Type Agent = new Type("tocalog/Agent");
+    public static final Type Session = new Type("tocalog/Session");
 
     /**
      * e.g. the speaker of a SpeechInput
