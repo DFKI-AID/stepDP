@@ -86,7 +86,6 @@ public class KnowledgeMap {
     }
 
 
-    //TODO optional or empty ent?
     public Optional<Entity> get(String id) {
         return Optional.ofNullable(this.entities.get(id));
     }
