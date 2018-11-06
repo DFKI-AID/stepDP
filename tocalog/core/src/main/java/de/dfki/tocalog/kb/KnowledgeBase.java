@@ -37,4 +37,8 @@ public class KnowledgeBase {
         }
         return kl;
     }
+
+//    public synchronized KMView getView(InheritanceTree tree, Type type) {
+//
+//    }
 }

@@ -128,6 +128,9 @@ public class Ontology {
 
     public static final Attribute<PSet<String>> agents = new Attribute<>("tocalog/session/agents");
 
+    public static final Attribute<String> subject = new Attribute<>("tocalog/subject");
+    public static final Attribute<String> object = new Attribute<>("tocalog/object");
+
 
 
     public static final Type Person = new Type("tocalog/Person");

@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  */
@@ -26,6 +27,10 @@ public class KnowledgeList {
                 .filter(e -> predicate.test(e))
                 .collect(Collectors.toList());
         return queryResult;
+    }
+
+    public Stream<Entity> stream() {
+        return entities.stream();
     }
 
     public synchronized void removeIf(Predicate<Entity> predicate) {
