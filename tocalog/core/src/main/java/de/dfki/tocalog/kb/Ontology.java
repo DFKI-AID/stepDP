@@ -129,14 +129,24 @@ public class Ontology {
     public static final Attribute<PSet<String>> agents = new Attribute<>("tocalog/session/agents");
 
 
-    public static final Type Service = new Type("tocalog/Service");
+
     public static final Type Person = new Type("tocalog/Person");
     public static final Type Robot = new Type("tocalog/Robot");
-    public static final Type Device = new Type("tocalog/Device");
+
     public static final Type Entity = new Type("tocalog/Entity");
     public static final Type PhysicalEntity = new Type("tocalog/PhysicalEntity");
     public static final Type Agent = new Type("tocalog/Agent");
     public static final Type Session = new Type("tocalog/Session");
+
+    public static final Type Service = new Type("tocalog/Service");
+    public static final Type Device = new Type("tocalog/Device");
+    public static final Type DeviceComponent = new Type("tocalog/DeviceComponent");
+    public static final Type Monitor = new Type("tocalog/Monitor");
+    public static final Type Loudspeaker = new Type("tocalog/Loudspeaker");
+    public static final Type Battery = new Type("tocalog/Battery");
+    public static final Type Headphones = new Type("tocalog/Headphones");
+
+    public static final Type Zone = new Type("tocalog/Zone"); //necessary?
 
     /**
      * e.g. the speaker of a SpeechInput

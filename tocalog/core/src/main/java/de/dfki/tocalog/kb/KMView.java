@@ -30,6 +30,10 @@ public class KMView {
         );
     }
 
+    /**
+     * @param id
+     * @return The first entity found with the given id
+     */
     public Optional<Entity> get(String id) {
         for (KnowledgeMap km : kmaps) {
             Optional<Entity> entity = km.get(id);

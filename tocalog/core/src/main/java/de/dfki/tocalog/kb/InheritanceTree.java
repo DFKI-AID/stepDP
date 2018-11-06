@@ -204,11 +204,19 @@ public class InheritanceTree {
     }
 
     public static void main(String[] args) {
-        InheritanceTree it = InheritanceTree.build().add(Ontology.Service, Ontology.Entity)
+        InheritanceTree it = InheritanceTree.build()
                 .add(Ontology.PhysicalEntity, Ontology.Entity)
                 .add(Ontology.Agent, Ontology.PhysicalEntity)
                 .add(Ontology.Person, Ontology.Agent)
                 .add(Ontology.Robot, Ontology.Agent)
+                .add(Ontology.Device, Ontology.PhysicalEntity)
+                .add(Ontology.Service, Ontology.Entity)
+                .add(Ontology.DeviceComponent, Ontology.PhysicalEntity)
+                .add(Ontology.Monitor, Ontology.DeviceComponent)
+                .add(Ontology.Loudspeaker, Ontology.DeviceComponent)
+                .add(Ontology.Headphones, Ontology.Loudspeaker)
+                .add(Ontology.Battery, Ontology.DeviceComponent)
+                .add(Ontology.Zone, Ontology.Entity)
                 .build();
         System.out.println(it.toMermaid());
 
