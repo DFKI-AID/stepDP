@@ -20,7 +20,9 @@ public class Inputs {
 
     public void removeOld(long timeout) {
         long deadline = System.currentTimeMillis() - timeout;
-        inputs.removeIf(i -> i.getTimestamp() < deadline);
+        inputs.removeIf(
+                i -> i.getTimestamp() < deadline
+        );
     }
 
     public void remove(Collection<String> inputIds) {

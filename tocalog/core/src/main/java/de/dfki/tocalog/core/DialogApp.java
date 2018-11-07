@@ -21,7 +21,6 @@ public class DialogApp implements Runnable {
     private final KnowledgeBase knowledgeBase;
     private final List<EventProducer> eventProducers;
     private final List<SensorComponent> sensorComponents;
-    private final List<Store> stores;
     private final List<InputComponent> inputComponents;
     private final List<DialogComponent> dialogComponents;
     private final Object monitor;
@@ -35,7 +34,6 @@ public class DialogApp implements Runnable {
         this.inputComponents = Collections.unmodifiableList(builder.inputComponents);
         this.sensorComponents = builder.sensorComponents;
         this.dialogComponents = builder.dialogComponents;
-        this.stores = builder.stores;
         this.eventProducers = builder.eventProducers;
         this.monitor = builder.monitor;
     }
@@ -81,11 +79,7 @@ public class DialogApp implements Runnable {
 
         for (Event event : events) {
             //udpate sensor data
-            sensorComponents.forEach(
-                    sc -> sc.process(event).ifPresent(
-                            si -> stores.forEach(s -> s.process(si))
-                    )
-            );
+            sensorComponents.forEach(sc -> sc.process(event));
 
             //process inputs
             for (InputComponent ic : inputComponents) {
@@ -117,7 +111,6 @@ public class DialogApp implements Runnable {
         protected KnowledgeBase knowledgeBase;
         private List<EventProducer> eventProducers = new ArrayList<>();
         private List<SensorComponent> sensorComponents = new ArrayList();
-        private List<Store> stores = new ArrayList<>();
         protected List<InputComponent> inputComponents = new ArrayList<>();
         protected Imp imp;
         private Resolution resolution;

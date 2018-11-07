@@ -61,26 +61,24 @@ public class Ontology {
         devices.add(nexus5);
 
 
-
         Entity nexus6 = nexus5
                 .set(id, "nexus6")
-                .set(owner, "mechanic1");
+                .set(owner, Person.refTo("mechanic1"));
         devices.add(nexus6);
 
 
         Entity display = new Entity()
                 .set(resolution, new Vector2(1024, 2048))
                 .set(type, "lcd")
-                .set(device, "nexus5");
+                .set(device, Device.refTo("nexus5"));
         deviceComponents.add(display);
 
 
-        Collection<Entity> dcOfNexus5 = deviceComponents.query(e -> e.get(device).orElse("").equals("nexus5"));
+        Collection<Entity> dcOfNexus5 = deviceComponents.query(e -> e.get(device).orElse(Reference.None).matchesId("nexus5"));
 
 
         Entity mergedNexus = nexus5.merge(nexus6);
         System.out.println(mergedNexus);
-
 
 
         Entity session = new Entity()
@@ -123,16 +121,35 @@ public class Ontology {
     /**
      * the device of a service or a device component
      */
-    public static final Attribute<String> device = new Attribute<>("tocalog/device");
+    public static final Attribute<Reference> device = new Attribute<>("tocalog/device");
     public static final Attribute<Vector2> resolution = new Attribute<>("tocalog/resolution");
     public static final Attribute<String> partOf = new Attribute<>("tocalog/partOf");
-    public static final Attribute<String> owner = new Attribute<>("tocalog/owner");
+    public static final Attribute<Reference> owner = new Attribute<>("tocalog/owner");
 
     public static final Attribute<PSet<String>> agents = new Attribute<>("tocalog/session/agents");
 
-    public static final String Service = "tocalog/Service";
-    public static final String Person = "tocalog/Person";
-    public static final String Device = "tocalog/Device";
+    public static final Attribute<String> subject = new Attribute<>("tocalog/subject");
+    public static final Attribute<String> object = new Attribute<>("tocalog/object");
+
+
+
+    public static final Type Person = new Type("tocalog/Person");
+    public static final Type Robot = new Type("tocalog/Robot");
+
+    public static final Type Entity = new Type("tocalog/Entity");
+    public static final Type PhysicalEntity = new Type("tocalog/PhysicalEntity");
+    public static final Type Agent = new Type("tocalog/Agent");
+    public static final Type Session = new Type("tocalog/Session");
+
+    public static final Type Service = new Type("tocalog/Service");
+    public static final Type Device = new Type("tocalog/Device");
+    public static final Type DeviceComponent = new Type("tocalog/DeviceComponent");
+    public static final Type Monitor = new Type("tocalog/Monitor");
+    public static final Type Loudspeaker = new Type("tocalog/Loudspeaker");
+    public static final Type Battery = new Type("tocalog/Battery");
+    public static final Type Headphones = new Type("tocalog/Headphones");
+
+    public static final Type Zone = new Type("tocalog/Zone"); //necessary?
 
     /**
      * e.g. the speaker of a SpeechInput
@@ -140,6 +157,10 @@ public class Ontology {
      */
     public static final Attribute<String> initiator = new Attribute<>("tocalog/initiator");
 
+
+//    public static boolean isA(Entity entity, String superClass) {
+//
+//    }
 
     public interface Scheme {
         boolean validate(Entity entity);

@@ -1,8 +1,6 @@
 package de.dfki.tocalog.kb;
 
-import de.dfki.sire.Base;
-import de.dfki.sire.CborDeserializer;
-import de.dfki.sire.CborSerializer;
+import de.dfki.sire.*;
 
 import java.io.IOException;
 import java.util.*;
@@ -18,8 +16,8 @@ import java.util.stream.*;
 public class KnowledgeSet<T extends Base> {
     private String id;
     private Set<T> entries = new HashSet<>();
-    private CborSerializer serializer = new CborSerializer();
-    private CborDeserializer deserializer = new CborDeserializer();
+    private Serializer serializer = new BinSerializer();
+    private Deserializer deserializer = new BinDeserializer();
     private Lock lock = new ReentrantLock();
 
 

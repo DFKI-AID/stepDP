@@ -1,14 +1,10 @@
 package de.dfki.tocalog.kb;
 
-import de.dfki.sire.CborDeserializer;
-import de.dfki.sire.CborSerializer;
 import org.pcollections.HashPMap;
 import org.pcollections.IntTreePMap;
 import org.pcollections.PMap;
 
 import java.util.*;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -17,12 +13,8 @@ import java.util.stream.Collectors;
 /**
  */
 public class KnowledgeMap {
-    private CborSerializer serializer = new CborSerializer();
-    private CborDeserializer deserializer = new CborDeserializer();
-    private Lock lock = new ReentrantLock();
-    private Random rdm = new Random();
-
     private PMap<String, Entity> entities = HashPMap.empty(IntTreePMap.empty());
+    private KMHistory history = new KMHistory(1000); //TODO count
 
     public synchronized String add(Entity entity) {
         Optional<String> id = entity.get(Ontology.id);
@@ -32,6 +24,7 @@ public class KnowledgeMap {
 //            throw new IllegalArgumentException("need id for putting entity into kb");
         }
         this.entities = this.entities.plus(id.get(), entity);
+        history.addEntry(entity);
         return id.get();
     }
 
@@ -57,6 +50,7 @@ public class KnowledgeMap {
         }
 
         this.entities = this.entities.plus(optId.get(), kbEnt);
+        history.addEntry(kbEnt);
         return id;
     }
 
@@ -76,6 +70,7 @@ public class KnowledgeMap {
         Entity entity = this.entities.get(id);
         entity = entity.set(attr, value);
         this.entities = this.entities.plus(id, entity);
+        history.updateEntry(entity);
     }
 
     public synchronized void update(Function<Entity, Entity> updateFnc) {
@@ -86,11 +81,11 @@ public class KnowledgeMap {
                 continue;
             }
             this.entities = this.entities.plus(entry.getKey(), entity);
+            history.updateEntry(entity);
         }
     }
 
 
-    //TODO optional or empty ent?
     public Optional<Entity> get(String id) {
         return Optional.ofNullable(this.entities.get(id));
     }
@@ -103,11 +98,12 @@ public class KnowledgeMap {
         return queryResult;
     }
 
-    public synchronized void removeif(Predicate<Entity> predicate) {
+    public synchronized void removeIf(Predicate<Entity> predicate) {
         PMap<String, Entity> newEntities = entities;
         for (Map.Entry<String, Entity> entry : newEntities.entrySet()) {
             if (predicate.test(entry.getValue())) {
                 newEntities = newEntities.minus(entry.getKey());
+                history.removeEntry(entry.getValue());
             }
         }
         this.entities = newEntities;
@@ -116,7 +112,7 @@ public class KnowledgeMap {
 
     public void removeOld(long timeout) {
         long now = System.currentTimeMillis();
-        removeif(ent -> ent.get(Ontology.timestamp).orElse(0l) + timeout < now);
+        removeIf(ent -> ent.get(Ontology.timestamp).orElse(0l) + timeout < now);
     }
 
 
@@ -127,11 +123,13 @@ public class KnowledgeMap {
 
     public synchronized void updateTimestamp(Predicate<Entity> pred) {
         long now = System.currentTimeMillis();
-        for (Map.Entry<String, Entity> entry : entities.entrySet()) {
-            Entity entity = entry.getValue().set(Ontology.timestamp, now);
-            this.entities = this.entities.plus(entry.getKey(), entity);
-        }
-
+        this.update(ent -> {
+            if (!pred.test(ent)) {
+                return ent;
+            }
+            ent = ent.set(Ontology.timestamp, now);
+            return ent;
+        });
     }
 
     public Collection<Entity> getFromSource(String source) {
@@ -161,11 +159,17 @@ public class KnowledgeMap {
         maxCount = Math.min(maxCount, ordered.size());
         Iterator<Entity> iter = ordered.iterator();
         while (entities.size() > maxCount) {
-            this.entities.minus(iter.next());
+            Entity entity = iter.next();
+            this.entities.minus(entity);
+            history.removeEntry(entity);
         }
     }
 
-//    /**
+    public KMHistory getHistory() {
+        return history;
+    }
+
+    //    /**
 //     * @param maxCount
 //     */
 //    public void limitTimestamp(int maxCount) {
