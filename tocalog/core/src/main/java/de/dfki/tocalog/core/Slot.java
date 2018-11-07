@@ -38,6 +38,15 @@ public class Slot {
         this.candidates.addAll(candidates);
     }
 
+    @Override
+    public String toString() {
+        return "Slot{" +
+                "name='" + name + '\'' +
+                ", annotations=" + annotations +
+                ", candidates=" + candidates +
+                '}';
+    }
+
     private static final class EmptySlot extends Slot {
         protected EmptySlot() {
             super("EMPTY_SLOT");

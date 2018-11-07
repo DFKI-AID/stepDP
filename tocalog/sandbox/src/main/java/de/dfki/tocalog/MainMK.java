@@ -13,10 +13,13 @@ import de.dfki.tocalog.kb.KnowledgeBase;
 import de.dfki.tocalog.kb.Ontology;
 import de.dfki.tocalog.rasa.RasaEntity;
 import de.dfki.tocalog.rasa.RasaHelper;
+import de.dfki.tocalog.rasa.RasaHypoProducer2;
 import de.dfki.tocalog.rasa.RasaResponse;
 
 
+import javax.ws.rs.HEAD;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -26,17 +29,16 @@ public class MainMK {
 
 
     public static void main(String[] args) throws Exception {
-       /* BasicConfigurator.configure();
-        org.apache.log4j.Logger.getRootLogger().setLevel(Level.INFO);
-
-        MainMK http = new MainMK();
-
-        System.out.println("\nTesting  - Send Http POST request");
-        String responseString = http.sendGet();
-        RasaResponseHandler responseHandler = new RasaResponseHandler();
-        RasaResponse response = responseHandler.parseJson(responseString);*/
-
-
+        RasaHelper helper = new RasaHelper(new URL("http://localhost:5000/parse"));
+        TextInput text = new TextInput("Max bring the red box to Magdalena");
+        List<Input> inputList = new ArrayList<>();
+        inputList.add(text);
+        Inputs inputs = new Inputs();
+        inputs.add(inputList);
+        RasaHypoProducer2 hp = new RasaHypoProducer2(helper);
+        List<Hypothesis> hypotheses = hp.process(inputs);
+        System.out.println("candidates: " + hypotheses.get(0).getSlots().get("property").getCandidates());
+        System.out.println(hypotheses);
     }
 
     public static class MyHypoProducer implements HypothesisProducer {
@@ -99,7 +101,7 @@ public class MainMK {
                                     String candidateValue = entity.getValue();
                                     //TODO: check generic slot type coresponds to entity type
                                     if (entity.getEntity().equals("Person")) {
-                                        hypothesis = personDeixisResolver.resolve(hypothesis, slotName, candidateValue, inputs, input);
+                                    //    hypothesis = personDeixisResolver.resolve(hypothesis, slotName, candidateValue, inputs, input);
                                     } else if (entity.getEntity().equals("Place")) {
                                         hypothesis = placeDeixisResolver.resolve(hypothesis, slotName, candidateValue, inputs, input);
                                     } else if (entity.getEntity().equals("Time")) {

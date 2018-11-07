@@ -65,12 +65,25 @@ public class Hypothesis {
         return inputs;
     }
 
+
     interface Query<T extends Entity> {
         Collection<T> findMatches(KnowledgeBase kb);
     }
 
     public static Builder create(String intent) {
         return new Builder(intent);
+    }
+
+
+    @Override
+    public String toString() {
+        return "Hypothesis{" +
+                "id='" + id + '\'' +
+                ", intent='" + intent + '\'' +
+                ", slots=" + slots +
+                ", inputs=" + inputs +
+                ", confidence=" + confidence +
+                '}';
     }
 
     public static class Builder {

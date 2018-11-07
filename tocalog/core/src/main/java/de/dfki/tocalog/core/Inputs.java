@@ -63,4 +63,12 @@ public class Inputs {
     public List<Input> getInputs() {
         return Collections.unmodifiableList(inputs);
     }
+
+    @Override
+    public String toString() {
+        return "Inputs{" +
+                "consumers=" + consumers +
+                ", inputs=" + inputs +
+                '}';
+    }
 }
