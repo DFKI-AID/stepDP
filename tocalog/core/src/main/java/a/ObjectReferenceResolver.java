@@ -1,4 +1,4 @@
-package de.dfki.tocalog.core.resolution;
+package a;
 
 import de.dfki.tocalog.core.Hypothesis;
 import de.dfki.tocalog.core.Inputs;

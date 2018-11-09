@@ -1,17 +1,15 @@
 package de.dfki.tocalog.rasa;
 
 import de.dfki.tocalog.core.*;
-import de.dfki.tocalog.core.resolution.PersonDeixisResolver;
+import a.PersonDeixisResolver;
 import de.dfki.tocalog.input.Input;
 import de.dfki.tocalog.input.TextInput;
-import de.dfki.tocalog.kb.Entity;
 import de.dfki.tocalog.kb.KnowledgeBase;
 import de.dfki.tocalog.kb.Ontology;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;

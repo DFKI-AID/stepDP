@@ -2,10 +2,9 @@ package de.dfki.tocalog;
 
 
 import de.dfki.tocalog.core.*;
-import de.dfki.tocalog.core.resolution.ObjectReferenceResolver;
-import de.dfki.tocalog.core.resolution.PersonDeixisResolver;
-import de.dfki.tocalog.core.resolution.PlaceDeixisResolver;
-import de.dfki.tocalog.core.resolution.TimeDeixisResolver;
+import a.ObjectReferenceResolver;
+import a.PersonDeixisResolver;
+import a.PlaceDeixisResolver;
 import de.dfki.tocalog.input.Input;
 import de.dfki.tocalog.input.TextInput;
 import de.dfki.tocalog.kb.Entity;
@@ -17,7 +16,6 @@ import de.dfki.tocalog.rasa.RasaHypoProducer2;
 import de.dfki.tocalog.rasa.RasaResponse;
 
 
-import javax.ws.rs.HEAD;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -73,7 +71,6 @@ public class MainMK {
             List<Hypothesis> resultHypos = new ArrayList<>();
             PersonDeixisResolver personDeixisResolver = new PersonDeixisResolver(kb);
             PlaceDeixisResolver placeDeixisResolver = new PlaceDeixisResolver(kb);
-            TimeDeixisResolver timeDeixisResolver = new TimeDeixisResolver(kb);
             ObjectReferenceResolver objectReferenceResolver = new ObjectReferenceResolver(kb);
 
 
@@ -105,7 +102,7 @@ public class MainMK {
                                     } else if (entity.getEntity().equals("Place")) {
                                         hypothesis = placeDeixisResolver.resolve(hypothesis, slotName, candidateValue, inputs, input);
                                     } else if (entity.getEntity().equals("Time")) {
-                                        hypothesis = timeDeixisResolver.resolve(hypothesis, slotName, candidateValue, inputs, input);
+                                      //  hypothesis = timeDeixisResolver.resolve(hypothesis, slotName, candidateValue, inputs, input);
                                         //otherwise assume it is an entity
                                     } else {
                                         hypothesis = objectReferenceResolver.resolve(hypothesis, slotName, candidateValue, inputs, input);
