@@ -11,11 +11,11 @@ import java.util.stream.Collectors;
 public class SpeakerReferenceResolver implements ReferenceResolver {
 
 
-    private String speakerId;
+    private String speakerId = "";
     private KnowledgeMap personMap;
 
 
-    SpeakerReferenceResolver(KnowledgeBase knowledgeBase) {
+    public SpeakerReferenceResolver(KnowledgeBase knowledgeBase) {
         personMap = knowledgeBase.getKnowledgeMap(Ontology.Person);
     }
 
@@ -28,11 +28,11 @@ public class SpeakerReferenceResolver implements ReferenceResolver {
         ReferenceDistribution distribution = new ReferenceDistribution();
 
         Collection<Entity> speakers = personMap.getAll().stream()
-                .filter(e -> e.get(Ontology.id).orElse("").equals(speakerId))
+                .filter(e -> e.get(Ontology.id).get().equals(speakerId))
                 .collect(Collectors.toList());
 
         Collection<Entity> nonspeakers = personMap.getAll().stream()
-                .filter(e -> !e.get(Ontology.id).orElse("").equals(speakerId))
+                .filter(e -> !e.get(Ontology.id).get().equals(speakerId))
                 .collect(Collectors.toList());
 
         // 1.0/0.0 could be replaced with speaker confidence and rest

@@ -18,7 +18,7 @@ public class GenderReferenceResolver implements ReferenceResolver {
 
 
 
-    GenderReferenceResolver(KnowledgeBase knowledgeBase) {
+    public GenderReferenceResolver(KnowledgeBase knowledgeBase) {
         personMap = knowledgeBase.getKnowledgeMap(Ontology.Person);
     }
 
@@ -43,7 +43,7 @@ public class GenderReferenceResolver implements ReferenceResolver {
                 .collect(Collectors.toList());
 
         Collection<Entity> otherGenderPersons = personMap.getAll().stream()
-                .filter(p -> p.get(Ontology.gender).orElse("").equals(gender))
+                .filter(p -> !p.get(Ontology.gender).orElse("").equals(gender))
                 .collect(Collectors.toList());
 
 
@@ -55,7 +55,6 @@ public class GenderReferenceResolver implements ReferenceResolver {
         for(Entity p: otherGenderPersons) {
             distribution.getConfidences().put(p.get(Ontology.id).get(), 0.0);
         }
-
 
 
 

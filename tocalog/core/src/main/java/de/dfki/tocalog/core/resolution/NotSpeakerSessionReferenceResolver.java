@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 
-public class SessionReferenceResolver implements ReferenceResolver {
+public class NotSpeakerSessionReferenceResolver implements ReferenceResolver {
 
 
     private String speakerId = "";
@@ -19,7 +19,7 @@ public class SessionReferenceResolver implements ReferenceResolver {
     private KnowledgeMap personMap;
 
 
-    public SessionReferenceResolver(KnowledgeBase knowledgeBase) {
+    public NotSpeakerSessionReferenceResolver(KnowledgeBase knowledgeBase) {
         sessionMap = knowledgeBase.getKnowledgeMap(Ontology.Session);
         personMap = knowledgeBase.getKnowledgeMap(Ontology.Person);
     }
@@ -52,14 +52,14 @@ public class SessionReferenceResolver implements ReferenceResolver {
         if(speakerSession.get(Ontology.agents).isPresent()) {
             // better: take confidence that agent is in session
             for (String a : speakerSession.get(Ontology.agents).get()) {
-                distribution.getConfidences().put(a, 1.0 / speakerSession.get(Ontology.agents).get().size());
+                distribution.getConfidences().put(a, 0.0);
             }
         }
 
         for(Entity s: othersessions) {
             if(s.get(Ontology.agents).isPresent()) {
                 for (String a : s.get(Ontology.agents).get()) {
-                    distribution.getConfidences().put(a, 0.0);
+                    distribution.getConfidences().put(a, 1.0 / s.get(Ontology.agents).get().size());
                 }
             }
         }

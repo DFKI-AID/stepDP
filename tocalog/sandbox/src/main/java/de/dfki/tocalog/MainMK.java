@@ -5,29 +5,29 @@ import de.dfki.tocalog.core.*;
 import a.ObjectReferenceResolver;
 import a.PersonDeixisResolver;
 import a.PlaceDeixisResolver;
+import de.dfki.tocalog.core.resolution.PersonReferenceResolver;
 import de.dfki.tocalog.input.Input;
 import de.dfki.tocalog.input.TextInput;
-import de.dfki.tocalog.kb.Entity;
-import de.dfki.tocalog.kb.KnowledgeBase;
-import de.dfki.tocalog.kb.Ontology;
+import de.dfki.tocalog.kb.*;
 import de.dfki.tocalog.rasa.RasaEntity;
 import de.dfki.tocalog.rasa.RasaHelper;
 import de.dfki.tocalog.rasa.RasaHypoProducer2;
 import de.dfki.tocalog.rasa.RasaResponse;
+import de.dfki.tocalog.util.Vector3;
+import org.pcollections.HashTreePSet;
+import org.pcollections.PSet;
 
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 public class MainMK {
 
 
 
     public static void main(String[] args) throws Exception {
-        RasaHelper helper = new RasaHelper(new URL("http://localhost:5000/parse"));
+        /*RasaHelper helper = new RasaHelper(new URL("http://localhost:5000/parse"));
         TextInput text = new TextInput("Max bring the red box to Magdalena");
         List<Input> inputList = new ArrayList<>();
         inputList.add(text);
@@ -37,6 +37,64 @@ public class MainMK {
         List<Hypothesis> hypotheses = hp.process(inputs);
         System.out.println("candidates: " + hypotheses.get(0).getSlots().get("property").getCandidates());
         System.out.println(hypotheses);
+*/
+        KnowledgeBase kb = new KnowledgeBase();
+        KnowledgeMap personMap =kb.getKnowledgeMap(Ontology.Person);
+        KnowledgeMap sessionMap =kb.getKnowledgeMap(Ontology.Session);
+        KnowledgeMap deviceMap =kb.getKnowledgeMap(Ontology.Device);
+
+        Entity fan = new Entity().set(Ontology.id, "fan");
+        Entity loudspeaker = new Entity().set(Ontology.id, "loudspeaker");
+        deviceMap.add(fan);
+        deviceMap.add(loudspeaker);
+
+        Entity speaker = new Entity()
+                .set(Ontology.id, "speaker")
+                .set(Ontology.position, new Vector3(0.0, 0.0, 0.0))
+                .set(Ontology.gender, "male")
+                .set(Ontology.name, "Tom");
+
+        personMap.add(speaker);
+        Entity pers1 = new Entity()
+                .set(Ontology.id, "person1")
+                .set(Ontology.position, new Vector3(1.0, 1.0, 1.0))
+                .set(Ontology.gender, "male")
+                .set(Ontology.name, "Max");
+
+        personMap.add(pers1);
+        Entity pers2 = new Entity()
+                .set(Ontology.id, "person2")
+                .set(Ontology.position, new Vector3(4.0, 4.0, 4.0))
+                .set(Ontology.gender, "female")
+                .set(Ontology.name, "Tina");
+        personMap.add(pers2);
+        Entity pers3 = new Entity()
+                .set(Ontology.id, "person3")
+                .set(Ontology.position, new Vector3(-2.0, -2.0, -2.0))
+                .set(Ontology.gender, "female")
+                .set(Ontology.name, "Sara");
+        personMap.add(pers3);
+
+        Entity session1 = new Entity().set(Ontology.id, "session1");
+        PSet<String> agents = HashTreePSet.empty();
+        agents = agents.plus(pers1.get(Ontology.id).get())
+                .plus(speaker.get(Ontology.id).get())
+                .plus(pers3.get(Ontology.id).get());
+        session1 = session1.set(Ontology.agents, agents);
+        sessionMap.add(session1);
+        Entity session2 = new Entity().set(Ontology.id, "session2");
+        PSet<String> agents2 = HashTreePSet.empty();
+        agents2 = agents2.plus(pers2.get(Ontology.id).get());
+        session2 = session2.set(Ontology.agents, agents2);
+        sessionMap.add(session2);
+        System.out.println("persons: " + personMap.getAll().toString());
+
+        //input: "Bring PERSONSLOT ENTITYSLOT"
+        PersonReferenceResolver personReferenceResolver = new PersonReferenceResolver(kb, "they");
+        personReferenceResolver.setSpeakerId("speaker");
+        ReferenceDistribution personDist = personReferenceResolver.getReferences();
+        System.out.println(personDist.toString());
+
     }
 
     public static class MyHypoProducer implements HypothesisProducer {

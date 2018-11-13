@@ -16,7 +16,7 @@ public class ObjectAttributesReferenceResolver implements ReferenceResolver {
     private KnowledgeMap objectMap;
 
 
-    ObjectAttributesReferenceResolver(KnowledgeBase knowledgeBase, Type objectType) {
+    public ObjectAttributesReferenceResolver(KnowledgeBase knowledgeBase, Type objectType) {
         objectMap = knowledgeBase.getKnowledgeMap(objectType);
     }
 
@@ -49,16 +49,8 @@ public class ObjectAttributesReferenceResolver implements ReferenceResolver {
             objectDistribution.getConfidences().put(object.get(Ontology.id).get(), matchedCount);
         }
 
-        Optional<Double> totalCount = objectDistribution.getConfidences().values().stream().reduce((d1, d2) -> d1 + d2);
-        if (!totalCount.isPresent()) {
-            return objectDistribution;
-        }
-        for(String id: objectDistribution.getConfidences().keySet()) {
-            objectDistribution.getConfidences().put(id, objectDistribution.getConfidences().get(id)/totalCount.get());
-        }
 
-
-        return objectDistribution;
+        return objectDistribution.rescaleDistribution();
 
     }
 }

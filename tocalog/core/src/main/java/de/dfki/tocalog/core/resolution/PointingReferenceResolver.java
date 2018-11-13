@@ -20,7 +20,7 @@ public class PointingReferenceResolver implements ReferenceResolver {
     private KnowledgeMap personMap;
 
 
-    PointingReferenceResolver(KnowledgeBase knowledgeBase) {
+    public PointingReferenceResolver(KnowledgeBase knowledgeBase) {
         personMap = knowledgeBase.getKnowledgeMap(Ontology.Person);
     }
 
