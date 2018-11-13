@@ -5,16 +5,15 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.function.Function;
-import java.util.function.Predicate;
 
 /**
  * TODO: performance: cache
  */
-public class InheritanceTree {
-    private static final Logger log = LoggerFactory.getLogger(InheritanceTree.class);
+public class TypeHierarchy {
+    private static final Logger log = LoggerFactory.getLogger(TypeHierarchy.class);
     private final Map<Type, Node> nodes;
 
-    protected InheritanceTree(Builder builder) {
+    protected TypeHierarchy(Builder builder) {
         this.nodes = new HashMap<>(builder.nodes);
     }
 
@@ -196,36 +195,12 @@ public class InheritanceTree {
             return this;
         }
 
-        public InheritanceTree build() {
-            InheritanceTree it = new InheritanceTree(this);
+        public TypeHierarchy build() {
+            TypeHierarchy it = new TypeHierarchy(this);
             it.assertState();
             return it;
         }
     }
 
-    public static void main(String[] args) {
-        InheritanceTree it = InheritanceTree.build()
-                .add(Ontology.PhysicalEntity, Ontology.Entity)
-                .add(Ontology.Agent, Ontology.PhysicalEntity)
-                .add(Ontology.Person, Ontology.Agent)
-                .add(Ontology.Robot, Ontology.Agent)
-                .add(Ontology.Device, Ontology.PhysicalEntity)
-                .add(Ontology.Service, Ontology.Entity)
-                .add(Ontology.DeviceComponent, Ontology.PhysicalEntity)
-                .add(Ontology.Monitor, Ontology.DeviceComponent)
-                .add(Ontology.Loudspeaker, Ontology.DeviceComponent)
-                .add(Ontology.Headphones, Ontology.Loudspeaker)
-                .add(Ontology.Battery, Ontology.DeviceComponent)
-                .add(Ontology.Zone, Ontology.Entity)
-                .build();
-        System.out.println(it.toMermaid());
 
-        System.out.println(it.inheritsFrom(Ontology.Person, Ontology.Entity));
-        System.out.println(it.inheritsFrom(Ontology.Person, Ontology.Service));
-
-        Set<Type> subs = it.getSubClasses(Ontology.Agent);
-        Set<Type> sups = it.getSuperClasses(Ontology.Agent);
-        System.out.println(subs);
-
-    }
 }

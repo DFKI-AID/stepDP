@@ -9,6 +9,7 @@ import java.util.Set;
 
 /**
  * one entry should always be none / unknown / ... to model low confidence for other values (sum has to be 1.0)//
+ * TODO maybe add a function to check whether the ReferenceDistribution is 'available' e.g. no sensor available
  */
 public class ReferenceDistribution {
     private Map<String, Double> confidences = new HashMap<>();

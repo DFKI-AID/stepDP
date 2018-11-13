@@ -8,10 +8,12 @@ import java.util.*;
 import java.util.function.Predicate;
 
 /**
+ * TODO static / singleton class is ugly. however, accessing the attributes would be annoying otherwise...
  */
 public class Ontology {
 
 
+    public static final TypeHierarchy it;
 
 
     public static Optional<Long> getAge(Entity entity) {
@@ -205,6 +207,30 @@ public class Ontology {
 //            return false;
 //        }
 //    }
+
+
+    static {
+        it = TypeHierarchy.build()
+                .add(Ontology.PhysicalEntity, Ontology.Entity)
+                .add(Ontology.Agent, Ontology.PhysicalEntity)
+                .add(Ontology.Person, Ontology.Agent)
+                .add(Ontology.Robot, Ontology.Agent)
+                .add(Ontology.Device, Ontology.PhysicalEntity)
+                .add(Ontology.Service, Ontology.Entity)
+                .add(Ontology.DeviceComponent, Ontology.PhysicalEntity)
+                .add(Ontology.Monitor, Ontology.DeviceComponent)
+                .add(Ontology.Loudspeaker, Ontology.DeviceComponent)
+                .add(Ontology.Headphones, Ontology.Loudspeaker)
+                .add(Ontology.Battery, Ontology.DeviceComponent)
+                .add(Ontology.Zone, Ontology.Entity)
+                .build();
+//        System.out.println(it.toMermaid());
+//        System.out.println(it.inheritsFrom(Ontology.Person, Ontology.Entity));
+//        System.out.println(it.inheritsFrom(Ontology.Person, Ontology.Service));
+//        Set<Type> subs = it.getSubClasses(Ontology.Agent);
+//        Set<Type> sups = it.getSuperClasses(Ontology.Agent);
+//        System.out.println(subs);
+    }
 
 
     public static Optional<Double> distance(Entity entity1, Entity entity2) {

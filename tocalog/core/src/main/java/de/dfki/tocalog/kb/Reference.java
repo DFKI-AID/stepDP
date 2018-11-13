@@ -1,6 +1,7 @@
 package de.dfki.tocalog.kb;
 
 /**
+ * TODO maybe change type to Type class
  */
 public class Reference {
     public final String id;
