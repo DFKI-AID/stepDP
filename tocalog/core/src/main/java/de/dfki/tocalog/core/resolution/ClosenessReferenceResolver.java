@@ -15,7 +15,7 @@ public class ClosenessReferenceResolver implements ReferenceResolver {
     private KnowledgeMap personMap;
 
 
-    ClosenessReferenceResolver(KnowledgeBase knowledgeBase, Type type) {
+    public ClosenessReferenceResolver(KnowledgeBase knowledgeBase, Type type) {
         kMap = knowledgeBase.getKnowledgeMap(type);
         personMap = knowledgeBase.getKnowledgeMap(Ontology.Person);
     }
@@ -70,6 +70,12 @@ public class ClosenessReferenceResolver implements ReferenceResolver {
         for(int i = sortedObjects.size()-1; i>=0; i--) {
             distribution.getConfidences().put(((List<Entity>) sortedObjects).get(i).get(Ontology.id).get(), counter);
             counter += 1.0;
+        }
+
+        if(distribution.getConfidences().isEmpty()) {
+            for(Entity e: kMap.getAll()) {
+                distribution.getConfidences().put(e.get(Ontology.id).get(), 1.0/kMap.getAll().size());
+            }
         }
 
         return distribution.rescaleDistribution();

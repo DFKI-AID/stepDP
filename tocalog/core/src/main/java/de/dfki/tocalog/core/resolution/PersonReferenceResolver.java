@@ -9,6 +9,7 @@ import de.dfki.tocalog.kb.KnowledgeMap;
 import de.dfki.tocalog.kb.Ontology;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,11 +19,45 @@ public class PersonReferenceResolver implements ReferenceResolver {
     private String inputString = "";
     private String speakerId = "";
     private KnowledgeMap personMap = new KnowledgeMap();
+    private SpeakerReferenceResolver speakerRR;
+    private SessionReferenceResolver sessionRR;
+
+    private static final Map<String, String> PRONOUNS;
+    static {
+        Map<String, String> map = new HashMap<>();
+        map.put("I", "I");
+        map.put("me", "I");
+        map.put("my", "I");
+        map.put("mine", "I");
+        map.put("you", "you");
+        map.put("your", "you");
+        map.put("yours", "you");
+        map.put("he", "he");
+        map.put("his", "he");
+        map.put("him", "he");
+        map.put("she", "she");
+        map.put("her", "she");
+        map.put("hers", "she");
+        map.put("we", "we");
+        map.put("us", "we");
+        map.put("our", "we");
+        map.put("ours", "we");
+        map.put("they", "they");
+        map.put("their", "they");
+        map.put("theirs", "they");
+        map.put("them", "they");
+
+        PRONOUNS = Collections.unmodifiableMap(map);
+    }
 
     public PersonReferenceResolver(KnowledgeBase knowledgeBase, String inputString) {
         this.knowledgeBase = knowledgeBase;
         this.inputString = inputString;
         this.personMap = knowledgeBase.getKnowledgeMap(Ontology.Person);
+        speakerRR = new SpeakerReferenceResolver(knowledgeBase);
+        sessionRR = new SessionReferenceResolver(knowledgeBase);
+
+
     }
 
     public void setSpeakerId(String speakerId) {
@@ -35,84 +70,78 @@ public class PersonReferenceResolver implements ReferenceResolver {
         ReferenceDistribution distribution = new ReferenceDistribution();
         Map<String, WeightedReferenceResolver> pronoun2ReferenceResolverMap = getPronoun2ReferenceResolver();
 
-        if(inputString.contains("I") || inputString.contains("me") || inputString.contains("my") || inputString.contains("mine")) {
-            distribution = pronoun2ReferenceResolverMap.get("I").getReferences();
-        }else if(inputString.contains("you") || inputString.contains("your")|| inputString.contains("yours")) {
-            distribution = pronoun2ReferenceResolverMap.get("you").getReferences();
-        }else if((inputString.contains("he") && !inputString.contains("they")) || inputString.contains("his") || inputString.contains("him")) {
-            distribution = pronoun2ReferenceResolverMap.get("he").getReferences();
-        }else if(inputString.contains("she") || inputString.contains("her") || inputString.contains("hers")) {
-            distribution = pronoun2ReferenceResolverMap.get("she").getReferences();
-        }else if(inputString.contains("we") || inputString.contains("us") || inputString.contains("our") || inputString.contains("ours")) {
-            distribution = pronoun2ReferenceResolverMap.get("we").getReferences();
-        }else if(inputString.contains("they") || inputString.contains("their") || inputString.equals("theirs") || inputString.contains("them")) {
-            distribution = pronoun2ReferenceResolverMap.get("they").getReferences();
-        }else {
-            Collection<Entity> persons = personMap.query(e -> inputString.contains(e.get(Ontology.name).orElse("")));
-            for(Entity person: persons) {
-                distribution.getConfidences().put(person.get(Ontology.id).get(), 1.0/persons.size());
+        //check pronouns
+        for(String pronoun: PRONOUNS.keySet()) {
+            if(inputString.contains(pronoun)) {
+                return pronoun2ReferenceResolverMap.get(PRONOUNS.get(pronoun)).getReferences();
             }
         }
+
+        //check if person's name is given
+        Collection<Entity> persons = personMap.query(e -> inputString.contains(e.get(Ontology.name).orElse("")));
+        for(Entity person: persons) {
+            distribution.getConfidences().put(person.get(Ontology.id).get(), 1.0/persons.size());
+        }
+
 
         return distribution;
     }
 
+    private WeightedReferenceResolver getIResolver() {
+        WeightedReferenceResolver weightedRR_I = new WeightedReferenceResolver();
+        weightedRR_I.addResolver(speakerRR, 1.0);
+        return weightedRR_I;
+    }
 
-    public Map<String, WeightedReferenceResolver> getPronoun2ReferenceResolver() {
+    private WeightedReferenceResolver getYouResolver() {
+        WeightedReferenceResolver weightedRR_you  = new WeightedReferenceResolver();
+        weightedRR_you.addResolver(new ReverseReferenceResolver(speakerRR), 0.5);
+        weightedRR_you.addResolver(sessionRR, 0.5);
+        return weightedRR_you;
+    }
+
+    private WeightedReferenceResolver getGenderResolver(String gender) {
+        WeightedReferenceResolver weightedRR_gender  = new WeightedReferenceResolver();
+        weightedRR_gender.addResolver(new ReverseReferenceResolver(speakerRR), 0.2);
+        GenderReferenceResolver genderRR = new GenderReferenceResolver(knowledgeBase);
+        genderRR.setGender(gender);
+        weightedRR_gender.addResolver(genderRR, 0.7);
+        weightedRR_gender.addResolver(sessionRR, 0.1);
+        return weightedRR_gender;
+    }
+
+
+    private WeightedReferenceResolver getWeResolver() {
+        WeightedReferenceResolver weightedRR_we  = new WeightedReferenceResolver();
+        weightedRR_we.addResolver(sessionRR, 1.0);
+        return weightedRR_we;
+    }
+
+    private WeightedReferenceResolver getTheyResolver() {
+        WeightedReferenceResolver weightedRR_they  = new WeightedReferenceResolver();
+        NotSpeakerSessionReferenceResolver notSpeakerSessionRR = new NotSpeakerSessionReferenceResolver(knowledgeBase);
+        notSpeakerSessionRR.setSpeakerId(speakerId);
+
+        weightedRR_they.addResolver(new ReverseReferenceResolver(speakerRR), 0.5);
+        weightedRR_they.addResolver(notSpeakerSessionRR, 0.5);
+        return weightedRR_they;
+    }
+
+
+    private Map<String, WeightedReferenceResolver> getPronoun2ReferenceResolver() {
 
         Map<String, WeightedReferenceResolver> pronounToRefResolverMap = new HashMap<>();
-        SpeakerReferenceResolver speakerReferenceResolver = new SpeakerReferenceResolver(knowledgeBase);
-        speakerReferenceResolver.setSpeakerId(speakerId);
+        speakerRR.setSpeakerId(speakerId);
+        sessionRR.setSpeakerId(speakerId);
 
-        SessionReferenceResolver sessionReferenceResolver = new SessionReferenceResolver(knowledgeBase);
-        sessionReferenceResolver.setSpeakerId(speakerId);
-
-        NotSpeakerSessionReferenceResolver notSpeakersessionReferenceResolver = new NotSpeakerSessionReferenceResolver(knowledgeBase);
-        notSpeakersessionReferenceResolver.setSpeakerId(speakerId);
+        pronounToRefResolverMap.put("I", getIResolver());
+        pronounToRefResolverMap.put("you", getYouResolver());
+        pronounToRefResolverMap.put("he", getGenderResolver("male"));
+        pronounToRefResolverMap.put("she", getGenderResolver("female"));
+        pronounToRefResolverMap.put("we", getWeResolver());
+        pronounToRefResolverMap.put("they", getTheyResolver());
 
         //TODO different foci
-
-        WeightedReferenceResolver weightedReferenceResolver_I = new WeightedReferenceResolver();
-        weightedReferenceResolver_I.addResolver(speakerReferenceResolver, 1.0);
-
-        //should weight sum up to 1?
-        WeightedReferenceResolver weightedReferenceResolver_you  = new WeightedReferenceResolver();
-        weightedReferenceResolver_you.addResolver(new ReverseReferenceResolver(speakerReferenceResolver), 0.5);
-        weightedReferenceResolver_you.addResolver(sessionReferenceResolver, 0.5);
-       // weightedReferenceResolver_you.addResolver(new GazeReferenceResolver(knowledgeBase), 0.1);
-
-        WeightedReferenceResolver weightedReferenceResolver_he  = new WeightedReferenceResolver();
-        weightedReferenceResolver_he.addResolver(new ReverseReferenceResolver(speakerReferenceResolver), 0.2);
-        GenderReferenceResolver maleReferenceResolver = new GenderReferenceResolver(knowledgeBase);
-        maleReferenceResolver.setGender("male");
-        weightedReferenceResolver_he.addResolver(maleReferenceResolver, 0.7);
-        weightedReferenceResolver_he.addResolver(sessionReferenceResolver, 0.1);
-      //  weightedReferenceResolver_he.addResolver(new GazeReferenceResolver(knowledgeBase), 0.3);
-
-        WeightedReferenceResolver weightedReferenceResolver_she  = new WeightedReferenceResolver();
-        weightedReferenceResolver_she.addResolver(new ReverseReferenceResolver(speakerReferenceResolver), 0.2);
-        GenderReferenceResolver femaleReferenceResolver = new GenderReferenceResolver(knowledgeBase);
-        femaleReferenceResolver.setGender("female");
-        weightedReferenceResolver_she.addResolver(femaleReferenceResolver, 0.7);
-        weightedReferenceResolver_she.addResolver(sessionReferenceResolver, 0.1);
-     //   weightedReferenceResolver_she.addResolver(new GazeReferenceResolver(knowledgeBase), 0.3);
-
-        WeightedReferenceResolver weightedReferenceResolver_we  = new WeightedReferenceResolver();
-        weightedReferenceResolver_we.addResolver(sessionReferenceResolver, 1.0);
-
-        WeightedReferenceResolver weightedReferenceResolver_they  = new WeightedReferenceResolver();
-
-        weightedReferenceResolver_they.addResolver(new ReverseReferenceResolver(speakerReferenceResolver), 0.5);
-        weightedReferenceResolver_they.addResolver(notSpeakersessionReferenceResolver, 0.5);
-     //   weightedReferenceResolver_they.addResolver(new GazeReferenceResolver(knowledgeBase), 0.3);
-
-
-        pronounToRefResolverMap.put("I", weightedReferenceResolver_I);
-        pronounToRefResolverMap.put("you", weightedReferenceResolver_you);
-        pronounToRefResolverMap.put("he", weightedReferenceResolver_he);
-        pronounToRefResolverMap.put("she", weightedReferenceResolver_she);
-        pronounToRefResolverMap.put("we", weightedReferenceResolver_we);
-        pronounToRefResolverMap.put("they", weightedReferenceResolver_they);
 
         return pronounToRefResolverMap;
     }

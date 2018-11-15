@@ -20,6 +20,7 @@ public class WeightedReferenceResolver implements ReferenceResolver {
         for (Pair resolver : resolvers) {
             double weight = resolver.weight;
             ReferenceDistribution rd = resolver.rr.getReferences();
+            System.out.println(resolver.rr.toString() + ": " + rd.toString());
             rd = rd.mul(weight);
             result = result.add(rd);
         }

@@ -131,6 +131,9 @@ public class Ontology {
     public static final Attribute<String> subject = new Attribute<>("tocalog/subject");
     public static final Attribute<String> object = new Attribute<>("tocalog/object");
 
+    //properties
+    public static final Attribute<String> color = new Attribute<>("tocalog/attributes/color");
+    public static final Attribute<String> size = new Attribute<>("tocalog/attributes/size");
 
 
     public static final Type Person = new Type("tocalog/Person");

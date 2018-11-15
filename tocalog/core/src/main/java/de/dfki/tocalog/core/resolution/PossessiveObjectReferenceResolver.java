@@ -16,7 +16,7 @@ import static de.dfki.tocalog.kb.Ontology.gender;
 public class PossessiveObjectReferenceResolver implements ReferenceResolver {
 
 
-    private WeightedReferenceResolver personDeixisResolver = new WeightedReferenceResolver();
+    private ReferenceResolver personDeixisResolver = new WeightedReferenceResolver();
     private KnowledgeMap personMap;
     private KnowledgeMap objectMap;
 
@@ -26,7 +26,7 @@ public class PossessiveObjectReferenceResolver implements ReferenceResolver {
         objectMap = knowledgeBase.getKnowledgeMap(objectType);
     }
 
-    public void setPersonDeixisResolver(WeightedReferenceResolver personDeixisResolver) {
+    public void setPersonDeixisResolver(ReferenceResolver personDeixisResolver) {
         this.personDeixisResolver = personDeixisResolver;
     }
 
@@ -42,8 +42,11 @@ public class PossessiveObjectReferenceResolver implements ReferenceResolver {
 
         double restConfidenceCount = 0.0;
 
+
+
         for(String personId: personDistribution.getConfidences().keySet()) {
             if(personMap.get(personId).get().get(Ontology.owned).isPresent()) {
+                //TODO use owner or owned?
                 String ownedObjectId = personMap.get(personId).get().get(Ontology.owned).get();
                 //check if ownedObject has Type of referenced object
                 if (objectMap.get(ownedObjectId).isPresent()) {
@@ -51,15 +54,22 @@ public class PossessiveObjectReferenceResolver implements ReferenceResolver {
                     objectDistribution.getConfidences().put(ownedObjectId, personDistribution.getConfidences().get(personId));
                 }else{
                     restConfidenceCount += personDistribution.getConfidences().get(personId);
+
                 }
             }else {
                 restConfidenceCount += personDistribution.getConfidences().get(personId);
             }
         }
         //distribute remaining confidence from persons without objects equally on candidates
-        for(String id: personDistribution.getConfidences().keySet()) {
+        for(String id: objectDistribution.getConfidences().keySet()) {
             double newValue = objectDistribution.getConfidences().get(id) + restConfidenceCount/objectDistribution.getConfidences().size();
             objectDistribution.getConfidences().put(id,newValue);
+        }
+
+        if(objectDistribution.getConfidences().isEmpty()) {
+            for(Entity obj: objectMap.getAll()) {
+                objectDistribution.getConfidences().put(obj.get(Ontology.id).get(), 1.0/objectMap.getAll().size());
+            }
         }
 
 

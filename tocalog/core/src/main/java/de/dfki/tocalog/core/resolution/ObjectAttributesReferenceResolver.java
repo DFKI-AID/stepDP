@@ -37,8 +37,9 @@ public class ObjectAttributesReferenceResolver implements ReferenceResolver {
             return objectDistribution;
         }
 
-        double matchedCount = 0.0;
+        double matchedCount;
         for(Entity object: objectMap.getAll()) {
+            matchedCount = 0.0;
             for(Attribute attribute: attributes.keySet()) {
                 if(object.get(attribute).isPresent()) {
                     if(attributes.get(attribute).value.equals(object.get(attribute).get())) {
@@ -47,6 +48,12 @@ public class ObjectAttributesReferenceResolver implements ReferenceResolver {
                 }
             }
             objectDistribution.getConfidences().put(object.get(Ontology.id).get(), matchedCount);
+        }
+
+        if(objectDistribution.getConfidences().isEmpty() || objectDistribution.getConfidences().values().stream().allMatch(d -> d.equals(0.0))) {
+            for(Entity e: objectMap.getAll()) {
+                objectDistribution.getConfidences().put(e.get(Ontology.id).get(), 1.0/objectMap.getAll().size());
+            }
         }
 
 
