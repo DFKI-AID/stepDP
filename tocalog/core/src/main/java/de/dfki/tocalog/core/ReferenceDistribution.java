@@ -21,10 +21,11 @@ public class ReferenceDistribution {
             }
         }
 
-
-        double sum = confidences.values().stream().reduce((d1, d2) -> d1 + d2).get();
-        if (Math.abs(1.0 - sum) > THRESHOLD) {
-            throw new IllegalStateException("the accumulated sum of the confidences of a Reference Distribution has to be 1.0");
+        if(!confidences.values().isEmpty()) {
+            double sum = confidences.values().stream().reduce((d1, d2) -> d1 + d2).get();
+            if (Math.abs(1.0 - sum) > THRESHOLD) {
+                throw new IllegalStateException("the accumulated sum of the confidences of a Reference Distribution has to be 1.0");
+            }
         }
     }
 

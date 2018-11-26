@@ -40,11 +40,16 @@ public class PossessiveObjectReferenceResolver implements ReferenceResolver {
 
         ReferenceDistribution personDistribution = personDeixisResolver.getReferences();
 
-        double restConfidenceCount = 0.0;
-
-
+       //double restConfidenceCount = 0.0;
 
         for(String personId: personDistribution.getConfidences().keySet()) {
+            Collection<Entity> ownedObjects = objectMap.getAll().stream().filter(o -> o.get(Ontology.owner).orElse(new Reference("", "")).id.equals(personId)).collect(Collectors.toList());
+            for(Entity obj: ownedObjects) {
+                objectDistribution.getConfidences().put(obj.get(Ontology.id).get(), personDistribution.getConfidences().get(personId));
+            }
+        }
+
+       /* for(String personId: personDistribution.getConfidences().keySet()) {
             if(personMap.get(personId).get().get(Ontology.owned).isPresent()) {
                 //TODO use owner or owned?
                 String ownedObjectId = personMap.get(personId).get().get(Ontology.owned).get();
@@ -64,14 +69,15 @@ public class PossessiveObjectReferenceResolver implements ReferenceResolver {
         for(String id: objectDistribution.getConfidences().keySet()) {
             double newValue = objectDistribution.getConfidences().get(id) + restConfidenceCount/objectDistribution.getConfidences().size();
             objectDistribution.getConfidences().put(id,newValue);
-        }
+        }*/
 
+        //no person with device
         if(objectDistribution.getConfidences().isEmpty()) {
             for(Entity obj: objectMap.getAll()) {
                 objectDistribution.getConfidences().put(obj.get(Ontology.id).get(), 1.0/objectMap.getAll().size());
             }
         }
-
+        objectDistribution.rescaleDistribution();
 
         return objectDistribution;
 

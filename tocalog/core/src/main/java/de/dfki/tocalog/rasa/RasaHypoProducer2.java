@@ -1,16 +1,22 @@
 package de.dfki.tocalog.rasa;
 
+
 import de.dfki.tocalog.core.*;
-import a.PersonDeixisResolver;
+import de.dfki.tocalog.core.resolution.LocationReferenceResolver;
+import de.dfki.tocalog.core.resolution.ObjectReferenceResolver;
+import de.dfki.tocalog.core.resolution.PersonReferenceResolver;
 import de.dfki.tocalog.input.Input;
 import de.dfki.tocalog.input.TextInput;
 import de.dfki.tocalog.kb.KnowledgeBase;
+import de.dfki.tocalog.kb.KnowledgeMap;
 import de.dfki.tocalog.kb.Ontology;
+import de.dfki.tocalog.kb.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -25,11 +31,13 @@ import java.util.stream.Collectors;
 public class RasaHypoProducer2 implements HypothesisProducer {
     private static final Logger log = LoggerFactory.getLogger(RasaHypoProducer2.class);
     private final RasaHelper rasaHelper;
-    private KnowledgeBase knowledgeBase = new KnowledgeBase();
-    private final PersonDeixisResolver personDeixis = new PersonDeixisResolver(knowledgeBase);
+    private KnowledgeBase knowledgeBase;
+    private PersonReferenceResolver personDeixis;
+    private ObjectReferenceResolver objectReferenceResolver;
 
-    public RasaHypoProducer2(RasaHelper rasaHelper) {
+    public RasaHypoProducer2(RasaHelper rasaHelper, KnowledgeBase knowledgeBase) {
         this.rasaHelper = rasaHelper;
+        this.knowledgeBase = knowledgeBase;
     }
 
     @Override
@@ -52,6 +60,17 @@ public class RasaHypoProducer2 implements HypothesisProducer {
 
     protected Hypothesis.Builder parse(Input lastInput, RasaResponse rsp) {
         Hypothesis.Builder hb = Hypothesis.create(rsp.getIntent().getName());
+
+   /*     Optional<RasaEntity> entity = rsp.getEntities().stream().filter(e -> e.getEntity().equals("locationRef")).findAny();
+        if(entity.isPresent()) {
+            Optional<RasaEntity> previousEntity = rsp.getEntities().stream().filter(e -> e.getEnd() == entity.get().getStart()-1).findAny();
+            Optional<RasaEntity> pastEntity = rsp.getEntities().stream().filter(e -> e.getStart() == entity.get().getEnd()+1).findAny();
+            if(previousEntity.isPresent() && pastEntity.isPresent()) {
+                LocationReferenceResolver locRefResolver = new LocationReferenceResolver(knowledgeBase, previousEntity.get().getEntity(), pastEntity.get().getEntity(), entity.get().getValue());
+                locRefResolver.getReferences();
+            }
+        }*/
+
         rsp.getEntities().forEach(re -> hb.addSlot(parse(lastInput, re)));
         hb.setConfidence(new Confidence(rsp.getIntent().getConfidence())); //TODO is intent + confidence always set?
         return hb;
@@ -60,8 +79,26 @@ public class RasaHypoProducer2 implements HypothesisProducer {
     protected Slot parse(Input lastInput, RasaEntity re) {
         //TODO case: multiple slot with the same entity? slot would be lost
         Slot slot = new Slot(re.getEntity());
-        if(re.getEntity().equals("agent")) {
-            slot.setCandidates(personDeixis.resolvePerson(lastInput, re.getValue()));
+        if(re.getEntity().equals("person")) {
+            personDeixis = new PersonReferenceResolver(knowledgeBase, re.getValue());
+            personDeixis.setSpeakerId(lastInput.getInitiator());
+            ReferenceDistribution personDist = personDeixis.getReferences();
+            if(personDist.getConfidences().isEmpty()) {
+                slot.setCandidateMap(Map.of(re.getValue(), re.getConfidence()));
+            }else {
+                slot.setCandidateMap(personDist.getConfidences());
+            }
+
+        }else if(re.getEntity().equals("entity")) {
+         //   objectReferenceResolver = new ObjectReferenceResolver(knowledgeBase, re.getValue(), new Type(re.getEntity()));
+            objectReferenceResolver = new ObjectReferenceResolver(knowledgeBase, re.getValue(), Ontology.Device);
+            objectReferenceResolver.setSpeakerId(lastInput.getInitiator());
+            ReferenceDistribution objectDist = objectReferenceResolver.getReferences();
+            if(objectDist.getConfidences().isEmpty()) {
+                slot.setCandidateMap(Map.of(re.getValue(), re.getConfidence()));
+            }else {
+                slot.setCandidateMap(objectDist.getConfidences());
+            }
         }
         return slot;
        /* return new Slot(re.getEntity()) {

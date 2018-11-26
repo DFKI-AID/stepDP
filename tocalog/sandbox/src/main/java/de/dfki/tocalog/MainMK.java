@@ -6,10 +6,7 @@ import de.dfki.tocalog.core.resolution.*;
 import de.dfki.tocalog.input.Input;
 import de.dfki.tocalog.input.TextInput;
 import de.dfki.tocalog.kb.*;
-import de.dfki.tocalog.rasa.RasaEntity;
-import de.dfki.tocalog.rasa.RasaHelper;
-import de.dfki.tocalog.rasa.RasaHypoProducer2;
-import de.dfki.tocalog.rasa.RasaResponse;
+import de.dfki.tocalog.rasa.*;
 import de.dfki.tocalog.util.Vector3;
 import org.pcollections.HashTreePSet;
 import org.pcollections.PSet;
@@ -19,30 +16,42 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 
+import static de.dfki.tocalog.kb.Ontology.Person;
+
 public class MainMK {
 
 
 
+
     public static void main(String[] args) throws Exception {
-        /*RasaHelper helper = new RasaHelper(new URL("http://localhost:5000/parse"));
-        TextInput text = new TextInput("Max bring the red box to Magdalena");
+        RasaHelper helper = new RasaHelper(new URL("http://localhost:5000/parse"));
+        TextInput text = new TextInput("Max bring Magdalena the green fan");
+        text.setInitiator("speaker");
         List<Input> inputList = new ArrayList<>();
         inputList.add(text);
         Inputs inputs = new Inputs();
         inputs.add(inputList);
-        RasaHypoProducer2 hp = new RasaHypoProducer2(helper);
-        List<Hypothesis> hypotheses = hp.process(inputs);
-        System.out.println("candidates: " + hypotheses.get(0).getSlots().get("property").getCandidates());
+        KnowledgeBase kb = createExampleKnowledgeBase();
+        RasaHypoProducer rhp = new RasaHypoProducer(helper);
+       // RasaHypoProducer2 hp = new RasaHypoProducer2(helper, kb);
+       // List<Hypothesis> hypotheses = hp.process(inputs);
+        //System.out.println(hypotheses);
+        PostRasaHypoProducer prhp = new PostRasaHypoProducer(rhp, kb);
+        List<Hypothesis> hypotheses = prhp.process(inputs);
         System.out.println(hypotheses);
-*/
+        //   doExampleReferenceResolving();
+
+    }
+
+    public static KnowledgeBase createExampleKnowledgeBase() {
         KnowledgeBase kb = new KnowledgeBase();
-        KnowledgeMap personMap =kb.getKnowledgeMap(Ontology.Person);
+        KnowledgeMap personMap =kb.getKnowledgeMap(Person);
         KnowledgeMap sessionMap =kb.getKnowledgeMap(Ontology.Session);
         KnowledgeMap deviceMap =kb.getKnowledgeMap(Ontology.Device);
 
         Entity fan = new Entity().set(Ontology.id, "fan").set(Ontology.color, "green").set(Ontology.size, "small").set(Ontology.position, new Vector3(1.0, 1.0, 1.0));
         Entity fan2 = new Entity().set(Ontology.id, "fan2").set(Ontology.color, "red").set(Ontology.size, "big").set(Ontology.position, new Vector3(2.0, 1.0, 2.0));
-        Entity loudspeaker = new Entity().set(Ontology.id, "loudspeaker");
+        Entity loudspeaker = new Entity().set(Ontology.id, "loudspeaker"); //.set(Ontology.owner, Person.refTo("speaker"));
         deviceMap.add(fan);
         deviceMap.add(fan2);
         deviceMap.add(loudspeaker);
@@ -52,7 +61,7 @@ public class MainMK {
                 .set(Ontology.position, new Vector3(0.0, 0.0, 0.0))
                 .set(Ontology.gender, "male")
                 .set(Ontology.name, "Tom")
-        .set(Ontology.owned, loudspeaker.get(Ontology.id).get());
+                .set(Ontology.owned, loudspeaker.get(Ontology.id).get());
 
         personMap.add(speaker);
         Entity pers1 = new Entity()
@@ -60,7 +69,7 @@ public class MainMK {
                 .set(Ontology.position, new Vector3(1.0, 1.0, 1.0))
                 .set(Ontology.gender, "male")
                 .set(Ontology.name, "Max")
-        .set(Ontology.owned, fan.get(Ontology.id).get());
+                .set(Ontology.owned, fan.get(Ontology.id).get());
 
         personMap.add(pers1);
         Entity pers2 = new Entity()
@@ -90,11 +99,17 @@ public class MainMK {
         sessionMap.add(session2);
         System.out.println("persons: " + personMap.getAll().toString());
 
+        return kb;
+    }
+
+    public static void doExampleReferenceResolving() {
+
+        KnowledgeBase kb = createExampleKnowledgeBase();
         //input: "Bring PERSONSLOT ENTITYSLOT"
         PersonReferenceResolver personReferenceResolver = new PersonReferenceResolver(kb, "me");
         personReferenceResolver.setSpeakerId("speaker");
-        ReferenceDistribution personDist = personReferenceResolver.getReferences();
-        System.out.println(personDist.toString());
+      //  ReferenceDistribution personDist = personReferenceResolver.getReferences();
+       // System.out.println(personDist.toString());
         System.out.println("####################################");
 
 //        PossessiveObjectReferenceResolver possessiveObjectReferenceResolver = new PossessiveObjectReferenceResolver(kb, Ontology.Device);
@@ -112,17 +127,16 @@ public class MainMK {
 //        ClosenessReferenceResolver closenessReferenceResolver = new ClosenessReferenceResolver(kb, Ontology.Device);
 //        closenessReferenceResolver.setSpeakerId("speaker");
 //        objectDist = closenessReferenceResolver.getReferences();
-        ObjectReferenceResolver objectRR = new ObjectReferenceResolver(kb, "his big fan", Ontology.Device);
+        ObjectReferenceResolver objectRR = new ObjectReferenceResolver(kb, "my loudspeaker", Ontology.Device);
         Map<Attribute, AttributeValue> map = new HashMap<>();
-        map.put(Ontology.size, new AttributeValue(Ontology.size.name, "big",Ontology.id ));
-       // map.put(Ontology.size, new AttributeValue(Ontology.size.name, "big",Ontology.id ));
+      //  map.put(Ontology.size, new AttributeValue(Ontology.size.name, "big",Ontology.id ));
+        // map.put(Ontology.size, new AttributeValue(Ontology.size.name, "big",Ontology.id ));
         objectRR.setAttrMap(map);
         objectRR.setSpeakerId("speaker");
 
         ReferenceDistribution objectDist = objectRR.getReferences();
 
         System.out.println(objectDist.toString());
-
     }
 
     public static class MyHypoProducer implements HypothesisProducer {

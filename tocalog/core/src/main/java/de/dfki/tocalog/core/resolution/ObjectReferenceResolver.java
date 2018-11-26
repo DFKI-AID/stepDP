@@ -60,6 +60,7 @@ public class ObjectReferenceResolver implements ReferenceResolver {
 
         //TODO Gaze and Discourse
 
+
         WeightedReferenceResolver weightedObjectRR = new WeightedReferenceResolver();
         weightedObjectRR.addResolver(attrRR, 0.4);
         weightedObjectRR.addResolver(possRR, 0.3);

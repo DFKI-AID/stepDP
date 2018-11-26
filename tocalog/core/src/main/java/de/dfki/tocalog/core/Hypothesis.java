@@ -17,6 +17,7 @@ public class Hypothesis {
     private final Confidence confidence;
 
 
+
     public Hypothesis(Builder builder) {
         this.intent = builder.intent;
         this.slots = Collections.unmodifiableMap(new HashMap<>(builder.slots));

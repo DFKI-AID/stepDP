@@ -12,6 +12,8 @@ public class Slot {
     public final String name;
     private Map<String, String> annotations; //TODO maybe replace with Base / Entity class
     private Set<Entity> candidates = new HashSet<>();
+    private Map<String, Double> candidateMap = new HashMap<>();
+
 
     public Slot(String name) {
         this.name = name;
@@ -36,6 +38,16 @@ public class Slot {
     public void setCandidates(Collection<Entity> candidates) {
         this.candidates = new HashSet<>();
         this.candidates.addAll(candidates);
+
+    }
+
+
+    public Map<String, Double> getCandidateMap() {
+        return candidateMap;
+    }
+
+    public void setCandidateMap(Map<String, Double> candidateMap) {
+        this.candidateMap = candidateMap;
     }
 
     @Override
@@ -43,7 +55,7 @@ public class Slot {
         return "Slot{" +
                 "name='" + name + '\'' +
                 ", annotations=" + annotations +
-                ", candidates=" + candidates +
+                ", candidates=" + candidateMap.toString() +
                 '}';
     }
 

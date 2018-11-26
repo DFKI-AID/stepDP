@@ -55,7 +55,7 @@ public class RasaHypoProducer implements HypothesisProducer {
     protected Slot parse(RasaEntity re) {
         //TODO case: multiple slot with the same entity? slot would be lost
 
-        return new Slot(re.getEntity()) {
+        return new Slot(re.getEntity() + re.getStart() + re.getEnd()) {
             @Override
             public Collection<Entity> getCandidates() {
                 Entity entity = new Entity()

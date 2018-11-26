@@ -78,7 +78,7 @@ public class PersonReferenceResolver implements ReferenceResolver {
         }
 
         //check if person's name is given
-        Collection<Entity> persons = personMap.query(e -> inputString.contains(e.get(Ontology.name).orElse("")));
+        Collection<Entity> persons = personMap.query(e -> inputString.equalsIgnoreCase(e.get(Ontology.name).orElse("")));
         for(Entity person: persons) {
             distribution.getConfidences().put(person.get(Ontology.id).get(), 1.0/persons.size());
         }

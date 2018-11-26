@@ -30,8 +30,8 @@ public class PointingReferenceResolver implements ReferenceResolver {
 
         //no pointing candidate
         if(candidates.isEmpty()) {
-            for(Entity person: kMap.getAll()) {
-                distribution.getConfidences().put(person.get(Ontology.id).get(),  1.0/ kMap.getAll().size());
+            for(Entity entity: kMap.getAll()) {
+                distribution.getConfidences().put(entity.get(Ontology.id).get(),  1.0/ kMap.getAll().size());
             }
             return distribution;
         }
