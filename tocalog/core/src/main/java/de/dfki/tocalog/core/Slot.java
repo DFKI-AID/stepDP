@@ -50,12 +50,14 @@ public class Slot {
         this.candidateMap = candidateMap;
     }
 
+
     @Override
     public String toString() {
         return "Slot{" +
                 "name='" + name + '\'' +
                 ", annotations=" + annotations +
-                ", candidates=" + candidateMap.toString() +
+                ", candidateMap=" + candidateMap.toString() +
+                ", candidates=" + candidates.toString() +
                 '}';
     }
 

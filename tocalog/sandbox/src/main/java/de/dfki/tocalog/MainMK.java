@@ -5,6 +5,8 @@ import de.dfki.tocalog.core.*;
 import de.dfki.tocalog.core.resolution.*;
 import de.dfki.tocalog.input.Input;
 import de.dfki.tocalog.input.TextInput;
+import de.dfki.tocalog.input.pattern.InputPattern;
+import de.dfki.tocalog.input.pattern.PatternHypothesisProducer;
 import de.dfki.tocalog.kb.*;
 import de.dfki.tocalog.rasa.*;
 import de.dfki.tocalog.util.Vector3;
@@ -13,6 +15,7 @@ import org.pcollections.PSet;
 
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 
@@ -23,23 +26,54 @@ public class MainMK {
 
 
 
-    public static void main(String[] args) throws Exception {
-        RasaHelper helper = new RasaHelper(new URL("http://localhost:5000/parse"));
-        TextInput text = new TextInput("Max bring Magdalena the green fan");
+    public static void main(String[] args) throws MalformedURLException {
+        TextInput text = new TextInput("Bring the fan to her");
         text.setInitiator("speaker");
         List<Input> inputList = new ArrayList<>();
         inputList.add(text);
         Inputs inputs = new Inputs();
         inputs.add(inputList);
-        KnowledgeBase kb = createExampleKnowledgeBase();
-        RasaHypoProducer rhp = new RasaHypoProducer(helper);
-       // RasaHypoProducer2 hp = new RasaHypoProducer2(helper, kb);
-       // List<Hypothesis> hypotheses = hp.process(inputs);
-        //System.out.println(hypotheses);
-        PostRasaHypoProducer prhp = new PostRasaHypoProducer(rhp, kb);
-        List<Hypothesis> hypotheses = prhp.process(inputs);
-        System.out.println(hypotheses);
+
+        usePostRasaHypo(inputs);
+
+      //  usePatternHypo(inputs);
+
         //   doExampleReferenceResolving();
+
+    }
+
+    public static void usePostRasaHypo(Inputs inputs) throws MalformedURLException {
+        RasaHelper helper = new RasaHelper(new URL("http://localhost:5000/parse"));
+        RasaHypoProducer rhp = new RasaHypoProducer(helper);
+        List<Hypothesis> rasaHypos = rhp.process(inputs);
+        System.out.println("rasaHypo: " + rasaHypos.toString());
+        // RasaHypoProducer2 hp = new RasaHypoProducer2(helper, kb);
+        // List<Hypothesis> hypotheses = hp.process(inputs);
+        //System.out.println(hypotheses);
+        PostRasaHypoProducer prhp = new PostRasaHypoProducer(rhp, createExampleKnowledgeBase());
+        List<Hypothesis> hypotheses = prhp.process(inputs);
+        System.out.println("final hypos: " + hypotheses);
+    }
+
+    public static void usePatternHypo(Inputs inputs) {
+        List<InputPattern> patterns = new ArrayList<>();
+        InputPattern bringPattern = new InputPattern("bring");
+        bringPattern.setSlotTypes(new ArrayList<>(List.of(Ontology.Entity, Ontology.Person)));
+
+        InputPattern bringPattern2 = new InputPattern("bring");
+        bringPattern2.setSlotTypes(new ArrayList<>(List.of(Ontology.Entity, Ontology.Entity)));
+
+        InputPattern turnOnPattern = new InputPattern("turn on");
+        turnOnPattern.setSlotTypes(new ArrayList<>(List.of(Ontology.Entity)));
+
+        patterns.add(bringPattern);
+        patterns.add(bringPattern2);
+        patterns.add(turnOnPattern);
+
+        PatternHypothesisProducer patternHP = new PatternHypothesisProducer(createExampleKnowledgeBase(), patterns);
+        List<Hypothesis> hypotheses = patternHP.process(inputs);
+
+        System.out.println("final hypos: " + hypotheses);
 
     }
 
@@ -47,7 +81,7 @@ public class MainMK {
         KnowledgeBase kb = new KnowledgeBase();
         KnowledgeMap personMap =kb.getKnowledgeMap(Person);
         KnowledgeMap sessionMap =kb.getKnowledgeMap(Ontology.Session);
-        KnowledgeMap deviceMap =kb.getKnowledgeMap(Ontology.Device);
+        KnowledgeMap deviceMap =kb.getKnowledgeMap(Ontology.Entity);
 
         Entity fan = new Entity().set(Ontology.id, "fan").set(Ontology.color, "green").set(Ontology.size, "small").set(Ontology.position, new Vector3(1.0, 1.0, 1.0));
         Entity fan2 = new Entity().set(Ontology.id, "fan2").set(Ontology.color, "red").set(Ontology.size, "big").set(Ontology.position, new Vector3(2.0, 1.0, 2.0));
