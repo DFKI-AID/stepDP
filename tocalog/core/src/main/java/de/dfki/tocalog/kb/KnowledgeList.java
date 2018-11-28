@@ -49,6 +49,21 @@ public class KnowledgeList {
         removeIf(ent -> ent.get(Ontology.timestamp).orElse(0l) + timeout < now);
     }
 
+    public Optional<Entity> getFirst() {
+        PVector<Entity> ents = this.entities;
+        if (ents.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(ents.get(0));
+    }
+
+    public Optional<Entity> getLast() {
+        PVector<Entity> ents = this.entities;
+        if (ents.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(ents.get(ents.size() - 1));
+    }
 
     public void consume(Consumer<Entity> consumer) {
         entities.stream().forEach(consumer);

@@ -1,8 +1,7 @@
 package de.dfki.tocalog.kb;
 
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  */
@@ -38,7 +37,26 @@ public class KnowledgeBase {
         return kl;
     }
 
-//    public synchronized KMView getView(InheritanceTree tree, Type type) {
-//
-//    }
+    /**
+     * @param typeHierarchy
+     * @param type
+     * @return A view on the given type and all its subclasses
+     */
+    public synchronized KMView getView(TypeHierarchy typeHierarchy, Type type) {
+        Set<Type> types = typeHierarchy.getSubClasses(type);
+        types.add(type);
+        return getView(types);
+    }
+
+    /**
+     * @param types
+     * @return A view on the given types only
+     */
+    public synchronized KMView getView(Collection<Type> types) {
+        Set<KnowledgeMap> kmaps = new HashSet<>();
+        for (Type type : types) {
+            kmaps.add(getKnowledgeMap(type));
+        }
+        return new KMView(kmaps);
+    }
 }
