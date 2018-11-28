@@ -1,8 +1,0 @@
-graph TD
-init((init)) --> A(A)
-D --> |back| A(A)
-B --> |finish| C(C)
-A --> |in hello| B(B)
-C --> |D| D(D)
-D --> |test| Goal(Goal)
-B --> |out hello| A(A)
