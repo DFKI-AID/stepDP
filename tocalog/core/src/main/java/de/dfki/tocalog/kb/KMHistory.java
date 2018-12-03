@@ -29,7 +29,7 @@ public class KMHistory {
         REMOVE
     }
 
-    public class Entry {
+    public static class Entry {
         public final EntryType type;
         public final Entity entity;
 
@@ -88,4 +88,7 @@ public class KMHistory {
         }
     }
 
+    public PQueue<Entry> getHistory() {
+        return history;
+    }
 }
