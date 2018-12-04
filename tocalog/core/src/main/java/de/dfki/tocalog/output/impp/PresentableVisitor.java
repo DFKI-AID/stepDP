@@ -1,5 +1,6 @@
 package de.dfki.tocalog.output.impp;
 
+import de.dfki.tocalog.kb.Entity;
 import de.dfki.tocalog.output.Output;
 
 import java.util.*;
@@ -14,7 +15,7 @@ public class PresentableVisitor implements OutputNode.Visitor {
     private static class Result {
         public OutputNode.Semantic currentSemantic;
         public boolean presentable = true;
-        public List<Output> unassigned = new ArrayList<>();
+        public List<Entity> unassigned = new ArrayList<>();
 
     }
 

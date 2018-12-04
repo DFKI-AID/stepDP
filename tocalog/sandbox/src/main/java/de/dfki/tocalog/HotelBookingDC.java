@@ -38,18 +38,18 @@ public class HotelBookingDC implements DialogComponent {
         // grammer.match(textInput.getGestureType())
 
 
-        if (!active && textInput.getText().matches("i want to book a hotel")) {
-            return Optional.of(new AbsDialogFunction(HotelBookingDC.this, textInput) {
-                @Override
-                public void run() {
-                    active = true;
-                    lastActive = System.currentTimeMillis();
-                    Allocation id = imp.allocate(OutputNode.buildNode(new SpeechOutput("ok, let's do this")).build());
-                    List<Slot.Entity> slotCandidates = getSlotCandidates(textInput);
-                    slotCandidates.forEach(sc -> sc.getSlot().consume(textInput));
-                }
-            });
-        }
+//        if (!active && textInput.getText().matches("i want to book a hotel")) {
+//            return Optional.of(new AbsDialogFunction(HotelBookingDC.this, textInput) {
+//                @Override
+//                public void run() {
+//                    active = true;
+//                    lastActive = System.currentTimeMillis();
+//                    Allocation id = imp.allocate(OutputNode.buildNode(new SpeechOutput("ok, let's do this")).build());
+//                    List<Slot.Entity> slotCandidates = getSlotCandidates(textInput);
+//                    slotCandidates.forEach(sc -> sc.getSlot().consume(textInput));
+//                }
+//            });
+//        }
 
 //        super.requestYesNo("...");
 

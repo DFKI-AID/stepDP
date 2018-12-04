@@ -1,24 +1,35 @@
 package de.dfki.tocalog.kb;
 
+import de.dfki.tocalog.core.Mode;
 import de.dfki.tocalog.util.Vector2;
 import de.dfki.tocalog.util.Vector3;
 import org.pcollections.*;
 
+import java.net.URI;
 import java.util.*;
 import java.util.function.Predicate;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 
 /**
  * TODO static / singleton class is ugly. however, accessing the attributes would be annoying otherwise...
  */
+@SpringBootApplication
 public class Ontology {
 
 
     public static final TypeHierarchy it;
+    ;
 
 
     public static Optional<Long> getAge(Entity entity) {
         return entity.get(age);
     }
+
 
 
     public static void main(String[] args) {
@@ -94,13 +105,28 @@ public class Ontology {
         session = session.plus(Ontology.agents, x -> x.plusAll(Arrays.asList("der mechaniker", "blubb")));
         session.get(Ontology.agents).get().stream().forEach(a -> System.out.println(a));
 
+        SpringApplication.run(Ontology.class, args);
+    }
+
+    @RestController
+    public static class KBAccess {
+        @RequestMapping("/entity")
+        public Entity getEntity() {
+            return new Entity()
+                    .set(id, "nexus5")
+                    .set(battery, 0.5);
+        }
     }
 
     public static final Attribute<String> id = new Attribute<>("tocalog/id");
     /**
      * Type of the entity. Can be seen as the class name in a hierarchy
+     * TODO: use Type class
      */
     public static final Attribute<String> type = new Attribute<>("tocalog/type");
+    public static final Attribute<Type> type2 = new Attribute<>("tocalog/type2");
+
+
 
     public static final Attribute<String> name = new Attribute<>("tocalog/name"); //human-readable name
     public static final Attribute<Long> age = new Attribute<>("tocalog/age");
@@ -115,7 +141,7 @@ public class Ontology {
 
     public static final Attribute<Vector3> position = new Attribute<>("tocalog/position");
     public static final Attribute<Double> battery = new Attribute<>("tocalog/battery");
-    public static final Attribute<String> serviceType = new Attribute<>("tocalog/serviceType");
+
     /**
      * a device is owned by none or one human
      */
@@ -132,6 +158,7 @@ public class Ontology {
 
     public static final Attribute<String> subject = new Attribute<>("tocalog/subject");
     public static final Attribute<String> object = new Attribute<>("tocalog/object");
+
 
 
 
@@ -152,6 +179,26 @@ public class Ontology {
     public static final Type Headphones = new Type("tocalog/Headphones");
 
     public static final Type Zone = new Type("tocalog/Zone"); //necessary?
+
+    public static final Type Output = new Type("tocalog/Output");
+    public static final Type SpeechOutput = new Type("tocalog/SpeechOutput");
+
+    /**
+     * e.g. mode through which an output can be perceived
+     */
+    public static final Attribute<Mode> mode = new Attribute<>("tocalog/mode");
+    /**
+     * The concrete service type e.g. `a3s-player`
+     */
+    public static final Attribute<String> service = new Attribute<>("tocalog/service");
+    /**
+     * Specifying a resource. e.g. `http://a3s:50000/`
+     */
+    public static final Attribute<URI> uri = new Attribute<>("tocalog/uri");
+    public static final Attribute<String> utterance = new Attribute<>("tocalog/utterance");
+    public static final Attribute<String> modality = new Attribute<>("tocalog/modality");
+
+
 
     /**
      * e.g. the speaker of a SpeechInput

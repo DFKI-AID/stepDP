@@ -1,5 +1,6 @@
 package de.dfki.tocalog.output.impp;
 
+import de.dfki.tocalog.kb.Entity;
 import de.dfki.tocalog.output.Output;
 
 import java.util.*;
@@ -34,7 +35,7 @@ public abstract class OutputNode {
         return new Internal.Builder(semantic);
     }
 
-    public static External.Builder buildNode(Output output) {
+    public static External.Builder buildNode(Entity output) {
         return new External.Builder(output);
     }
 
@@ -50,7 +51,7 @@ public abstract class OutputNode {
     }
 
     public static class External extends OutputNode {
-        private Output output;
+        private Entity output;
         private List<String> services; //TODO remove, service assignment should be stored in extra data structure
 
         private External(Builder builder) {
@@ -64,7 +65,7 @@ public abstract class OutputNode {
             visitor.visitLeaf(this);
         }
 
-        public Output getOutput() {
+        public Entity getOutput() {
             return output;
         }
 
@@ -85,11 +86,11 @@ public abstract class OutputNode {
         }
 
         public static class Builder {
-            private Output output;
+            private Entity output;
             private List<String> services = new ArrayList<>();
             private String id = null;
 
-            public Builder(Output output) {
+            public Builder(Entity output) {
                 this.output = output;
             }
 

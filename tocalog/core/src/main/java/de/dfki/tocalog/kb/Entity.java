@@ -64,4 +64,10 @@ public class Entity {
         sb.append("}");
         return sb.toString();
     }
+
+    public boolean isEmpty() {
+        return this.attributes.isEmpty();
+    }
+
+    public static final Entity empty = new Entity();
 }

@@ -4,6 +4,8 @@ package de.dfki.tocalog.output.impp;
  * TODO: encapsulate enum inside the class
  */
 public class AllocationState {
+
+
     public enum State {
         NONE,
         INIT,

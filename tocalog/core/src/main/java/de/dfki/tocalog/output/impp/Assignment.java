@@ -10,12 +10,12 @@ import java.util.*;
  * Suitability of services to present an output to a user
  */
 public class Assignment {
-    private final Output output;
+    private final Entity output;
     private final String agent;
     private Map<String, Score> serviceScore = new HashMap<>();
     private List<Entity> services = new ArrayList<>();
 
-    public Assignment(Output output, String agent) {
+    public Assignment(Entity output, String agent) {
         this.output = output;
         this.agent = agent;
     }
@@ -51,7 +51,7 @@ public class Assignment {
         return services;
     }
 
-    public Output getOutput() {
+    public Entity getOutput() {
         return output;
     }
 }

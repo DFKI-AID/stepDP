@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
+ * output tree => allocation state
  */
 public class AllocationStateVisitor implements OutputNode.Visitor {
     private static Logger log = LoggerFactory.getLogger(AllocationStateVisitor.class);
@@ -30,7 +31,7 @@ public class AllocationStateVisitor implements OutputNode.Visitor {
         allocationState = AllocationState.getNone();
         String allocationId = allocation.getAllocationsIds().get(leaf.getId());
         for (OutputComponent oc : impp.getComponents()) {
-            allocationState = oc.getState(allocationId);
+            allocationState = oc.getAllocationState(allocationId);
             if (!allocationState.unknown()) {
                 return;
             }

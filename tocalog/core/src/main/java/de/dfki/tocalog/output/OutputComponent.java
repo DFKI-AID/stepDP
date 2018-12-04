@@ -3,6 +3,8 @@ package de.dfki.tocalog.output;
 import de.dfki.tocalog.kb.Entity;
 import de.dfki.tocalog.output.impp.AllocationState;
 
+import java.util.Optional;
+
 /**
  */
 public interface OutputComponent {
@@ -10,9 +12,9 @@ public interface OutputComponent {
      * @param output
      * @return
      */
-    String allocate(Output output, Entity service);
+    String allocate(Entity output, Entity service);
 
-    AllocationState getState(String id);
+    AllocationState getAllocationState(String id);
 
-    boolean handles(Output output, Entity service);
+    boolean handles(Entity output, Entity service);
 }

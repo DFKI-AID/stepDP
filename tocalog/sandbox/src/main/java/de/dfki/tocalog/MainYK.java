@@ -6,6 +6,7 @@ import de.dfki.tocalog.kb.Entity;
 import de.dfki.tocalog.kb.KnowledgeMap;
 import de.dfki.tocalog.kb.Ontology;
 import de.dfki.tocalog.output.Output;
+import de.dfki.tocalog.output.OutputFactory;
 import de.dfki.tocalog.output.SpeechOutput;
 import de.dfki.tocalog.output.TextOutput;
 import de.dfki.tocalog.output.impp.*;
@@ -36,13 +37,14 @@ public class MainYK {
         KnowledgeMap services = new KnowledgeMap();
         Entity consoleService = new Entity()
                 .set(Ontology.id, "c1")
-                .set(Ontology.serviceType, "console");
+                .set(Ontology.service, "console");
         services.add(consoleService);
 
-        Output output1 = new SpeechOutput("hello world");
-        Output output2 = new TextOutput("hello world 2");
-        Output output3 = new TextOutput("how are you?");
-        Output output4 = new SpeechOutput("how are you?");
+        OutputFactory of = new OutputFactory();
+        Entity output1 = of.createSpeechOutput("hello world");
+        Entity output2 = of.createTextOutput("hello world 2");
+        Entity output3 = of.createTextOutput("how are you?");
+        Entity output4 = of.createSpeechOutput("how are you?");
 
         OutputNode node =
                 OutputNode.buildNode(OutputNode.Semantic.concurrent)

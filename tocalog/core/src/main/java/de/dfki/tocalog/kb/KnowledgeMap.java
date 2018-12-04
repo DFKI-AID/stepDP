@@ -11,11 +11,19 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
+ * TODO maybe: associate Type with map -> throw exception on illegal type && add type if not present
  */
 public class KnowledgeMap {
     private PMap<String, Entity> entities = HashPMap.empty(IntTreePMap.empty());
     private KMHistory history = new KMHistory(1000); //TODO count
 
+    /**
+     * Adds an entity to the knowledge map and overwrites any existing entity with the same id (see Ontology::id).
+     * An id is generated if not present.
+     *
+     * @param entity
+     * @return The (generated) id if the added entity
+     */
     public synchronized String add(Entity entity) {
         Optional<String> id = entity.get(Ontology.id);
         if (!id.isPresent()) {
@@ -28,12 +36,21 @@ public class KnowledgeMap {
         return id.get();
     }
 
+    /**
+     * Updates the given attributes for the entity in the knowledge map.
+     * If no entity is available (or id is not presented) a new entity is generated.
+     * This method can be used to updates certain attributes of an entity without overwriting
+     * changes from other components.
+     *
+     * @param entity
+     * @param attributes
+     * @return
+     */
     public synchronized String add(Entity entity, Attribute... attributes) {
-        Optional<String> optId = entity.get(Ontology.id);
-        String id = optId.orElse(UUID.randomUUID().toString());
+        String id = entity.get(Ontology.id)
+                .orElse(UUID.randomUUID().toString());
 
         Entity kbEnt;
-
         if (this.entities.containsKey(id)) {
             kbEnt = this.entities.get(id);
         } else {
@@ -44,12 +61,12 @@ public class KnowledgeMap {
         for (Attribute attr : attributes) {
             Optional optValue = entity.get(attr);
             if (!optValue.isPresent()) {
-                throw new IllegalStateException("value not presented for " + attr);
+                throw new IllegalStateException("value is not present for " + attr);
             }
             kbEnt = kbEnt.set(attr, optValue.get());
         }
 
-        this.entities = this.entities.plus(optId.get(), kbEnt);
+        this.entities = this.entities.plus(id, kbEnt);
         history.addEntry(kbEnt);
         return id;
     }
@@ -62,15 +79,26 @@ public class KnowledgeMap {
         return this.entities;
     }
 
-    public synchronized <T> void update(String id, Attribute<T> attr, T value) {
+    /**
+     * TODO rename to set
+     * Updates the value of one attribute of an entity in the knowledge map if the entity is present.
+     *
+     * @param id
+     * @param attr
+     * @param value
+     * @param <T>
+     * @return true iff the entity was present
+     */
+    public synchronized <T> boolean update(String id, Attribute<T> attr, T value) {
         if (!this.entities.containsKey(id)) {
             //TODO could also of a new entity
-            return;
+            return false;
         }
         Entity entity = this.entities.get(id);
         entity = entity.set(attr, value);
         this.entities = this.entities.plus(id, entity);
         history.updateEntry(entity);
+        return true;
     }
 
     public synchronized void update(Function<Entity, Entity> updateFnc) {
@@ -85,6 +113,17 @@ public class KnowledgeMap {
         }
     }
 
+    public synchronized <T> boolean unset(String id, Attribute<T>... attrs) {
+        if(!this.entities.containsKey(id)) {
+            return false;
+        }
+        Entity e = this.entities.get(id);
+        for(Attribute attr : attrs) {
+            e = e.unset(attr);
+        }
+        this.entities = this.entities.plus(id, e);
+        return true;
+    }
 
     public Optional<Entity> get(String id) {
         return Optional.ofNullable(this.entities.get(id));
@@ -132,6 +171,10 @@ public class KnowledgeMap {
         });
     }
 
+    /**
+     * @param source
+     * @return All entities from with the given source.
+     */
     public Collection<Entity> getFromSource(String source) {
         Set<Entity> entries = this.entities.entrySet().stream()
                 .map(e -> e.getValue())
@@ -168,61 +211,4 @@ public class KnowledgeMap {
     public KMHistory getHistory() {
         return history;
     }
-
-    //    /**
-//     * @param maxCount
-//     */
-//    public void limitTimestamp(int maxCount) {
-//        limit(maxCount, Comparator.comparing(e -> e.getTimestamp().orElse(0l)));
-//    }
-
-
-    /**
-     * e.g. store multiple alternative sentences in the map
-     *
-     * @return A random entity from this map.
-     */
-//    public synchronized Optional<Ontology.Ent> getRandom() {
-//        if (entities.isEmpty()) {
-//            return Optional.empty();
-//        }
-//        Iterator<Ontology.Ent> iter = entities.values().iterator();
-//        int index = rdm.nextInt(entities.size());
-//        for (int i = 0; i < index - 1; i++) {
-//            iter.next();
-//        }
-//        return Optional.of(iter.next());
-//    }
-
-//    public void unlock() {
-//        this.lock.unlock();
-//    }
-
-
-//    private Locked<T> locked = new Locked<>(this);
-//
-//    public static class Locked<T extends Base> {
-//        private KnowledgeMap<T> km;
-//
-//        public Locked(KnowledgeMap km) {
-//            this.km = km;
-//        }
-//
-//        public Stream<Map.Entry<String, T>> getStream() {
-//            return km.getStream();
-//        }
-//
-//        public Map<String, T> getData() {
-//            return km.store;
-//        }
-//
-//        public void remove(String id) {
-//            km.store.remove(id);
-//        }
-//
-//        public T copy(T base) {
-//            return km.copy(base);
-//        }
-//    }
-
 }
