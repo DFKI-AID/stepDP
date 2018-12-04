@@ -22,6 +22,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.io.IOException;
 import java.net.URI;
 import java.time.Duration;
 import java.util.*;
@@ -183,6 +184,7 @@ public class A3SClient implements OutputComponent {
 
     /**
      * converts an audio output entity into an object that can be read by the a3s-service.
+     *
      * @param output
      * @return
      */
@@ -321,7 +323,7 @@ public class A3SClient implements OutputComponent {
 
             allocationStates = allocationStates.plus(id, as);
         }
-        //TODO types like timeout
+        //TODO other error types (like timeout)
     }
 
     /**
@@ -370,14 +372,24 @@ public class A3SClient implements OutputComponent {
     @SpringBootApplication
     public static class App implements ApplicationRunner {
 
+        public static void runCommand(String... cmd) throws IOException, InterruptedException {
+            ProcessBuilder pb = new ProcessBuilder(cmd);
+            pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+            pb.redirectError(ProcessBuilder.Redirect.INHERIT);
+            Process p = pb.start();
+            p.waitFor();
+        }
+
         @Override
         public void run(ApplicationArguments args) throws Exception {
+
+
             KnowledgeBase kb = new KnowledgeBase();
             KnowledgeMap km = kb.getKnowledgeMap(Ontology.Service);
             //TODO fixed entities
             Entity p1 = new Entity()
                     .set(Ontology.id, "p1")
-                    .set(Ontology.uri, URI.create("http://172.16.59.0:60000"))
+                    .set(Ontology.uri, URI.create("http://pi-madmacs7:60000"))
                     .set(Ontology.type2, Ontology.Service)
                     .set(Ontology.service, serviceType)
                     .set(Ontology.timestamp, 0l);
@@ -386,25 +398,62 @@ public class A3SClient implements OutputComponent {
             A3SClient client = new A3SClient(kb);
 
 
-            Entity speechOutput = new OutputFactory().createFileOutput("hello");
-            String allocationId = client.allocate(speechOutput, p1);
+            while(true) {
+                Scanner scanner = new Scanner(System.in);
+                System.out.println("give some text: ");
+                String tts = scanner.nextLine();
+                System.out.println();
+
+                long start = System.currentTimeMillis();
+                String dir = System.getProperty("user.dir");
+                String aiffPath = dir + "/sample.aiff";
+                String wavPath = dir + "/sample.wav";
+                runCommand("say", String.format("\"%s\"", tts), "-o", aiffPath);
+                System.out.println("elapsed gen : " + (System.currentTimeMillis() - start));
+
+                start = System.currentTimeMillis();
+                runCommand("sox", aiffPath, "-t", "wavpcm", "-r", "48000", "-c", "2", "-b", "16", wavPath);
+                System.out.println("elapsed convert : " + (System.currentTimeMillis() - start));
+
+                start = System.currentTimeMillis();
+                runCommand("curl", "-XPOST", "-F", String.format("data=@%s", wavPath), String.format("http://%s:%d/files/sample", client.host, client.port));
+                System.out.println();
+                System.out.println("elapsed upload : " + (System.currentTimeMillis() - start));
+
+                start = System.currentTimeMillis();
+                Entity speechOutput = new OutputFactory().createFileOutput("sample");
+                String allocationId = client.allocate(speechOutput, p1);
 
 
-            AllocationState as = AllocationState.getNone();
-            while (true) {
-                synchronized (client.getClass()) {
-                    client.getClass().wait(500);
-                }
+                AllocationState as = AllocationState.getNone();
+                while (true) {
+                    synchronized (client.getClass()) {
+                        client.getClass().wait(3);
+                    }
 //                String s = client.km.getAll().stream().map(e -> e.toString())
 //                        .reduce("", (x, y) -> x + " " + y);
 //                System.out.println(s);
 
-                AllocationState currentState = client.getAllocationState(allocationId);
-                if (currentState != as) {
-                    as = currentState;
-                    System.out.println(allocationId + " " + as);
+                    AllocationState currentState = client.getAllocationState(allocationId);
+                    if (currentState != as) {
+                        as = currentState;
+                        System.out.println(allocationId + " " + as);
+                        if(as.presenting()) {
+                            System.out.println("elapsed present : " + (System.currentTimeMillis() - start));
+                        }
+                    }
+
+
+
+                    if(as.finished()) {
+                        break;
+                    }
                 }
+
+
             }
+
+
         }
     }
 
