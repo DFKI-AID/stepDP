@@ -15,6 +15,37 @@ public class Hypothesis {
     //warum string und nicht input?
     private final Set<String> inputs;
     private final Confidence confidence;
+    private Map<Class, Boolean> matchedMap = new HashMap<>();
+   // private boolean isFilled = false;
+
+    public Map<Class, Boolean> getMatchedMap() {
+        return matchedMap;
+    }
+
+    public void setMatchedMap(Map<Class, Boolean> matchedMap) {
+        this.matchedMap = matchedMap;
+    }
+
+    public void addMatch(Class clazz, boolean matched) {
+        this.matchedMap.put(clazz, matched);
+    }
+
+
+    /* public boolean isFilled() {
+        return isFilled;
+    }
+
+    public void setFilled(boolean filled) {
+        isFilled = filled;
+    }
+
+    public boolean isFilledConfident(double threshold) {
+        if(confidence.getConfidence() > threshold) {
+            return true;
+        }
+        return false;
+    }*/
+
 
 
 
@@ -95,6 +126,13 @@ public class Hypothesis {
 
         public Builder(String intent) {
             this.intent = intent;
+        }
+
+        public Builder(Hypothesis otherHypothesis) {
+            this.intent = otherHypothesis.intent;
+            this.slots = otherHypothesis.slots;
+            this.confidence = otherHypothesis.confidence;
+            this.inputs = otherHypothesis.inputs;
         }
 
         public Builder setConfidence(Confidence confidence) {

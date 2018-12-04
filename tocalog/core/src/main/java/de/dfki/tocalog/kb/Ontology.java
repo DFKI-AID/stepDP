@@ -138,6 +138,7 @@ public class Ontology {
     public static final Attribute<String> size = new Attribute<>("tocalog/attributes/size");
 
 
+
     public static final Type Person = new Type("tocalog/Person");
     public static final Type Robot = new Type("tocalog/Robot");
 
@@ -153,6 +154,8 @@ public class Ontology {
     public static final Type Loudspeaker = new Type("tocalog/Loudspeaker");
     public static final Type Battery = new Type("tocalog/Battery");
     public static final Type Headphones = new Type("tocalog/Headphones");
+
+    public static final Type Numeric = new Type("tocalog/Numeric");
 
     public static final Type Zone = new Type("tocalog/Zone"); //necessary?
 

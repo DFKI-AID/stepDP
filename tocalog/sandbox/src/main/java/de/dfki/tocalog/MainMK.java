@@ -81,7 +81,7 @@ public class MainMK {
         KnowledgeBase kb = new KnowledgeBase();
         KnowledgeMap personMap =kb.getKnowledgeMap(Person);
         KnowledgeMap sessionMap =kb.getKnowledgeMap(Ontology.Session);
-        KnowledgeMap deviceMap =kb.getKnowledgeMap(Ontology.Entity);
+        KnowledgeMap deviceMap =kb.getKnowledgeMap(Ontology.Device);
 
         Entity fan = new Entity().set(Ontology.id, "fan").set(Ontology.color, "green").set(Ontology.size, "small").set(Ontology.position, new Vector3(1.0, 1.0, 1.0));
         Entity fan2 = new Entity().set(Ontology.id, "fan2").set(Ontology.color, "red").set(Ontology.size, "big").set(Ontology.position, new Vector3(2.0, 1.0, 2.0));
