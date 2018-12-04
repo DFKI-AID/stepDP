@@ -23,13 +23,11 @@ public class Ontology {
 
 
     public static final TypeHierarchy it;
-    ;
 
 
     public static Optional<Long> getAge(Entity entity) {
         return entity.get(age);
     }
-
 
 
     public static void main(String[] args) {
@@ -127,7 +125,6 @@ public class Ontology {
     public static final Attribute<Type> type2 = new Attribute<>("tocalog/type2");
 
 
-
     public static final Attribute<String> name = new Attribute<>("tocalog/name"); //human-readable name
     public static final Attribute<Long> age = new Attribute<>("tocalog/age");
     public static final Attribute<String> zone = new Attribute<>("tocalog/zone");
@@ -158,8 +155,6 @@ public class Ontology {
 
     public static final Attribute<String> subject = new Attribute<>("tocalog/subject");
     public static final Attribute<String> object = new Attribute<>("tocalog/object");
-
-
 
 
     public static final Type Person = new Type("tocalog/Person");
@@ -199,51 +194,120 @@ public class Ontology {
     public static final Attribute<String> modality = new Attribute<>("tocalog/modality");
 
 
-
     /**
      * e.g. the speaker of a SpeechInput
      * e.g. the actor of a gesture
      */
     public static final Attribute<String> initiator = new Attribute<>("tocalog/initiator");
 
+    public static final Attribute<String> file = new Attribute<>("tocalog/file");
 
 //    public static boolean isA(Entity entity, String superClass) {
 //
 //    }
 
     public interface Scheme {
-        boolean validate(Entity entity);
+        /**
+         * @param entity
+         * @return
+         * @throws IllegalArgumentException iff the entity is not valid
+         */
+        void validate(Entity entity);
+
+        default boolean matches(Entity entity) {
+            try {
+                validate(entity);
+                return true;
+            } catch(IllegalArgumentException ex) {
+                return false;
+            }
+        }
     }
 
-    public static abstract class AbsScheme implements Scheme {
-        private final List<Attribute> attributes;
-        private final Map<String, Predicate<Attribute>> constraints = new HashMap();
+    public static class AbsScheme implements Scheme {
+        private final Map<Attribute, Predicate<Object>> optConstraints;
+        private final Map<Attribute, Predicate<Object>> reqConstraints;
 
-        protected AbsScheme(List<Attribute> attributes) {
-            this.attributes = attributes;
+        private AbsScheme(Builder builder) {
+            this.optConstraints = new HashMap<>(builder.optConstraints);
+            this.reqConstraints = new HashMap<>(builder.reqConstraints);
         }
 
         @Override
-        public boolean validate(Entity entity) {
-            for (Attribute attr : attributes) {
-                Optional optValue = entity.get(attr);
-                if (!optValue.isPresent()) {
-                    return false;
+        public void validate(Entity entity) {
+            validate(entity, reqConstraints, true);
+            validate(entity, optConstraints, false);
+        }
+
+        protected void validate(Entity entity, Map<Attribute, Predicate<Object>> preds, boolean required) {
+            for (var entry : preds.entrySet()) {
+                Optional av = entry.getKey().get(entity);
+                if (!av.isPresent()) {
+                    if(required) {
+                        throw new IllegalArgumentException("missing attribute: " + entry.getKey() + " in " + entity);
+                    }
+                    continue;
+                }
+
+                try {
+                    if (!entry.getValue().test(av.get())) {
+                        throw new IllegalArgumentException();
+                    }
+                } catch (Exception ex) {
+                    throw new IllegalArgumentException("predicate check failed for" + entry.getKey() + " in " + entity, ex);
                 }
             }
-            return true;
+        }
+
+        public Builder extend() {
+            return new Builder(this);
+        }
+
+        public static Builder builder() {
+            return new Builder();
+        }
+
+        public static class Builder {
+            private Map<Attribute, Predicate<Object>> optConstraints = new HashMap();
+            private Map<Attribute, Predicate<Object>> reqConstraints = new HashMap();
+
+            protected Builder() {
+            }
+
+            protected Builder(AbsScheme scheme) {
+                this.optConstraints = new HashMap<>(scheme.optConstraints);
+                this.reqConstraints = new HashMap<>(scheme.reqConstraints);
+            }
+
+
+            public <T> Builder equal(Attribute<T> attr, T other) {
+                return this.matches(attr, x -> Objects.equals(x, other), true);
+            }
+
+            public <T> Builder present(Attribute<T> attr) {
+                return this.matches(attr, x -> true, true);
+            }
+
+            public <T> Builder matches(Attribute<T> attr, Predicate<T> pred) {
+                return this.matches(attr, pred, true);
+            }
+
+            public <T> Builder matches(Attribute<T> attr, Predicate<T> pred, boolean required) {
+                if (required) {
+                    this.reqConstraints.put(attr, (Predicate<Object>) pred);
+                } else {
+                    this.optConstraints.put(attr, (Predicate<Object>) pred);
+                }
+                return this;
+            }
+
+            public AbsScheme build() {
+                return new AbsScheme(this);
+            }
+
         }
     }
 
-    public class DeviceScheme implements Scheme {
-        @Override
-        public boolean validate(Entity entity) {
-            if (!entity.get(battery).isPresent()) {
-                return true;
-            }
-            return false;
-        }
-    }
 
 //    public static class PersonScheme implements Scheme {
 //        @Override

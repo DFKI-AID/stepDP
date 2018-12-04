@@ -59,10 +59,23 @@ public class Entity {
         for (AttributeValue av : attributes.values()) {
             sb.append(av.name).append("=");
             sb.append(av.value);
-            sb.append("  ");
+            sb.append(" ");
         }
         sb.append("}");
         return sb.toString();
+    }
+
+    /**
+     *
+     * @param attributes
+     * @throws IllegalArgumentException if one or more attributes are not present
+     */
+    public void validate(Attribute... attributes) {
+        for(Attribute attr : attributes) {
+            if(!get(attr).isPresent()) {
+                throw new IllegalArgumentException(String.format("invalid entity. missing %s. %s", attr.name, this));
+            }
+        }
     }
 
     public boolean isEmpty() {

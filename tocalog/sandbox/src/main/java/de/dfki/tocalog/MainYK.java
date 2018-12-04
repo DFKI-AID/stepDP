@@ -5,10 +5,7 @@ import de.dfki.tocalog.dialog.sc.*;
 import de.dfki.tocalog.kb.Entity;
 import de.dfki.tocalog.kb.KnowledgeMap;
 import de.dfki.tocalog.kb.Ontology;
-import de.dfki.tocalog.output.Output;
 import de.dfki.tocalog.output.OutputFactory;
-import de.dfki.tocalog.output.SpeechOutput;
-import de.dfki.tocalog.output.TextOutput;
 import de.dfki.tocalog.output.impp.*;
 import de.dfki.tocalog.rasa.RasaHelper;
 import de.dfki.tocalog.rasa.RasaHypoProducer;
@@ -41,10 +38,10 @@ public class MainYK {
         services.add(consoleService);
 
         OutputFactory of = new OutputFactory();
-        Entity output1 = of.createSpeechOutput("hello world");
+        Entity output1 = of.createTTSOutput("hello world");
         Entity output2 = of.createTextOutput("hello world 2");
         Entity output3 = of.createTextOutput("how are you?");
-        Entity output4 = of.createSpeechOutput("how are you?");
+        Entity output4 = of.createTTSOutput("how are you?");
 
         OutputNode node =
                 OutputNode.buildNode(OutputNode.Semantic.concurrent)

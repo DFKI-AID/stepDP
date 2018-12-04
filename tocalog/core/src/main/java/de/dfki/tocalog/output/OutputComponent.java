@@ -10,6 +10,7 @@ import java.util.Optional;
 public interface OutputComponent {
     /**
      * @param output
+     * @throws IllegalArgumentException
      * @return
      */
     String allocate(Entity output, Entity service);

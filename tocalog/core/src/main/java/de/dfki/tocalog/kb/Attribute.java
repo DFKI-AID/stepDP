@@ -2,10 +2,12 @@ package de.dfki.tocalog.kb;
 
 import org.pcollections.PMap;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 
 /**
+ * TODO short name for pretty printing
  */
 public class Attribute<T> {
     public final String name;
@@ -43,5 +45,25 @@ public class Attribute<T> {
         PMap<String, AttributeValue> attributes = entity.attributes.plus(name, new AttributeValue(name, value, this));
         Entity e = new Entity(attributes);
         return e;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Attribute<?> attribute = (Attribute<?>) o;
+        return Objects.equals(name, attribute.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
+    }
+
+    @Override
+    public String toString() {
+        return "Attribute{" +
+                "name='" + name + '\'' +
+                '}';
     }
 }

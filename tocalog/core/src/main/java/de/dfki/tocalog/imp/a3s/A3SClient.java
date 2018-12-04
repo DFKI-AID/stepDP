@@ -26,6 +26,7 @@ import java.net.URI;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 
 /**
  */
@@ -35,6 +36,11 @@ public class A3SClient implements OutputComponent {
     private static final Duration reqTimeout = Duration.ofMillis(4000);
     private static final Duration reqInterval = Duration.ofMillis(1000);
     private static final Duration pollTimeout = Duration.ofMillis(8000);
+    private static final Ontology.Scheme serviceScheme = Ontology.AbsScheme.builder()
+            .present(Ontology.id)
+            .present(Ontology.uri)
+            .matches(Ontology.service, x -> Objects.equals(x, serviceType))
+            .build();
     private final KnowledgeMap km;
     private String host = "localhost";
     private int port = 50000;
@@ -44,15 +50,6 @@ public class A3SClient implements OutputComponent {
 
     public A3SClient(KnowledgeBase kb) {
         this.km = kb.getKnowledgeMap(Ontology.Service);
-        //TODO fixed entities. maybe load from config
-        Entity service1 = new Entity()
-                .set(Ontology.id, "p1")
-                .set(Ontology.uri, URI.create("http://localhost:60000"))
-                .set(Ontology.type2, Ontology.Service)
-                .set(Ontology.service, serviceType)
-                .set(Ontology.timestamp, 0l);
-
-        km.add(service1);
 
         for (Entity entity : km.getAll()) {
             updatePlayerState(entity.get(Ontology.id).get());
@@ -69,16 +66,14 @@ public class A3SClient implements OutputComponent {
             allocationStates = allocationStates.plus(id, AllocationState.getInit());
         }
 
-        if (!service.get(Ontology.id).isPresent()) {
-            String errMsg = MessageFormatter.format("Can't output {} on {}. No id found in service.",
-                    output, service).getMessage();
-            log.warn(errMsg);
+        try {
+            createAudioSession(id, output, service);
+        } catch (Exception ex) {
+            log.warn("could not create audio session: {}", ex.getMessage());
             synchronized (this) {
-                allocationStates = allocationStates.plus(id, AllocationState.getError(errMsg));
+                allocationStates = allocationStates.plus(id, AllocationState.getError(ex));
             }
         }
-//TODO use output
-        createAudioSession(id, service.get(Ontology.id).get());
         return id;
     }
 
@@ -142,7 +137,7 @@ public class A3SClient implements OutputComponent {
 //            }
 
             km.update(id, Ontology.timestamp, System.currentTimeMillis());
-            //TODO write service information into KB
+            //TODO write service (/device) information into KB
         } catch (Exception e) {
             e.printStackTrace();
             onPlayerInfo(id, e);
@@ -152,8 +147,6 @@ public class A3SClient implements OutputComponent {
     protected void onPlayerInfo(String id, Throwable ex) {
         //tag as N/A in KB:
         km.unset(id, Ontology.timestamp);
-
-        //TODO: maybe remove from a3s service?
     }
 
     protected Mono<String> deletePlayer(String id) {
@@ -167,7 +160,6 @@ public class A3SClient implements OutputComponent {
 
     protected Mono<String> addPlayer(String id, String host, int port) {
         Map<String, Object> body = new HashMap<>();
-        //TODO
         body.put("host", host);
         body.put("port", port);
 
@@ -189,26 +181,44 @@ public class A3SClient implements OutputComponent {
         return deleteSession;
     }
 
+    /**
+     * converts an audio output entity into an object that can be read by the a3s-service.
+     * @param output
+     * @return
+     */
+    protected Object convert(Entity output) {
+        OutputFactory.FileOutputScheme.validate(output);
 
-    protected void createAudioSession(String session, String... players) {
-        List<Mono<String>> monos = new ArrayList<>();
-        for (String player : players) {
-            monos.add(deletePlayer(player));
+        Map<String, Object> audio = new HashMap<>();
+        audio.put("type", "file");
+        audio.put("path", output.get(Ontology.file));
+        return audio;
+    }
+
+
+    protected void createAudioSession(String session, Entity output, Entity... playbackServices) {
+        for (Entity playbackService : playbackServices) {
+            serviceScheme.validate(playbackService);
         }
 
-        for (String player : players) {
-            monos.add(addPlayer(player, "172.16.59.0", 60000)); //TODO
+        List<Mono<String>> monos = new ArrayList<>();
+        for (Entity player : playbackServices) {
+            monos.add(deletePlayer(player.get(Ontology.id).get()));
+        }
+
+        for (Entity player : playbackServices) {
+            URI uri = player.get(Ontology.uri).get();
+            monos.add(addPlayer(player.get(Ontology.id).get(), uri.getHost(), uri.getPort()));
         }
 
         monos.add(deleteSession(session));
 
-        //TODO content
         Map<String, Object> body = new HashMap<>();
-        Map<String, Object> audio = new HashMap<>();
-        audio.put("type", "file");
-        audio.put("path", "hello");
-        body.put("audio", audio);
-        body.put("connections", Arrays.asList(players));
+        body.put("audio", convert(output));
+        body.put("connections", List.of(playbackServices).stream()
+                .map(p -> p.get(Ontology.id))
+                .collect(Collectors.toList())
+        );
         Mono<String> addSession = WebClient.create(String.format("http://%s:%d/session/%s", host, port, session))
                 .method(HttpMethod.POST)
                 .body(BodyInserters.fromObject(body))
@@ -237,7 +247,7 @@ public class A3SClient implements OutputComponent {
 
 
     protected void updateSessionState(String id, String state) {
-        if(getAllocationState(id).finished()) {
+        if (getAllocationState(id).finished()) {
             return;
         }
 
@@ -303,7 +313,7 @@ public class A3SClient implements OutputComponent {
             }
 
             AllocationState as;
-            if(error instanceof TimeoutException) {
+            if (error instanceof TimeoutException) {
                 as = AllocationState.getTimeout();
             } else {
                 as = AllocationState.getError(errMsg);
@@ -364,11 +374,20 @@ public class A3SClient implements OutputComponent {
         public void run(ApplicationArguments args) throws Exception {
             KnowledgeBase kb = new KnowledgeBase();
             KnowledgeMap km = kb.getKnowledgeMap(Ontology.Service);
+            //TODO fixed entities
+            Entity p1 = new Entity()
+                    .set(Ontology.id, "p1")
+                    .set(Ontology.uri, URI.create("http://172.16.59.0:60000"))
+                    .set(Ontology.type2, Ontology.Service)
+                    .set(Ontology.service, serviceType)
+                    .set(Ontology.timestamp, 0l);
+            km.add(p1);
+
             A3SClient client = new A3SClient(kb);
 
 
-            Entity speechOutput = new OutputFactory().createSpeechOutput("hello world");
-            String allocationId = client.allocate(speechOutput, km.get("p1").get());
+            Entity speechOutput = new OutputFactory().createFileOutput("hello");
+            String allocationId = client.allocate(speechOutput, p1);
 
 
             AllocationState as = AllocationState.getNone();
@@ -381,7 +400,7 @@ public class A3SClient implements OutputComponent {
 //                System.out.println(s);
 
                 AllocationState currentState = client.getAllocationState(allocationId);
-                if(currentState != as) {
+                if (currentState != as) {
                     as = currentState;
                     System.out.println(allocationId + " " + as);
                 }
