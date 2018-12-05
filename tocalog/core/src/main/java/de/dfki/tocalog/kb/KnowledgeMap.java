@@ -3,17 +3,21 @@ package de.dfki.tocalog.kb;
 import org.pcollections.HashPMap;
 import org.pcollections.IntTreePMap;
 import org.pcollections.PMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * TODO maybe: associate Type with map -> throw exception on illegal type && add type if not present
  */
 public class KnowledgeMap {
+    private static final Logger log = LoggerFactory.getLogger(KnowledgeMap.class);
     private PMap<String, Entity> entities = HashPMap.empty(IntTreePMap.empty());
     private KMHistory history = new KMHistory(1000); //TODO count
 
@@ -30,9 +34,28 @@ public class KnowledgeMap {
             id = Optional.of(UUID.randomUUID().toString());
             entity = entity.set(Ontology.id, id.get());
 //            throw new IllegalArgumentException("need id for putting entity into kb");
+        } else {
+            //check whether the current entity did not change
+//            Entity currentEntity = entities.get(id.get());
+//            if(currentEntity != null && currentEntity.equals(entity)) {
+//                return id.get();
+//            }
         }
+
+        boolean updating = entities.containsKey(id.get());
+        if(updating) {
+            log.info("updating {}", entity);
+        } else {
+            log.info("adding {}", entity);
+        }
+
         this.entities = this.entities.plus(id.get(), entity);
-        history.addEntry(entity);
+
+        if(updating) {
+            history.updateEntry(entity);
+        } else {
+            history.addEntry(entity);
+        }
         return id.get();
     }
 
@@ -41,6 +64,8 @@ public class KnowledgeMap {
      * If no entity is available (or id is not presented) a new entity is generated.
      * This method can be used to updates certain attributes of an entity without overwriting
      * changes from other components.
+     * <p>
+     * TODO should not create an enitity? ... semantic has to be similar to other add functions. maybe additional merge function...
      *
      * @param entity
      * @param attributes
@@ -66,6 +91,10 @@ public class KnowledgeMap {
             kbEnt = kbEnt.set(attr, optValue.get());
         }
 
+        log.info("updating {} with {}", id, List.of(attributes).stream()
+                .map(a -> a.name)
+                .reduce("", (x, y) -> x + " " + y));
+
         this.entities = this.entities.plus(id, kbEnt);
         history.addEntry(kbEnt);
         return id;
@@ -79,6 +108,10 @@ public class KnowledgeMap {
         return this.entities;
     }
 
+    public Stream<Entity> getStream() {
+        return this.entities.values().stream();
+    }
+
     /**
      * TODO rename to set
      * Updates the value of one attribute of an entity in the knowledge map if the entity is present.
@@ -89,11 +122,12 @@ public class KnowledgeMap {
      * @param <T>
      * @return true iff the entity was present
      */
-    public synchronized <T> boolean update(String id, Attribute<T> attr, T value) {
+    public synchronized <T> boolean add(String id, Attribute<T> attr, T value) {
         if (!this.entities.containsKey(id)) {
             //TODO could also of a new entity
             return false;
         }
+        log.info("updating {} {}={}", id, attr, value);
         Entity entity = this.entities.get(id);
         entity = entity.set(attr, value);
         this.entities = this.entities.plus(id, entity);
@@ -101,27 +135,40 @@ public class KnowledgeMap {
         return true;
     }
 
-    public synchronized void update(Function<Entity, Entity> updateFnc) {
+    public synchronized void add(Function<Entity, Entity> updateFnc) {
         for (Map.Entry<String, Entity> entry : entities.entrySet()) {
             Entity entity = updateFnc.apply(entry.getValue());
             if (entity == entry.getValue()) {
-                //no update
+                //no add
                 continue;
             }
+            log.info("updating {}", entity);
             this.entities = this.entities.plus(entry.getKey(), entity);
             history.updateEntry(entity);
         }
     }
 
     public synchronized <T> boolean unset(String id, Attribute<T>... attrs) {
-        if(!this.entities.containsKey(id)) {
+        if (!this.entities.containsKey(id)) {
             return false;
         }
+
+        //id is enforced, so removal is not allowed
+        for (Attribute attr : attrs) {
+            if(attr.getName().equals(Ontology.id)) {
+                throw new IllegalArgumentException("can't unset id in knowledge map. entity=" + id);
+            }
+        }
+
+
         Entity e = this.entities.get(id);
-        for(Attribute attr : attrs) {
+        for (Attribute attr : attrs) {
             e = e.unset(attr);
         }
         this.entities = this.entities.plus(id, e);
+        log.info("unset {} {}", id, List.of(attrs).stream()
+                .map(Attribute::getName)
+                .reduce("", (x, y) -> x + " " + y));
         return true;
     }
 
@@ -137,10 +184,20 @@ public class KnowledgeMap {
         return queryResult;
     }
 
+    public synchronized boolean remove(String id) {
+        if(!entities.containsKey(id)) {
+            return false;
+        }
+        log.info("removing {}", id);
+        entities = entities.minus(id);
+        return true;
+    }
+
     public synchronized void removeIf(Predicate<Entity> predicate) {
         PMap<String, Entity> newEntities = entities;
         for (Map.Entry<String, Entity> entry : newEntities.entrySet()) {
             if (predicate.test(entry.getValue())) {
+                log.info("removing {}", entry.getKey());
                 newEntities = newEntities.minus(entry.getKey());
                 history.removeEntry(entry.getValue());
             }
@@ -162,7 +219,7 @@ public class KnowledgeMap {
 
     public synchronized void updateTimestamp(Predicate<Entity> pred) {
         long now = System.currentTimeMillis();
-        this.update(ent -> {
+        this.add(ent -> {
             if (!pred.test(ent)) {
                 return ent;
             }

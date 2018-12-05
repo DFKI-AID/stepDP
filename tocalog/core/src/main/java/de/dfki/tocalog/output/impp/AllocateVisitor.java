@@ -16,12 +16,12 @@ import java.util.Optional;
  */
 public class AllocateVisitor implements OutputNode.Visitor {
     private static Logger log = LoggerFactory.getLogger(AllocateVisitor.class);
-    private final Imp impp;
+    private final Imp imp;
     private Map<String, Assignment> assignments;
     private Map<String, String> allocationsIds;
 
-    public AllocateVisitor(Imp impp) {
-        this.impp = impp;
+    public AllocateVisitor(Imp imp) {
+        this.imp = imp;
     }
 
     @Override
@@ -41,7 +41,7 @@ public class AllocateVisitor implements OutputNode.Visitor {
         // or fail here and try reschedule on higher level? <- easier to reason
 
         boolean assigned = false;
-        for (OutputComponent oc : impp.getComponents()) {
+        for (OutputComponent oc : imp.getComponents()) {
             if (!oc.handles(leaf.getOutput(), service.get())) {
                 continue;
             }
@@ -67,6 +67,6 @@ public class AllocateVisitor implements OutputNode.Visitor {
         this.allocationsIds = new HashMap<>();
         this.assignments = assignments;
         node.accept(this);
-        return new Allocation(impp, node, allocationsIds);
+        return new Allocation(imp, node, allocationsIds);
     }
 }

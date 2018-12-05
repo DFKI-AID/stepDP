@@ -30,6 +30,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 /**
+ * TODO delay subscription on error
  */
 public class A3SClient implements OutputComponent {
     private static final Logger log = LoggerFactory.getLogger(A3SClient.class);
@@ -43,7 +44,7 @@ public class A3SClient implements OutputComponent {
             .matches(Ontology.service, x -> Objects.equals(x, serviceType))
             .build();
     private final KnowledgeMap km;
-    private String host = "localhost";
+    private String host = "172.16.60.241";
     private int port = 50000;
     private PMap<String, AllocationState> allocationStates = HashPMap.empty(IntTreePMap.empty());
     private PMap<String, AllocationState> oldAllocationStates = HashPMap.empty(IntTreePMap.empty());
@@ -137,7 +138,7 @@ public class A3SClient implements OutputComponent {
 //                return;
 //            }
 
-            km.update(id, Ontology.timestamp, System.currentTimeMillis());
+            km.add(id, Ontology.timestamp, System.currentTimeMillis());
             //TODO write service (/device) information into KB
         } catch (Exception e) {
             e.printStackTrace();
@@ -389,7 +390,7 @@ public class A3SClient implements OutputComponent {
             //TODO fixed entities
             Entity p1 = new Entity()
                     .set(Ontology.id, "p1")
-                    .set(Ontology.uri, URI.create("http://pi-madmacs7:60000"))
+                    .set(Ontology.uri, URI.create("http://172.16.59.0:60000"))
                     .set(Ontology.type2, Ontology.Service)
                     .set(Ontology.service, serviceType)
                     .set(Ontology.timestamp, 0l);
@@ -400,7 +401,7 @@ public class A3SClient implements OutputComponent {
 
             while(true) {
                 Scanner scanner = new Scanner(System.in);
-                System.out.println("give some text: ");
+                System.out.println("give me some text: ");
                 String tts = scanner.nextLine();
                 System.out.println();
 
@@ -411,12 +412,15 @@ public class A3SClient implements OutputComponent {
                 runCommand("say", String.format("\"%s\"", tts), "-o", aiffPath);
                 System.out.println("elapsed gen : " + (System.currentTimeMillis() - start));
 
+                //convert to wav ; better: should be done on the same machine that runs the a3s-service
                 start = System.currentTimeMillis();
                 runCommand("sox", aiffPath, "-t", "wavpcm", "-r", "48000", "-c", "2", "-b", "16", wavPath);
                 System.out.println("elapsed convert : " + (System.currentTimeMillis() - start));
 
+                //upload file
                 start = System.currentTimeMillis();
-                runCommand("curl", "-XPOST", "-F", String.format("data=@%s", wavPath), String.format("http://%s:%d/files/sample", client.host, client.port));
+                runCommand("curl", "-XPOST", "-F", String.format("data=@%s", wavPath),
+                        String.format("http://%s:%d/files/sample", client.host, client.port));
                 System.out.println();
                 System.out.println("elapsed upload : " + (System.currentTimeMillis() - start));
 

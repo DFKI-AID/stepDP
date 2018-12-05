@@ -42,9 +42,17 @@ public class Attribute<T> {
     }
 
     public Entity set(Entity entity, T value) {
+        if(value == null) {
+            throw new IllegalArgumentException("value for attribute " + this.name + " can't be null. entity=" + entity);
+        }
+
         PMap<String, AttributeValue> attributes = entity.attributes.plus(name, new AttributeValue(name, value, this));
         Entity e = new Entity(attributes);
         return e;
+    }
+
+    public String getName() {
+        return name;
     }
 
     @Override

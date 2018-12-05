@@ -74,7 +74,7 @@ public class KnowledgeList {
         for (Entity entity : entities) {
             Entity newEntity = updateFnc.apply(entity);
             if (entity == newEntity) {
-                //no update
+                //no add
                 continue;
             }
             this.entities = this.entities.minus(entity);

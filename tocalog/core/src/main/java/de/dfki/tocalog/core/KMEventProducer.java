@@ -42,7 +42,7 @@ public class KMEventProducer implements KMHistory.Callback, EventProducer {
     }
 
     /**
-     * Note: the producers might still be used after deregistering if there is currently an ongoing update
+     * Note: the producers might still be used after deregistering if there is currently an ongoing add
      * @param producer
      */
     public synchronized void deregisterHook(Function<KMHistory.Entry, Optional<Event>> producer) {

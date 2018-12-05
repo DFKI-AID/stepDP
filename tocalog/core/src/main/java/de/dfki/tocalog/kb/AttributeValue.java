@@ -1,12 +1,22 @@
 package de.dfki.tocalog.kb;
 
+import java.util.Objects;
+
 /**
  */
 public class AttributeValue<T> {
-    public final String name;
-    public final T value;
+    /**
+     * field type
+     */
     public final Attribute<T> attribute;
-//        public double confidence;
+    /**
+     * field name
+     */
+    public final String name;
+    /**
+     * current value
+     */
+    public final T value;
 
     public AttributeValue(String name, T value, Attribute<T> attribute) {
         this.name = name;
@@ -14,5 +24,18 @@ public class AttributeValue<T> {
         this.attribute = attribute;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AttributeValue<?> that = (AttributeValue<?>) o;
+        return Objects.equals(name, that.name) &&
+                Objects.equals(value, that.value) &&
+                Objects.equals(attribute, that.attribute);
+    }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, value, attribute);
+    }
 }

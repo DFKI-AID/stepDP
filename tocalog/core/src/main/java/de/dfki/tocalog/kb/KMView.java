@@ -20,13 +20,13 @@ public class KMView {
 
     public <T> void update(String id, Attribute<T> attr, T value) {
         kmaps.forEach(
-                km -> km.update(id, attr, value)
+                km -> km.add(id, attr, value)
         );
     }
 
     public void update(Function<Entity, Entity> updateFnc) {
         kmaps.forEach(
-                km -> km.update(updateFnc)
+                km -> km.add(updateFnc)
         );
     }
 
