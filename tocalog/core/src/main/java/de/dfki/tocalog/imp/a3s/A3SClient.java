@@ -6,6 +6,7 @@ import de.dfki.tocalog.kb.*;
 import de.dfki.tocalog.output.OutputComponent;
 import de.dfki.tocalog.output.OutputFactory;
 import de.dfki.tocalog.output.impp.AllocationState;
+import org.apache.commons.lang3.SystemUtils;
 import org.pcollections.HashPMap;
 import org.pcollections.IntTreePMap;
 import org.pcollections.PMap;
@@ -398,6 +399,7 @@ public class A3SClient implements OutputComponent {
 
             A3SClient client = new A3SClient(kb);
 
+//            SystemUtils.IS_OS_MAC
 
             while(true) {
                 Scanner scanner = new Scanner(System.in);
@@ -407,14 +409,14 @@ public class A3SClient implements OutputComponent {
 
                 long start = System.currentTimeMillis();
                 String dir = System.getProperty("user.dir");
-                String aiffPath = dir + "/sample.aiff";
+                String outPath = dir + "/sample.aiff";
                 String wavPath = dir + "/sample.wav";
-                runCommand("say", String.format("\"%s\"", tts), "-o", aiffPath);
+                runCommand("say", String.format("\"%s\"", tts), "-o", outPath);
                 System.out.println("elapsed gen : " + (System.currentTimeMillis() - start));
 
                 //convert to wav ; better: should be done on the same machine that runs the a3s-service
                 start = System.currentTimeMillis();
-                runCommand("sox", aiffPath, "-t", "wavpcm", "-r", "48000", "-c", "2", "-b", "16", wavPath);
+                runCommand("sox", outPath, "-t", "wavpcm", "-r", "48000", "-c", "2", "-b", "16", wavPath);
                 System.out.println("elapsed convert : " + (System.currentTimeMillis() - start));
 
                 //upload file

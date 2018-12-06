@@ -7,6 +7,7 @@ import de.dfki.tocalog.kb.KnowledgeBase;
 import de.dfki.tocalog.kb.KnowledgeMap;
 import de.dfki.tocalog.kb.Ontology;
 import de.dfki.tocalog.output.OutputComponent;
+import de.dfki.tocalog.output.OutputFactory;
 import de.dfki.tocalog.output.impp.AllocationState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,12 +21,17 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
+ * TODO multiple outputs
+ * TODO duration of outputs
+ *
  * [1] polls available displays+services and writes them into into the KB
  * [2] keeps track presenting visual content
  */
@@ -46,29 +52,36 @@ public class VOAppClient implements OutputComponent {
 
     @Override
     public String allocate(Entity output, Entity service) {
+        String allocationId = allocateFreshId();
         KnowledgeMap km = this.kb.getKnowledgeMap(Ontology.Service);
-        Ontology.Scheme scheme = Ontology.AbsScheme.builder()
+        Ontology.Scheme serviceScheme = Ontology.AbsScheme.builder()
                 .equal(Ontology.service, serviceType)
                 .present(Ontology.id)
                 .build();
 
-        String allocationId = allocateFreshId();
-
-        synchronized (this) {
-            if (!scheme.matches(service)) {
+        if (!serviceScheme.matches(service)) {
+            synchronized (this) {
                 stateMap.put(allocationId, AllocationState.getError(String.format("invalid service %s for voapp", service)));
                 return allocationId;
             }
-
-            //TODO check output type
         }
 
+        Ontology.Scheme outputScheme = Ontology.AbsScheme.builder()
+                .equal(Ontology.modality, "image")
+                .present(Ontology.uri)
+                .build();
+        if(!outputScheme.matches(output)) {
+            synchronized (this) {
+                stateMap.put(allocationId, AllocationState.getError(String.format("invalid output %s for voapp", output)));
+                return allocationId;
+            }
+        }
 
         //TODO multiple contents
         Map<String, Object> payload = new HashMap<>();
         Map<String, String> content1 = new HashMap<>();
         content1.put("type", "img");
-        content1.put("content", "cake.gif"); //TODO take content from output entity
+        content1.put("content", output.get(Ontology.uri).get().toString());
         payload.put("content", List.of(content1));
         payload.put("area", "\"n0\"");
         payload.put("cols", "100%");
@@ -121,8 +134,6 @@ public class VOAppClient implements OutputComponent {
         //TODO
         log.warn("could not present visual content. id={} error={}", allocationId, ex.getMessage());
     }
-
-
 
 
     protected Mono<String> pollDisplaysAsync(Duration timeout) {
@@ -203,13 +214,15 @@ public class VOAppClient implements OutputComponent {
 
             VOAppClient client = new VOAppClient(kb);
 
-            while(true) {
+            while (true) {
                 Ontology.Scheme scheme = Ontology.AbsScheme.builder().equal(Ontology.service, serviceType).build();
                 List<Entity> services = kb.getKnowledgeMap(Ontology.Service).getStream()
                         .filter(x -> scheme.matches(x))
                         .collect(Collectors.toList());
-                for(Entity service : services) {
-                    client.allocate(null, service);
+
+                Entity output = (new OutputFactory()).createImageOutput(new URI("http:/files/sleeping.png"));
+                for (Entity service : services) {
+                    client.allocate(output, service);
                 }
 
                 Thread.sleep(5000);

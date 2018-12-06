@@ -6,6 +6,7 @@ import de.dfki.tocalog.util.Vector3;
 import org.pcollections.*;
 
 import java.net.URI;
+import java.time.Duration;
 import java.util.*;
 import java.util.function.Predicate;
 
@@ -178,6 +179,7 @@ public class Ontology {
     public static final Type Output = new Type("tocalog/Output");
     public static final Type SpeechOutput = new Type("tocalog/SpeechOutput");
 
+
     /**
      * e.g. mode through which an output can be perceived
      */
@@ -192,7 +194,7 @@ public class Ontology {
     public static final Attribute<URI> uri = new Attribute<>("tocalog/uri");
     public static final Attribute<String> utterance = new Attribute<>("tocalog/utterance");
     public static final Attribute<String> modality = new Attribute<>("tocalog/modality");
-
+    public static final Attribute<Duration> duration = new Attribute<>("tocalog/duration");
 
     /**
      * e.g. the speaker of a SpeechInput

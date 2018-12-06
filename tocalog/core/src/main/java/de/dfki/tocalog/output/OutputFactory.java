@@ -4,6 +4,7 @@ import de.dfki.tocalog.core.Mode;
 import de.dfki.tocalog.kb.Entity;
 import de.dfki.tocalog.kb.Ontology;
 
+import java.net.URI;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -50,6 +51,15 @@ public class OutputFactory {
                 .set(Ontology.type, "Output")
                 .set(Ontology.mode, Mode.Vision)
                 .set(Ontology.modality, "text");
+    }
+
+    public Entity createImageOutput(URI uri) {
+        return new Entity()
+                .set(Ontology.id, randomId())
+                .set(Ontology.uri, uri)
+                .set(Ontology.type2, Ontology.Output)
+                .set(Ontology.mode, Mode.Vision)
+                .set(Ontology.modality, "image");
     }
 
     private static String randomId() {
