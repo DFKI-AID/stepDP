@@ -10,10 +10,10 @@ public class PrintVisitor implements OutputNode.Visitor {
 
     public void visitLeaf(OutputNode.External leaf) {
         addIndentation();
-        sb.append(leaf.getOutput());
-        String servicesStr = leaf.getServices().stream().reduce("", (s1, s2) -> s1 + " | " + s2) + " | ";
-        sb.append(" on ").append(servicesStr);
-        sb.append("\n");
+        sb.append(leaf.getAttachment());
+//        String servicesStr = leaf.getServices().stream().reduce("", (s1, s2) -> s1 + " | " + s2) + " | ";
+//        sb.append(" on ").append(servicesStr);
+        sb.append("todo\n");
     }
 
     @Override

@@ -10,7 +10,7 @@ public class GetAssignedServiceVisitor implements OutputNode.Visitor {
 
     @Override
     public void visitLeaf(OutputNode.External leaf) {
-        services.addAll(leaf.getServices());
+//        services.addAll(leaf.getServices());
     }
 
     @Override

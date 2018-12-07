@@ -20,7 +20,7 @@ public class KMView {
 
     public <T> void update(String id, Attribute<T> attr, T value) {
         kmaps.forEach(
-                km -> km.add(id, attr, value)
+                km -> km.append(id, attr, value)
         );
     }
 

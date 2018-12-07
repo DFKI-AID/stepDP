@@ -1,13 +1,17 @@
 package de.dfki.tocalog.output;
 
+import de.dfki.tocalog.kb.Entity;
 import de.dfki.tocalog.kb.KnowledgeBase;
 import de.dfki.tocalog.output.impp.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 /**
  */
 public class Imp {
+    private static Logger log = LoggerFactory.getLogger(Imp.class);
     private final KnowledgeBase kb;
     private OutputNode root;
     private Map<String, OutputNode> allocations = new HashMap<>();
@@ -74,9 +78,9 @@ public class Imp {
     }
 
 //    @Override
-//    public boolean handles(Service service) {
+//    public boolean supports(Service service) {
 //        for (OutputComponent component : components) {
-//            if (component.handles(service)) {
+//            if (component.supports(service)) {
 //                return true;
 //            }
 //        }
@@ -93,5 +97,14 @@ public class Imp {
 
     public KnowledgeBase getKb() {
         return kb;
+    }
+
+    public boolean supports(Entity output, Entity service) {
+        for(OutputComponent oc : components) {
+            if(oc.supports(output, service)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

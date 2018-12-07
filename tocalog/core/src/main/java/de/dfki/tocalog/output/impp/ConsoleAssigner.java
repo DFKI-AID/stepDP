@@ -24,9 +24,9 @@ public class ConsoleAssigner implements OutputNode.Visitor {
 
     @Override
     public void visitLeaf(OutputNode.External leaf) {
-        if(leaf.getServices().isEmpty()) {
-            leaf.addService(service.get(Ontology.id).get()); //TODO get() -> use scheme
-        }
+//        if(leaf.getServices().isEmpty()) {
+//            leaf.addService(service.get(Ontology.id).get()); //TODO get() -> use scheme
+//        }
     }
 
     @Override

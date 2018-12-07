@@ -1,7 +1,6 @@
 package de.dfki.tocalog.output.impp;
 
 import de.dfki.tocalog.kb.Entity;
-import de.dfki.tocalog.output.Output;
 
 import java.util.*;
 
@@ -51,13 +50,11 @@ public abstract class OutputNode {
     }
 
     public static class External extends OutputNode {
-        private Entity output;
-        private List<String> services; //TODO remove, service assignment should be stored in extra data structure
+        private Entity attachment;
 
         private External(Builder builder) {
             super(builder.id);
-            this.output = builder.output;
-            this.services = builder.services;
+            this.attachment = builder.output;
         }
 
         @Override
@@ -65,29 +62,18 @@ public abstract class OutputNode {
             visitor.visitLeaf(this);
         }
 
-        public Entity getOutput() {
-            return output;
-        }
-
-        public List<String> getServices() {
-            return services;
+        public Entity getAttachment() {
+            return attachment;
         }
 
         public External copy() {
-            Builder builder = new Builder(output);
-            for (String service : services) {
-                builder.addService(service);
-            }
+            Builder builder = new Builder(attachment);
+            builder.setId(this.id);
             return builder.build();
-        }
-
-        public void addService(String service) {
-            this.services.add(service);
         }
 
         public static class Builder {
             private Entity output;
-            private List<String> services = new ArrayList<>();
             private String id = null;
 
             public Builder(Entity output) {
@@ -95,7 +81,11 @@ public abstract class OutputNode {
             }
 
             public Builder addService(String service) {
-                this.services.add(service);
+                return this;
+            }
+
+            public Builder setOutput(Entity output) {
+                this.output = output;
                 return this;
             }
 
@@ -112,7 +102,7 @@ public abstract class OutputNode {
 
     public static class Internal extends OutputNode {
         private Semantic semantic;
-        private List<OutputNode> childNodes = new ArrayList<>();
+        private List<OutputNode> childNodes;
 
         private Internal(Builder builder) {
             super(builder.id);

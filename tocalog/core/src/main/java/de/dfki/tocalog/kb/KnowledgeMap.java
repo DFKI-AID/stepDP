@@ -122,7 +122,7 @@ public class KnowledgeMap {
      * @param <T>
      * @return true iff the entity was present
      */
-    public synchronized <T> boolean add(String id, Attribute<T> attr, T value) {
+    public synchronized <T> boolean append(String id, Attribute<T> attr, T value) {
         if (!this.entities.containsKey(id)) {
             //TODO could also of a new entity
             return false;

@@ -32,7 +32,7 @@ public class AllocateVisitor implements OutputNode.Visitor {
         Optional<Entity> service = assignment.getBest();
 //        List<Service> services = assignment.getServices();
         if (!service.isPresent()) {
-            log.warn("can't assign service to {}. no suitable service available", leaf.getOutput());
+            log.warn("can't assign service to {}. no suitable service available", leaf.getAttachment());
             return;
         }
 
@@ -42,18 +42,18 @@ public class AllocateVisitor implements OutputNode.Visitor {
 
         boolean assigned = false;
         for (OutputComponent oc : imp.getComponents()) {
-            if (!oc.handles(leaf.getOutput(), service.get())) {
+            if (!oc.supports(leaf.getAttachment(), service.get())) {
                 continue;
             }
 
-            String id = oc.allocate(leaf.getOutput(), service.get());
-            allocationsIds.put(leaf.getId(), id);
+//            String id = oc.allocate(leaf.getAttachment(), service.get());
+//            allocationsIds.put(leaf.getId(), id);
             assigned = true;
             break;
         }
 
         if (!assigned) {
-            log.warn("can't assign service to {}. no output component can handle the request", leaf.getOutput());
+            log.warn("can't assign service to {}. no output component can handle the request", leaf.getAttachment());
         }
     }
 

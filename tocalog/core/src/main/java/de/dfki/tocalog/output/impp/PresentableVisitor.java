@@ -1,7 +1,6 @@
 package de.dfki.tocalog.output.impp;
 
 import de.dfki.tocalog.kb.Entity;
-import de.dfki.tocalog.output.Output;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -22,10 +21,10 @@ public class PresentableVisitor implements OutputNode.Visitor {
     @Override
     public void visitLeaf(OutputNode.External leaf) {
         Result result = new Result();
-        if (leaf.getServices().isEmpty()) {
-            result.unassigned.add(leaf.getOutput());
-        }
-        result.presentable = !leaf.getServices().isEmpty();
+//        if (leaf.getServices().isEmpty()) {
+//            result.unassigned.add(leaf.getAttachment());
+//        }
+//        result.presentable = !leaf.getServices().isEmpty();
         resultStack.push(result);
     }
 

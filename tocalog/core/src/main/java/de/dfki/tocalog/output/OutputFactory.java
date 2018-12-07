@@ -1,16 +1,20 @@
 package de.dfki.tocalog.output;
 
 import de.dfki.tocalog.core.Mode;
+import de.dfki.tocalog.kb.Attribute;
 import de.dfki.tocalog.kb.Entity;
 import de.dfki.tocalog.kb.Ontology;
 
 import java.net.URI;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 /**
  */
 public class OutputFactory {
+
+
     public static final Ontology.AbsScheme AudioOutputScheme = Ontology.AbsScheme.builder()
             .present(Ontology.id)
             .equal(Ontology.type, "Output")
@@ -24,6 +28,11 @@ public class OutputFactory {
 
     public static final Ontology.Scheme FileOutputScheme = AudioOutputScheme.extend()
             .present(Ontology.file)
+            .build();
+
+    public static final Ontology.Scheme ImageOutputScheme = Ontology.AbsScheme.builder()
+            .present(Ontology.uri)
+            .equal(Ontology.modality, "image")
             .build();
 
     public Entity createTTSOutput(String utterance) {

@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * OutputNode ->
  * Assigns all services that can present an output to the corresponding leaves
  */
 public class FindCandidateVisitor implements OutputNode.Visitor {
@@ -24,12 +25,12 @@ public class FindCandidateVisitor implements OutputNode.Visitor {
     @Override
     public void visitLeaf(OutputNode.External leaf) {
         if (!assignments.containsKey(leaf.getId())) {
-            assignments.put(leaf.getId(), new Assignment(leaf.getOutput(), null));
+            assignments.put(leaf.getId(), new Assignment(leaf.getAttachment(), null));
         }
 
         for (OutputComponent oc : immp.getComponents()) {
             for (Entity service : services) {
-                if (!oc.handles(leaf.getOutput(), service)) {
+                if (!oc.supports(leaf.getAttachment(), service)) {
                     continue;
                 }
                 assignments.get(leaf.getId()).addService(service);

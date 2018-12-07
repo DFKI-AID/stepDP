@@ -6,9 +6,12 @@ import de.dfki.tocalog.kb.Entity;
 import de.dfki.tocalog.kb.KnowledgeBase;
 import de.dfki.tocalog.kb.KnowledgeMap;
 import de.dfki.tocalog.kb.Ontology;
+import de.dfki.tocalog.output.Imp;
+import de.dfki.tocalog.output.Output;
 import de.dfki.tocalog.output.OutputComponent;
 import de.dfki.tocalog.output.OutputFactory;
 import de.dfki.tocalog.output.impp.AllocationState;
+import de.dfki.tocalog.output.impp.DeviceSelector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
@@ -31,13 +34,17 @@ import java.util.stream.Stream;
 /**
  * TODO multiple outputs
  * TODO duration of outputs
- *
+ * <p>
  * [1] polls available displays+services and writes them into into the KB
  * [2] keeps track presenting visual content
  */
 public class VOAppClient implements OutputComponent {
     private static final Logger log = LoggerFactory.getLogger(VOAppClient.class);
     private static final String serviceType = "voapp-display";
+    private static final Ontology.Scheme serviceScheme = Ontology.AbsScheme.builder()
+            .equal(Ontology.service, serviceType)
+            .present(Ontology.id)
+            .build();
     private final Duration reqTimeout = Duration.ofMillis(8000);
     private final KnowledgeBase kb;
     private final String host = "localhost";
@@ -51,18 +58,27 @@ public class VOAppClient implements OutputComponent {
     }
 
     @Override
-    public String allocate(Entity output, Entity service) {
+    public String allocate(Entity outputUnit) {
         String allocationId = allocateFreshId();
         KnowledgeMap km = this.kb.getKnowledgeMap(Ontology.Service);
-        Ontology.Scheme serviceScheme = Ontology.AbsScheme.builder()
-                .equal(Ontology.service, serviceType)
-                .present(Ontology.id)
-                .build();
 
-        if (!serviceScheme.matches(service)) {
+
+        if (!DeviceSelector.unitScheme.matches(outputUnit)) {
             synchronized (this) {
-                stateMap.put(allocationId, AllocationState.getError(String.format("invalid service %s for voapp", service)));
+                stateMap.put(allocationId, AllocationState.getError(String.format("invalid output unit %s for voapp", outputUnit)));
                 return allocationId;
+            }
+        }
+
+        Set<Entity> services = outputUnit.get(DeviceSelector.where).get();
+        Entity output = outputUnit.get(DeviceSelector.what).get();
+
+        for (Entity service : services) {
+            if (!serviceScheme.matches(service)) {
+                synchronized (this) {
+                    stateMap.put(allocationId, AllocationState.getError(String.format("invalid service %s for voapp", service)));
+                    return allocationId;
+                }
             }
         }
 
@@ -70,7 +86,7 @@ public class VOAppClient implements OutputComponent {
                 .equal(Ontology.modality, "image")
                 .present(Ontology.uri)
                 .build();
-        if(!outputScheme.matches(output)) {
+        if (!outputScheme.matches(output)) {
             synchronized (this) {
                 stateMap.put(allocationId, AllocationState.getError(String.format("invalid output %s for voapp", output)));
                 return allocationId;
@@ -87,16 +103,18 @@ public class VOAppClient implements OutputComponent {
         payload.put("cols", "100%");
         payload.put("rows", "100%");
 
-        Mono<String> req = WebClient.create(String.format("http://%s:%d/display/%s/content",
-                host, port, service.get(Ontology.id).get()))
-                .method(HttpMethod.POST)
-                .body(BodyInserters.fromObject(payload))
-                .retrieve()
-                .bodyToMono(String.class)
-                .timeout(reqTimeout)
-                .doOnError(ex -> onPresentationInfo(allocationId, ex))
-                .doOnSuccess(r -> onPresentationInfo(allocationId, r));
-        req.subscribe();
+        for (Entity service : services) {
+            Mono<String> req = WebClient.create(String.format("http://%s:%d/display/%s/content",
+                    host, port, service.get(Ontology.id).get()))
+                    .method(HttpMethod.POST)
+                    .body(BodyInserters.fromObject(payload))
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .timeout(reqTimeout)
+                    .doOnError(ex -> onPresentationInfo(allocationId, ex))
+                    .doOnSuccess(r -> onPresentationInfo(allocationId, r));
+            req.subscribe();
+        }
 
         return allocationId;
     }
@@ -117,12 +135,24 @@ public class VOAppClient implements OutputComponent {
 
     @Override
     public AllocationState getAllocationState(String id) {
-        return null;
+        synchronized (this) {
+            if (!stateMap.containsKey(id)) {
+                return AllocationState.getNone();
+            }
+            return stateMap.get(id);
+        }
     }
 
     @Override
-    public boolean handles(Entity output, Entity service) {
-        return false;
+    public boolean supports(Entity output, Entity service) {
+        if (!serviceScheme.matches(service)) {
+            return false;
+        }
+
+        if (!OutputFactory.ImageOutputScheme.matches(output)) {
+            return false;
+        }
+        return true;
     }
 
 
@@ -214,16 +244,37 @@ public class VOAppClient implements OutputComponent {
 
             VOAppClient client = new VOAppClient(kb);
 
+            Imp imp = new Imp(kb);
+            imp.addOutputComponent(client);
+            KnowledgeMap userKm = kb.getKnowledgeMap(Ontology.Agent);
+            final Entity m1 = new Entity().set(Ontology.id, "m1");
+            userKm.add(m1);
+
             while (true) {
                 Ontology.Scheme scheme = Ontology.AbsScheme.builder().equal(Ontology.service, serviceType).build();
                 List<Entity> services = kb.getKnowledgeMap(Ontology.Service).getStream()
                         .filter(x -> scheme.matches(x))
                         .collect(Collectors.toList());
 
-                Entity output = (new OutputFactory()).createImageOutput(new URI("http:/files/sleeping.png"));
-                for (Entity service : services) {
-                    client.allocate(output, service);
+                Entity imageOutput = (new OutputFactory()).createImageOutput(new URI("http:/files/sleeping.png"));
+
+                DeviceSelector deviceSelector = new DeviceSelector(imp);
+                Entity outputUnit = deviceSelector.process(new Entity()
+                        .set(DeviceSelector.what, imageOutput)
+                        .set(DeviceSelector.whom, Set.of(m1))
+                ).orElse(null);
+                if (outputUnit == null) {
+                    System.out.println("no device available");
+                    Thread.sleep(500);
+                    continue;
                 }
+
+                client.allocate(outputUnit);
+//                imp.allocate(outputUnit);
+
+//                for (Entity service : services) {
+//                    client.allocate(output, service);
+//                }
 
                 Thread.sleep(5000);
             }

@@ -28,6 +28,9 @@ public class Entity {
     }
 
     public <T> Entity set(Attribute<T> attr, T value) {
+        if(value == null) {
+            return this.unset(attr);
+        }
         return attr.set(this, value);
     }
 
@@ -35,8 +38,23 @@ public class Entity {
         return attr.get(this);
     }
 
+    public <R,S> Optional<S> get(Attribute<R> attr, Attribute<S> attr2) {
+        Optional<R> first = this.get(attr);
+        if(!first.isPresent()) {
+            return Optional.empty();
+        }
+        if(!(first.get() instanceof Entity)) {
+            return Optional.empty();
+        }
+        return ((Entity) first.get()).get(attr2);
+    }
+
     public <T> boolean matches(Attribute<T> attr, Predicate<T> pred) {
         return attr.matches(this, pred);
+    }
+
+    public <T> boolean hasAttribute(Attribute<T> attr) {
+        return attr.get(this).isPresent();
     }
 
     public <T> Entity plus(Attribute<T> attr, Function<T, T> fnc) {

@@ -45,7 +45,7 @@ public class KinectComp implements SensorComponent, ReferenceResolver {
                 .collect(Collectors.toSet());
 
 
-        // count the number entries for each target
+        // count the number entries for each whom
         ReferenceDistribution focusDistribution = new ReferenceDistribution();
         for (String target : targets) {
             long count = visualFocusKL.stream()

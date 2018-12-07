@@ -36,7 +36,7 @@ public class AllocationStateVisitor implements OutputNode.Visitor {
                 return;
             }
         }
-        log.warn("could not get allocation state for leaf={} output={}", leaf.getId(), leaf.getOutput());
+        log.warn("could not get allocation state for leaf={} output={}", leaf.getId(), leaf.getAttachment());
     }
 
     @Override

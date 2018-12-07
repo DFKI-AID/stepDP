@@ -81,12 +81,12 @@ public class Ontology {
 
         Entity display = new Entity()
                 .set(resolution, new Vector2(1024, 2048))
-                .set(type, "lcd")
-                .set(device, Device.refTo("nexus5"));
+                .set(type, "lcd");
+//                .set(device, Device.refTo("nexus5"));
         deviceComponents.add(display);
 
 
-        Collection<Entity> dcOfNexus5 = deviceComponents.query(e -> e.get(device).orElse(Reference.None).matchesId("nexus5"));
+//        Collection<Entity> dcOfNexus5 = deviceComponents.query(e -> e.get(device).orElse(Reference.None).matchesId("nexus5"));
 
 
         Entity mergedNexus = nexus5.merge(nexus6);
@@ -147,7 +147,8 @@ public class Ontology {
     /**
      * the device of a service or a device component
      */
-    public static final Attribute<Reference> device = new Attribute<>("tocalog/device");
+    public static final Attribute<String> device = new Attribute<>("tocalog/device");
+
     public static final Attribute<Vector2> resolution = new Attribute<>("tocalog/resolution");
     public static final Attribute<String> partOf = new Attribute<>("tocalog/partOf");
     public static final Attribute<Reference> owner = new Attribute<>("tocalog/owner");
@@ -155,12 +156,11 @@ public class Ontology {
     public static final Attribute<PSet<String>> agents = new Attribute<>("tocalog/session/agents");
 
     public static final Attribute<String> subject = new Attribute<>("tocalog/subject");
+    public static final Attribute<String> predicate = new Attribute<>("tocalog/predicate");
     public static final Attribute<String> object = new Attribute<>("tocalog/object");
-
 
     public static final Type Person = new Type("tocalog/Person");
     public static final Type Robot = new Type("tocalog/Robot");
-
     public static final Type Entity = new Type("tocalog/Entity");
     public static final Type PhysicalEntity = new Type("tocalog/PhysicalEntity");
     public static final Type Agent = new Type("tocalog/Agent");
@@ -178,6 +178,7 @@ public class Ontology {
 
     public static final Type Output = new Type("tocalog/Output");
     public static final Type SpeechOutput = new Type("tocalog/SpeechOutput");
+
 
 
     /**

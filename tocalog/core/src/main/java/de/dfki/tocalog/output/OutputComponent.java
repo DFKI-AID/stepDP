@@ -9,11 +9,11 @@ import java.util.Optional;
  */
 public interface OutputComponent {
     /**
-     * @param output
+     * @param outputUnit
      * @throws IllegalArgumentException
      * @return
      */
-    String allocate(Entity output, Entity service);
+    String allocate(Entity outputUnit);
 
     AllocationState getAllocationState(String id);
 
@@ -22,5 +22,5 @@ public interface OutputComponent {
      * @param service
      * @return true iff the output component can present the output on the service
      */
-    boolean handles(Entity output, Entity service);
+    boolean supports(Entity output, Entity service);
 }

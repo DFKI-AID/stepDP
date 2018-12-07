@@ -3,9 +3,11 @@ package de.dfki.tocalog.imp.a3s;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.dfki.tocalog.kb.*;
+import de.dfki.tocalog.output.Imp;
 import de.dfki.tocalog.output.OutputComponent;
 import de.dfki.tocalog.output.OutputFactory;
 import de.dfki.tocalog.output.impp.AllocationState;
+import de.dfki.tocalog.output.impp.DeviceSelector;
 import org.apache.commons.lang3.SystemUtils;
 import org.pcollections.HashPMap;
 import org.pcollections.IntTreePMap;
@@ -34,6 +36,7 @@ import java.util.stream.Collectors;
  * TODO delay subscription on error
  */
 public class A3SClient implements OutputComponent {
+    public static final Attribute<String> loudspeaker = new Attribute<>("a3s/loudspeaker");
     private static final Logger log = LoggerFactory.getLogger(A3SClient.class);
     private static final String serviceType = "a3s-playback";
     private static final Duration reqTimeout = Duration.ofMillis(4000);
@@ -45,6 +48,7 @@ public class A3SClient implements OutputComponent {
             .matches(Ontology.service, x -> Objects.equals(x, serviceType))
             .build();
     private final KnowledgeMap km;
+    private final KnowledgeBase kb;
     private String host = "172.16.60.241";
     private int port = 50000;
     private PMap<String, AllocationState> allocationStates = HashPMap.empty(IntTreePMap.empty());
@@ -52,6 +56,7 @@ public class A3SClient implements OutputComponent {
 
 
     public A3SClient(KnowledgeBase kb) {
+        this.kb = kb;
         this.km = kb.getKnowledgeMap(Ontology.Service);
 
         for (Entity entity : km.getAll()) {
@@ -61,8 +66,8 @@ public class A3SClient implements OutputComponent {
 
 
     @Override
-    public String allocate(Entity output, Entity service) {
-        log.info("allocating {} on {}", output, service);
+    public String allocate(Entity outputUnit) {
+        log.info("allocating {}", outputUnit);
         //TODO multiple services
         String id = "s1"; // for debugging UUID.randomUUID().toString().substring(0, 8);
         synchronized (this) {
@@ -70,7 +75,7 @@ public class A3SClient implements OutputComponent {
         }
 
         try {
-            createAudioSession(id, output, service);
+            createAudioSession(id, outputUnit);
         } catch (Exception ex) {
             log.warn("could not create audio session: {}", ex.getMessage());
             synchronized (this) {
@@ -95,8 +100,16 @@ public class A3SClient implements OutputComponent {
     }
 
     @Override
-    public boolean handles(Entity output, Entity service) {
-        return false;
+    public boolean supports(Entity output, Entity service) {
+        if (!serviceScheme.matches(service)) {
+            return false;
+        }
+
+        if (!OutputFactory.FileOutputScheme.matches(output)) {
+            return false;
+        }
+        //TODO other types e.g. TTS
+        return true;
     }
 
 
@@ -133,13 +146,30 @@ public class A3SClient implements OutputComponent {
         try {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode jsonNode = mapper.readTree(rsp);
-//            JsonNode state = jsonNode.get("state");
-//            if (Objects.equals("failed", state.asText("failed"))) {
-//                onPlayerInfo(id, new Exception("a3s connection failed"));
-//                return;
-//            }
 
-            km.add(id, Ontology.timestamp, System.currentTimeMillis());
+            String device = jsonNode.get("id").asText();
+            String comp = jsonNode.get("deviceName").asText();
+            if (device.isEmpty()) {
+                log.warn("incomplete response from a3s-playback-service. device info is missing");
+                return;
+            }
+            if (comp.isEmpty()) {
+                log.warn("incomplete response from a3s-playback-service. device component info is missing");
+                return;
+            }
+
+
+            Optional<Entity> currentEntry = km.get(id);
+            if (!currentEntry.isPresent()) {
+                //TODO remove if is clear where the initial service comes from
+                return;
+            }
+            Entity service = currentEntry.get()
+                    .set(Ontology.device, device)
+                    .set(loudspeaker, comp)
+                    .set(Ontology.timestamp, System.currentTimeMillis());
+
+            km.add(service);
             //TODO write service (/device) information into KB
         } catch (Exception e) {
             e.printStackTrace();
@@ -150,6 +180,7 @@ public class A3SClient implements OutputComponent {
     protected void onPlayerInfo(String id, Throwable ex) {
         //tag as N/A in KB:
         km.unset(id, Ontology.timestamp);
+        km.unset(id + "-loudspeaker", Ontology.timestamp);
     }
 
     protected Mono<String> deletePlayer(String id) {
@@ -200,7 +231,13 @@ public class A3SClient implements OutputComponent {
     }
 
 
-    protected void createAudioSession(String session, Entity output, Entity... playbackServices) {
+    protected void createAudioSession(String session, Entity outputUnit) {
+        Set<Entity> playbackServices = outputUnit.get(DeviceSelector.where).get(); //TODO validate with scheme
+//                outputUnit.get(DeviceSelector.where).get()
+//                .stream().map(x -> x.get(DeviceSelector.serviceAttr).get())
+//                .collect(Collectors.toSet());
+        Entity output = outputUnit.get(DeviceSelector.what).get();
+
         for (Entity playbackService : playbackServices) {
             serviceScheme.validate(playbackService);
         }
@@ -219,8 +256,8 @@ public class A3SClient implements OutputComponent {
 
         Map<String, Object> body = new HashMap<>();
         body.put("audio", convert(output));
-        body.put("connections", List.of(playbackServices).stream()
-                .map(p -> p.get(Ontology.id))
+        body.put("connections", playbackServices.stream()
+                .map(x -> x.get(Ontology.id))
                 .collect(Collectors.toList())
         );
         Mono<String> addSession = WebClient.create(String.format("http://%s:%d/session/%s", host, port, session))
@@ -384,10 +421,8 @@ public class A3SClient implements OutputComponent {
 
         @Override
         public void run(ApplicationArguments args) throws Exception {
-
-
             KnowledgeBase kb = new KnowledgeBase();
-            KnowledgeMap km = kb.getKnowledgeMap(Ontology.Service);
+            KnowledgeMap serviceKm = kb.getKnowledgeMap(Ontology.Service);
             //TODO fixed entities
             Entity p1 = new Entity()
                     .set(Ontology.id, "p1")
@@ -395,13 +430,30 @@ public class A3SClient implements OutputComponent {
                     .set(Ontology.type2, Ontology.Service)
                     .set(Ontology.service, serviceType)
                     .set(Ontology.timestamp, 0l);
-            km.add(p1);
+            serviceKm.add(p1);
+
+            KnowledgeMap deviceKm = kb.getKnowledgeMap(Ontology.Device);
+            deviceKm.add(new Entity()
+                    .set(Ontology.id, "macbook")
+            );
+//            KnowledgeMap compKm = kb.getKnowledgeMap(Ontology.DeviceComponent);
+//            compKm.add(new Entity()
+//                    .set(Ontology.id, "macbook-loudspeaker")
+//                    .set(Ontology.type2, Ontology.Loudspeaker)
+//                    .set(Ontology.device, "macbook")
+//                    .set(Ontology.service, "p1")
+//            );
+            KnowledgeMap userKm = kb.getKnowledgeMap(Ontology.Agent);
+            final Entity m1 = new Entity().set(Ontology.id, "m1");
+            userKm.add(m1);
 
             A3SClient client = new A3SClient(kb);
+            Imp imp = new Imp(kb);
+            imp.addOutputComponent(client);
 
 //            SystemUtils.IS_OS_MAC
 
-            while(true) {
+            while (true) {
                 Scanner scanner = new Scanner(System.in);
                 System.out.println("give me some text: ");
                 String tts = scanner.nextLine();
@@ -428,7 +480,24 @@ public class A3SClient implements OutputComponent {
 
                 start = System.currentTimeMillis();
                 Entity speechOutput = new OutputFactory().createFileOutput("sample");
-                String allocationId = client.allocate(speechOutput, p1);
+
+
+                DeviceSelector deviceSelector = new DeviceSelector(imp);
+                Entity outputUnit = deviceSelector.process(new Entity()
+                        .set(DeviceSelector.what, speechOutput)
+                        .set(DeviceSelector.whom, Set.of(m1))
+                ).orElse(null);
+                if (outputUnit == null) {
+                    System.out.println("no device available");
+                    continue;
+                }
+
+//                Entity whereEntity = new Entity()
+//                        .set(DeviceSelector.serviceAttr, p1);
+//                Entity outputUnit = new Entity()
+//                        .set(DeviceSelector.what, speechOutput)
+//                        .set(DeviceSelector.where, Set.of(whereEntity));
+                String allocationId = client.allocate(outputUnit);
 
 
                 AllocationState as = AllocationState.getNone();
@@ -444,14 +513,13 @@ public class A3SClient implements OutputComponent {
                     if (currentState != as) {
                         as = currentState;
                         System.out.println(allocationId + " " + as);
-                        if(as.presenting()) {
+                        if (as.presenting()) {
                             System.out.println("elapsed present : " + (System.currentTimeMillis() - start));
                         }
                     }
 
 
-
-                    if(as.finished()) {
+                    if (as.finished()) {
                         break;
                     }
                 }

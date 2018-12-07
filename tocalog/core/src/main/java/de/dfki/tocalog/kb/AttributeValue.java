@@ -38,4 +38,9 @@ public class AttributeValue<T> {
     public int hashCode() {
         return Objects.hash(name, value, attribute);
     }
+
+    @Override
+    public String toString() {
+        return String.format("AttributeValue{%s=%s", name, value.toString());
+    }
 }
