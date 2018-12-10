@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Uses the first service of a node and allocates the output for it.
@@ -17,7 +18,7 @@ import java.util.Optional;
 public class AllocateVisitor implements OutputNode.Visitor {
     private static Logger log = LoggerFactory.getLogger(AllocateVisitor.class);
     private final Imp imp;
-    private Map<String, Assignment> assignments;
+    private Map<String, OutputUnit> assignments;
     private Map<String, String> allocationsIds;
 
     public AllocateVisitor(Imp imp) {
@@ -26,15 +27,24 @@ public class AllocateVisitor implements OutputNode.Visitor {
 
     @Override
     public void visitLeaf(OutputNode.External leaf) {
-        Assignment assignment = assignments.get(leaf.getId());
-        assignment.limit(1);
+        String id = leaf.getId();
+        OutputUnit outputUnit = assignments.get(id);
 
-        Optional<Entity> service = assignment.getBest();
-//        List<Service> services = assignment.getServices();
-        if (!service.isPresent()) {
-            log.warn("can't assign service to {}. no suitable service available", leaf.getAttachment());
+//        assignment.limit(1);
+
+        if(outputUnit == null) {
+            log.warn("can't allocate {}: no service assigned.", outputUnit);
             return;
         }
+
+        Set<Entity> services = assignments.get(id).getServices();
+//        List<Service> services = assignment.getServices();
+        if (services.isEmpty()) {
+            log.warn("can't allocate {}: no suitable service available.", outputUnit);
+            return;
+        }
+
+
 
         //TODO case: service is lost and output component can't assign anymore
         // could try again with the second best?
@@ -42,28 +52,29 @@ public class AllocateVisitor implements OutputNode.Visitor {
 
         boolean assigned = false;
         for (OutputComponent oc : imp.getComponents()) {
-            if (!oc.supports(leaf.getAttachment(), service.get())) {
+            if (!oc.supports(outputUnit.getOutput(), services.iterator().next())) {
                 continue;
             }
+            String allocateId = oc.allocate(outputUnit); //TODO all on same comp
 
 //            String id = oc.allocate(leaf.getAttachment(), service.get());
-//            allocationsIds.put(leaf.getId(), id);
+            allocationsIds.put(leaf.getId(), allocateId);
             assigned = true;
             break;
         }
 
         if (!assigned) {
-            log.warn("can't assign service to {}. no output component can handle the request", leaf.getAttachment());
+            log.warn("can't allocate {}: no output component can handle the request", outputUnit);
         }
     }
 
     @Override
     public void visitInnerNode(OutputNode.Internal node) {
         node.getChildNodes().forEach(n -> n.accept(this));
-        //TODO store allocation state object with the semantic of the inner node
+        //TODO store allocation state object with the semantic of the inner node.. not necessary?
     }
 
-    public Allocation visit(OutputNode node, Map<String, Assignment> assignments) {
+    public Allocation visit(OutputNode node, Map<String, OutputUnit> assignments) {
         this.allocationsIds = new HashMap<>();
         this.assignments = assignments;
         node.accept(this);

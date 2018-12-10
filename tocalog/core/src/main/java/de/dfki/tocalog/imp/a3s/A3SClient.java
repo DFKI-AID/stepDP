@@ -8,6 +8,7 @@ import de.dfki.tocalog.output.OutputComponent;
 import de.dfki.tocalog.output.OutputFactory;
 import de.dfki.tocalog.output.impp.AllocationState;
 import de.dfki.tocalog.output.impp.DeviceSelector;
+import de.dfki.tocalog.output.impp.OutputUnit;
 import org.apache.commons.lang3.SystemUtils;
 import org.pcollections.HashPMap;
 import org.pcollections.IntTreePMap;
@@ -38,7 +39,7 @@ import java.util.stream.Collectors;
 public class A3SClient implements OutputComponent {
     public static final Attribute<String> loudspeaker = new Attribute<>("a3s/loudspeaker");
     private static final Logger log = LoggerFactory.getLogger(A3SClient.class);
-    private static final String serviceType = "a3s-playback";
+    public static final String serviceType = "a3s-playback";
     private static final Duration reqTimeout = Duration.ofMillis(4000);
     private static final Duration reqInterval = Duration.ofMillis(1000);
     private static final Duration pollTimeout = Duration.ofMillis(8000);
@@ -49,8 +50,8 @@ public class A3SClient implements OutputComponent {
             .build();
     private final KnowledgeMap km;
     private final KnowledgeBase kb;
-    private String host = "172.16.60.241";
-    private int port = 50000;
+    private final String host = "172.16.60.241";
+    private final int port = 50000;
     private PMap<String, AllocationState> allocationStates = HashPMap.empty(IntTreePMap.empty());
     private PMap<String, AllocationState> oldAllocationStates = HashPMap.empty(IntTreePMap.empty());
 
@@ -66,12 +67,20 @@ public class A3SClient implements OutputComponent {
 
 
     @Override
-    public String allocate(Entity outputUnit) {
+    public String allocate(OutputUnit outputUnit) {
         log.info("allocating {}", outputUnit);
         //TODO multiple services
-        String id = "s1"; // for debugging UUID.randomUUID().toString().substring(0, 8);
+        String id = UUID.randomUUID().toString().substring(0, 8);
         synchronized (this) {
             allocationStates = allocationStates.plus(id, AllocationState.getInit());
+        }
+
+        if(outputUnit.getServices().isEmpty()) {
+            log.warn("can't present {}: no services", outputUnit);
+            synchronized (this) {
+                allocationStates = allocationStates.plus(id, AllocationState.getError("no services assigned"));
+            }
+            return id;
         }
 
         try {
@@ -231,12 +240,9 @@ public class A3SClient implements OutputComponent {
     }
 
 
-    protected void createAudioSession(String session, Entity outputUnit) {
-        Set<Entity> playbackServices = outputUnit.get(DeviceSelector.where).get(); //TODO validate with scheme
-//                outputUnit.get(DeviceSelector.where).get()
-//                .stream().map(x -> x.get(DeviceSelector.serviceAttr).get())
-//                .collect(Collectors.toSet());
-        Entity output = outputUnit.get(DeviceSelector.what).get();
+    protected void createAudioSession(String session, OutputUnit outputUnit) {
+        Set<Entity> playbackServices = outputUnit.getServices();
+        Entity output = outputUnit.getOutput();
 
         for (Entity playbackService : playbackServices) {
             serviceScheme.validate(playbackService);
@@ -408,132 +414,137 @@ public class A3SClient implements OutputComponent {
         }
     }
 
-    @SpringBootApplication
-    public static class App implements ApplicationRunner {
-
-        public static void runCommand(String... cmd) throws IOException, InterruptedException {
-            ProcessBuilder pb = new ProcessBuilder(cmd);
-            pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
-            pb.redirectError(ProcessBuilder.Redirect.INHERIT);
-            Process p = pb.start();
-            p.waitFor();
-        }
-
-        @Override
-        public void run(ApplicationArguments args) throws Exception {
-            KnowledgeBase kb = new KnowledgeBase();
-            KnowledgeMap serviceKm = kb.getKnowledgeMap(Ontology.Service);
-            //TODO fixed entities
-            Entity p1 = new Entity()
-                    .set(Ontology.id, "p1")
-                    .set(Ontology.uri, URI.create("http://172.16.59.0:60000"))
-                    .set(Ontology.type2, Ontology.Service)
-                    .set(Ontology.service, serviceType)
-                    .set(Ontology.timestamp, 0l);
-            serviceKm.add(p1);
-
-            KnowledgeMap deviceKm = kb.getKnowledgeMap(Ontology.Device);
-            deviceKm.add(new Entity()
-                    .set(Ontology.id, "macbook")
-            );
-//            KnowledgeMap compKm = kb.getKnowledgeMap(Ontology.DeviceComponent);
-//            compKm.add(new Entity()
-//                    .set(Ontology.id, "macbook-loudspeaker")
-//                    .set(Ontology.type2, Ontology.Loudspeaker)
-//                    .set(Ontology.device, "macbook")
-//                    .set(Ontology.service, "p1")
+//    @SpringBootApplication
+//    public static class App implements ApplicationRunner {
+//
+//        public static void runCommand(String... cmd) throws IOException, InterruptedException {
+//            ProcessBuilder pb = new ProcessBuilder(cmd);
+//            pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+//            pb.redirectError(ProcessBuilder.Redirect.INHERIT);
+//            Process p = pb.start();
+//            p.waitFor();
+//        }
+//
+//        @Override
+//        public void run(ApplicationArguments args) throws Exception {
+//            KnowledgeBase kb = new KnowledgeBase();
+//            KnowledgeMap serviceKm = kb.getKnowledgeMap(Ontology.Service);
+//            //TODO fixed entities
+//            Entity p1 = new Entity()
+//                    .set(Ontology.id, "p1")
+//                    .set(Ontology.uri, URI.create("http://172.16.59.0:60000"))
+//                    .set(Ontology.type2, Ontology.Service)
+//                    .set(Ontology.service, serviceType)
+//                    .set(Ontology.timestamp, 0l);
+//            serviceKm.add(p1);
+//
+//            KnowledgeMap deviceKm = kb.getKnowledgeMap(Ontology.Device);
+//            deviceKm.add(new Entity()
+//                    .set(Ontology.id, "macbook")
 //            );
-            KnowledgeMap userKm = kb.getKnowledgeMap(Ontology.Agent);
-            final Entity m1 = new Entity().set(Ontology.id, "m1");
-            userKm.add(m1);
+////            KnowledgeMap compKm = kb.getKnowledgeMap(Ontology.DeviceComponent);
+////            compKm.add(new Entity()
+////                    .set(Ontology.id, "macbook-loudspeaker")
+////                    .set(Ontology.type2, Ontology.Loudspeaker)
+////                    .set(Ontology.device, "macbook")
+////                    .set(Ontology.service, "p1")
+////            );
+//            KnowledgeMap userKm = kb.getKnowledgeMap(Ontology.Agent);
+//            final Entity m1 = new Entity().set(Ontology.id, "m1");
+//            userKm.add(m1);
+//
+//            A3SClient client = new A3SClient(kb);
+//            Imp imp = new Imp(kb);
+//            imp.addOutputComponent(client);
+//
+////            SystemUtils.IS_OS_MAC
+//
+//            while (true) {
+//                Scanner scanner = new Scanner(System.in);
+//                System.out.println("give me some text: ");
+//                String tts = scanner.nextLine();
+//                System.out.println();
+//
+//                long start = System.currentTimeMillis();
+//                String dir = System.getProperty("user.dir");
+//                String outPath = dir + "/sample.aiff";
+//                String wavPath = dir + "/sample.wav";
+//                runCommand("say", String.format("\"%s\"", tts), "-o", outPath);
+//                System.out.println("elapsed gen : " + (System.currentTimeMillis() - start));
+//
+//                //convert to wav ; better: should be done on the same machine that runs the a3s-service
+//                start = System.currentTimeMillis();
+//                runCommand("sox", outPath, "-t", "wavpcm", "-r", "48000", "-c", "2", "-b", "16", wavPath);
+//                System.out.println("elapsed convert : " + (System.currentTimeMillis() - start));
+//
+//                //upload file
+//                start = System.currentTimeMillis();
+//                runCommand("curl", "-XPOST", "-F", String.format("data=@%s", wavPath),
+//                        String.format("http://%s:%d/files/sample", client.host, client.port));
+//                System.out.println();
+//                System.out.println("elapsed upload : " + (System.currentTimeMillis() - start));
+//
+//                start = System.currentTimeMillis();
+//                Entity speechOutput = new OutputFactory().createFileOutput("sample");
+//
+//
+//                DeviceSelector deviceSelector = new DeviceSelector(imp);
+//                OutputUnit outputUnit = deviceSelector.process(
+//                        new OutputUnit(speechOutput, Set.of(m1))).orElse(null);
+//                if (outputUnit == null) {
+//                    System.out.println("no device available");
+//                    continue;
+//                }
+//
+////                Entity whereEntity = new Entity()
+////                        .set(DeviceSelector.serviceAttr, p1);
+////                Entity outputUnit = new Entity()
+////                        .set(DeviceSelector.what, speechOutput)
+////                        .set(DeviceSelector.where, Set.of(whereEntity));
+//                String allocationId = client.allocate(outputUnit);
+//
+//
+//                AllocationState as = AllocationState.getNone();
+//                while (true) {
+//                    synchronized (client.getClass()) {
+//                        client.getClass().wait(3);
+//                    }
+////                String s = client.km.getAll().stream().map(e -> e.toString())
+////                        .reduce("", (x, y) -> x + " " + y);
+////                System.out.println(s);
+//
+//                    AllocationState currentState = client.getAllocationState(allocationId);
+//                    if (currentState != as) {
+//                        as = currentState;
+//                        System.out.println(allocationId + " " + as);
+//                        if (as.presenting()) {
+//                            System.out.println("elapsed present : " + (System.currentTimeMillis() - start));
+//                        }
+//                    }
+//
+//
+//                    if (as.finished()) {
+//                        break;
+//                    }
+//                }
+//
+//
+//            }
+//
+//
+//        }
+//    }
+//
+//    public static void main(String[] args) throws InterruptedException {
+//        SpringApplication.run(App.class);
+//    }
 
-            A3SClient client = new A3SClient(kb);
-            Imp imp = new Imp(kb);
-            imp.addOutputComponent(client);
 
-//            SystemUtils.IS_OS_MAC
-
-            while (true) {
-                Scanner scanner = new Scanner(System.in);
-                System.out.println("give me some text: ");
-                String tts = scanner.nextLine();
-                System.out.println();
-
-                long start = System.currentTimeMillis();
-                String dir = System.getProperty("user.dir");
-                String outPath = dir + "/sample.aiff";
-                String wavPath = dir + "/sample.wav";
-                runCommand("say", String.format("\"%s\"", tts), "-o", outPath);
-                System.out.println("elapsed gen : " + (System.currentTimeMillis() - start));
-
-                //convert to wav ; better: should be done on the same machine that runs the a3s-service
-                start = System.currentTimeMillis();
-                runCommand("sox", outPath, "-t", "wavpcm", "-r", "48000", "-c", "2", "-b", "16", wavPath);
-                System.out.println("elapsed convert : " + (System.currentTimeMillis() - start));
-
-                //upload file
-                start = System.currentTimeMillis();
-                runCommand("curl", "-XPOST", "-F", String.format("data=@%s", wavPath),
-                        String.format("http://%s:%d/files/sample", client.host, client.port));
-                System.out.println();
-                System.out.println("elapsed upload : " + (System.currentTimeMillis() - start));
-
-                start = System.currentTimeMillis();
-                Entity speechOutput = new OutputFactory().createFileOutput("sample");
-
-
-                DeviceSelector deviceSelector = new DeviceSelector(imp);
-                Entity outputUnit = deviceSelector.process(new Entity()
-                        .set(DeviceSelector.what, speechOutput)
-                        .set(DeviceSelector.whom, Set.of(m1))
-                ).orElse(null);
-                if (outputUnit == null) {
-                    System.out.println("no device available");
-                    continue;
-                }
-
-//                Entity whereEntity = new Entity()
-//                        .set(DeviceSelector.serviceAttr, p1);
-//                Entity outputUnit = new Entity()
-//                        .set(DeviceSelector.what, speechOutput)
-//                        .set(DeviceSelector.where, Set.of(whereEntity));
-                String allocationId = client.allocate(outputUnit);
-
-
-                AllocationState as = AllocationState.getNone();
-                while (true) {
-                    synchronized (client.getClass()) {
-                        client.getClass().wait(3);
-                    }
-//                String s = client.km.getAll().stream().map(e -> e.toString())
-//                        .reduce("", (x, y) -> x + " " + y);
-//                System.out.println(s);
-
-                    AllocationState currentState = client.getAllocationState(allocationId);
-                    if (currentState != as) {
-                        as = currentState;
-                        System.out.println(allocationId + " " + as);
-                        if (as.presenting()) {
-                            System.out.println("elapsed present : " + (System.currentTimeMillis() - start));
-                        }
-                    }
-
-
-                    if (as.finished()) {
-                        break;
-                    }
-                }
-
-
-            }
-
-
-        }
+    public String getHost() {
+        return host;
     }
 
-    public static void main(String[] args) throws InterruptedException {
-        SpringApplication.run(App.class);
+    public int getPort() {
+        return port;
     }
-
-
 }

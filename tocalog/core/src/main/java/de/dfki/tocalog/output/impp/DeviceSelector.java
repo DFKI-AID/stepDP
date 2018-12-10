@@ -50,10 +50,9 @@ public class DeviceSelector {
      * @param outputUnit
      * @return
      */
-    public Optional<Entity> process(Entity outputUnit) {
-        Optional<Entity> unit = rankDevices(outputUnit).stream()
-                .map(x -> x.set(score, ((double) x.get(minRank).get() / Math.max(x.get(maxRank).get(), 1))))
-                .sorted(Comparator.comparing(x -> x.get(score).get()))
+    public Optional<OutputUnit> process(OutputUnit outputUnit) {
+        Optional<OutputUnit> unit = rankDevices(outputUnit).stream()
+                .sorted(Comparator.comparing(x -> x.getScore()))
                 .findFirst();
         return unit;
     }
@@ -100,18 +99,13 @@ public class DeviceSelector {
      * @param outputUnit
      * @return
      */
-    protected Set<Entity> rankDevices(Entity outputUnit) {
-        Ontology.AbsScheme scheme = Ontology.AbsScheme.builder().present(what).present(whom).build();
-        scheme.validate(outputUnit);
-
+    protected Set<OutputUnit> rankDevices(OutputUnit outputUnit) {
         Set<Entity> targets = findTargets();
-        Set<Entity> units = targets.stream()
+        Set<OutputUnit> units = targets.stream()
                 // filter if service can't present the given output
-                .filter(x -> imp.supports(outputUnit.get(what).get(), x))
+                .filter(x -> imp.supports(outputUnit.getOutput(), x))
                 // atm only unimodal output
-                .map(x -> outputUnit.set(where, Set.of(x)))
-                .map(x -> x.set(maxRank, 0l))
-                .map(x -> x.set(minRank, 0l))
+                .map(x -> outputUnit.setServices(Set.of(x)))
                 // now we have output base with the form of (whom what where rank_min rank_max...)
                 .map(x -> rank(x))
                 .collect(Collectors.toSet());
@@ -128,8 +122,7 @@ public class DeviceSelector {
      * @param entity
      * @return
      */
-    protected Entity rank(Entity entity) {
-        unitScheme.validate(entity);
+    protected OutputUnit rank(OutputUnit entity) {
         //TODO ranking
         return entity;
     }

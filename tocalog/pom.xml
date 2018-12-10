@@ -8,6 +8,7 @@
     <artifactId>tocalog</artifactId>
     <packaging>pom</packaging>
     <version>0.0.2</version>
+
     <build>
         <plugins>
             <plugin>

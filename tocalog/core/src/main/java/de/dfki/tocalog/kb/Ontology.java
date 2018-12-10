@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * TODO static / singleton class is ugly. however, accessing the attributes would be annoying otherwise...
+ * TODO rename tocalog => toc for higher readability
  */
 @SpringBootApplication
 public class Ontology {

@@ -2,6 +2,7 @@ package de.dfki.tocalog.output;
 
 import de.dfki.tocalog.kb.Entity;
 import de.dfki.tocalog.output.impp.AllocationState;
+import de.dfki.tocalog.output.impp.OutputUnit;
 
 import java.util.Optional;
 
@@ -13,7 +14,7 @@ public interface OutputComponent {
      * @throws IllegalArgumentException
      * @return
      */
-    String allocate(Entity outputUnit);
+    String allocate(OutputUnit outputUnit);
 
     AllocationState getAllocationState(String id);
 

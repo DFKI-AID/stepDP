@@ -44,7 +44,7 @@ public class HotelBookingDC implements DialogComponent {
 //                public void run() {
 //                    active = true;
 //                    lastActive = System.currentTimeMillis();
-//                    Allocation id = imp.allocate(OutputNode.buildNode(new SpeechOutput("ok, let's do this")).build());
+//                    Allocation id = imp.allocate(OutputNode.build(new SpeechOutput("ok, let's do this")).build());
 //                    List<Slot.Entity> slotCandidates = getSlotCandidates(textInput);
 //                    slotCandidates.forEach(sc -> sc.getSlot().consume(textInput));
 //                }
@@ -80,7 +80,7 @@ public class HotelBookingDC implements DialogComponent {
 //
 //                @Override
 //                public void run() {
-//                    Allocation id = imp.allocate(OutputNode.buildNode(new SpeechOutput("Did you mean <slot1> or <slot2>")).build());
+//                    Allocation id = imp.allocate(OutputNode.build(new SpeechOutput("Did you mean <slot1> or <slot2>")).build());
 //
 //                }
 //            });

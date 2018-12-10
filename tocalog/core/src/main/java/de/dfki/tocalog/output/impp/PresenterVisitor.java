@@ -9,7 +9,7 @@ public class PresenterVisitor implements OutputNode.Visitor {
 
     public void visitInnerNode(OutputNode.Internal node) {
         OutputNode.Internal.Builder builder = currentBuilder;
-        currentBuilder = OutputNode.buildNode(node.getSemantic());
+        currentBuilder = OutputNode.build(node.getSemantic());
         currentBuilder.setId(node.getId());
 
         switch (node.getSemantic()) {

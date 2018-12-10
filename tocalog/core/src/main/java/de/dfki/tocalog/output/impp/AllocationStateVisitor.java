@@ -27,16 +27,21 @@ public class AllocationStateVisitor implements OutputNode.Visitor {
 
     @Override
     public void visitLeaf(OutputNode.External leaf) {
-        //TODO id not available
+        //if no allocation is available, the output has not been scheduled and is seen as 'unknown'
         allocationState = AllocationState.getNone();
         String allocationId = allocation.getAllocationsIds().get(leaf.getId());
+        if (allocationId == null) {
+            log.warn("could not get allocation state for leaf={} output={}: not assigned", leaf.getId(), leaf.getOutput());
+            allocationState = AllocationState.getNone();
+            return;
+        }
         for (OutputComponent oc : impp.getComponents()) {
             allocationState = oc.getAllocationState(allocationId);
             if (!allocationState.unknown()) {
                 return;
             }
         }
-        log.warn("could not get allocation state for leaf={} output={}", leaf.getId(), leaf.getAttachment());
+        log.warn("could not get allocation state for leaf={} output={}", leaf.getId(), leaf.getOutput());
     }
 
     @Override
@@ -81,19 +86,19 @@ public class AllocationStateVisitor implements OutputNode.Visitor {
             return AllocationState.getSuccess();
         }
 
-        if(states.stream().anyMatch(s -> s.presenting())) {
+        if (states.stream().anyMatch(s -> s.presenting())) {
             return AllocationState.getPresenting();
         }
 
-        if(states.stream().anyMatch(s -> s.initializing())) {
+        if (states.stream().anyMatch(s -> s.initializing())) {
             return AllocationState.getInit();
         }
 
-        if(states.stream().anyMatch(s -> s.cancelling())) {
+        if (states.stream().anyMatch(s -> s.cancelling())) {
             return AllocationState.getCancel();
         }
 
-        if(states.stream().allMatch(s -> s.canceled())) {
+        if (states.stream().allMatch(s -> s.canceled())) {
             return AllocationState.getCanceled();
         }
 
@@ -106,6 +111,10 @@ public class AllocationStateVisitor implements OutputNode.Visitor {
             //if one part of the presentation failed, the whole presentation failed
             AllocationState state = states.stream().filter(s -> s.failed()).findAny().get();
             return AllocationState.getError(state.getErrorCause());
+        }
+
+        if (states.stream().filter(s -> s.initializing()).findAny().isPresent()) {
+            return AllocationState.getInit();
         }
 
         if (states.stream().allMatch(s -> s.successful())) {
@@ -128,9 +137,6 @@ public class AllocationStateVisitor implements OutputNode.Visitor {
             return AllocationState.getNone();
         }
 
-        if (states.stream().filter(s -> s.initializing()).findAny().isPresent()) {
-            return AllocationState.getInit();
-        }
 
         if (states.stream().allMatch(s -> s.unknown() || s.finished())) {
             return AllocationState.getError("could not find allocation information for a sub allocation");
@@ -141,6 +147,10 @@ public class AllocationStateVisitor implements OutputNode.Visitor {
     }
 
     private AllocationState mergeRedundant(List<AllocationState> states) {
+        if (states.stream().anyMatch(s -> s.successful())) {
+            // if one of the redundant presentation was successful the whole presentation is considered successful
+            return AllocationState.getSuccess();
+        }
         if (states.stream().filter(s -> s.presenting()).findAny().isPresent()) {
             return AllocationState.getPresenting();
         }

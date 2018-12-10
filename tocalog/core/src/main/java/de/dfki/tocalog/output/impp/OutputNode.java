@@ -1,6 +1,7 @@
 package de.dfki.tocalog.output.impp;
 
 import de.dfki.tocalog.kb.Entity;
+import de.dfki.tocalog.kb.Ontology;
 
 import java.util.*;
 
@@ -30,12 +31,12 @@ public abstract class OutputNode {
     }
 
 
-    public static Internal.Builder buildNode(Semantic semantic) {
+    public static Internal.Builder build(Semantic semantic) {
         return new Internal.Builder(semantic);
     }
 
-    public static External.Builder buildNode(Entity output) {
-        return new External.Builder(output);
+    public static External build(OutputUnit output) {
+        return new External(output);
     }
 
     public interface Visitor {
@@ -50,11 +51,15 @@ public abstract class OutputNode {
     }
 
     public static class External extends OutputNode {
-        private Entity attachment;
-
+        private OutputUnit output;
         private External(Builder builder) {
-            super(builder.id);
-            this.attachment = builder.output;
+            super(builder.output.getOutputId());
+            this.output = builder.output;
+        }
+
+        private External(OutputUnit output) {
+            super(output.getOutputId());
+            this.output = output;
         }
 
         @Override
@@ -62,37 +67,31 @@ public abstract class OutputNode {
             visitor.visitLeaf(this);
         }
 
-        public Entity getAttachment() {
-            return attachment;
+        public OutputUnit getOutput() {
+            return output;
         }
 
         public External copy() {
-            Builder builder = new Builder(attachment);
-            builder.setId(this.id);
+            Builder builder = new Builder(output);
             return builder.build();
         }
 
         public static class Builder {
-            private Entity output;
-            private String id = null;
+            private OutputUnit output;
 
-            public Builder(Entity output) {
+            public Builder(OutputUnit output) {
+
                 this.output = output;
             }
 
-            public Builder addService(String service) {
-                return this;
-            }
-
-            public Builder setOutput(Entity output) {
-                this.output = output;
-                return this;
-            }
-
-            public Builder setId(String id) {
-                this.id = id;
-                return this;
-            }
+//            public Builder addService(String service) {
+//                return this;
+//            }
+//
+//            public Builder setOutput(Entity output) {
+//                this.output = output;
+//                return this;
+//            }
 
             public External build() {
                 return new External(this);

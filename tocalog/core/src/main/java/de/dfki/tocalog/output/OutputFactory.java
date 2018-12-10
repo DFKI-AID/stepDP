@@ -35,9 +35,14 @@ public class OutputFactory {
             .equal(Ontology.modality, "image")
             .build();
 
+    public static final Ontology.Scheme TextOutputScheme = Ontology.AbsScheme.builder()
+            .present(Ontology.utterance)
+            .equal(Ontology.modality, "text")
+            .build();
+
     public Entity createTTSOutput(String utterance) {
         return new Entity()
-                .set(Ontology.id, randomId())
+                .set(Ontology.id, "tts" + randomId())
                 .set(Ontology.utterance, utterance)
                 .set(Ontology.type, "Output")
                 .set(Ontology.mode, Mode.Audition)
@@ -46,7 +51,7 @@ public class OutputFactory {
 
     public Entity createFileOutput(String file) {
         return new Entity()
-                .set(Ontology.id, randomId())
+                .set(Ontology.id, "file" + randomId())
                 .set(Ontology.file, file)
                 .set(Ontology.type, "Output")
                 .set(Ontology.mode, Mode.Audition);
@@ -55,7 +60,7 @@ public class OutputFactory {
 
     public Entity createTextOutput(String text) {
         return new Entity()
-                .set(Ontology.id, randomId())
+                .set(Ontology.id, "text" + randomId())
                 .set(Ontology.utterance, text)
                 .set(Ontology.type, "Output")
                 .set(Ontology.mode, Mode.Vision)
@@ -64,7 +69,7 @@ public class OutputFactory {
 
     public Entity createImageOutput(URI uri) {
         return new Entity()
-                .set(Ontology.id, randomId())
+                .set(Ontology.id, "image" + randomId())
                 .set(Ontology.uri, uri)
                 .set(Ontology.type2, Ontology.Output)
                 .set(Ontology.mode, Mode.Vision)
@@ -72,7 +77,7 @@ public class OutputFactory {
     }
 
     private static String randomId() {
-        return UUID.randomUUID().toString().substring(0,8);
+        return UUID.randomUUID().toString().substring(0, 8);
     }
 }
 

@@ -2,7 +2,6 @@ package de.dfki.tocalog.wiki;
 
 import fastily.jwiki.core.Wiki;
 import okhttp3.HttpUrl;
-import org.apache.http.client.methods.HttpGet;
 
 import java.util.ArrayList;
 import java.util.HashMap;

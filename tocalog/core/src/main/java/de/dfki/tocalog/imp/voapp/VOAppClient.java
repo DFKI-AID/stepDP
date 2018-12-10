@@ -12,6 +12,7 @@ import de.dfki.tocalog.output.OutputComponent;
 import de.dfki.tocalog.output.OutputFactory;
 import de.dfki.tocalog.output.impp.AllocationState;
 import de.dfki.tocalog.output.impp.DeviceSelector;
+import de.dfki.tocalog.output.impp.OutputUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
@@ -58,50 +59,48 @@ public class VOAppClient implements OutputComponent {
     }
 
     @Override
-    public String allocate(Entity outputUnit) {
+    public String allocate(OutputUnit outputUnit) {
         String allocationId = allocateFreshId();
         KnowledgeMap km = this.kb.getKnowledgeMap(Ontology.Service);
 
-
-        if (!DeviceSelector.unitScheme.matches(outputUnit)) {
-            synchronized (this) {
-                stateMap.put(allocationId, AllocationState.getError(String.format("invalid output unit %s for voapp", outputUnit)));
-                return allocationId;
-            }
+        if (outputUnit.getServices().isEmpty()) {
+            log.warn("can't present {}: no services", outputUnit);
+//            synchronized (this) {
+//                allocationStates = allocationStates.plus(id, AllocationState.getError("no services assigned"));
+//            }
+            return allocationId;
         }
 
-        Set<Entity> services = outputUnit.get(DeviceSelector.where).get();
-        Entity output = outputUnit.get(DeviceSelector.what).get();
+        Set<Entity> services = outputUnit.getServices();
+        Entity output = outputUnit.getOutput();
 
         for (Entity service : services) {
             if (!serviceScheme.matches(service)) {
                 synchronized (this) {
-                    stateMap.put(allocationId, AllocationState.getError(String.format("invalid service %s for voapp", service)));
+                    String msg = String.format("invalid service %s for voapp", service);
+                    log.warn(msg);
+                    stateMap.put(allocationId, AllocationState.getError(msg));
                     return allocationId;
                 }
             }
         }
 
-        Ontology.Scheme outputScheme = Ontology.AbsScheme.builder()
-                .equal(Ontology.modality, "image")
-                .present(Ontology.uri)
-                .build();
-        if (!outputScheme.matches(output)) {
-            synchronized (this) {
-                stateMap.put(allocationId, AllocationState.getError(String.format("invalid output %s for voapp", output)));
-                return allocationId;
-            }
-        }
 
         //TODO multiple contents
         Map<String, Object> payload = new HashMap<>();
-        Map<String, String> content1 = new HashMap<>();
-        content1.put("type", "img");
-        content1.put("content", output.get(Ontology.uri).get().toString());
-        payload.put("content", List.of(content1));
-        payload.put("area", "\"n0\"");
-        payload.put("cols", "100%");
-        payload.put("rows", "100%");
+        try {
+            Map<String, String> content1 = createContent(output);
+            payload.put("content", List.of(content1));
+            payload.put("area", "\"n0\"");
+            payload.put("cols", "100%");
+            payload.put("rows", "100%");
+        } catch (Exception ex) {
+            log.warn("could not allocate visual output: {}", ex.getMessage());
+            synchronized (this) {
+                stateMap.put(allocationId, AllocationState.getError(ex.getMessage()));
+                return allocationId;
+            }
+        }
 
         for (Entity service : services) {
             Mono<String> req = WebClient.create(String.format("http://%s:%d/display/%s/content",
@@ -116,7 +115,27 @@ public class VOAppClient implements OutputComponent {
             req.subscribe();
         }
 
+        synchronized (this) {
+            //TODO change to init and track
+            stateMap.put(allocationId, AllocationState.getPresenting());
+        }
+
         return allocationId;
+    }
+
+    protected Map<String, String> createContent(Entity output) {
+        Map<String, String> content = new HashMap<>();
+        if (OutputFactory.TextOutputScheme.matches(output)) {
+            content.put("type", "text");
+            content.put("content", output.get(Ontology.utterance).get());
+        } else if (OutputFactory.ImageOutputScheme.matches(output)) {
+            content.put("type", "img");
+            content.put("content", output.get(Ontology.uri).get().toString());
+        } else {
+            throw new IllegalArgumentException("unsupported output for voapp: " + output);
+        }
+
+        return content;
     }
 
     protected String allocateFreshId() {
@@ -149,7 +168,8 @@ public class VOAppClient implements OutputComponent {
             return false;
         }
 
-        if (!OutputFactory.ImageOutputScheme.matches(output)) {
+        if (!OutputFactory.ImageOutputScheme.matches(output) &&
+                !OutputFactory.TextOutputScheme.matches(output)) {
             return false;
         }
         return true;
@@ -236,6 +256,14 @@ public class VOAppClient implements OutputComponent {
     }
 
 
+    public String getHost() {
+        return host;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
     @SpringBootApplication
     public static class App implements ApplicationRunner {
         @Override
@@ -259,10 +287,9 @@ public class VOAppClient implements OutputComponent {
                 Entity imageOutput = (new OutputFactory()).createImageOutput(new URI("http:/files/sleeping.png"));
 
                 DeviceSelector deviceSelector = new DeviceSelector(imp);
-                Entity outputUnit = deviceSelector.process(new Entity()
-                        .set(DeviceSelector.what, imageOutput)
-                        .set(DeviceSelector.whom, Set.of(m1))
-                ).orElse(null);
+
+                OutputUnit outputUnit = new OutputUnit(imageOutput, Set.of(m1));
+                outputUnit = deviceSelector.process(outputUnit).orElse(null);
                 if (outputUnit == null) {
                     System.out.println("no device available");
                     Thread.sleep(500);

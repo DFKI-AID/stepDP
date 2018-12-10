@@ -21,7 +21,7 @@ public class Imp {
 
     public Imp(KnowledgeBase kb) {
         this.kb = kb;
-//        root = OutputNode.buildNode(OutputNode.Semantic.concurrent).of();
+//        root = OutputNode.build(OutputNode.Semantic.concurrent).of();
 //        root.
     }
 
@@ -37,12 +37,23 @@ public class Imp {
     public Allocation allocate(OutputNode output) { //TODO OutputRequest? what, when, whom? how?
         //output = copyVisitor.copy(output).of();
 
+        var fcv = new FindCandidateVisitor(this);
+        Map<String, OutputUnit> candidates = fcv.visit(output);
 
-        FindCandidateVisitor cf = new FindCandidateVisitor(this);
-        Map<String, Assignment> assignments = cf.visit(output);
+
+        //TODO is feasible visitor for early failure
+
 
         AllocateVisitor av = new AllocateVisitor(this);
-        Allocation allocation = av.visit(output, assignments);
+        Allocation allocation = av.visit(output, candidates);
+
+
+
+//        FindCandidateVisitor cf = new FindCandidateVisitor(this);
+//        Map<String, Assignment> assignments = cf.visit(output);
+//
+//        AllocateVisitor av = new AllocateVisitor(this);
+//        Allocation allocation = av.visit(output, assignments);
 
         return allocation;
 
@@ -68,13 +79,16 @@ public class Imp {
     }
 
 
-    public AllocationState getState(String id) {
+    public AllocationState getState(Allocation allocation) {
+        AllocationStateVisitor vis = new AllocationStateVisitor();
+        AllocationState state = vis.visit(allocation);
+        return state;
 
-        if (!allocationStates.containsKey(id)) {
-            return AllocationState.NONE;
-        }
-        //return allocations.get(id).getAllocationState();
-        return null;
+//        if (!allocationStates.containsKey(id)) {
+//            return AllocationState.NONE;
+//        }
+//        //return allocations.get(id).getAllocationState();
+//        return null;
     }
 
 //    @Override
