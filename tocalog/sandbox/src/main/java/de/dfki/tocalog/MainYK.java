@@ -179,7 +179,8 @@ public class MainYK implements ApplicationRunner {
 
 
             OutputNode node =
-                    OutputNode.build(OutputNode.Semantic.redundant).setId("abcdef")
+                    OutputNode.build(OutputNode.Semantic.complementary).setId("abcdef")
+                            .addNode(OutputNode.build(imageOutput))
                             .addNode(OutputNode.build(speechOutput))
                             .addNode(OutputNode.build(textOutput))
                             .build();
@@ -188,10 +189,15 @@ public class MainYK implements ApplicationRunner {
             Allocation allocation = imp.allocate(node);
             log.info("allocated: {}", allocation);
 
-            for (int i = 0; i < 6; i++) {
-                System.out.println(imp.getState(allocation));
+            while(true) {
+                AllocationState state = imp.getState(allocation);
+                System.out.println(state);
+                if(state.finished()) {
+                    break;
+                }
                 Thread.sleep(500);
             }
+
 
 //
 //            DeviceSelector deviceSelector = new DeviceSelector(imp);

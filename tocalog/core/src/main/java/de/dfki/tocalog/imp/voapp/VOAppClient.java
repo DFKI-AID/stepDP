@@ -89,11 +89,9 @@ public class VOAppClient implements OutputComponent {
         //TODO multiple contents
         Map<String, Object> payload = new HashMap<>();
         try {
-            Map<String, String> content1 = createContent(output);
-            payload.put("content", List.of(content1));
-            payload.put("area", "\"n0\"");
-            payload.put("cols", "100%");
-            payload.put("rows", "100%");
+            Map<String, Object> content1 = createContent(output, services);
+            payload.put("duration", "6000"); //TODO duration
+            payload.put("content", content1);
         } catch (Exception ex) {
             log.warn("could not allocate visual output: {}", ex.getMessage());
             synchronized (this) {
@@ -102,37 +100,122 @@ public class VOAppClient implements OutputComponent {
             }
         }
 
-        for (Entity service : services) {
-            Mono<String> req = WebClient.create(String.format("http://%s:%d/display/%s/content",
-                    host, port, service.get(Ontology.id).get()))
-                    .method(HttpMethod.POST)
-                    .body(BodyInserters.fromObject(payload))
-                    .retrieve()
-                    .bodyToMono(String.class)
-                    .timeout(reqTimeout)
-                    .doOnError(ex -> onPresentationInfo(allocationId, ex))
-                    .doOnSuccess(r -> onPresentationInfo(allocationId, r));
-            req.subscribe();
-        }
+        Mono<String> req = WebClient.create(String.format("http://%s:%d/session/%s",
+                host, port, allocationId))
+                .method(HttpMethod.POST)
+                .body(BodyInserters.fromObject(payload))
+                .retrieve()
+                .bodyToMono(String.class)
+                .timeout(reqTimeout)
+                .doOnError(ex -> onPresentationInfo(allocationId, ex))
+                .doOnSuccess(r -> onPresentationInfo(allocationId, r));
+        req.subscribe();
+
 
         synchronized (this) {
             //TODO change to init and track
-            stateMap.put(allocationId, AllocationState.getPresenting());
+            stateMap.put(allocationId, AllocationState.getInit());
         }
+
+        getSessionStateAsync(allocationId, "none").subscribe();
 
         return allocationId;
     }
 
-    protected Map<String, String> createContent(Entity output) {
-        Map<String, String> content = new HashMap<>();
+    protected Mono<String> getSessionStateAsync(String session, String state) {
+        return WebClient.create(String.format("http://%s:%d/session/%s/state/%s", host, port, session, state))
+                .method(HttpMethod.GET)
+                .header("Prefer", "wait=" + reqTimeout.dividedBy(2).toMillis())
+                .retrieve()
+                .bodyToMono(String.class)
+                .timeout(reqTimeout)
+                .doOnSuccess(x -> onSessionInfo(session, state, x))
+                .doOnError(x -> onSessionInfo(session, x));
+    }
+
+    protected void onSessionInfo(String session, Throwable ex) {
+        log.info("could not retrieve state for session {}. cause={}", session, ex.getMessage());
+        synchronized (this) {
+            stateMap.put(session, AllocationState.getError(ex.getMessage()));
+        }
+    }
+
+    protected void onSessionInfo(String session, String oldState, String rsp) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode jsonNode = mapper.readTree(rsp);
+            String currentState = jsonNode.get("state").asText();
+            if (!Objects.equals(oldState, currentState)) {
+                log.info("state change for session {}: {}->{}", session, oldState, currentState);
+                updateSessionInfo(session, currentState);
+            }
+
+            if (!isFinished(session)) {
+                getSessionStateAsync(session, currentState).subscribe();
+            }
+        } catch (Exception ex) {
+            onSessionInfo(session, ex);
+        }
+    }
+
+    /**
+     * @param session
+     * @return true iff the presentation for the given session finished
+     */
+    protected synchronized boolean isFinished(String session) {
+        return Optional.ofNullable(stateMap.get(session)).orElse(AllocationState.NONE).finished();
+    }
+
+    /**
+     * updates the allocation state of the session by parsing the state retrieved from the service
+     *
+     * @param session
+     * @param state
+     */
+    protected synchronized void updateSessionInfo(String session, String state) {
+        AllocationState allocationState = AllocationState.getNone();
+        switch (state) {
+            case "success":
+                allocationState = AllocationState.getSuccess();
+                break;
+            case "presenting":
+                allocationState = AllocationState.getPresenting();
+                break;
+            case "none":
+                allocationState = AllocationState.getNone();
+                break;
+            case "failure":
+                allocationState = AllocationState.getError("error N/A"); //TODO impl: transfer error cause
+                break;
+            case "init":
+                allocationState = AllocationState.getInit();
+                break;
+            default:
+                String msg = String.format("unhandled state from remote: %s. assuming error", state);
+                log.warn(msg);
+                allocationState = AllocationState.getError(msg);
+        }
+        stateMap.put(session, allocationState);
+    }
+
+    protected Map<String, Object> createContent(Entity output, Set<Entity> services) {
+        Map<String, String> contentUnit = new HashMap<>();
         if (OutputFactory.TextOutputScheme.matches(output)) {
-            content.put("type", "text");
-            content.put("content", output.get(Ontology.utterance).get());
+            contentUnit.put("type", "text");
+            contentUnit.put("content", output.get(Ontology.utterance).get());
         } else if (OutputFactory.ImageOutputScheme.matches(output)) {
-            content.put("type", "img");
-            content.put("content", output.get(Ontology.uri).get().toString());
+            contentUnit.put("type", "img");
+            contentUnit.put("content", output.get(Ontology.uri).get().toString());
         } else {
             throw new IllegalArgumentException("unsupported output for voapp: " + output);
+        }
+
+        Map<String, Object> content = new HashMap<>();
+        for(Entity service : services) {
+            String id = service.get(Ontology.id).get();
+            List<Object> contentUnits = new ArrayList<>();
+            contentUnits.add(contentUnit);
+            content.put(id, contentUnits);
         }
 
         return content;
