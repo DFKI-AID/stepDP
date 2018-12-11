@@ -75,7 +75,7 @@ public class A3SClient implements OutputComponent {
             allocationStates = allocationStates.plus(id, AllocationState.getInit());
         }
 
-        if(outputUnit.getServices().isEmpty()) {
+        if (outputUnit.getServices().isEmpty()) {
             log.warn("can't present {}: no services", outputUnit);
             synchronized (this) {
                 allocationStates = allocationStates.plus(id, AllocationState.getError("no services assigned"));
@@ -92,6 +92,17 @@ public class A3SClient implements OutputComponent {
             }
         }
         return id;
+    }
+
+    @Override
+    public void deallocate(String allocationId) {
+        WebClient.create(String.format("http://%s:%d/session/%s", host, port, allocationId))
+                .method(HttpMethod.DELETE)
+                .retrieve()
+                .bodyToMono(String.class)
+                .timeout(reqTimeout)
+                .doOnError(ex -> log.warn("error while de-allocating session: {}", ex.getMessage()))
+                .subscribe();
     }
 
     @Override

@@ -114,7 +114,7 @@ public class MainYK implements ApplicationRunner {
         //TODO fixed entities
         Entity p1 = new Entity()
                 .set(Ontology.id, "a3s-playback1")
-                .set(Ontology.uri, URI.create("http://172.16.59.0:60000"))
+                .set(Ontology.uri, URI.create("http://pi-madmacs7:60000"))
                 .set(Ontology.type2, Ontology.Service)
                 .set(Ontology.service, A3SClient.serviceType)
                 .set(Ontology.timestamp, 0l);

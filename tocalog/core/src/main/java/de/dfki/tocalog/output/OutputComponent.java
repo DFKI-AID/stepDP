@@ -16,6 +16,8 @@ public interface OutputComponent {
      */
     String allocate(OutputUnit outputUnit);
 
+    void deallocate(String allocationId);
+
     AllocationState getAllocationState(String id);
 
     /**

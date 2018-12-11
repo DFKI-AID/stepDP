@@ -48,7 +48,7 @@ public class VOAppClient implements OutputComponent {
             .build();
     private final Duration reqTimeout = Duration.ofMillis(8000);
     private final KnowledgeBase kb;
-    private final String host = "localhost";
+    private final String host = "172.16.60.241";
     private final int port = 50001;
     private long displaysHash = 0;
     private Map<String, AllocationState> stateMap = new HashMap<>();
@@ -120,6 +120,17 @@ public class VOAppClient implements OutputComponent {
         getSessionStateAsync(allocationId, "none").subscribe();
 
         return allocationId;
+    }
+
+    @Override
+    public void deallocate(String allocationId) {
+        WebClient.create(String.format("http://%s:%d/session/%s", host, port, allocationId))
+                .method(HttpMethod.DELETE)
+                .retrieve()
+                .bodyToMono(String.class)
+                .timeout(reqTimeout)
+                .doOnError(ex -> log.warn("error while de-allocating session: {}", ex.getMessage()))
+                .subscribe();
     }
 
     protected Mono<String> getSessionStateAsync(String session, String state) {
