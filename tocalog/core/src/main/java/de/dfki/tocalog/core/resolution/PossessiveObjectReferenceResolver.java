@@ -18,12 +18,15 @@ public class PossessiveObjectReferenceResolver implements ReferenceResolver {
 
     private ReferenceResolver personDeixisResolver = new WeightedReferenceResolver();
     private KnowledgeMap personMap;
-    private KnowledgeMap objectMap;
+    private KnowledgeMap objectMap = new KnowledgeMap();
+    private KnowledgeBase kb;
+    private String objectType = "";
 
 
-    public PossessiveObjectReferenceResolver(KnowledgeBase knowledgeBase, Type objectType) {
+    public PossessiveObjectReferenceResolver(KnowledgeBase knowledgeBase) {
+        this.kb = knowledgeBase;
         personMap = knowledgeBase.getKnowledgeMap(Ontology.Person);
-        objectMap = knowledgeBase.getKnowledgeMap(objectType);
+
     }
 
     public void setPersonDeixisResolver(ReferenceResolver personDeixisResolver) {
@@ -31,10 +34,13 @@ public class PossessiveObjectReferenceResolver implements ReferenceResolver {
     }
 
 
-
+    public void setObjectType(String objectType) {
+        this.objectType = objectType;
+    }
 
     @Override
     public ReferenceDistribution getReferences() {
+        objectMap = kb.getKnowledgeMap(objectType);
         ReferenceDistribution objectDistribution = new ReferenceDistribution();
 
 

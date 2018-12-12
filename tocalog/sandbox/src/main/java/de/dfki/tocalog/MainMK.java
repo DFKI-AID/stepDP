@@ -3,6 +3,7 @@ package de.dfki.tocalog;
 
 import de.dfki.tocalog.core.*;
 import de.dfki.tocalog.core.resolution.*;
+import de.dfki.tocalog.examples.device_control.DeviceControlDC;
 import de.dfki.tocalog.input.Input;
 import de.dfki.tocalog.input.TextInput;
 import de.dfki.tocalog.input.pattern.InputPattern;
@@ -27,18 +28,27 @@ public class MainMK {
 
 
     public static void main(String[] args) throws MalformedURLException {
-        TextInput text = new TextInput("Bring the fan to her");
+        TextInput text = new TextInput("Turn off the small lamp");
         text.setInitiator("speaker");
         List<Input> inputList = new ArrayList<>();
         inputList.add(text);
         Inputs inputs = new Inputs();
         inputs.add(inputList);
+        RasaHelper helper = new RasaHelper(new URL("http://localhost:5000/parse"));
 
-        usePostRasaHypo(inputs);
+        KnowledgeBase knowledgeBase = createExampleKnowledgeBase();
+        RasaHypoProcessor processor = new RasaHypoProcessor(helper);
+
+        processor.setReferenceResolvers(List.of(new PersonReferenceResolver(knowledgeBase), new ObjectReferenceResolver(knowledgeBase)));
+        DeviceControlDC deviceControlDC = new DeviceControlDC(List.of(processor));
+        deviceControlDC.process(inputs);
+
+      //  usePostRasaHypo(inputs);
 
       //  usePatternHypo(inputs);
 
         //   doExampleReferenceResolving();
+
 
     }
 
@@ -81,29 +91,36 @@ public class MainMK {
         KnowledgeBase kb = new KnowledgeBase();
         KnowledgeMap personMap =kb.getKnowledgeMap(Person);
         KnowledgeMap sessionMap =kb.getKnowledgeMap(Ontology.Session);
-        KnowledgeMap deviceMap =kb.getKnowledgeMap(Ontology.Device);
+        KnowledgeMap deviceMap =kb.getKnowledgeMap("device");
 
-        Entity fan = new Entity().set(Ontology.id, "fan").set(Ontology.color, "green").set(Ontology.size, "small").set(Ontology.position, new Vector3(1.0, 1.0, 1.0));
+        /*Entity fan = new Entity().set(Ontology.id, "fan").set(Ontology.color, "green").set(Ontology.size, "small").set(Ontology.position, new Vector3(1.0, 1.0, 1.0));
         Entity fan2 = new Entity().set(Ontology.id, "fan2").set(Ontology.color, "red").set(Ontology.size, "big").set(Ontology.position, new Vector3(2.0, 1.0, 2.0));
         Entity loudspeaker = new Entity().set(Ontology.id, "loudspeaker"); //.set(Ontology.owner, Person.refTo("speaker"));
         deviceMap.add(fan);
         deviceMap.add(fan2);
-        deviceMap.add(loudspeaker);
+        deviceMap.add(loudspeaker);*/
+        Entity lamp1 = new Entity().set(Ontology.id, "lamp1").set(Ontology.color, "white").set(Ontology.size, "small").set(Ontology.brightness, 0.0)
+                .set(Ontology.position, new Vector3(1.0, 1.0, 1.0)).set(Ontology.location, "kitchen").set(Ontology.owner, Person.refTo("speaker"));
+        Entity lamp2 = new Entity().set(Ontology.id, "lamp2").set(Ontology.color, "white").set(Ontology.size, "big").set(Ontology.brightness, 0.0)
+                .set(Ontology.position, new Vector3(2.0, 1.0, 2.0)).set(Ontology.location, "livingroom");
+        Entity loudspeaker = new Entity().set(Ontology.id, "loudspeaker"); //.set(Ontology.owner, Person.refTo("speaker"));
+        deviceMap.add(lamp1);
+        deviceMap.add(lamp2);
+
 
         Entity speaker = new Entity()
                 .set(Ontology.id, "speaker")
                 .set(Ontology.position, new Vector3(0.0, 0.0, 0.0))
                 .set(Ontology.gender, "male")
-                .set(Ontology.name, "Tom")
-                .set(Ontology.owned, loudspeaker.get(Ontology.id).get());
+                .set(Ontology.name, "Tom");
 
         personMap.add(speaker);
         Entity pers1 = new Entity()
                 .set(Ontology.id, "person1")
                 .set(Ontology.position, new Vector3(1.0, 1.0, 1.0))
                 .set(Ontology.gender, "male")
-                .set(Ontology.name, "Max")
-                .set(Ontology.owned, fan.get(Ontology.id).get());
+                .set(Ontology.name, "Max");
+               // .set(Ontology.owned, fan.get(Ontology.id).get());
 
         personMap.add(pers1);
         Entity pers2 = new Entity()
@@ -140,8 +157,9 @@ public class MainMK {
 
         KnowledgeBase kb = createExampleKnowledgeBase();
         //input: "Bring PERSONSLOT ENTITYSLOT"
-        PersonReferenceResolver personReferenceResolver = new PersonReferenceResolver(kb, "me");
+        PersonReferenceResolver personReferenceResolver = new PersonReferenceResolver(kb);
         personReferenceResolver.setSpeakerId("speaker");
+        personReferenceResolver.setInputString("me");
       //  ReferenceDistribution personDist = personReferenceResolver.getReferences();
        // System.out.println(personDist.toString());
         System.out.println("####################################");
@@ -161,7 +179,9 @@ public class MainMK {
 //        ClosenessReferenceResolver closenessReferenceResolver = new ClosenessReferenceResolver(kb, Ontology.Device);
 //        closenessReferenceResolver.setSpeakerId("speaker");
 //        objectDist = closenessReferenceResolver.getReferences();
-        ObjectReferenceResolver objectRR = new ObjectReferenceResolver(kb, "my loudspeaker", Ontology.Device);
+        ObjectReferenceResolver objectRR = new ObjectReferenceResolver(kb);
+        objectRR.setEntityType(Ontology.Device.name);
+        objectRR.setInputString("my loudspeaker");
         Map<Attribute, AttributeValue> map = new HashMap<>();
       //  map.put(Ontology.size, new AttributeValue(Ontology.size.name, "big",Ontology.id ));
         // map.put(Ontology.size, new AttributeValue(Ontology.size.name, "big",Ontology.id ));

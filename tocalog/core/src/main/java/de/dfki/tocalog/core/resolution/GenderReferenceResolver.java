@@ -22,6 +22,7 @@ public class GenderReferenceResolver implements ReferenceResolver {
         personMap = knowledgeBase.getKnowledgeMap(Ontology.Person);
     }
 
+
     public void setGender(String gender) {
         this.gender = gender;
     }
@@ -61,4 +62,6 @@ public class GenderReferenceResolver implements ReferenceResolver {
         return distribution;
 
     }
+
+
 }

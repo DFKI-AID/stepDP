@@ -41,8 +41,9 @@ public class DeviceControlDC implements DialogComponent {
         slot = new Slot("dev");
         slot.setSlotConstraint(new Slot.SlotTypeConstraint(Ontology.Device));
         Slot slot2 = new Slot("color");
-        slot2.setSlotConstraint(new Slot.SlotRangeConstraint(List.of("blue", "green", "red", "yelow")));
+        slot2.setSlotConstraint(new Slot.SlotRangeConstraint(List.of("white", "blue", "green", "red", "yellow")));
         changeColorBuilder.addSlot(slot);
+        changeColorBuilder.addSlot(slot2);
         deviceControlHypos.add(changeColorBuilder.build());
 
         //Increase_brightness _DEV _Brightness
@@ -50,8 +51,9 @@ public class DeviceControlDC implements DialogComponent {
         slot = new Slot("dev");
         slot.setSlotConstraint(new Slot.SlotTypeConstraint(Ontology.Device));
         slot2 = new Slot("brightness");
-        slot.setSlotConstraint(new Slot.NumericSlotConstraint(0.0, 360.0));
+        slot2.setSlotConstraint(new Slot.NumericSlotConstraint(0.0, 360.0));
         increaseBrightnessBuilder.addSlot(slot);
+        increaseBrightnessBuilder.addSlot(slot2);
         deviceControlHypos.add(increaseBrightnessBuilder.build());
 
         //Decrease_brightness _DEV _Brightness
@@ -59,8 +61,9 @@ public class DeviceControlDC implements DialogComponent {
         slot = new Slot("dev");
         slot.setSlotConstraint(new Slot.SlotTypeConstraint(Ontology.Device));
         slot2 = new Slot("brightness");
-        slot.setSlotConstraint(new Slot.NumericSlotConstraint(0.0, 360.0));
+        slot2.setSlotConstraint(new Slot.NumericSlotConstraint(0.0, 360.0));
         decreaseBrightnessBuilder.addSlot(slot);
+        decreaseBrightnessBuilder.addSlot(slot2);
         deviceControlHypos.add(decreaseBrightnessBuilder.build());
 
     }
@@ -70,9 +73,16 @@ public class DeviceControlDC implements DialogComponent {
         Input currentInput = inputs.getInputs().get(inputs.getInputs().size()-1);
         for(Hypothesis hypo: deviceControlHypos) {
             for (HypothesisProcessor processor : processors) {
-                processor.process(currentInput, hypo);
+                Hypothesis processedHypo = processor.process(currentInput, hypo);
+                System.out.println("processedHypo" + processedHypo.toString());
             }
         }
+
+        //check if for current input all processors match same hypo intent
+
+        //check slot candidates: same resolved entities for several processors, i.e. if different and confidence for both high -> clarification question
+
+        //if not all slots filled: give prefilled hypo to processor so that they can add slot values...
 
         return Optional.empty();
     }

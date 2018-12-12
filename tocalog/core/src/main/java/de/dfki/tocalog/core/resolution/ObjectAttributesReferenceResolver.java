@@ -13,21 +13,26 @@ public class ObjectAttributesReferenceResolver implements ReferenceResolver {
 
 
     private Map<Attribute, AttributeValue> attributes = new HashMap<>();
-    private KnowledgeMap objectMap;
+    private KnowledgeMap objectMap = new KnowledgeMap();
+    private String type = "";
+    private KnowledgeBase kb;
 
 
-    public ObjectAttributesReferenceResolver(KnowledgeBase knowledgeBase, Type objectType) {
-        objectMap = knowledgeBase.getKnowledgeMap(objectType);
+    public ObjectAttributesReferenceResolver(KnowledgeBase knowledgeBase) {
+        this.kb = knowledgeBase;
     }
 
     public void setAttributes(Map<Attribute, AttributeValue> attributes) {
         this.attributes = attributes;
     }
 
-
+    public void setType(String type) {
+        this.type = type;
+    }
 
     @Override
     public ReferenceDistribution getReferences() {
+        objectMap = kb.getKnowledgeMap(type);
         ReferenceDistribution objectDistribution = new ReferenceDistribution();
 
         if(attributes.isEmpty()) {

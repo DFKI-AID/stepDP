@@ -13,16 +13,18 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class PersonReferenceResolver implements ReferenceResolver {
+public class PersonReferenceResolver extends AbstractReferenceResolver {
 
     private KnowledgeBase knowledgeBase;
+
     private String inputString = "";
     private String speakerId = "";
     private KnowledgeMap personMap = new KnowledgeMap();
     private SpeakerReferenceResolver speakerRR;
     private SessionReferenceResolver sessionRR;
+    private String type = Ontology.Person.name;
 
-    private static final Map<String, String> PRONOUNS;
+    public static final Map<String, String> PRONOUNS;
     static {
         Map<String, String> map = new HashMap<>();
         map.put("I", "I");
@@ -50,9 +52,8 @@ public class PersonReferenceResolver implements ReferenceResolver {
         PRONOUNS = Collections.unmodifiableMap(map);
     }
 
-    public PersonReferenceResolver(KnowledgeBase knowledgeBase, String inputString) {
+    public PersonReferenceResolver(KnowledgeBase knowledgeBase) {
         this.knowledgeBase = knowledgeBase;
-        this.inputString = inputString;
         this.personMap = knowledgeBase.getKnowledgeMap(Ontology.Person);
         speakerRR = new SpeakerReferenceResolver(knowledgeBase);
         sessionRR = new SessionReferenceResolver(knowledgeBase);
@@ -60,14 +61,31 @@ public class PersonReferenceResolver implements ReferenceResolver {
 
     }
 
+    @Override
+    public void setInputString(String inputString) {
+        this.inputString = inputString;
+    }
+
+    @Override
     public void setSpeakerId(String speakerId) {
         this.speakerId = speakerId;
+    }
+
+    @Override
+    public void setEntityType(String type) {
+        this.type = type;
     }
 
 
     @Override
     public ReferenceDistribution getReferences() {
+
         ReferenceDistribution distribution = new ReferenceDistribution();
+
+        if(!type.equals(Ontology.Person.name)) {
+            return distribution;
+        }
+
         Map<String, WeightedReferenceResolver> pronoun2ReferenceResolverMap = getPronoun2ReferenceResolver();
 
         //check pronouns

@@ -2,6 +2,7 @@ package de.dfki.tocalog.core;
 
 
 import de.dfki.tocalog.kb.Entity;
+import de.dfki.tocalog.kb.KnowledgeMap;
 import de.dfki.tocalog.kb.Ontology;
 import de.dfki.tocalog.kb.Type;
 
@@ -14,7 +15,8 @@ public class Slot {
     public final String name;
     private Optional<SlotConstraint> slotConstraint;
     private Set<Entity> candidates = new HashSet<>();
-
+    private Optional<Entity> finalSlotEntity;
+    private Map<Class, Boolean> matchedMap = new HashMap<>();
 
 
     public Slot(String name) {
@@ -43,6 +45,28 @@ public class Slot {
         this.slotConstraint = Optional.of(slotConstraint);
     }
 
+
+
+    public Optional<Entity> getFinalSlotEntity() {
+        return finalSlotEntity;
+    }
+
+    public void setFinalSlotEntity(Entity finalSlotEntity) {
+        this.finalSlotEntity = Optional.of(finalSlotEntity);
+    }
+
+
+    public Map<Class, Boolean> getMatchedMap() {
+        return matchedMap;
+    }
+
+    public void setMatchedMap(Map<Class, Boolean> matchedMap) {
+        this.matchedMap = matchedMap;
+    }
+
+    public void addMatch(Class clazz, boolean matched) {
+        this.matchedMap.put(clazz, matched);
+    }
 
 
     @Override
@@ -74,9 +98,7 @@ public class Slot {
 
 
     public static abstract class SlotConstraint {
-        public abstract Object getConstraint();
         public abstract boolean validateCandidate(Entity candidate);
-        public abstract boolean validateType(String slotType);
     }
 
     public static class SlotRangeConstraint extends SlotConstraint {
@@ -91,10 +113,6 @@ public class Slot {
             rangeValues = Collections.EMPTY_LIST;
         }
 
-        @Override
-        public Object getConstraint() {
-            return rangeValues;
-        }
 
         @Override
         public boolean validateCandidate(Entity candidate) {
@@ -105,8 +123,10 @@ public class Slot {
         }
 
         @Override
-        public boolean validateType(String slotType) {
-            return false;
+        public String toString() {
+            return "SlotRangeConstraint{" +
+                    "rangeValues=" + rangeValues +
+                    '}';
         }
     }
 
@@ -122,24 +142,26 @@ public class Slot {
             this.endInterval = endInterval;
         }
 
-        @Override
-        public Object getConstraint() {
-            return List.of(startInterval, endInterval);
-        }
 
         @Override
         public boolean validateCandidate(Entity candidate) {
-            double value = Double.parseDouble(candidate.get(Ontology.name).orElse("-1"));
-            if(candidate.get(Ontology.type).orElse("").equals(Ontology.Numeric.getName())
-                    && startInterval <= value && endInterval >= value) {
-                return true;
+            if(Ontology.Number.getName().toLowerCase().contains(candidate.get(Ontology.type).orElse(""))) {
+                double value = Double.parseDouble(candidate.get(Ontology.name).orElse("-1"));
+                if(startInterval <= value && endInterval >= value) {
+                    return true;
+                }
             }
+
             return false;
         }
 
+
         @Override
-        public boolean validateType(String slotType) {
-            return false;
+        public String toString() {
+            return "NumericSlotConstraint{" +
+                    "startInterval=" + startInterval +
+                    ", endInterval=" + endInterval +
+                    '}';
         }
     }
 
@@ -151,22 +173,26 @@ public class Slot {
             this.type = type;
         }
 
-        @Override
-        public Object getConstraint() {
-            return type;
-        }
 
         @Override
         public boolean validateCandidate(Entity candidate) {
-            if(candidate.get(Ontology.type).orElse("").equals(type.getName())) {
-                return true;
-            }
+           /* if(!type.getName().toLowerCase().contains(candidate.get(Ontology.type).orElse(""))) {
+                return false;
+            }*/
+
             return false;
         }
 
-        @Override
+
         public boolean validateType(String slotType) {
-            return type.getName().equals(slotType);
+            return type.getName().toLowerCase().contains(slotType);
+        }
+
+        @Override
+        public String toString() {
+            return "SlotTypeConstraint{" +
+                    "type=" + type +
+                    '}';
         }
     }
 

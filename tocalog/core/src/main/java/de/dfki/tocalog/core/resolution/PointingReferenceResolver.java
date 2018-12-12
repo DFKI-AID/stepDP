@@ -12,11 +12,17 @@ public class PointingReferenceResolver implements ReferenceResolver {
 
    //candidates: for example: entities in cone around pointing device
     private List<String> candidates = new ArrayList<>();
-    private KnowledgeMap kMap;
+    private KnowledgeMap kMap = new KnowledgeMap();
+    private KnowledgeBase kb;
+    private String objectType = "";
 
 
-    public PointingReferenceResolver(KnowledgeBase knowledgeBase, Type objectType) {
-        kMap = knowledgeBase.getKnowledgeMap(objectType);
+    public PointingReferenceResolver(KnowledgeBase knowledgeBase) {
+      this.kb = knowledgeBase;
+    }
+
+    public void setObjectType(String objectType) {
+        this.objectType = objectType;
     }
 
     public void setCandidates(List<String> candidates) {
@@ -26,6 +32,7 @@ public class PointingReferenceResolver implements ReferenceResolver {
 
     @Override
     public ReferenceDistribution getReferences() {
+        kMap = kb.getKnowledgeMap(objectType);
         ReferenceDistribution distribution = new ReferenceDistribution();
 
         //no pointing candidate

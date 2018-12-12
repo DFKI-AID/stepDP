@@ -10,18 +10,25 @@ import java.util.stream.Collectors;
 
 public class ClosenessReferenceResolver implements ReferenceResolver {
 
-    private KnowledgeMap kMap;
+
     private String speakerId = "";
     private KnowledgeMap personMap;
+    private String type = "";
+    private KnowledgeBase kb;
 
 
-    public ClosenessReferenceResolver(KnowledgeBase knowledgeBase, Type type) {
-        kMap = knowledgeBase.getKnowledgeMap(type);
+    public ClosenessReferenceResolver(KnowledgeBase knowledgeBase) {
+        this.kb = knowledgeBase;
         personMap = knowledgeBase.getKnowledgeMap(Ontology.Person);
     }
 
     public void setSpeakerId(String speakerId) {
         this.speakerId = speakerId;
+    }
+
+
+    public void setEntityType(String type) {
+        this.type = type;
     }
 
   /*  public static void main(String[] args) {
@@ -44,6 +51,8 @@ public class ClosenessReferenceResolver implements ReferenceResolver {
 
     @Override
     public ReferenceDistribution getReferences() {
+
+        KnowledgeMap kMap = kb.getKnowledgeMap(type);
         ReferenceDistribution distribution = new ReferenceDistribution();
 
         if(!personMap.get(speakerId).isPresent() || !personMap.get(speakerId).get().get(Ontology.position).isPresent()) {

@@ -5,6 +5,7 @@ import de.dfki.tocalog.core.Hypothesis;
 import de.dfki.tocalog.core.ReferenceDistribution;
 import de.dfki.tocalog.core.ReferenceResolver;
 import de.dfki.tocalog.core.Slot;
+import de.dfki.tocalog.core.resolution.AbstractReferenceResolver;
 import de.dfki.tocalog.input.Input;
 import de.dfki.tocalog.input.TextInput;
 import de.dfki.tocalog.kb.Entity;
@@ -22,11 +23,19 @@ public class RasaHypoProcessor implements HypothesisProcessor {
     private static final Logger log = LoggerFactory.getLogger(RasaHypoProducer.class);
     private final RasaHelper rasaHelper;
     private List<ReferenceResolver> referenceResolvers = new ArrayList<>();
-    private List<String> modifiers = new ArrayList<>(List.of("possessive", "color", "size"));
 
     public RasaHypoProcessor(RasaHelper helper) {
         this.rasaHelper = helper;
     }
+
+    public List<ReferenceResolver> getReferenceResolvers() {
+        return referenceResolvers;
+    }
+
+    public void setReferenceResolvers(List<ReferenceResolver> referenceResolvers) {
+        this.referenceResolvers = referenceResolvers;
+    }
+
 
     @Override
     public Hypothesis process(Input input, Hypothesis hypothesis) {
@@ -35,25 +44,29 @@ public class RasaHypoProcessor implements HypothesisProcessor {
             return hypothesis;
         }
         Optional<RasaResponse> rasaResponse = nlu(((TextInput) input).getText());
+
         if(!rasaResponse.isPresent()) {
             hypothesis.addMatch(RasaHypoProcessor.class, false);
+            System.out.println("not matched");
             return hypothesis;
         }
 
         if(!rasaResponse.get().getIntent().getName().equals(hypothesis.getIntent())) {
             hypothesis.addMatch(RasaHypoProcessor.class, false);
+            System.out.println("not matched");
             return hypothesis;
         }
 
+        System.out.println("rasaResponse: " + rasaResponse.toString());
         hypothesis.addMatch(RasaHypoProcessor.class, true);
             //TODO add input to hypothesis
          //   Hypothesis rasaHypo = new Hypothesis.Builder(hypothesis).build();
 
-
         for(RasaEntity rasaEntity: rasaResponse.get().getEntities()) {
             for(Slot slot: hypothesis.getSlots().values()) {
                 if (slot.getSlotConstraint().isPresent()) {
-                    if(slot.getSlotConstraint().get().validateType(rasaEntity.getEntity())) {
+                    //check valid candidate
+                    if(!(slot.getSlotConstraint().get() instanceof Slot.SlotTypeConstraint)) {
                         Entity candidate = new Entity()
                                 .set(Ontology.name, rasaEntity.getValue())
                                 .set(Ontology.type, rasaEntity.getEntity())
@@ -61,19 +74,10 @@ public class RasaHypoProcessor implements HypothesisProcessor {
                                 .set(Ontology.source, this.toString());
                         if(slot.getSlotConstraint().get().validateCandidate(candidate)) {
                             slot.addCandidate(candidate);
-                        }else {
-                            for(ReferenceResolver resolver: referenceResolvers) {
-                                ReferenceDistribution rd = resolver.getReferences();
-                                for(Map.Entry<String, Double> e: rd.getConfidences().entrySet()) {
-                                    slot.addCandidate(new Entity()
-                                            .set(Ontology.name, e.getKey())
-                                            .set(Ontology.type, rasaEntity.getEntity())
-                                            .set(Ontology.confidence, e.getValue())
-                                            .set(Ontology.source, this.toString()));
-                                }
-                            }
                         }
-
+                        //check valid type and then resolve
+                    }else{
+                        resolveSlotValue(slot, (TextInput) input, rasaEntity);
                     }
                 }
             }
@@ -85,6 +89,28 @@ public class RasaHypoProcessor implements HypothesisProcessor {
     }
 
 
+    private void resolveSlotValue(Slot slot, TextInput input, RasaEntity rasaEntity) {
+        if(((Slot.SlotTypeConstraint) slot.getSlotConstraint().get()).validateType(rasaEntity.getEntity())) {
+            for(ReferenceResolver resolver: referenceResolvers) {
+                if(resolver instanceof AbstractReferenceResolver) {
+                    ((AbstractReferenceResolver) resolver).setSpeakerId(input.getInitiator());
+                    ((AbstractReferenceResolver) resolver).setEntityType(rasaEntity.getEntity());
+                    ((AbstractReferenceResolver) resolver).setInputString(rasaEntity.getValue());
+                }
+
+                ReferenceDistribution rd = resolver.getReferences();
+
+                for(Map.Entry<String, Double> e: rd.getConfidences().entrySet()) {
+                    slot.addCandidate(new Entity()
+                            .set(Ontology.name, e.getKey())
+                            .set(Ontology.type, rasaEntity.getEntity())
+                            .set(Ontology.confidence, e.getValue())
+                            .set(Ontology.source, this.toString()));
+                }
+            }
+
+        }
+    }
 
 
     protected Optional<RasaResponse> nlu(String s) {

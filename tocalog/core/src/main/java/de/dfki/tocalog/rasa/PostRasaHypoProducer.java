@@ -48,15 +48,15 @@ public class PostRasaHypoProducer implements HypothesisProducer {
                Entity candidateEnt = slot.getCandidates().stream().findAny().get();
 
                if(candidateEnt.get(Ontology.type).orElse("").equals("person")) {
-                   personDeixis = new PersonReferenceResolver(knowledgeBase, candidateEnt.get(Ontology.name).orElse(""));
+              //     personDeixis = new PersonReferenceResolver(knowledgeBase, candidateEnt.get(Ontology.name).orElse(""));
                    personDeixis.setSpeakerId(speaker);
                    ReferenceDistribution personDist = personDeixis.getReferences();
                    if(!personDist.getConfidences().isEmpty()) {
-                       slot.setCandidateMap(personDist.getConfidences());
+                //       slot.setCandidateMap(personDist.getConfidences());
                    }
 
                }else if(candidateEnt.get(Ontology.type).orElse("").equals("device")) {
-                   objectReferenceResolver = new ObjectReferenceResolver(knowledgeBase, candidateEnt.get(Ontology.name).orElse(""), Ontology.Device); //new Type(candidateEnt.get(Ontology.type).get()));
+              //     objectReferenceResolver = new ObjectReferenceResolver(knowledgeBase, candidateEnt.get(Ontology.name).orElse(""), Ontology.Device); //new Type(candidateEnt.get(Ontology.type).get()));
                    objectReferenceResolver.setSpeakerId(speaker);
 
                    Map<Attribute, AttributeValue> attributeMap = new HashMap<>();
@@ -79,7 +79,7 @@ public class PostRasaHypoProducer implements HypothesisProducer {
 
                    ReferenceDistribution objectDist = objectReferenceResolver.getReferences();
                    if(!objectDist.getConfidences().isEmpty()) {
-                       slot.setCandidateMap(objectDist.getConfidences());
+                  //     slot.setCandidateMap(objectDist.getConfidences());
                    }
 
                }

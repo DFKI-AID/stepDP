@@ -84,13 +84,16 @@ public class PatternHypothesisProducer implements HypothesisProducer {
         ReferenceDistribution distribution = new ReferenceDistribution();
 
         if(type.equals(Ontology.Person)) {
-            personDeixis = new PersonReferenceResolver(knowledgeBase, value);
+            personDeixis = new PersonReferenceResolver(knowledgeBase);
+            personDeixis.setInputString(value);
             personDeixis.setSpeakerId(speaker);
             distribution = personDeixis.getReferences();
 
             //TODO: check if value string contains a subType of type
         }else if(type.equals(Ontology.Entity) ) {
-            objectReferenceResolver = new ObjectReferenceResolver(knowledgeBase, value, type);
+            objectReferenceResolver = new ObjectReferenceResolver(knowledgeBase);
+            objectReferenceResolver.setInputString(value);
+            objectReferenceResolver.setEntityType(type.name);
             objectReferenceResolver.setSpeakerId(speaker);
             distribution = objectReferenceResolver.getReferences();
         }

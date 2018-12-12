@@ -80,24 +80,24 @@ public class RasaHypoProducer2 implements HypothesisProducer {
         //TODO case: multiple slot with the same entity? slot would be lost
         Slot slot = new Slot(re.getEntity());
         if(re.getEntity().equals("person")) {
-            personDeixis = new PersonReferenceResolver(knowledgeBase, re.getValue());
+           // personDeixis = new PersonReferenceResolver(knowledgeBase, re.getValue());
             personDeixis.setSpeakerId(lastInput.getInitiator());
             ReferenceDistribution personDist = personDeixis.getReferences();
             if(personDist.getConfidences().isEmpty()) {
-                slot.setCandidateMap(Map.of(re.getValue(), re.getConfidence()));
+          //      slot.setCandidateMap(Map.of(re.getValue(), re.getConfidence()));
             }else {
-                slot.setCandidateMap(personDist.getConfidences());
+            //    slot.setCandidateMap(personDist.getConfidences());
             }
 
         }else if(re.getEntity().equals("entity")) {
          //   objectReferenceResolver = new ObjectReferenceResolver(knowledgeBase, re.getValue(), new Type(re.getEntity()));
-            objectReferenceResolver = new ObjectReferenceResolver(knowledgeBase, re.getValue(), Ontology.Device);
+        //    objectReferenceResolver = new ObjectReferenceResolver(knowledgeBase, re.getValue(), Ontology.Device);
             objectReferenceResolver.setSpeakerId(lastInput.getInitiator());
             ReferenceDistribution objectDist = objectReferenceResolver.getReferences();
             if(objectDist.getConfidences().isEmpty()) {
-                slot.setCandidateMap(Map.of(re.getValue(), re.getConfidence()));
+            //    slot.setCandidateMap(Map.of(re.getValue(), re.getConfidence()));
             }else {
-                slot.setCandidateMap(objectDist.getConfidences());
+           //     slot.setCandidateMap(objectDist.getConfidences());
             }
         }
         return slot;
