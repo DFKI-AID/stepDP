@@ -142,6 +142,8 @@ public class MainYK implements ApplicationRunner {
         VOAppClient voClient = new VOAppClient(kb);
         imp.addOutputComponent(voClient);
 
+        File file = new File(MainYK.class.getResource("/sleeping.png").toURI());
+        voClient.uploadFile(file).doOnError(x -> System.out.println(x)).subscribe();//block();
 
 //            SystemUtils.IS_OS_MAC
 

@@ -20,13 +20,16 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -56,6 +59,18 @@ public class VOAppClient implements OutputComponent {
     public VOAppClient(KnowledgeBase kb) {
         this.kb = kb;
         this.pollDisplaysAsync(reqTimeout).subscribe();
+    }
+
+    public Mono<String> uploadFile(File file) throws IOException {
+        byte[] payload = Files.readAllBytes(file.toPath());
+//        MultipartBodyBuilder mbb = new MultipartBodyBuilder().
+        Mono<String> req = WebClient.create(String.format("http://%s:%d/files/%s", host, port, file.getName()))
+                .method(HttpMethod.POST)
+                .body(BodyInserters.fromObject(payload))
+                .retrieve()
+                .bodyToMono(String.class)
+                .timeout(reqTimeout);
+        return req;
     }
 
     @Override
@@ -90,7 +105,7 @@ public class VOAppClient implements OutputComponent {
         Map<String, Object> payload = new HashMap<>();
         try {
             Map<String, Object> content1 = createContent(output, services);
-            payload.put("duration", "6000"); //TODO duration
+            payload.put("duration", "6000"); //TODO fixed duration
             payload.put("content", content1);
         } catch (Exception ex) {
             log.warn("could not allocate visual output: {}", ex.getMessage());
@@ -117,7 +132,6 @@ public class VOAppClient implements OutputComponent {
             stateMap.put(allocationId, AllocationState.getInit());
         }
 
-        getSessionStateAsync(allocationId, "none").subscribe();
 
         return allocationId;
     }
@@ -271,12 +285,15 @@ public class VOAppClient implements OutputComponent {
 
 
     protected void onPresentationInfo(String allocationId, String rsp) {
-        //TODO
+        //TODO parse and check rsp
+        getSessionStateAsync(allocationId, "none").subscribe();
     }
 
     protected void onPresentationInfo(String allocationId, Throwable ex) {
-        //TODO
         log.warn("could not present visual content. id={} error={}", allocationId, ex.getMessage());
+        synchronized (this) {
+            stateMap.put(allocationId, AllocationState.getError(ex.getMessage()));
+        }
     }
 
 
@@ -343,12 +360,6 @@ public class VOAppClient implements OutputComponent {
         //initiate request with a certain delay
         pollDisplaysAsync(reqTimeout).delaySubscription(Duration.ofMillis(1000)).subscribe();
     }
-
-    protected void updateAllocationState() {
-        //compare presentations with services in the kb
-        //TODO
-    }
-
 
     public String getHost() {
         return host;
