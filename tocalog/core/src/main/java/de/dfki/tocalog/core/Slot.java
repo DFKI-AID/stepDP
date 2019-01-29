@@ -13,10 +13,11 @@ import java.util.*;
  */
 public class Slot {
     public final String name;
-    private Optional<SlotConstraint> slotConstraint;
+    private SlotConstraint slotConstraint;
     private Set<Entity> candidates = new HashSet<>();
-    private Optional<Entity> finalSlotEntity;
+    private Entity finalSlotEntity;
     private Map<Class, Boolean> matchedMap = new HashMap<>();
+    private boolean isOptional = false;
 
 
     public Slot(String name) {
@@ -38,21 +39,21 @@ public class Slot {
     }
 
     public Optional<SlotConstraint> getSlotConstraint() {
-        return slotConstraint;
+        return Optional.ofNullable(slotConstraint);
     }
 
     public void setSlotConstraint(SlotConstraint slotConstraint) {
-        this.slotConstraint = Optional.of(slotConstraint);
+        this.slotConstraint = slotConstraint;
     }
 
 
 
     public Optional<Entity> getFinalSlotEntity() {
-        return finalSlotEntity;
+        return Optional.ofNullable(finalSlotEntity);
     }
 
     public void setFinalSlotEntity(Entity finalSlotEntity) {
-        this.finalSlotEntity = Optional.of(finalSlotEntity);
+        this.finalSlotEntity = finalSlotEntity;
     }
 
 
@@ -68,6 +69,14 @@ public class Slot {
         this.matchedMap.put(clazz, matched);
     }
 
+
+    public boolean isOptional() {
+        return isOptional;
+    }
+
+    public void setOptional(boolean optional) {
+        isOptional = optional;
+    }
 
     @Override
     public String toString() {

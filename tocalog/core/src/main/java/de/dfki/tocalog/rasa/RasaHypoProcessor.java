@@ -1,14 +1,11 @@
 package de.dfki.tocalog.rasa;
 
-import de.dfki.tocalog.core.HypothesisProcessor;
-import de.dfki.tocalog.core.Hypothesis;
-import de.dfki.tocalog.core.ReferenceDistribution;
-import de.dfki.tocalog.core.ReferenceResolver;
-import de.dfki.tocalog.core.Slot;
+import de.dfki.tocalog.core.*;
 import de.dfki.tocalog.core.resolution.AbstractReferenceResolver;
 import de.dfki.tocalog.input.Input;
 import de.dfki.tocalog.input.TextInput;
 import de.dfki.tocalog.kb.Entity;
+import de.dfki.tocalog.kb.KnowledgeBase;
 import de.dfki.tocalog.kb.Ontology;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,8 +20,10 @@ public class RasaHypoProcessor implements HypothesisProcessor {
     private static final Logger log = LoggerFactory.getLogger(RasaHypoProducer.class);
     private final RasaHelper rasaHelper;
     private List<ReferenceResolver> referenceResolvers = new ArrayList<>();
+    private KnowledgeBase kb;
 
-    public RasaHypoProcessor(RasaHelper helper) {
+    public RasaHypoProcessor(KnowledgeBase kb, RasaHelper helper) {
+        this.kb = kb;
         this.rasaHelper = helper;
     }
 
@@ -38,27 +37,27 @@ public class RasaHypoProcessor implements HypothesisProcessor {
 
 
     @Override
-    public Hypothesis process(Input input, Hypothesis hypothesis) {
+    public void process(Input input, Hypothesis hypothesis) {
         if(!(input instanceof TextInput)) {
-            hypothesis.addMatch(RasaHypoProcessor.class, false);
-            return hypothesis;
+           // hypothesis.addMatch(RasaHypoProcessor.class, new Confidence(0.0));
+            return;
         }
         Optional<RasaResponse> rasaResponse = nlu(((TextInput) input).getText());
 
         if(!rasaResponse.isPresent()) {
-            hypothesis.addMatch(RasaHypoProcessor.class, false);
+           // hypothesis.addMatch(RasaHypoProcessor.class, new Confidence(0.0));
             System.out.println("not matched");
-            return hypothesis;
+            return;
         }
 
         if(!rasaResponse.get().getIntent().getName().equals(hypothesis.getIntent())) {
-            hypothesis.addMatch(RasaHypoProcessor.class, false);
+           // hypothesis.addMatch(RasaHypoProcessor.class, new Confidence(0.0));
             System.out.println("not matched");
-            return hypothesis;
+            return;
         }
 
         System.out.println("rasaResponse: " + rasaResponse.toString());
-        hypothesis.addMatch(RasaHypoProcessor.class, true);
+        hypothesis.addMatch(RasaHypoProcessor.class, new Confidence(rasaResponse.get().getIntent().getConfidence()));
             //TODO add input to hypothesis
          //   Hypothesis rasaHypo = new Hypothesis.Builder(hypothesis).build();
 
@@ -84,8 +83,6 @@ public class RasaHypoProcessor implements HypothesisProcessor {
         }
 
 
-
-        return hypothesis;
     }
 
 
@@ -101,11 +98,13 @@ public class RasaHypoProcessor implements HypothesisProcessor {
                 ReferenceDistribution rd = resolver.getReferences();
 
                 for(Map.Entry<String, Double> e: rd.getConfidences().entrySet()) {
-                    slot.addCandidate(new Entity()
+                    Entity knowledgeEntity = kb.getKnowledgeMap(rasaEntity.getEntity()).get(e.getKey()).get();
+                    slot.addCandidate(knowledgeEntity.set(Ontology.confidence, e.getValue()).set(Ontology.source, this.toString()));
+                   /* slot.addCandidate(new Entity()
                             .set(Ontology.name, e.getKey())
                             .set(Ontology.type, rasaEntity.getEntity())
                             .set(Ontology.confidence, e.getValue())
-                            .set(Ontology.source, this.toString()));
+                            .set(Ontology.source, this.toString()));*/
                 }
             }
 

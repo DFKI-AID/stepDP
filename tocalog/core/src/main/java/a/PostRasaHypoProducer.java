@@ -1,16 +1,15 @@
-package de.dfki.tocalog.rasa;
+package a;
 
 import de.dfki.tocalog.core.*;
+import de.dfki.tocalog.core.Slot;
 import de.dfki.tocalog.core.resolution.ObjectReferenceResolver;
 import de.dfki.tocalog.core.resolution.PersonReferenceResolver;
-import de.dfki.tocalog.input.TextInput;
 import de.dfki.tocalog.kb.*;
+import de.dfki.tocalog.rasa.RasaHypoProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /*
 * postprocesses the rasa hypos by resolving references
@@ -34,14 +33,14 @@ public class PostRasaHypoProducer implements HypothesisProducer {
     public List<Hypothesis> process(Inputs inputs) {
        List<Hypothesis> rasaHypos = rasaHP.process(inputs);
        for(Hypothesis rasaHypo: rasaHypos) {
-           Map<String, Slot> slotMap = rasaHypo.getSlots();
+           Map<String, de.dfki.tocalog.core.Slot> slotMap = rasaHypo.getSlots();
            String speaker = inputs.getInputs().stream()
                    .filter(i -> i.getId().equals(rasaHypo.getInputs().toArray()[0]))
                    .findFirst().get().getInitiator();
 
            int idx = 0;
-           List<Slot> slotList = arrangeSlotOrder(slotMap.values());
-           for(Slot slot: slotList) {
+           List<de.dfki.tocalog.core.Slot> slotList = arrangeSlotOrder(slotMap.values());
+           for(de.dfki.tocalog.core.Slot slot: slotList) {
                if(!slot.getCandidates().stream().findAny().isPresent()) {
                    continue;
                }
@@ -92,9 +91,9 @@ public class PostRasaHypoProducer implements HypothesisProducer {
     }
 
 
-    public List<Slot> arrangeSlotOrder(Collection<Slot> slots) {
-        Map<Slot, Integer> slotPosMap = new HashMap<>();
-        for(Slot slot: slots) {
+    public List<de.dfki.tocalog.core.Slot> arrangeSlotOrder(Collection<de.dfki.tocalog.core.Slot> slots) {
+        Map<de.dfki.tocalog.core.Slot, Integer> slotPosMap = new HashMap<>();
+        for(de.dfki.tocalog.core.Slot slot: slots) {
             if (slot.getCandidates().stream().findAny().isPresent()) {
                 Entity candidateEnt = slot.getCandidates().stream().findAny().get();
                 String[] positions = slot.name.split(candidateEnt.get(Ontology.type).get())[1].split("-");
@@ -102,10 +101,10 @@ public class PostRasaHypoProducer implements HypothesisProducer {
 
             }
         }
-        List<Map.Entry<Slot, Integer>> sortedSlots = new ArrayList<>(slotPosMap.entrySet());
+        List<Map.Entry<de.dfki.tocalog.core.Slot, Integer>> sortedSlots = new ArrayList<>(slotPosMap.entrySet());
         sortedSlots.sort(Map.Entry.comparingByValue());
 
-        List<Slot> sortedSlotList = new ArrayList<>();
+        List<de.dfki.tocalog.core.Slot> sortedSlotList = new ArrayList<>();
         for (Map.Entry<Slot, Integer> entry : sortedSlots) {
             sortedSlotList.add(entry.getKey());
         }

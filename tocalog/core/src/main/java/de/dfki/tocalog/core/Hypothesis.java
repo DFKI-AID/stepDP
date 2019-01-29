@@ -15,19 +15,19 @@ public class Hypothesis {
     //warum string und nicht input?
     private final Set<String> inputs;
     private final Confidence confidence;
-    private Map<Class, Boolean> matchedMap = new HashMap<>();
+    private Map<Class, Confidence> matches = new HashMap<>();
    // private boolean isFilled = false;
 
-    public Map<Class, Boolean> getMatchedMap() {
-        return matchedMap;
+    public Map<Class, Confidence> getMatches() {
+        return matches;
     }
 
-    public void setMatchedMap(Map<Class, Boolean> matchedMap) {
-        this.matchedMap = matchedMap;
+    public void setMatches(Map<Class, Confidence> matches) {
+        this.matches = matches;
     }
 
-    public void addMatch(Class clazz, boolean matched) {
-        this.matchedMap.put(clazz, matched);
+    public void addMatch(Class clazz, Confidence confidence) {
+        this.matches.put(clazz, confidence);
     }
 
 

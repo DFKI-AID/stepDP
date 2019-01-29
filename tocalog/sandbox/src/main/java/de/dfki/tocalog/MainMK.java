@@ -1,6 +1,7 @@
 package de.dfki.tocalog;
 
 
+import a.PostRasaHypoProducer;
 import de.dfki.tocalog.core.*;
 import de.dfki.tocalog.core.resolution.*;
 import de.dfki.tocalog.examples.device_control.DeviceControlDC;
@@ -9,13 +10,13 @@ import de.dfki.tocalog.input.TextInput;
 import de.dfki.tocalog.input.pattern.InputPattern;
 import de.dfki.tocalog.input.pattern.PatternHypothesisProducer;
 import de.dfki.tocalog.kb.*;
+import de.dfki.tocalog.output.Imp;
 import de.dfki.tocalog.rasa.*;
 import de.dfki.tocalog.util.Vector3;
 import org.pcollections.HashTreePSet;
 import org.pcollections.PSet;
 
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
@@ -28,7 +29,7 @@ public class MainMK {
 
 
     public static void main(String[] args) throws MalformedURLException {
-        TextInput text = new TextInput("Turn off the small lamp");
+        TextInput text = new TextInput("Change the color of the yellow lamp to red");
         text.setInitiator("speaker");
         List<Input> inputList = new ArrayList<>();
         inputList.add(text);
@@ -37,10 +38,11 @@ public class MainMK {
         RasaHelper helper = new RasaHelper(new URL("http://localhost:5000/parse"));
 
         KnowledgeBase knowledgeBase = createExampleKnowledgeBase();
-        RasaHypoProcessor processor = new RasaHypoProcessor(helper);
+        RasaHypoProcessor processor = new RasaHypoProcessor(knowledgeBase, helper);
 
         processor.setReferenceResolvers(List.of(new PersonReferenceResolver(knowledgeBase), new ObjectReferenceResolver(knowledgeBase)));
-        DeviceControlDC deviceControlDC = new DeviceControlDC(List.of(processor));
+        Imp imp = new Imp(knowledgeBase);
+        DeviceControlDC deviceControlDC = new DeviceControlDC(List.of(processor), imp);
         deviceControlDC.process(inputs);
 
       //  usePostRasaHypo(inputs);
@@ -89,7 +91,7 @@ public class MainMK {
 
     public static KnowledgeBase createExampleKnowledgeBase() {
         KnowledgeBase kb = new KnowledgeBase();
-        KnowledgeMap personMap =kb.getKnowledgeMap(Person);
+        KnowledgeMap personMap =kb.getKnowledgeMap(Ontology.Person);
         KnowledgeMap sessionMap =kb.getKnowledgeMap(Ontology.Session);
         KnowledgeMap deviceMap =kb.getKnowledgeMap("device");
 
@@ -99,10 +101,10 @@ public class MainMK {
         deviceMap.add(fan);
         deviceMap.add(fan2);
         deviceMap.add(loudspeaker);*/
-        Entity lamp1 = new Entity().set(Ontology.id, "lamp1").set(Ontology.color, "white").set(Ontology.size, "small").set(Ontology.brightness, 0.0)
-                .set(Ontology.position, new Vector3(1.0, 1.0, 1.0)).set(Ontology.location, "kitchen").set(Ontology.owner, Person.refTo("speaker"));
-        Entity lamp2 = new Entity().set(Ontology.id, "lamp2").set(Ontology.color, "white").set(Ontology.size, "big").set(Ontology.brightness, 0.0)
-                .set(Ontology.position, new Vector3(2.0, 1.0, 2.0)).set(Ontology.location, "livingroom");
+        Entity lamp1 = new Entity().set(Ontology.id, "lamp1").set(Ontology.color, "yellow").set(Ontology.size, "small").set(Ontology.brightness, 0.0)
+                .set(Ontology.position, new Vector3(1.0, 1.0, 1.0)).set(Ontology.location, "kitchen").set(Ontology.owner, Person.refTo("speaker")).set(Ontology.name, "kitchen lamp");
+        Entity lamp2 = new Entity().set(Ontology.id, "lamp2").set(Ontology.color, "red").set(Ontology.size, "big").set(Ontology.brightness, 0.0)
+                .set(Ontology.position, new Vector3(2.0, 1.0, 2.0)).set(Ontology.location, "livingroom").set(Ontology.name, "livingroom lamp");
         Entity loudspeaker = new Entity().set(Ontology.id, "loudspeaker"); //.set(Ontology.owner, Person.refTo("speaker"));
         deviceMap.add(lamp1);
         deviceMap.add(lamp2);

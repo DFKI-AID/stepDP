@@ -1,22 +1,22 @@
-package de.dfki.tocalog.rasa;
+package a;
 
 
 import de.dfki.tocalog.core.*;
-import de.dfki.tocalog.core.resolution.LocationReferenceResolver;
+import de.dfki.tocalog.core.Slot;
 import de.dfki.tocalog.core.resolution.ObjectReferenceResolver;
 import de.dfki.tocalog.core.resolution.PersonReferenceResolver;
 import de.dfki.tocalog.input.Input;
 import de.dfki.tocalog.input.TextInput;
 import de.dfki.tocalog.kb.KnowledgeBase;
-import de.dfki.tocalog.kb.KnowledgeMap;
 import de.dfki.tocalog.kb.Ontology;
-import de.dfki.tocalog.kb.Type;
+import de.dfki.tocalog.rasa.RasaEntity;
+import de.dfki.tocalog.rasa.RasaHelper;
+import de.dfki.tocalog.rasa.RasaResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -76,9 +76,9 @@ public class RasaHypoProducer2 implements HypothesisProducer {
         return hb;
     }
 
-    protected Slot parse(Input lastInput, RasaEntity re) {
+    protected de.dfki.tocalog.core.Slot parse(Input lastInput, RasaEntity re) {
         //TODO case: multiple slot with the same entity? slot would be lost
-        Slot slot = new Slot(re.getEntity());
+        de.dfki.tocalog.core.Slot slot = new Slot(re.getEntity());
         if(re.getEntity().equals("person")) {
            // personDeixis = new PersonReferenceResolver(knowledgeBase, re.getValue());
             personDeixis.setSpeakerId(lastInput.getInitiator());

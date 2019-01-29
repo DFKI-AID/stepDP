@@ -7,6 +7,6 @@ import de.dfki.tocalog.input.Input;
 import java.util.List;
 
 public interface HypothesisProcessor {
-    Hypothesis process(Input input, Hypothesis hypothesis);
+    void process(Input input, Hypothesis hypothesis);
 
 }

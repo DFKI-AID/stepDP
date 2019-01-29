@@ -55,6 +55,13 @@ public class PossessiveObjectReferenceResolver implements ReferenceResolver {
             }
         }
 
+
+       /* for(Entity obj: objectMap.getAll()) {
+            if(!objectDistribution.getConfidences().keySet().contains(obj.get(Ontology.id).get())) {
+                objectDistribution.getConfidences().put(obj.get(Ontology.id).get(), 1.0/objectMap.getAll().size());
+            }
+        }*/
+
        /* for(String personId: personDistribution.getConfidences().keySet()) {
             if(personMap.get(personId).get().get(Ontology.owned).isPresent()) {
                 //TODO use owner or owned?

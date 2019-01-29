@@ -86,7 +86,7 @@ public class ObjectReferenceResolver extends AbstractReferenceResolver {
         }
 
         for(String pronoun: PersonReferenceResolver.PRONOUNS.keySet()) {
-            if(inputString.contains(pronoun)) {
+            if(inputString.contains(" " + pronoun + " ")) {
                 PossessiveObjectReferenceResolver possRR = new PossessiveObjectReferenceResolver(knowledgeBase);
                 possRR.setObjectType(objectType);
 
