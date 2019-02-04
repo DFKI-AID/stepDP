@@ -17,12 +17,12 @@ public class OneOf implements Node {
     public void write(NodeWriter nw) {
         nw.write("<one-of>");
         nw.increaseIndent();
-        nw.newLine();
         children.forEach(c -> {
-            c.write(nw);
             nw.newLine();
+            c.write(nw);
         });
         nw.decreaseIndent();
-        nw.write("</one-of");
+        nw.newLine();
+        nw.write("</one-of>");
     }
 }

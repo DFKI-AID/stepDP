@@ -27,6 +27,7 @@
 
         <div>Tokens: {{tokens}}</div>
 
+        <div>Grammar: {{grammar}}</div>
 
     </div>
 
@@ -43,7 +44,8 @@
             interval: null,
             iteration: 0,
             rules: [],
-            tokens: []
+            tokens: [],
+            grammar: null
         },
         methods: {
             updateData: function () {
@@ -57,6 +59,10 @@
 
                 $.get('/tokens', function(rsp) {
                     this.tokens = rsp;
+                }.bind(this));
+
+                $.get('/grammar', function(rsp) {
+                    this.grammar = new XMLSerializer().serializeToString(rsp);
                 }.bind(this));
             }
         },

@@ -1,6 +1,6 @@
 package de.dfki.rengine.web;
 
-import de.dfki.rengine.Dialog;
+import de.dfki.app.DialogApp;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -14,7 +14,7 @@ public class AppConfig {
     }
 
     public static class Settings {
-        public final Dialog app = new Dialog();
+        public final DialogApp app = new DialogApp();
 
         public Settings() {
             Thread appThread = new Thread(app);

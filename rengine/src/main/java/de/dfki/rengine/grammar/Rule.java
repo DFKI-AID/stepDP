@@ -41,10 +41,9 @@ public class Rule implements Node {
     public void write(NodeWriter nw) {
         nw.write(String.format("<rule id=\"%s\" scope=\"%s\">", id, getScope()));
         nw.increaseIndent();
-        nw.newLine();
         items.forEach(i -> {
-            i.write(nw);
             nw.newLine();
+            i.write(nw);
         });
         nw.decreaseIndent();
         nw.newLine();

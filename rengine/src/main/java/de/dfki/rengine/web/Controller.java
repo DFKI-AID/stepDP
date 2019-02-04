@@ -10,6 +10,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
+ *
  */
 @RestController
 public class Controller {
@@ -62,6 +63,12 @@ public class Controller {
     @PostMapping(value = "/input/asr")
     public void postAsr(@RequestBody AsrRequestBody req) {
         settings.app.addAsr(req.text);
+    }
+
+    @GetMapping(value = "/grammar", produces = "application/xml")
+    public String getGrammar() {
+        String grammar = settings.app.getGrammarManager().createGrammar().toString();
+        return grammar;
     }
 
 }

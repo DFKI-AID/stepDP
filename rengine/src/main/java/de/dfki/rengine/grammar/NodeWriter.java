@@ -14,8 +14,9 @@ public class NodeWriter {
         indentation--;
     }
 
-    public void write(String s) {
+    public NodeWriter write(String s) {
         sb.append(s);
+        return this;
     }
 
     public void newLine() {
