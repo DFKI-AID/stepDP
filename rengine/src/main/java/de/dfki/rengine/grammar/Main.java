@@ -4,6 +4,7 @@ package de.dfki.rengine.grammar;
 import java.io.IOException;
 
 /**
+ *
  */
 public class Main {
     public static void main(String[] args) throws IOException {
@@ -14,6 +15,7 @@ public class Main {
         gotIt.add(new Item("I").makeOptional());
         gotIt.add(new Item("got it"));
         grammar.addRule(gotIt);
+
 
         Rule taskChoice = new Rule("task_choice")
                 .makePrivate()
@@ -37,17 +39,20 @@ public class Main {
         Rule acceptRule = new Rule("accept_task");
         acceptRule.add(new OneOf()
                 .add(new Item("I accept this task")
-                        .setTag("{'intent':'task_selection','state':'accept'"))
+                        .setTag(TagBuilder.builder().intent("accept").build()))
                 .add(new Item("I reject this task")
-                        .setTag("{'intent':'task_selection','state':'reject'"))
+                        .setTag(TagBuilder.builder().intent("reject").build()))
         );
 
         Rule confirmRule = new Rule("confirm")
                 .add(new OneOf()
-                        .add(new Item("yeah").setTag("yes"))
-                        .add(new Item("yes").setTag("yes"))
-                        .add(new Item("no").setTag("no"))
-                );
+                        .add(new Item("yeah")
+                                .setTag(TagBuilder.builder().intent("accept").build()))
+                        .add(new Item("yes").setTag("yes")
+                                .setTag(TagBuilder.builder().intent("accept").build()))
+                        .add(new Item("no").setTag("no")
+                                .setTag(TagBuilder.builder().intent("reject").build())
+                ));
         grammar.addRule(confirmRule);
 
 

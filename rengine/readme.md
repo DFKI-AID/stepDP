@@ -20,6 +20,8 @@ A simple rule engine, where rules create or react on tokens (arbitrary data). Th
 
 - **TODO** Create help-rule: "what can I say?"
 
+- **TODO** pro active behavior -> use timeouts to trigger rules
+
 - Using java's stream API makes writing rules easy: 
 
 - ```java

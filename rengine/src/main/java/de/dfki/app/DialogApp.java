@@ -83,6 +83,7 @@ public class DialogApp extends Dialog {
                         } else {
                             //TODO check for number of available tasks
                             sys.addToken(new Token("output_tts", "which task do you mean?"));
+                            rs.block("accept_task");
                             rs.enable("task_info_supp");
                         }
                     });

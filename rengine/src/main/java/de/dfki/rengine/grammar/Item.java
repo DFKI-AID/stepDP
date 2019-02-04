@@ -1,8 +1,14 @@
 package de.dfki.rengine.grammar;
 
+import com.google.gson.Gson;
+
+import java.util.HashMap;
+import java.util.Map;
+
 /**
+ * TODO maybe it is necessary to add the tag data
  */
-public class Item implements Node{
+public class Item implements Node {
     private final String content;
     private int weight = 1;
     private int minRepitions = 1;
@@ -64,7 +70,7 @@ public class Item implements Node{
         nw.increaseIndent();
         nw.newLine();
         nw.write(content);
-        if(tag != null) {
+        if (tag != null) {
             nw.write(String.format("<tag>%s</tag>", tag));
         }
         nw.decreaseIndent();

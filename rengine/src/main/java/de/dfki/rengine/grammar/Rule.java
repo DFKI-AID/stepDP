@@ -37,6 +37,10 @@ public class Rule implements Node {
     }
 
 
+    public boolean isPublic() {
+        return this.scope == Scope.PUBLIC;
+    }
+
     @Override
     public void write(NodeWriter nw) {
         nw.write(String.format("<rule id=\"%s\" scope=\"%s\">", id, getScope()));
