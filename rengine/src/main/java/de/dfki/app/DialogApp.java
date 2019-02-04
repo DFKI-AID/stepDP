@@ -2,7 +2,6 @@ package de.dfki.app;
 
 
 import de.dfki.rengine.*;
-import de.dfki.rengine.grammar.GrammarManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,18 +44,19 @@ public class DialogApp extends Dialog {
         var tagSystem = getTagSystem();
 
         rs.addRule("task_info_supp", (sys) -> {
-            final Pattern pattern = Pattern.compile("[the ]?(first|second|third) task");
             sys.getTokens().stream()
-                    .filter(t -> t.topicIs("asr"))
-                    .map(t -> Tuple.of(t, match(pattern, (String) t.payload)))
-                    .filter(tuple -> !tuple.second.isEmpty())
-//                    .map(g -> g.get(0))
-//                    .filter(second -> Objects.equals(second.payload, "the first task"))
+                    .filter(t -> t.topicIs("intent"))
+                    .map(t -> (Token<Intent>) t)
+                    .filter(t -> t.payload.is("task_info_supp"))
                     .findFirst()
-                    .ifPresent(tuple -> {
-                        String taskName = tuple.second.get(0);
-                        sys.removeToken(tuple.first);
-                        sys.addToken(new Token("show_task_info", taskName));
+                    .ifPresent(t -> {
+                        Optional<Object> taskName = t.payload.getPayload("task");
+                        if(!taskName.isPresent()) {
+                            log.warn("no task info available. missing tag?");
+                            return;
+                        }
+                        sys.removeToken(t);
+                        sys.addToken(new Token("show_task_info", taskName.get()));
                         rs.block("task_info_supp");
                     });
         });
@@ -65,15 +65,16 @@ public class DialogApp extends Dialog {
         rs.setPriority("task_info_supp", 20);
 
 
-        rs.addRule("task_info", (sys) -> {
+        rs.addRule("req_task_info", (sys) -> {
             Optional<String> visualFocus = sys.getTokens().stream()
                     .filter(t -> t.topicIs("visual_focus"))
                     .map(t -> (String) t.payload)
                     .findFirst();
 
             sys.getTokens().stream()
-                    .filter(t -> t.topicIs("asr"))
-                    .filter(t -> Objects.equals(t.payload, "can you give me more information on this task"))
+                    .filter(t -> t.topicIs("intent"))
+                    .map(t -> (Token<Intent>) t)
+                    .filter(t -> t.payload.is("req_task_info"))
                     .findFirst()
                     .ifPresent(t -> {
                         sys.removeToken(t);
@@ -83,13 +84,13 @@ public class DialogApp extends Dialog {
                         } else {
                             //TODO check for number of available tasks
                             sys.addToken(new Token("output_tts", "which task do you mean?"));
-                            rs.block("accept_task");
+                            rs.block("select_task");
                             rs.enable("task_info_supp");
                         }
                     });
         });
-        tagSystem.addTag(rs.getRule("task_info").get(), taskSelectionTag);
-        rs.setPriority("task_info", 20);
+        tagSystem.addTag(rs.getRule("req_task_info").get(), taskSelectionTag);
+        rs.setPriority("req_task_info", 20);
 
 
         rs.addRule("show_task_info", (sys) -> {
@@ -101,7 +102,7 @@ public class DialogApp extends Dialog {
                         String msg = String.format("There is a new urgent task '%s' : A UR-3 robot stopped functioning correctly", t.payload);
                         sys.addToken(new Token("output_tts", msg));
                         sys.addToken(new Token("output_image", "http://.../"));
-                        rs.enable("accept_task");
+                        rs.enable("select_task");
                     });
 
         });
@@ -111,17 +112,19 @@ public class DialogApp extends Dialog {
 
         rs.addRule("accept_task", (sys) -> {
             sys.getTokens().stream()
-                    .filter(t -> t.topicIs("asr"))
-                    .filter(t -> Objects.equals(t.payload, "accept this"))
+                    .filter(t -> t.topicIs("intent"))
+                    .map(t -> (Token<Intent>) t)
+                    .filter(t -> t.payload.is("accept_task"))
                     .findFirst()
                     .ifPresent(t -> {
                         sys.removeToken(t);
-                        sys.addToken(new Token("output_tts", "Please confirm your selection for task"));
-//                        sys.disable("accept_task");
+                        Optional<Object> task = t.payload.getPayload("task");
+                        if(!task.isPresent()) {
+                            log.warn("Ignoring 'accept_task' intent: missing slot 'task'. got: {}", t.payload);
+                            return;
+                        }
 
-                        // finish task mode by disabling all corresponding rules
-//                        tagSystem.getTagged(taskSelectionTag).stream()
-//                                .forEach(rule -> sys.block(rule));
+                        sys.addToken(new Token("output_tts", "Please confirm your selection for task"));
 
                         createConfirmRule(sys, "confirm",
                                 () -> {
@@ -130,7 +133,6 @@ public class DialogApp extends Dialog {
                                 }, () -> {
                                     sys.addToken(new Token("output_tts", "Okay."));
                                 });
-//                        deinitTaskMode();
                     });
         });
         rs.block("accept_task");
@@ -191,40 +193,29 @@ public class DialogApp extends Dialog {
     }
 
 
-    private Queue<String> speechInputQueue = new ConcurrentLinkedDeque<>();
+    private Queue<Intent> intentQueue = new ConcurrentLinkedDeque<>();
 
-    public void addAsr(String text) {
-        log.info("Received ASR: '{}'", text);
-        speechInputQueue.add(text);
+
+    public void addIntent(Intent intent) {
+        log.info("Received intent: {}", intent);
+        intentQueue.add(intent);
     }
-
 
     @Override
     public void init() {
-
-        Thread asrSimulationThread = new Thread(() -> {
-            while (!Thread.currentThread().isInterrupted()) {
-                Scanner scanner = new Scanner(System.in);
-                String text = scanner.nextLine();
-                speechInputQueue.add(text);
-            }
-        });
-        asrSimulationThread.setDaemon(true);
-//        asrSimulationThread.start();
-
-
         initTaskMode();
 
         createUndoRule(rs);
+        createInterruptRule(rs);
 
-        rs.addRule("asr", (sys) -> {
-            String text = speechInputQueue.poll();
-            if (text == null) {
+        rs.addRule("manual_intent", (sys) -> {
+            Intent intent = intentQueue.poll();
+            if (intent == null) {
                 return;
             }
-            sys.addToken(new Token("asr", text));
+            sys.addToken(new Token("intent", intent));
         });
-        rs.setPriority("asr", 10);
+        rs.setPriority("manual_intent", 10);
 
         //go back rule:
 
@@ -239,49 +230,26 @@ public class DialogApp extends Dialog {
         tagSystem.addTag(rs.getRule("visual_focus").get(), "simulation");
 
 
-        rs.addRule("got_it", (sys) -> {
-            sys.getTokens().stream()
-                    .filter(t -> t.topicIs("asr"))
-                    .filter(t -> Objects.equals(t.payload, "ok, i got it")) //TODO match with grammar
-                    .findFirst()
-                    .ifPresent(t -> {
-                        sys.removeToken(t);
-                        sys.addToken(new Token("interrupt_tts", null));
-                    });
-        });
-        rs.setPriority("got_it", 20);
-
-
-
         rs.addRule("greetings", (sys) -> {
             sys.getTokens().stream()
-                    .filter(t -> t.topicIs("asr"))
-                    .filter(t -> Objects.equals(t.payload, "hi")) //TODO match with grammar
+                    .filter(t -> t.topicIs("intent"))
+                    .map(t -> (Token<Intent>) t)
+                    .filter(t -> t.payload.is("greetings"))
                     .findFirst()
                     .ifPresent(t -> {
                         sys.removeToken(t);
-                        sys.addToken(new Token("greetings", null));
+                        sys.addToken(new Token("output_tts", "hello!"));
+                        sys.block("greetings", Duration.ofSeconds(4));
                     });
         });
         rs.setPriority("greetings", 20);
 
 
-        rs.addRule("hello", (sys) -> {
-            sys.getTokens().stream()
-                    .filter(t -> t.topicIs("greetings"))
-                    .findFirst()
-                    .ifPresent(t -> {
-                        sys.removeToken(t);
-                        sys.addToken(new Token("output_tts", "hello!"));
-                        sys.block("hello", Duration.ofSeconds(4));
-                    });
-        });
-        rs.setPriority("hello", 30);
-
         rs.addRule("request_time", (sys) -> {
             sys.getTokens().stream()
-                    .filter(t -> t.topicIs("asr"))
-                    .filter(t -> Objects.equals(t.payload, "what time is it"))
+                    .filter(t -> t.topicIs("intent"))
+                    .map(t -> (Token<Intent>) t)
+                    .filter(t -> t.payload.is("time_request"))
                     .findFirst()
                     .ifPresent(t -> {
                         sys.removeToken(t);
@@ -323,12 +291,25 @@ public class DialogApp extends Dialog {
         });
     }
 
+    private static void createInterruptRule(RuleSystem rs) {
+        rs.addRule("interrupt", (sys) -> {
+            sys.getTokens().stream()
+                    .filter(t -> t.topicIs("intent"))
+                    .map(t -> (Token<Intent>) t)
+                    .filter(t -> t.payload.is("interrupt"))
+                    .findFirst()
+                    .ifPresent(t -> {
+                        sys.removeToken(t);
+                        sys.addToken(new Token("interrupt_tts", null));
+                    });
+        });
+        rs.setPriority("interrupt", 20);
+    }
+
     @Override
     public void deinit() {
 
     }
-
-
 
 
 }

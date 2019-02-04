@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import java.time.Duration;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  *
@@ -46,8 +47,9 @@ public abstract class Dialog implements Runnable {
         ruleSystem.addRule(ruleName, (sys) -> {
 //            final Pattern pattern = Pattern.compile("[can ]?[you ]?repeat that[ please]?");
             sys.getTokens().stream()
-                    .filter(t -> t.topicIs("asr"))
-                    .filter(t -> Objects.equals(t.payload, "repeat"))
+                    .filter(t -> t.topicIs("intent"))
+                    .map(t -> (Token<Intent>) t)
+                    .filter(t -> t.payload.is("repeat"))
 //                    .map(t -> Tuple.of(t, match(pattern, (String) t.payload)))
 //                    .filter(tuple -> !tuple.second.isEmpty())
                     .findFirst()
@@ -81,8 +83,9 @@ public abstract class Dialog implements Runnable {
         rs.removeRule("undo");
         rs.addRule("undo", (sys) -> {
             sys.getTokens().stream()
-                    .filter(t -> t.topicIs("asr"))
-                    .filter(t -> Objects.equals(t.payload, "undo"))
+                    .filter(t -> t.topicIs("intent"))
+                    .map(t -> (Token<Intent>) t)
+                    .filter(t -> t.payload.is("undo"))
                     .findFirst()
                     .ifPresent(t -> {
                         rs.removeToken(t);
@@ -102,6 +105,7 @@ public abstract class Dialog implements Runnable {
         });
         rs.setPriority("update_undo", 90);
     }
+
 
     /**
      * Creates a rule that allows the user to snapshot the current dialog state.

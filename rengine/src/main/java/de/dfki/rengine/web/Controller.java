@@ -1,5 +1,6 @@
 package de.dfki.rengine.web;
 
+import de.dfki.rengine.Intent;
 import de.dfki.rengine.Token;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -60,9 +61,12 @@ public class Controller {
         public String text;
     }
 
-    @PostMapping(value = "/input/asr")
-    public void postAsr(@RequestBody AsrRequestBody req) {
-        settings.app.addAsr(req.text);
+    @PostMapping(value = "/input/intent")
+    public void postIntent(@RequestParam Map<String, Object> payload) {
+        String intentStr = Optional.ofNullable((String) payload.get("intent")).orElse("unknown");
+        payload.remove("intent");
+        Intent intent = new Intent(intentStr, payload);
+        settings.app.addIntent(intent);
     }
 
     @GetMapping(value = "/grammar", produces = "application/xml")

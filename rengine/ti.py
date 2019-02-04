@@ -1,8 +1,8 @@
 import requests
 
 while True:
-    text = input("asr: ")
-    payload = {'text': text}
+    text = input("intent: ")
+    payload = {'intent': text}
     
-    r = requests.post("http://localhost:50000/input/asr", json=payload)
+    r = requests.post("http://localhost:50000/input/intent", json=payload)
     print(r.status_code, r.reason)

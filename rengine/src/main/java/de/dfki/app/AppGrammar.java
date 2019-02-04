@@ -52,7 +52,7 @@ public class AppGrammar {
         grammarManager.addRule(gotIt);
 
         Rule taskChoice = new Rule("task_choice")
-                .makePrivate()
+//                .makePrivate()
                 .add(new Item("the"))
                 .add(new OneOf()
                         .add(new Item("first"))
@@ -76,6 +76,9 @@ public class AppGrammar {
             throw new RuntimeException("could not load grammar", e);
         }
 
-
+        Rule timeInfo = new Rule("request_time")
+                .add(new Item("what time is it")
+                        .setTag(TagBuilder.builder().intent("request_time").build()));
+        grammarManager.addRule(timeInfo);
     }
 }

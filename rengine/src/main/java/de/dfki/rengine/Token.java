@@ -4,13 +4,13 @@ import java.util.Objects;
 
 /**
  */
-public class Token {
+public class Token<T> {
     public final String topic;
     public final long timestamp = System.currentTimeMillis();
-    public final Object payload;
+    public final T payload;
     //TODO confidence
 
-    public Token(String topic, Object payload) {
+    public Token(String topic, T payload) {
         this.topic = topic;
         this.payload = payload;
     }
