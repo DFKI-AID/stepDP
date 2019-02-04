@@ -1,6 +1,6 @@
-package de.dfki.rs.web;
+package de.dfki.rengine.web;
 
-import de.dfki.rs.Dialog;
+import de.dfki.rengine.Dialog;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

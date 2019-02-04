@@ -1,10 +1,9 @@
-package de.dfki.rs;
+package de.dfki.rengine;
 
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.UnknownHostException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;

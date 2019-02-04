@@ -1,4 +1,4 @@
-package de.dfki.rs;
+package de.dfki.rengine;
 
 import java.time.Duration;
 

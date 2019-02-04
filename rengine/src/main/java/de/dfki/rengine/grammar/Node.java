@@ -1,6 +1,4 @@
-package de.dfki.grammar;
-
-import java.io.OutputStream;
+package de.dfki.rengine.grammar;
 
 /**
  */

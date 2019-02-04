@@ -1,4 +1,4 @@
-package de.dfki.grammar;
+package de.dfki.rengine.grammar;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package de.dfki.rs;
+package de.dfki.rengine;
 
 import java.util.HashMap;
 import java.util.HashSet;

@@ -1,6 +1,6 @@
-package de.dfki.rs.web;
+package de.dfki.rengine.web;
 
-import de.dfki.rs.Token;
+import de.dfki.rengine.Token;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.bind.annotation.*;

@@ -1,4 +1,4 @@
-package de.dfki.rs.web;
+package de.dfki.rengine.web;
 
 /**
  */
