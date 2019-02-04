@@ -1,0 +1,82 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>The HTML5 Herald</title>
+    <meta name="description" content="Hello!">
+    <meta name="author" content="Yannick Körber">
+
+    <!--<link rel="stylesheet" href="css/styles.css?v=1.0">-->
+    <div id="app">
+        <h2>iteration={{iteration}}</h2>
+
+
+        <table>
+            <tr>
+                <th>name</th>
+                <th>active</th>
+                <th>priority</th>
+            </tr>
+            <tr v-for="item in rules">
+                <td>{{item.name}}</td>
+                <td>{{item.active}}</td>
+                <td>{{item.priority}}</td>
+            </tr>
+        </table>
+
+        <div>Tokens: {{tokens}}</div>
+
+
+    </div>
+
+
+</head>
+
+<body>
+<script   src="https://code.jquery.com/jquery-3.3.1.min.js"   integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="   crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.22/dist/vue.js"></script>
+<script>
+    const app = new Vue({
+        el: '#app',
+        data: {
+            interval: null,
+            iteration: 0,
+            rules: [],
+            tokens: []
+        },
+        methods: {
+            updateData: function () {
+                $.get('/iteration', function (response) {
+                    this.iteration = response.iteration;
+                }.bind(this));
+
+                $.get('/rules', function(response) {
+                    this.rules = response;
+                }.bind(this));
+
+                $.get('/tokens', function(rsp) {
+                    this.tokens = rsp;
+                }.bind(this));
+            }
+        },
+        created() {
+            this.updateData();
+            this.interval = setInterval(function () {
+                this.updateData();
+            }.bind(this), 250);
+        }
+        // created() {
+        //     fetch('http://localhost:50000/rules')
+        //         .then(rsp => rsp.json())
+        //         .then(json => {
+        //             this.items = json
+        //         })
+        //     fetch('http://localhost:50000/iteration')
+        //         .then(rsp => rsp.json())
+        //         .then(json => this.iteration = json.iteration)
+        // },
+    })
+</script>
+</body>
+</html>

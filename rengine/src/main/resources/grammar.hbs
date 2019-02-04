@@ -1,0 +1,19 @@
+<!DOCTYPE grammar PUBLIC "-//W3C//DTD GRAMMAR 1.0//EN"
+        "http://www.w3.org/TR/speech-grammar/grammar.dtd">
+
+<grammar xmlns="http://www.w3.org/2001/06/grammar" xml:lang="en"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.w3.org/2001/06/grammar
+                             http://www.w3.org/TR/speech-grammar/grammar.xsd"
+         version="1.0" mode="voice" root="basicCmd">
+
+
+    {{#rules~}}
+    <rule id="{{id}}" scope="{{public}}">
+            {{#if example}}<example>{{example}}</example>{{/if}}
+            {{#items~}}
+            <item repeat="{{minRepitions}}-{{maxRepitions}}" weight="{{weight}}">
+                {{content}}{{#if tag}}<tag>{{tag}}</tag>{{/if}}
+            </item>{{/items}}
+    </rule>{{/rules}}
+</grammar>
