@@ -41,6 +41,10 @@ public abstract class Dialog implements Runnable {
                     });
         });
         ruleSystem.setPriority(ruleName, 25);
+
+        //TODO to avoid a deadlock:
+        //TODO [1] it should be checked if there is still a confirmation active -> cancel it
+        //TODO [2] use a different rule name and keep both confirmation rules active (only one rule will consume the response)
     }
 
     public static void createRepeatRule(RuleSystem ruleSystem, String ruleName, String lastTts) {

@@ -125,13 +125,14 @@ public class DialogApp extends Dialog {
                     .findFirst()
                     .ifPresent(t -> {
                         sys.removeToken(t);
+                        rs.disable("select_task_supp");
+                        rs.disable("accept_task");
 
                         if (visualFocus.isPresent()) {
                             sys.addToken(new Token("show_task_info", visualFocus.get()));
                         } else {
                             //TODO check for number of available tasks
                             sys.addToken(new Token("output_tts", "which task do you mean?"));
-                            rs.disable("select_task");
                             rs.enable("select_task_supp");
                         }
                     });
@@ -180,7 +181,7 @@ public class DialogApp extends Dialog {
                         sys.addToken(new Token("output_tts", tts));
                         sys.disable("accept_task");
 
-                        createConfirmRule(sys, "confirm",
+                        createConfirmRule(sys, "confirm_task",
                                 () -> {
                                     deinitTaskMode();
                                     String acceptTts = String.format("Okay, let's do task '%s'", taskId);

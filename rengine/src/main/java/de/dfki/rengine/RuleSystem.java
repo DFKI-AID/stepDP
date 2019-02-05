@@ -49,9 +49,15 @@ public class RuleSystem {
     }
 
     public void addRule(String name, Rule rule) {
+        if(this.nameToRule.containsKey(name)) {
+            log.info("overwriting rule {}", name);
+            this.removeRule(name);
+        } else {
+            log.info("adding rule {}", name);
+        }
+
         this.rules.add(rule);
         this.nameToRule.put(name, rule);
-        log.info("adding rule {}", name);
     }
 
     public void removeRule(Rule rule) {
@@ -182,7 +188,7 @@ public class RuleSystem {
         }
 
         clock.inc();
-        Thread.sleep((long) clock.getRate());
+        Thread.sleep((long) clock.getRate()); //TODO no precise, but sufficient to begin with
     }
 
     public int getIteration() {
