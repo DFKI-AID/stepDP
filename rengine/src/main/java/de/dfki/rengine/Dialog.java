@@ -25,11 +25,13 @@ public abstract class Dialog implements Runnable {
     public static void createConfirmRule(RuleSystem ruleSystem, String ruleName, Runnable yes, Runnable no) {
         ruleSystem.addRule(ruleName, (sys) -> {
             sys.getTokens().stream()
-                    .filter(t -> t.topicIs("asr"))
-                    .filter(t -> Objects.equals(t.payload, "yes") || Objects.equals(t.payload, "no"))
+                    .filter(t -> t.topicIs("intent"))
+                    .map(t -> (Token<Intent>) t)
+                    .filter(t -> Objects.equals(t.payload.getIntent(), "accept")
+                            || Objects.equals(t.payload.getIntent(), "reject"))
                     .findFirst()
                     .ifPresent(t -> {
-                        if (Objects.equals(t.payload, "yes")) {
+                        if (Objects.equals(t.payload.getIntent(), "accept")) {
                             yes.run();
                         } else {
                             no.run();

@@ -8,11 +8,15 @@
     <meta name="author" content="Yannick Körber">
 
     <div id="simulation" class="btn-grou">
+        <button v-on:click="undo">undo</button>
         <button v-on:click="hello">hello</button>
         <button v-on:click="repeat">repeat</button>
-        <button v-on:click="reqTaskInfo">req_task_info</button>
+        <button v-on:click="showTasks">show_tasks</button>
+        <button v-on:click="selectTask">select_task</button>
+        <button v-on:click="selectTaskSupp">select_task_supp</button>
         <button v-on:click="acceptTask">accept_task</button>
-        <button v-on:click="taskInfoSupp">task_info_supp</button>
+        <button v-on:click="accept">accept</button>
+        <button v-on:click="reject">reject</button>
     </div>
 
     <!--<link rel="stylesheet" href="css/styles.css?v=1.0">-->
@@ -112,6 +116,10 @@
     const simulation = new Vue({
         el: '#simulation',
         methods: {
+            undo: function (event) {
+                var payload = {intent: "undo"};
+                $.post("/input/intent", payload);
+            },
             hello: function (event) {
                 var payload = {intent: "greetings"};
                 $.post("/input/intent", payload);
@@ -120,16 +128,28 @@
                 var payload = {intent: "repeat"};
                 $.post("/input/intent", payload);
             },
-            reqTaskInfo: function (event) {
-                var payload = {intent: "req_task_info"};
+            selectTask: function (event) {
+                var payload = {intent: "select_task"};
                 $.post("/input/intent", payload);
             },
             acceptTask: function (event) {
                 var payload = {intent: "accept_task"};
                 $.post("/input/intent", payload);
             },
-            taskInfoSupp: function(event) {
-                var payload = {intent: "task_info_supp", task: "first"};
+            selectTaskSupp: function (event) {
+                var payload = {intent: "select_task_supp", task: "third"};
+                $.post("/input/intent", payload);
+            },
+            showTasks: function (event) {
+                var payload = {intent: "show_tasks"};
+                $.post("/input/intent", payload);
+            },
+            accept: function (event) {
+                var payload = {intent: "accept"};
+                $.post("/input/intent", payload);
+            },
+            reject: function (event) {
+                var payload = {intent: "reject"};
                 $.post("/input/intent", payload);
             }
         }, created() {

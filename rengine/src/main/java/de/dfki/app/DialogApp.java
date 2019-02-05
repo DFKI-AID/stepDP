@@ -43,29 +43,76 @@ public class DialogApp extends Dialog {
         var rs = getRuleSystem();
         var tagSystem = getTagSystem();
 
-        rs.addRule("task_info_supp", (sys) -> {
+        /**
+         * "Which tasks are available?"
+         * Show the worker some tasks he can work on
+         */
+        rs.addRule("show_tasks", (sys) -> {
             sys.getTokens().stream()
                     .filter(t -> t.topicIs("intent"))
                     .map(t -> (Token<Intent>) t)
-                    .filter(t -> t.payload.is("task_info_supp"))
+                    .filter(t -> t.payload.is("show_tasks"))
+                    .findFirst()
+                    .ifPresent(t -> {
+                        sys.removeToken(t);
+                        sys.enable("hide_tasks");
+                        rs.disable("show_tasks");
+                        sys.addToken(new Token("output_tts", "Okay: <summary over all tasks>"));
+                    });
+        });
+        tagSystem.addTag(rs.getRule("show_tasks").get(), taskSelectionTag);
+        rs.setPriority("show_tasks", 20);
+
+        /**
+         * "Hide the available task list in the hololens
+         */
+        rs.addRule("hide_tasks", (sys) -> {
+            sys.getTokens().stream()
+                    .filter(t -> t.topicIs("intent"))
+                    .map(t -> (Token<Intent>) t)
+                    .filter(t -> t.payload.is("hide_tasks"))
+                    .findFirst()
+                    .ifPresent(t -> {
+                        sys.removeToken(t);
+                        sys.enable("show_tasks");
+                        rs.disable("hide_tasks");
+                        rs.disable("accept_task");
+                        sys.addToken(new Token("output_tts", "Okay: <hide menu in hololens>"));
+                    });
+        });
+        tagSystem.addTag(rs.getRule("hide_tasks").get(), taskSelectionTag);
+        rs.setPriority("hide_tasks", 20);
+
+
+        /**
+         * If the system can't derive the intended task referred by the user, the user
+         * may specify his request by "the first task"
+         */
+        rs.addRule("select_task_supp", (sys) -> {
+            sys.getTokens().stream()
+                    .filter(t -> t.topicIs("intent"))
+                    .map(t -> (Token<Intent>) t)
+                    .filter(t -> t.payload.is("select_task_supp"))
                     .findFirst()
                     .ifPresent(t -> {
                         Optional<Object> taskName = t.payload.getPayload("task");
-                        if(!taskName.isPresent()) {
+                        if (!taskName.isPresent()) {
                             log.warn("no task info available. missing tag?");
                             return;
                         }
                         sys.removeToken(t);
                         sys.addToken(new Token("show_task_info", taskName.get()));
-                        rs.block("task_info_supp");
+                        rs.disable("select_task_supp");
                     });
         });
-        rs.block("task_info_supp");
-        tagSystem.addTag(rs.getRule("task_info_supp").get(), taskSelectionTag);
-        rs.setPriority("task_info_supp", 20);
+        rs.disable("select_task_supp");
+        tagSystem.addTag(rs.getRule("select_task_supp").get(), taskSelectionTag);
+        rs.setPriority("select_task_supp", 20);
 
 
-        rs.addRule("req_task_info", (sys) -> {
+        /**
+         */
+        rs.addRule("select_task", (sys) -> {
             Optional<String> visualFocus = sys.getTokens().stream()
                     .filter(t -> t.topicIs("visual_focus"))
                     .map(t -> (String) t.payload)
@@ -74,7 +121,7 @@ public class DialogApp extends Dialog {
             sys.getTokens().stream()
                     .filter(t -> t.topicIs("intent"))
                     .map(t -> (Token<Intent>) t)
-                    .filter(t -> t.payload.is("req_task_info"))
+                    .filter(t -> t.payload.is("select_task"))
                     .findFirst()
                     .ifPresent(t -> {
                         sys.removeToken(t);
@@ -84,13 +131,13 @@ public class DialogApp extends Dialog {
                         } else {
                             //TODO check for number of available tasks
                             sys.addToken(new Token("output_tts", "which task do you mean?"));
-                            rs.block("select_task");
-                            rs.enable("task_info_supp");
+                            rs.disable("select_task");
+                            rs.enable("select_task_supp");
                         }
                     });
         });
-        tagSystem.addTag(rs.getRule("req_task_info").get(), taskSelectionTag);
-        rs.setPriority("req_task_info", 20);
+        tagSystem.addTag(rs.getRule("select_task").get(), taskSelectionTag);
+        rs.setPriority("select_task", 20);
 
 
         rs.addRule("show_task_info", (sys) -> {
@@ -98,11 +145,18 @@ public class DialogApp extends Dialog {
                     .filter(t -> t.topicIs("show_task_info"))
                     .findFirst()
                     .ifPresent(t -> {
+//                        Optional<Object> task = t.payload.getPayload("task");
+//                        if (!task.isPresent()) {
+//                            log.warn("Ignoring 'accept_task' intent: missing slot 'task'. got: {}", t.payload);
+//                            return;
+//                        }
+
                         sys.removeToken(t);
                         String msg = String.format("There is a new urgent task '%s' : A UR-3 robot stopped functioning correctly", t.payload);
                         sys.addToken(new Token("output_tts", msg));
                         sys.addToken(new Token("output_image", "http://.../"));
-                        rs.enable("select_task");
+
+                        createAcceptTaskRule((String) t.payload);
                     });
 
         });
@@ -110,6 +164,10 @@ public class DialogApp extends Dialog {
         rs.setPriority("show_task_info", 30);
 
 
+
+    }
+
+    private void createAcceptTaskRule(String taskId) {
         rs.addRule("accept_task", (sys) -> {
             sys.getTokens().stream()
                     .filter(t -> t.topicIs("intent"))
@@ -118,27 +176,24 @@ public class DialogApp extends Dialog {
                     .findFirst()
                     .ifPresent(t -> {
                         sys.removeToken(t);
-                        Optional<Object> task = t.payload.getPayload("task");
-                        if(!task.isPresent()) {
-                            log.warn("Ignoring 'accept_task' intent: missing slot 'task'. got: {}", t.payload);
-                            return;
-                        }
-
-                        sys.addToken(new Token("output_tts", "Please confirm your selection for task"));
+                        String tts = String.format("Please confirm your selection for task '%s'", taskId);
+                        sys.addToken(new Token("output_tts", tts));
+                        sys.disable("accept_task");
 
                         createConfirmRule(sys, "confirm",
                                 () -> {
                                     deinitTaskMode();
-                                    sys.addToken(new Token("output_tts", "Okay, let's do task x"));
+                                    String acceptTts = String.format("Okay, let's do task '%s'", taskId);
+                                    sys.addToken(new Token("output_tts", acceptTts));
                                 }, () -> {
+                                    createAcceptTaskRule(taskId);
                                     sys.addToken(new Token("output_tts", "Okay."));
                                 });
                     });
         });
-        rs.block("accept_task");
+//        rs.disable("accept_task");
         tagSystem.addTag(rs.getRule("accept_task").get(), taskSelectionTag);
         rs.setPriority("accept_task", 20);
-
     }
 
     public void deinitTaskMode() {
@@ -239,7 +294,7 @@ public class DialogApp extends Dialog {
                     .ifPresent(t -> {
                         sys.removeToken(t);
                         sys.addToken(new Token("output_tts", "hello!"));
-                        sys.block("greetings", Duration.ofSeconds(4));
+                        sys.disable("greetings", Duration.ofSeconds(4));
                     });
         });
         rs.setPriority("greetings", 20);
@@ -256,7 +311,7 @@ public class DialogApp extends Dialog {
                         var now = LocalDateTime.now();
                         var tts = "it is " + now.getHour() + ":" + now.getMinute(); //TODO improve
                         sys.addToken(new Token("output_tts", tts));
-                        sys.block("request_time", Duration.ofMillis(3000));
+                        sys.disable("request_time", Duration.ofMillis(3000));
                     });
         });
 

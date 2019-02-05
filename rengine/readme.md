@@ -5,6 +5,7 @@ A simple rule engine, where rules create or react on tokens (arbitrary data). Th
 - Rewind (e.g. jump to other states of the dialog, say "undo" to go one step back)
 
    - **TODO** redo command. should be easy: Just don't overwrite the history after jumping back
+   - Allows: Pausing the demo during demonstration (during explanation)
 
 - Confirm-Rule
 
@@ -21,6 +22,14 @@ A simple rule engine, where rules create or react on tokens (arbitrary data). Th
 - **TODO** Create help-rule: "what can I say?"
 
 - **TODO** pro active behavior -> use timeouts to trigger rules
+
+- **TODO** slot filling
+
+- **TODO** state chart
+
+- **TODO** timeouts
+
+- **TODO** rule waiting for output to finish
 
 - Using java's stream API makes writing rules easy: 
 

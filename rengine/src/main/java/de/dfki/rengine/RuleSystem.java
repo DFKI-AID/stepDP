@@ -86,30 +86,30 @@ public class RuleSystem {
         return blockSystem.isEnabled(rule);
     }
 
-    public void block(String ruleName) {
+    public void disable(String ruleName) {
         Optional<Rule> rule = getRule(ruleName);
         if (!rule.isPresent()) {
             log.warn("Can'second disable rule: No rule found with name {}", ruleName);
             return;
         }
-        this.block(rule.get());
+        this.disable(rule.get());
     }
 
-    public void block(Rule rule) {
+    public void disable(Rule rule) {
         blockSystem.disable(rule);
     }
 
-    public void block(Rule rule, Duration duration) {
+    public void disable(Rule rule, Duration duration) {
         blockSystem.disable(rule, clock.convert(duration));
     }
 
-    public void block(String ruleName, Duration duration) {
+    public void disable(String ruleName, Duration duration) {
         Optional<Rule> rule = getRule(ruleName);
         if (!rule.isPresent()) {
             log.warn("Can'second enable rule: No rule found with name {}", ruleName);
             return;
         }
-        this.block(rule.get(), duration);
+        this.disable(rule.get(), duration);
     }
 
     public void setPriority(String ruleName, int priority) {
