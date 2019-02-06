@@ -1,0 +1,3 @@
+[submodule "mrapp/Assembly Robot/Assets/holothrift"]
+	path = mrapp/Assembly Robot/Assets/holothrift
+	url = ssh://git@lns-90165.sb.dfki.de:10022/i40/hybrit/holothrift.git
