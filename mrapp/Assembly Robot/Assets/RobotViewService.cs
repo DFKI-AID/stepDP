@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 public class RobotViewService : MonoBehaviour, AssemblyRobotView.Iface
 {
     public int Port = 11000;
+    private TServer server;
     public void updateGrammar(UpdateGrammar updateGrammar)
     {
         Debug.Log($"Received {updateGrammar}");
@@ -24,7 +25,7 @@ public class RobotViewService : MonoBehaviour, AssemblyRobotView.Iface
             Debug.Log($"Binding thrift service to {Port}");
             var proc = new AssemblyRobotView.Processor(this);
             var trans = new TServerSocket(Port);
-            var server = new TThreadPoolServer(proc, trans);
+            server = new TThreadPoolServer(proc, trans);
             server.Serve();
         });
         t.Start();
@@ -34,5 +35,13 @@ public class RobotViewService : MonoBehaviour, AssemblyRobotView.Iface
     void Update()
     {
         
+    }
+
+    void OnDestroy()
+    {
+        if (server != null)
+        {
+            server.Stop();
+        }
     }
 }
