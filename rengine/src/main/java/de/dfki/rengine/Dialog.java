@@ -146,6 +146,8 @@ public abstract class Dialog implements Runnable {
 
     public abstract void init();
 
+    public abstract void update();
+
     public abstract void deinit();
 
     /**
@@ -173,6 +175,7 @@ public abstract class Dialog implements Runnable {
         while (!Thread.currentThread().isInterrupted()) {
             try {
                 updateGrammar(rs);
+                update();
                 rs.update();
             } catch (InterruptedException e) {
                 log.warn("Dialog update interrupted. Quitting.");

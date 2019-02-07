@@ -19,7 +19,7 @@ public class DialogApp extends Dialog {
     private static final Logger log = LoggerFactory.getLogger(DialogApp.class);
     private final String taskSelectionTag = "TASK_SELECTION";
     private final AppGrammar appGrammar;
-
+    private final HololensClient hololensClient = new HololensClient("10.2.0.32", 11000);
 
     public DialogApp() {
         this.appGrammar = new AppGrammar(this.grammarManager);
@@ -345,6 +345,11 @@ public class DialogApp extends Dialog {
                         System.out.println("-stopping tts-");
                     });
         });
+    }
+
+    @Override
+    public void update() {
+        hololensClient.updateGrammar(grammarManager);
     }
 
     private static void createInterruptRule(RuleSystem rs) {

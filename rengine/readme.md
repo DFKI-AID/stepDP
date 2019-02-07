@@ -17,7 +17,7 @@ A simple rule engine, where rules create or react on tokens (arbitrary data). Th
 
 - Repeat-Rule ("can you repeat that?") outputs the last TTS again (up to x seconds)
 
-- **TODO** Create grammar based on the set of active rules
+- Grammar rules are chosen and merged based on the current set of active rules
 
 - **TODO** Create help-rule: "what can I say?"
 
@@ -31,18 +31,30 @@ A simple rule engine, where rules create or react on tokens (arbitrary data). Th
 
 - **TODO** rule waiting for output to finish
 
+- **TODO** Replay function: If the tokens (input, output) are stored as well, the whole dialog can be simulated (may be more complex...)
+
 - Using java's stream API makes writing rules easy: 
 
 - ```java
   rs.addRule("hello", (sys) -> {
              sys.getTokens().stream()
+                 		//look if there is at least one token with the topic 'greetings'
                      .filter(t -> t.topicIs("greetings"))
                      .findFirst()
                      .ifPresent(t -> {
+                         // consume the token and create a request for tts
                          sys.removeToken(t);
                          sys.addToken(new Token("output_tts", "hello!"));
+                         // block this rule for 4 seconds -> reduce spam 'hello'
                          sys.block("hello", Duration.ofSeconds(4));
                      });
          });
-         rs.setPriority("hello", 30);
   ```
+
+  
+
+
+Refactor project:
+    - core: no deps? (slf4j)
+    - app framework + web: spring boot
+    - app (concrete use case)
