@@ -77,3 +77,10 @@ button:hover{
     background-color: #4466AA; /* Green */
     color: white;
 }
+
+.btn-group{
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    border: 10px darkgray;
+    outline: 4px darkgoldenrod;
+}

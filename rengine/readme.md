@@ -27,6 +27,8 @@ A simple rule engine, where rules create or react on tokens (arbitrary data). Th
 
 - **TODO** state chart
 
+   - **TODO** editor: [mxgraph](https://jgraph.github.io/mxgraph/) seems to be a suitable js library for creating the state charts graphically
+
 - **TODO** timeouts
 
 - **TODO** rule waiting for output to finish
@@ -52,9 +54,18 @@ A simple rule engine, where rules create or react on tokens (arbitrary data). Th
   ```
 
   
+## TODOs
 
-
-Refactor project:
+#### Refactor project:
     - core: no deps? (slf4j)
     - app framework + web: spring boot
     - app (concrete use case)
+
+#### Check whether the grammar recognition works on hololens
+According to docs yes, but the API is too restrictive? 
+it can only load a grammar from file. 
+Hence it should be checked whether it is possible to store and then load the grammar for replacing it during runtime.
+
+
+
+#### ASR: Streaming Mic from Browser to AudioManager

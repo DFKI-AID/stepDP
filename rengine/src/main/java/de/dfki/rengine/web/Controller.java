@@ -29,8 +29,13 @@ public class Controller {
     public List<Rule> getRules() {
         var rs = settings.app.getRuleSystem();
         var rules = settings.app.getRuleSystem().getRules().stream()
-                .map(r -> new Rule(rs.getName(r).orElse("unknown"), rs.getPriority(r))
-                        .setActive(rs.isEnabled(r)))
+                .map(r -> {
+                            String id = rs.getName(r).orElse("unknown");
+                            return new Rule(id, rs.getPriority(r))
+                                    .setActive(rs.isEnabled(r))
+                                    .setTags(settings.app.getTagSystem().getTags(id));
+                        })
+
                 .sorted(Comparator.comparingInt(r -> r.priority))
                 .collect(Collectors.toList());
         return rules;

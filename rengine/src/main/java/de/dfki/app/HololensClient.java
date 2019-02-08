@@ -2,7 +2,6 @@ package de.dfki.app;
 
 import de.dfki.assemblyrobot.AssemblyRobotView;
 import de.dfki.assemblyrobot.UpdateGrammar;
-import de.dfki.rengine.grammar.Grammar;
 import de.dfki.rengine.grammar.GrammarManager;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
@@ -12,15 +11,15 @@ import org.apache.thrift.transport.TTransport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
-import java.util.function.Function;
+import java.util.ArrayDeque;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Queue;
 
 /**
  * Thrift client that updates the state of the Hololens.
  * Requests are queued and same requests are overwritten by their id: e.g. calling updateGrammar requests
- * will replace old requests if they are not yet sent.
+ * will replace old requests if they are not sent yet.
  */
 public class HololensClient {
     private Thread networkThread;
@@ -121,7 +120,8 @@ public class HololensClient {
 
     public static void main(String[] args) {
 //        var client = new HololensClient("10.2.0.32", 11000);
-        var client = new HololensClient("10.2.0.28", 11000);
+//        var client = new HololensClient("10.2.0.28", 11000);
+        var client = new HololensClient("172.16.68.112", 11000);
 
         client.updateGrammar(new UpdateGrammar());
     }

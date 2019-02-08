@@ -23,6 +23,7 @@
             </div>
             <div class="btn-group">
                 <button v-on:click="showTasks">show_tasks</button>
+                <button v-on:click="hideTasks">hide_tasks</button>
                 <button v-on:click="selectTask">select_task</button>
                 <button v-on:click="selectTaskSupp">select_task_supp</button>
                 <button v-on:click="acceptTask">accept_task</button>
@@ -40,11 +41,14 @@
                     <th>name</th>
                     <th>active</th>
                     <th>priority</th>
+                    <th>tags</th>
                 </tr>
                 <tr v-for="item in rules">
                     <td>{{item.name}}</td>
                     <td>{{item.active}}</td>
                     <td>{{item.priority}}</td>
+                    <td><span style="background-color:#00FF00" class="badge badge-secondary tag"
+                              v-color v-for="(item, index) in item.tags">{{item}}</span></td>
                 </tr>
             </table>
         </div>
@@ -79,7 +83,11 @@
             iteration: 0,
             rules: [],
             tokens: [],
-            grammar: null
+            grammar: null,
+            tagToColorMap: {},
+            colors: ["black", "CornflowerBlue", "DarkSeaGreen", "DarkSalmon",
+                "IndianRed", "SlateGray", "LightSeaGreen", "PaleVioletRed", "Indigo", "Teal"],
+            colorIndex: 0,
         },
         methods: {
             updateData: function () {
@@ -127,6 +135,10 @@
                 var payload = {intent: "show_tasks"};
                 $.post("/input/intent", payload);
             },
+            hideTasks: function (event) {
+                var payload = {intent: "hide_tasks"};
+                $.post("/input/intent", payload);
+            },
             accept: function (event) {
                 var payload = {intent: "accept"};
                 $.post("/input/intent", payload);
@@ -141,6 +153,29 @@
             this.interval = setInterval(function () {
                 this.updateData();
             }.bind(this), 250);
+        },
+        directives: {
+            color: {
+                update: function (el) {
+                    //TODO how do I get the this context here? instead of app
+                    var tag = $(el).text();
+                    var data = app.$data;
+                    var color = data.tagToColorMap[tag];
+                    // console.log(color);
+                    if (color == null) {
+                        console.log("creating color for tag " + tag);
+                        color = data.colors[data.colorIndex];
+                        data.colorIndex += 1;
+                        if (data.colorIndex >= data.colors.length) {
+                            console.log("resetting color index");
+                            data.colorIndex = 0;
+                        }
+                        data.tagToColorMap[tag] = color;
+                    }
+
+                    $(el).css({"background-color": color});
+                }
+            }
         }
         // created() {
         //     fetch('http://localhost:50000/rules')
@@ -153,6 +188,8 @@
         //         .then(json => this.iteration = json.iteration)
         // },
     });
+
+
 </script>
 </body>
 </html>

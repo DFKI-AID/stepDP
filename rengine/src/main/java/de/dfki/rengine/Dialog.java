@@ -18,9 +18,19 @@ public abstract class Dialog implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(Dialog.class);
 
     protected final RuleSystem rs = new RuleSystem();
-    protected final TagSystem<Rule> tagSystem = new TagSystem();
+    protected final TagSystem<String> tagSystem = new TagSystem();
     protected final GrammarManager grammarManager = new GrammarManager();
 
+
+    public void enable(String tag) {
+        this.tagSystem.getTagged(tag)
+                .forEach(r -> rs.enable(r));
+    }
+
+    public void disable(String tag) {
+        this.tagSystem.getTagged(tag)
+                .forEach(r -> rs.disable(r));
+    }
 
     public static void createConfirmRule(RuleSystem ruleSystem, String ruleName, Runnable yes, Runnable no) {
         ruleSystem.addRule(ruleName, (sys) -> {
@@ -100,6 +110,7 @@ public abstract class Dialog implements Runnable {
         });
         rs.setPriority("undo", 20);
 
+
         rs.removeRule("update_undo");
         rs.addRule("update_undo", (sys) -> {
             sys.getTokens().stream()
@@ -136,7 +147,7 @@ public abstract class Dialog implements Runnable {
         return rs;
     }
 
-    public TagSystem<Rule> getTagSystem() {
+    public TagSystem<String> getTagSystem() {
         return tagSystem;
     }
 

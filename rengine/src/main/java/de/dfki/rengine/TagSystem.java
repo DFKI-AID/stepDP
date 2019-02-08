@@ -41,4 +41,9 @@ public class TagSystem<T> {
                 .collect(Collectors.toSet());
         return taggedObjs;
     }
+
+    public boolean hasTag(T obj, String tag) {
+        return getTags(obj).contains(tag);
+    }
+
 }

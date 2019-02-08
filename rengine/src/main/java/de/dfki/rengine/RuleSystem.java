@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class RuleSystem {
     private static final Logger log = LoggerFactory.getLogger(RuleSystem.class);
-    private Clock clock = new Clock(1000);
+    private Clock clock = new Clock(500);
     private Set<Token> tokens = new HashSet<>(); //TODO maybe list?
     private List<Rule> rules = new ArrayList<>();
     private Map<String, Rule> nameToRule = new HashMap<>();

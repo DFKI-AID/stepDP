@@ -17,7 +17,12 @@ import java.util.regex.Pattern;
  */
 public class DialogApp extends Dialog {
     private static final Logger log = LoggerFactory.getLogger(DialogApp.class);
-    private final String taskSelectionTag = "TASK_SELECTION";
+    private final String tag = "TaskAssignment";
+    private final String tagIdle = tag + ".Idle";
+    private final String tagChoice = tag + ".Choice";
+    private final String tagInfo = tag + ".Info";
+    protected final StateHandler2 stateHandler = new StateHandler2(this, tagIdle, tagChoice, tagInfo);
+
     private final AppGrammar appGrammar;
     private final HololensClient hololensClient = new HololensClient("10.2.0.32", 11000);
 
@@ -43,6 +48,10 @@ public class DialogApp extends Dialog {
         var rs = getRuleSystem();
         var tagSystem = getTagSystem();
 
+
+
+
+
         /**
          * "Which tasks are available?"
          * Show the worker some tasks he can work on
@@ -55,13 +64,14 @@ public class DialogApp extends Dialog {
                     .findFirst()
                     .ifPresent(t -> {
                         sys.removeToken(t);
-                        sys.enable("hide_tasks");
-                        rs.disable("show_tasks");
                         sys.addToken(new Token("output_tts", "Okay: <summary over all tasks>"));
+                        stateHandler.enter(tagChoice);
                     });
         });
-        tagSystem.addTag(rs.getRule("show_tasks").get(), taskSelectionTag);
+        tagSystem.addTag("show_tasks", tag);
+        tagSystem.addTag("show_tasks", tagIdle);
         rs.setPriority("show_tasks", 20);
+
 
         /**
          * "Hide the available task list in the hololens
@@ -74,21 +84,61 @@ public class DialogApp extends Dialog {
                     .findFirst()
                     .ifPresent(t -> {
                         sys.removeToken(t);
-                        sys.enable("show_tasks");
-                        rs.disable("hide_tasks");
-                        rs.disable("accept_task");
                         sys.addToken(new Token("output_tts", "Okay: <hide menu in hololens>"));
+                        stateHandler.enter(tagIdle);
                     });
         });
-        tagSystem.addTag(rs.getRule("hide_tasks").get(), taskSelectionTag);
+        tagSystem.addTag("hide_tasks", tag);
+        tagSystem.addTag("hide_tasks", tagChoice);
+        tagSystem.addTag("hide_tasks", tagInfo);
         rs.setPriority("hide_tasks", 20);
 
 
         /**
-         * If the system can't derive the intended task referred by the user, the user
-         * may specify his request by "the first task"
          */
-        rs.addRule("select_task_supp", (sys) -> {
+        rs.addRule("select_task", (sys) -> {
+            Optional<String> focus = sys.getTokens().stream()
+                    .filter(t -> t.topicIs("focus"))
+                    .map(t -> (String) t.payload)
+                    .findFirst();
+
+            sys.getTokens().stream()
+                    .filter(t -> t.topicIs("intent"))
+                    .map(t -> (Token<Intent>) t)
+                    .filter(t -> t.payload.is("select_task"))
+                    .findFirst()
+                    .ifPresent(t -> {
+                        sys.removeToken(t);
+
+                        if (focus.isPresent()) {
+                            String msg = String.format("There is a new urgent task '%s' : A UR-3 robot stopped functioning correctly", t.payload);
+                            sys.addToken(new Token("output_tts", msg));
+                            sys.addToken(new Token("output_image", "http://.../"));
+                            createAcceptTaskRule(focus.get());
+                            stateHandler.enter(tagInfo);
+                        } else {
+                            //TODO check for number of available tasks
+                            sys.addToken(new Token("output_tts", "which task do you mean?"));
+                            specifyTaskRule("select_task_supp");
+                        }
+                    });
+        });
+        tagSystem.addTag("select_task", tag);
+        tagSystem.addTag("select_task", tagChoice);
+        tagSystem.addTag("select_task", tagInfo);
+        rs.setPriority("select_task", 20);
+
+
+        this.stateHandler.enter(tagIdle);
+    }
+
+
+    /**
+     * If the system can't derive the intended task referred by the user, the user
+     * may specify his request by "the first task"
+     */
+    private void specifyTaskRule(String rule) {
+        rs.addRule(rule, (sys) -> {
             sys.getTokens().stream()
                     .filter(t -> t.topicIs("intent"))
                     .map(t -> (Token<Intent>) t)
@@ -101,71 +151,15 @@ public class DialogApp extends Dialog {
                             return;
                         }
                         sys.removeToken(t);
-                        sys.addToken(new Token("show_task_info", taskName.get()));
-                        rs.disable("select_task_supp");
+                        rs.removeRule(rule);
+                        createAcceptTaskRule((String) taskName.get());
+                        stateHandler.enter(tagInfo);
+                        sys.addToken(new Token("output_tts", "woah"));
                     });
         });
-        rs.disable("select_task_supp");
-        tagSystem.addTag(rs.getRule("select_task_supp").get(), taskSelectionTag);
-        rs.setPriority("select_task_supp", 20);
-
-
-        /**
-         */
-        rs.addRule("select_task", (sys) -> {
-            Optional<String> visualFocus = sys.getTokens().stream()
-                    .filter(t -> t.topicIs("visual_focus"))
-                    .map(t -> (String) t.payload)
-                    .findFirst();
-
-            sys.getTokens().stream()
-                    .filter(t -> t.topicIs("intent"))
-                    .map(t -> (Token<Intent>) t)
-                    .filter(t -> t.payload.is("select_task"))
-                    .findFirst()
-                    .ifPresent(t -> {
-                        sys.removeToken(t);
-                        rs.disable("select_task_supp");
-                        rs.disable("accept_task");
-
-                        if (visualFocus.isPresent()) {
-                            sys.addToken(new Token("show_task_info", visualFocus.get()));
-                        } else {
-                            //TODO check for number of available tasks
-                            sys.addToken(new Token("output_tts", "which task do you mean?"));
-                            rs.enable("select_task_supp");
-                        }
-                    });
-        });
-        tagSystem.addTag(rs.getRule("select_task").get(), taskSelectionTag);
-        rs.setPriority("select_task", 20);
-
-
-        rs.addRule("show_task_info", (sys) -> {
-            sys.getTokens().stream()
-                    .filter(t -> t.topicIs("show_task_info"))
-                    .findFirst()
-                    .ifPresent(t -> {
-//                        Optional<Object> task = t.payload.getPayload("task");
-//                        if (!task.isPresent()) {
-//                            log.warn("Ignoring 'accept_task' intent: missing slot 'task'. got: {}", t.payload);
-//                            return;
-//                        }
-
-                        sys.removeToken(t);
-                        String msg = String.format("There is a new urgent task '%s' : A UR-3 robot stopped functioning correctly", t.payload);
-                        sys.addToken(new Token("output_tts", msg));
-                        sys.addToken(new Token("output_image", "http://.../"));
-
-                        createAcceptTaskRule((String) t.payload);
-                    });
-
-        });
-        tagSystem.addTag(rs.getRule("show_task_info").get(), taskSelectionTag);
-        rs.setPriority("show_task_info", 30);
-
-
-
+        tagSystem.addTag(rule, tag);
+        tagSystem.addTag(rule, tagChoice);
+        rs.setPriority(rule, 20);
     }
 
     private void createAcceptTaskRule(String taskId) {
@@ -181,6 +175,7 @@ public class DialogApp extends Dialog {
                         sys.addToken(new Token("output_tts", tts));
                         sys.disable("accept_task");
 
+                        //TODO only create accept on low confidence?
                         createConfirmRule(sys, "confirm_task",
                                 () -> {
                                     deinitTaskMode();
@@ -190,15 +185,18 @@ public class DialogApp extends Dialog {
                                     createAcceptTaskRule(taskId);
                                     sys.addToken(new Token("output_tts", "Okay."));
                                 });
+                        tagSystem.addTag("confirm_task", tag);
+                        tagSystem.addTag("confirm_task", tagInfo);
                     });
         });
 //        rs.disable("accept_task");
-        tagSystem.addTag(rs.getRule("accept_task").get(), taskSelectionTag);
+        tagSystem.addTag("accept_task", tag);
+        tagSystem.addTag("accept_task", tagInfo);
         rs.setPriority("accept_task", 20);
     }
 
     public void deinitTaskMode() {
-        tagSystem.getTagged(taskSelectionTag).forEach(r ->
+        tagSystem.getTagged(tag).forEach(r ->
                 rs.removeRule(r)
         );
     }
@@ -240,15 +238,6 @@ public class DialogApp extends Dialog {
     }
 
 
-    public RuleSystem getRuleSystem() {
-        return rs;
-    }
-
-    public TagSystem<Rule> getTagSystem() {
-        return tagSystem;
-    }
-
-
     private Queue<Intent> intentQueue = new ConcurrentLinkedDeque<>();
 
 
@@ -262,7 +251,9 @@ public class DialogApp extends Dialog {
         initTaskMode();
 
         createUndoRule(rs);
+        tagSystem.addTag("undo", "meta");
         createInterruptRule(rs);
+        tagSystem.addTag("interrupt", "meta");
 
         rs.addRule("manual_intent", (sys) -> {
             Intent intent = intentQueue.poll();
@@ -271,19 +262,20 @@ public class DialogApp extends Dialog {
             }
             sys.addToken(new Token("intent", intent));
         });
+        tagSystem.addTag("manual_intent", "simulation");
         rs.setPriority("manual_intent", 10);
 
         //go back rule:
 
 
         //simulates visual focus
-        rs.addRule("visual_focus", (sys) -> {
-            if ((new Random().nextBoolean())) {
-                sys.addToken(new Token("visual_focus", "task" + (new Random()).nextInt(3)));
-            }
+        rs.addRule("focus", (sys) -> {
+//            if ((new Random().nextBoolean())) {
+//                sys.addToken(new Token("focus", "task" + (new Random()).nextInt(3)));
+//            }
         });
-        rs.setPriority("visual_focus", 10);
-        tagSystem.addTag(rs.getRule("visual_focus").get(), "simulation");
+        rs.setPriority("focus", 10);
+        tagSystem.addTag("focus", "simulation");
 
 
         rs.addRule("greetings", (sys) -> {
@@ -299,6 +291,7 @@ public class DialogApp extends Dialog {
                     });
         });
         rs.setPriority("greetings", 20);
+        tagSystem.addTag("greetings", "meta");
 
 
         rs.addRule("request_time", (sys) -> {
@@ -315,6 +308,7 @@ public class DialogApp extends Dialog {
                         sys.disable("request_time", Duration.ofMillis(3000));
                     });
         });
+        tagSystem.addTag("request_time", "meta");
 
 
         createRepeatRule(rs, "request_repeat_tts", "I did not say anything.");
@@ -335,7 +329,7 @@ public class DialogApp extends Dialog {
 
         });
         rs.setPriority("TTS", 100);
-
+        tagSystem.addTag("TTS", "meta");
 
         rs.addRule("InterruptTTS", (sys) -> {
             sys.getTokens().stream()
@@ -345,6 +339,7 @@ public class DialogApp extends Dialog {
                         System.out.println("-stopping tts-");
                     });
         });
+        tagSystem.addTag("InterruptTTS", "meta");
     }
 
     @Override
