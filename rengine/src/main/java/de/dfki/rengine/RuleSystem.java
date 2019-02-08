@@ -8,7 +8,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * This component manages and execute rules.
+ * This component manages (add / remove / enable / disable) and execute rules.
  */
 public class RuleSystem {
     private static final Logger log = LoggerFactory.getLogger(RuleSystem.class);
@@ -228,6 +228,7 @@ public class RuleSystem {
         return clock;
     }
 
+    //TODO move to separate class
     private void applySnapshot(int iteration) {
         log.info("rewinding to {}", iteration);
         //TODO check parameters

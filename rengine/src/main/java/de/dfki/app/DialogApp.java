@@ -252,8 +252,10 @@ public class DialogApp extends Dialog {
 
         createUndoRule(rs);
         tagSystem.addTag("undo", "meta");
+        tagSystem.addTag("update_undo", "meta");
         createInterruptRule(rs);
         tagSystem.addTag("interrupt", "meta");
+        tagSystem.addTag("request_repeat_tts", "meta");
 
         rs.addRule("manual_intent", (sys) -> {
             Intent intent = intentQueue.poll();

@@ -1,5 +1,8 @@
 # REngine
 
+![alt text](../doc/rengine.png  "Overview")
+
+
 A simple rule engine, where rules create or react on tokens (arbitrary data). The main idea is to determine the dialog state as the set of (active) rules and put the intelligence into a management component that creates those rules dynamically. Features and properties are:
 
 - Rewind (e.g. jump to other states of the dialog, say "undo" to go one step back)
