@@ -6,49 +6,71 @@
     <title>Hello There</title>
     <meta name="description" content="Hello!">
     <meta name="author" content="Yannick Körber">
-
-    <div id="simulation" class="btn-grou">
-        <button v-on:click="undo">undo</button>
-        <button v-on:click="hello">hello</button>
-        <button v-on:click="repeat">repeat</button>
-        <button v-on:click="showTasks">show_tasks</button>
-        <button v-on:click="selectTask">select_task</button>
-        <button v-on:click="selectTaskSupp">select_task_supp</button>
-        <button v-on:click="acceptTask">accept_task</button>
-        <button v-on:click="accept">accept</button>
-        <button v-on:click="reject">reject</button>
-    </div>
-
-    <!--<link rel="stylesheet" href="css/styles.css?v=1.0">-->
-    <div id="app">
-        <h2>iteration={{iteration}}</h2>
-
-        <table>
-            <tr>
-                <th>name</th>
-                <th>active</th>
-                <th>priority</th>
-            </tr>
-            <tr v-for="item in rules">
-                <td>{{item.name}}</td>
-                <td>{{item.active}}</td>
-                <td>{{item.priority}}</td>
-            </tr>
-        </table>
-
-        <div>Tokens: {{tokens}}</div>
-
-        <div>Grammar: {{grammar}}</div>
-
-    </div>
-
-
+    <link rel="stylesheet" type="text/css" href="/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/hello.css">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+    <link rel="manifest" href="/manifest.json">
 </head>
 
+
+<div id="app" class="container-fluid">
+    <div class="row">
+        <div class="btn-toolbar">
+            <div class="btn-group">
+                <button v-on:click="undo">undo</button>
+                <button v-on:click="hello">hello</button>
+                <button v-on:click="repeat">repeat</button>
+            </div>
+            <div class="btn-group">
+                <button v-on:click="showTasks">show_tasks</button>
+                <button v-on:click="selectTask">select_task</button>
+                <button v-on:click="selectTaskSupp">select_task_supp</button>
+                <button v-on:click="acceptTask">accept_task</button>
+                <button v-on:click="accept">accept</button>
+                <button v-on:click="reject">reject</button>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm">
+            <h2>iteration={{iteration}}</h2>
+
+            <table>
+                <tr>
+                    <th>name</th>
+                    <th>active</th>
+                    <th>priority</th>
+                </tr>
+                <tr v-for="item in rules">
+                    <td>{{item.name}}</td>
+                    <td>{{item.active}}</td>
+                    <td>{{item.priority}}</td>
+                </tr>
+            </table>
+        </div>
+        <div class="col-sm">
+            <div id="grammar">Grammar: {{grammar}}</div>
+        </div>
+    </div>
+</div>
+
 <body>
-<script src="https://code.jquery.com/jquery-3.3.1.min.js"
-        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+
+
+<!--<div class="menu">menu</div>-->
+
+
+<!--<link rel="stylesheet" href="css/styles.css?v=1.0">-->
+<div id="rules">
+
+
+    <!--<div>Tokens: {{tokens}}</div>-->
+</div>
+
+
+<script src="/jquery-3.3.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue@2.5.22/dist/vue.js"></script>
+<script src="/bootstrap.min.js"></script>
 <script>
     const app = new Vue({
         el: '#app',
@@ -76,46 +98,7 @@
                 $.get('/grammar', function (rsp) {
                     this.grammar = new XMLSerializer().serializeToString(rsp);
                 }.bind(this));
-            }
-            // simHello: function (event) {
-            //     var payload = {intent: "hello"};
-            //     $.post("/input/intent", payload);
-            // },
-            // simRepeat: function (event) {
-            //     var payload = {intent: "repeat"};
-            //     $.post("/input/intent", payload);
-            // },
-            // simAvailableTasks: function (event) {
-            //     var payload = {intent: "available_tasks"};
-            //     $.post("/input/intent", payload);
-            // },
-            // selectTask: function (event) {
-            //     var payload = {intent: "select_task", task: "first"};
-            //     $.post("/input/intent", payload);
-            // }
-        },
-        created() {
-            this.updateData();
-            this.interval = setInterval(function () {
-                this.updateData();
-            }.bind(this), 250);
-        }
-        // created() {
-        //     fetch('http://localhost:50000/rules')
-        //         .then(rsp => rsp.json())
-        //         .then(json => {
-        //             this.items = json
-        //         })
-        //     fetch('http://localhost:50000/iteration')
-        //         .then(rsp => rsp.json())
-        //         .then(json => this.iteration = json.iteration)
-        // },
-    });
-</script>
-<script>
-    const simulation = new Vue({
-        el: '#simulation',
-        methods: {
+            },
             undo: function (event) {
                 var payload = {intent: "undo"};
                 $.post("/input/intent", payload);
@@ -152,8 +135,23 @@
                 var payload = {intent: "reject"};
                 $.post("/input/intent", payload);
             }
-        }, created() {
+        },
+        created() {
+            this.updateData();
+            this.interval = setInterval(function () {
+                this.updateData();
+            }.bind(this), 250);
         }
+        // created() {
+        //     fetch('http://localhost:50000/rules')
+        //         .then(rsp => rsp.json())
+        //         .then(json => {
+        //             this.items = json
+        //         })
+        //     fetch('http://localhost:50000/iteration')
+        //         .then(rsp => rsp.json())
+        //         .then(json => this.iteration = json.iteration)
+        // },
     });
 </script>
 </body>

@@ -1,0 +1,79 @@
+/*body {*/
+    /*display: grid;*/
+    /*grid-template-columns: repeat(12, 1fr);*/
+    /*grid-template-rows: 40px 100px 40px;*/
+/*}*/
+
+/*.header {*/
+    /*grid-column: span 12;*/
+    /*background: darkred;*/
+/*}*/
+
+/*.menu {*/
+    /*grid-column: span 4;*/
+    /*background: darkblue;*/
+/*}*/
+
+/*.content {*/
+    /*grid-column: span 8;*/
+    /*background: darkcyan;*/
+/*}*/
+
+/*.footer {*/
+    /*grid-column: span 12;*/
+    /*background: darkgoldenrod;*/
+/*}*/
+
+
+/*body {*/
+    /*font-family: 'Open Sans', sans-serif;*/
+    /*display: grid;*/
+    /*width: 100%;*/
+    /*height: 100vh;*/
+    /*!*height: 100vh;*!*/
+    /*overflow: auto;*/
+    /*grid-template-areas:*/
+    /*"simulation simulation"*/
+    /*"rules content"*/
+    /*"footer footer";*/
+    /*grid-template-rows: 10% 80% 10%;*/
+    /*grid-template-columns: 40% 60%;*/
+/*}*/
+
+/*#simulation {*/
+    /*grid-area: simulation;*/
+    /*background: darkred;*/
+/*}*/
+
+/*#rules {*/
+    /*grid-area: rules;*/
+    /*background: lightblue;*/
+/*}*/
+
+/*#content {*/
+    /*grid-area: content;*/
+    /*background: darkcyan;*/
+/*}*/
+
+/*#footer {*/
+    /*grid-area: footer;*/
+    /*background: darkgoldenrod;*/
+    /*!*put the footer to the bottom*!*/
+    /*position: fixed;*/
+    /*bottom: 0;*/
+    /*height: 100px;*/
+/*}*/
+
+button {
+    background-color: #225599;
+    color: white;
+    padding: 15px 32px;
+    font-size: 16px;
+    border: 2px darkgray;
+    border-radius: 1px;
+}
+
+button:hover{
+    background-color: #4466AA; /* Green */
+    color: white;
+}
