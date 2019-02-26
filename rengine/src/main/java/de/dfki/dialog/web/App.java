@@ -1,4 +1,4 @@
-package de.dfki.rengine.web;
+package de.dfki.dialog.web;
 
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;

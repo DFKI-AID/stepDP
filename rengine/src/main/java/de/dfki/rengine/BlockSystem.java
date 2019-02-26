@@ -11,7 +11,7 @@ import java.util.Map;
 public class BlockSystem {
     private static final Logger log = LoggerFactory.getLogger(BlockSystem.class);
     private final Clock clock;
-    private Map<Rule, BlockRule> blockRules = new HashMap<>();
+    private Map<Rule, RuleBlocker> blockRules = new HashMap<>();
 
     public BlockSystem(Clock clock) {
         this.clock = clock;
@@ -39,7 +39,7 @@ public class BlockSystem {
         //TODO maybe replace duration with iterations: in the sense of translating them
         // this would help to 'go back' in the dialog; or use a custom clock
         log.info("Disabling: {}", rule);
-        blockRules.put(rule, new BlockRule() {
+        blockRules.put(rule, new RuleBlocker() {
             long until = clock.getIteration() + iteration;
 
             @Override

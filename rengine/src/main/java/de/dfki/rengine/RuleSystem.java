@@ -18,6 +18,7 @@ public class RuleSystem {
     private Map<String, Rule> nameToRule = new HashMap<>();
     private BlockSystem blockSystem = new BlockSystem(clock);
     private Map<Rule, Integer> priorities = new HashMap<>();
+    private Map<String, Boolean> volatileMap = new HashMap<>();
     private static final int DEFAULT_PRIORITY = 50;
 
 
@@ -226,6 +227,19 @@ public class RuleSystem {
 
     public Clock getClock() {
         return clock;
+    }
+
+    public void setVolatile(String rule, boolean vol) {
+        volatileMap.put(rule, vol);
+    }
+
+    /**
+     * Volatile rules should be removed instead of disabled
+     * @param rule
+     * @return
+     */
+    public boolean isVolatile(String rule) {
+        return Optional.ofNullable(volatileMap.get(rule)).orElse(false);
     }
 
     //TODO move to separate class

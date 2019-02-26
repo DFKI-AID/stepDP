@@ -1,4 +1,4 @@
-package de.dfki.rengine;
+package de.dfki.dialog;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,26 +22,36 @@ public class StateHandler2 {
     }
 
     /**
-     * Activate the state that related to the given tag
+     * Activates all rules with the given tag
      *
-     * @param state
+     * @param tag
      */
-    protected void activate(String state) {
+    protected void activate(String tag) {
         dialog.rs.getRules().stream()
                 .map(r -> dialog.rs.getName(r))
                 .filter(r -> r.isPresent())
                 .map(r -> r.get())
-                .filter(r -> tagSystem.hasTag(r, state))
+                .filter(r -> tagSystem.hasTag(r, tag))
                 .forEach(r -> dialog.rs.enable(r));
     }
 
-    protected void deactivate(String state) {
+    /**
+     * Deactivates all rules with the given tag
+     *
+     * @param tag
+     */
+    protected void deactivate(String tag) {
         dialog.rs.getRules().stream()
                 .map(r -> dialog.rs.getName(r))
                 .filter(r -> r.isPresent())
                 .map(r -> r.get())
-                .filter(r -> tagSystem.hasTag(r, state))
-                .forEach(r -> dialog.rs.disable(r));
+                .filter(r -> tagSystem.hasTag(r, tag))
+                .forEach(r -> {
+                    dialog.rs.disable(r);
+                    if(dialog.rs.isVolatile(r)) {
+                        dialog.rs.removeRule(r);
+                    }
+                });
     }
 
     public void enter(String state) {

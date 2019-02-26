@@ -1,4 +1,4 @@
-package de.dfki.rengine.web;
+package de.dfki.dialog.web;
 
 import java.util.HashSet;
 import java.util.Set;

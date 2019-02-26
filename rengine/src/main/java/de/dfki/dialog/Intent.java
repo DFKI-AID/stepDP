@@ -1,4 +1,4 @@
-package de.dfki.rengine;
+package de.dfki.dialog;
 
 import java.util.HashMap;
 import java.util.Map;

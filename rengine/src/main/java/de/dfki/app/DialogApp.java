@@ -1,7 +1,9 @@
 package de.dfki.app;
 
 
-import de.dfki.rengine.*;
+import de.dfki.dialog.*;
+import de.dfki.rengine.RuleSystem;
+import de.dfki.rengine.Token;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -176,7 +178,7 @@ public class DialogApp extends Dialog {
                         sys.disable("accept_task");
 
                         //TODO only create accept on low confidence?
-                        createConfirmRule(sys, "confirm_task",
+                        MetaDialog.createConfirmRule(sys, "confirm_task",
                                 () -> {
                                     deinitTaskMode();
                                     String acceptTts = String.format("Okay, let's do task '%s'", taskId);
@@ -250,7 +252,7 @@ public class DialogApp extends Dialog {
     public void init() {
         initTaskMode();
 
-        createUndoRule(rs);
+        MetaDialog.createUndoRule(rs);
         tagSystem.addTag("undo", "meta");
         tagSystem.addTag("update_undo", "meta");
         createInterruptRule(rs);
@@ -313,7 +315,7 @@ public class DialogApp extends Dialog {
         tagSystem.addTag("request_time", "meta");
 
 
-        createRepeatRule(rs, "request_repeat_tts", "I did not say anything.");
+        MetaDialog.createRepeatRule(rs, "request_repeat_tts", "I did not say anything.");
 
 
         rs.addRule("TTS", (sys) -> {
@@ -323,7 +325,7 @@ public class DialogApp extends Dialog {
                     .ifPresent(t -> {
                         System.out.println("System: " + t.payload);
                         sys.removeRule("request_repeat_tts");
-                        createRepeatRule(sys, "request_repeat_tts", (String) t.payload);
+                        MetaDialog.createRepeatRule(sys, "request_repeat_tts", (String) t.payload);
                         sys.setPriority("request_repeat_tts", 20);
                     });
             //TODO could als merge all TTS request into one

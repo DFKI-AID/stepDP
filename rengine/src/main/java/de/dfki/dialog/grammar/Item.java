@@ -1,9 +1,4 @@
-package de.dfki.rengine.grammar;
-
-import com.google.gson.Gson;
-
-import java.util.HashMap;
-import java.util.Map;
+package de.dfki.dialog.grammar;
 
 /**
  * TODO maybe it is necessary to add the tag data

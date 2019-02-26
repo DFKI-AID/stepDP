@@ -2,7 +2,7 @@ package de.dfki.app;
 
 import de.dfki.assemblyrobot.AssemblyRobotView;
 import de.dfki.assemblyrobot.UpdateGrammar;
-import de.dfki.rengine.grammar.GrammarManager;
+import de.dfki.dialog.grammar.GrammarManager;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;

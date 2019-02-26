@@ -1,4 +1,4 @@
-package de.dfki.rengine.web;
+package de.dfki.dialog.web;
 
 import de.dfki.app.DialogApp;
 import org.springframework.context.annotation.Bean;

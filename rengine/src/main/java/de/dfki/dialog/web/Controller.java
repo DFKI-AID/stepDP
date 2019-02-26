@@ -1,6 +1,6 @@
-package de.dfki.rengine.web;
+package de.dfki.dialog.web;
 
-import de.dfki.rengine.Intent;
+import de.dfki.dialog.Intent;
 import de.dfki.rengine.Token;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;

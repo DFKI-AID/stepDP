@@ -1,10 +1,8 @@
 package de.dfki.app;
 
-import de.dfki.rengine.Dialog;
-import de.dfki.rengine.grammar.*;
+import de.dfki.dialog.grammar.*;
 
 import java.io.IOException;
-import java.util.Optional;
 
 /**
  *
