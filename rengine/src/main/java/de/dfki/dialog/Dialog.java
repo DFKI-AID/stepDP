@@ -58,6 +58,10 @@ public abstract class Dialog implements Runnable {
         }
     }
 
+    public void present(PresentationRequest presentationReq) {
+
+    }
+
     @Override
     public void run() {
         init();

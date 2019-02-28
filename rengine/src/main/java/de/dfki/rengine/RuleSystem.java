@@ -1,5 +1,7 @@
 package de.dfki.rengine;
 
+import org.pcollections.PSequence;
+import org.pcollections.TreePVector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,7 +16,7 @@ public class RuleSystem {
     private static final Logger log = LoggerFactory.getLogger(RuleSystem.class);
     private Clock clock = new Clock(500);
     private Set<Token> tokens = new HashSet<>(); //TODO maybe list?
-    private List<Rule> rules = new ArrayList<>();
+    private PSequence<Rule> rules = TreePVector.empty();
     private Map<String, Rule> nameToRule = new HashMap<>();
     private BlockSystem blockSystem = new BlockSystem(clock);
     private Map<Rule, Integer> priorities = new HashMap<>();
@@ -50,19 +52,19 @@ public class RuleSystem {
     }
 
     public void addRule(String name, Rule rule) {
-        if(this.nameToRule.containsKey(name)) {
+        if (nameToRule.containsKey(name)) {
             log.info("overwriting rule {}", name);
             this.removeRule(name);
         } else {
             log.info("adding rule {}", name);
         }
 
-        this.rules.add(rule);
-        this.nameToRule.put(name, rule);
+        rules = rules.plus(rule);
+        nameToRule.put(name, rule);
     }
 
     public void removeRule(Rule rule) {
-        this.rules.remove(rule);
+        rules = rules.minus(rule);
         getName(rule).ifPresent(name -> nameToRule.remove(name));
     }
 
@@ -72,7 +74,7 @@ public class RuleSystem {
             return;
         }
         log.info("removing rule {}", name);
-        this.rules.remove(rule.get());
+        rules = rules.minus(rule.get());
         this.nameToRule.remove(name);
     }
 
@@ -165,7 +167,7 @@ public class RuleSystem {
 
     public void update() throws InterruptedException {
         int targetSnapshot = snapshotTarget.getAndSet(-1);
-        if(targetSnapshot >= 0) {
+        if (targetSnapshot >= 0) {
             this.applySnapshot(targetSnapshot);
         }
 
@@ -174,7 +176,6 @@ public class RuleSystem {
 
         tokens.clear();
         //making a copy of the rule set, which allows to change the rule set within the update method
-        //TODO just create a copy if something changed
         ArrayList<Rule> rulesCopy = new ArrayList<>();
         rulesCopy.addAll(rules);
 
@@ -189,7 +190,7 @@ public class RuleSystem {
         }
 
         clock.inc();
-        Thread.sleep((long) clock.getRate()); //TODO no precise, but sufficient to begin with
+        Thread.sleep((long) clock.getRate()); //TODO no precise, but sufficient to start with
     }
 
     public int getIteration() {
@@ -197,10 +198,8 @@ public class RuleSystem {
     }
 
     public List<Rule> getRules() {
-        //TODO synchronize or use persistent data structure
-        return Collections.unmodifiableList(rules);
+        return rules;
     }
-
 
     private Map<Integer, State> snapshots = new HashMap<>();
 
@@ -209,8 +208,9 @@ public class RuleSystem {
         state.blockSystem = blockSystem.copy();
 //        state.tokens = new HashSet<>();
 //        state.tokens.addAll(this.tokens)
-        state.rules = new ArrayList<>();
-        state.rules.addAll(this.rules);
+//        state.rules = new ArrayList<>();
+//        state.rules.addAll(this.rules);
+        state.rules = this.rules; //persistent data structure
         state.iteration = clock.getIteration();
         state.priorities = new HashMap<>();
         state.priorities.putAll(this.priorities);
@@ -235,6 +235,7 @@ public class RuleSystem {
 
     /**
      * Volatile rules should be removed instead of disabled
+     *
      * @param rule
      * @return
      */
@@ -249,8 +250,8 @@ public class RuleSystem {
         State state = snapshots.get(iteration);
         this.clock.setIteration(state.iteration);
         this.blockSystem = state.blockSystem.copy();
-        this.rules = new ArrayList<>();
-        this.rules.addAll(state.rules);
+        this.rules = TreePVector.empty();
+        this.rules = this.rules.plusAll(state.rules);
         this.priorities = new HashMap<>();
         this.priorities.putAll(state.priorities);
         this.nameToRule = new HashMap<>();

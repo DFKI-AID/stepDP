@@ -54,6 +54,15 @@ public class StateHandler2 {
                 });
     }
 
+    /**
+     * quits all states.
+     */
+    public void quit() {
+        log.info("Quitting all states.");
+        tags.forEach(t -> deactivate(t));
+        currentState = "None";
+    }
+
     public void enter(String state) {
         if (Objects.equals(state, currentState)) {
             return;
