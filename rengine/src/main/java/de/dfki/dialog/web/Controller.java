@@ -58,7 +58,7 @@ public class Controller {
 
     @PostMapping(value = "/rewind/{iteration}")
     public void rewind(@PathVariable("iteration") int iteration) {
-        settings.app.getRuleSystem().rewind(iteration);
+        settings.app.rewind(iteration);
     }
 
 

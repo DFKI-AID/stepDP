@@ -35,4 +35,14 @@ public class TimeBehavior implements Behavior {
     public void deinit() {
         dialog.getRuleSystem().removeRule("request_time");
     }
+
+    @Override
+    public Object createSnapshot() {
+        //independent, therefore no change
+        return null;
+    }
+
+    @Override
+    public void loadSnapshot(Object snapshot) {
+    }
 }

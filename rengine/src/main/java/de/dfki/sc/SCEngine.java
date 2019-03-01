@@ -1,5 +1,8 @@
 package de.dfki.sc;
 
+import org.pcollections.HashTreePMap;
+import org.pcollections.IntTreePMap;
+import org.pcollections.PMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,9 +16,47 @@ import java.util.stream.Collectors;
 public class SCEngine {
     private static final Logger log = LoggerFactory.getLogger(SCEngine.class);
     private final StateChart stateChart;
-    private String currentState;
-    private Map<String, BooleanSupplier> conditions = new HashMap<>();
-    private Map<String, Runnable> onEntries = new HashMap<>();
+    private ObjState objState = new ObjState("N/A");
+
+    public static class ObjState {
+        private final String currentState;
+        private PMap<String, BooleanSupplier> conditions = HashTreePMap.empty();
+        private PMap<String, Runnable> onEntries = HashTreePMap.empty();
+
+        public ObjState(String currentState) {
+            this.currentState = currentState;
+        }
+
+        public ObjState setState(String state) {
+            ObjState newState = new ObjState(state);
+            newState.conditions = conditions;
+            newState.onEntries = onEntries;
+            return newState;
+        }
+
+        public ObjState addCondition(String id, BooleanSupplier condition) {
+            ObjState newState = new ObjState(currentState);
+            newState.conditions = conditions.plus(id, condition);
+            newState.onEntries = onEntries;
+            return newState;
+        }
+
+        public ObjState addOnEntry(String id, Runnable onEntry) {
+            ObjState newState = new ObjState(currentState);
+            newState.conditions = conditions;
+            newState.onEntries = onEntries.plus(id, onEntry);
+            return newState;
+        }
+    }
+
+    public ObjState createSnapshot() {
+        return objState;
+    }
+
+    public void loadSnapshot(ObjState objState) {
+        this.objState = objState;
+    }
+
 
     public SCEngine(StateChart stateChart) {
         this.stateChart = stateChart;
@@ -23,7 +64,7 @@ public class SCEngine {
     }
 
     public boolean fire(String event) {
-        List<Transition> transitions = stateChart.getTransitions(currentState);
+        List<Transition> transitions = stateChart.getTransitions(getCurrentState());
         List<Transition> transitionCandidates = transitions.stream()
                 .filter(t -> Objects.equals(t.getEvent(), event))
                 .filter(t -> !t.hasCond() || checkCondition(t.getCond()))
@@ -31,30 +72,30 @@ public class SCEngine {
 
 
         if (transitionCandidates.isEmpty()) {
-            log.warn("no transition candidate found for state {} and event {}", currentState, event);
+            log.warn("no transition candidate found for state {} and event {}", getCurrentState(), event);
             return false;
         }
 
         // TODO slect transition randomly?
         // TODO onExit
         String targetState = transitionCandidates.get(0).getTarget();
-        log.info("state change {}->{}", currentState, targetState);
-        this.currentState = targetState;
+        log.info("state change {}->{}", getCurrentState(), targetState);
+        objState = objState.setState(targetState);
 
-        State state = stateChart.getState(this.currentState).get();
-        state.getOnEntries().forEach( oe -> oe.getScripts().forEach(s -> {
-            if(!onEntries.containsKey(s)) {
-                log.warn("No script found for on-entry {} and id {}", currentState, s);
+        State state = stateChart.getState(getCurrentState()).get();
+        state.getOnEntries().forEach(oe -> oe.getScripts().forEach(s -> {
+            if (!objState.onEntries.containsKey(s)) {
+                log.warn("No script found for on-entry {} and id {}", getCurrentState(), s);
                 return;
             }
-            onEntries.get(s).run();
+            objState.onEntries.get(s).run();
         }));
 
         return true;
     }
 
     public String getCurrentState() {
-        return currentState;
+        return objState.currentState;
     }
 
     public Collection<String> getStates() {
@@ -62,35 +103,35 @@ public class SCEngine {
     }
 
     public boolean checkCondition(String id) {
-        if(!conditions.containsKey(id)) {
+        if (!objState.conditions.containsKey(id)) {
             log.warn("Can't check condition {}: Not available", id);
             return false;
         }
 
-        boolean conditionFulfilled = conditions.get(id).getAsBoolean();
+        boolean conditionFulfilled = objState.conditions.get(id).getAsBoolean();
         return conditionFulfilled;
     }
 
     public void addCondition(String id, BooleanSupplier condition) {
-        if(conditions.containsKey(id)) {
+        if (objState.conditions.containsKey(id)) {
             log.info("Overwriting condition for {}", id);
         } else {
             log.info("Adding new condition for {}", id);
         }
-        conditions.put(id, condition);
+        objState = objState.addCondition(id, condition);
     }
 
     public void addOnEntry(String id, Runnable onEntryFnc) {
-        if(onEntries.containsKey(id)) {
+        if (objState.onEntries.containsKey(id)) {
             log.info("Overwriting on-entry function for {}", id);
         } else {
             log.info("Adding on-entry function for {}", id);
         }
-        onEntries.put(id, onEntryFnc);
+        objState = objState.addOnEntry(id, onEntryFnc);
     }
 
     public void reset() {
-        this.currentState = stateChart.getInitialState();
+        objState = objState.setState(stateChart.getInitialState());
     }
 
     public String getInitialState() {

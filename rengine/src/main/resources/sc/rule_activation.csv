@@ -1,5 +1,5 @@
-,show_tasks,hide_tasks,select_task,select_task_supp,accept_task,confirm_task
-Idle,TRUE,,,,,
-Choice,,TRUE,TRUE,TRUE,,
-Info,TRUE,TRUE,TRUE,,TRUE,TRUE
-Selected,,,,,,
+,show_tasks,hide_tasks,select_task,accept_task
+Idle,TRUE,,,
+Choice,,TRUE,TRUE,
+Info,TRUE,TRUE,TRUE,TRUE
+Selected,,,,

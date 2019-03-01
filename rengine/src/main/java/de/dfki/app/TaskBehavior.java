@@ -21,14 +21,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class TaskBehavior implements Behavior {
     private static final Logger log = LoggerFactory.getLogger(TaskBehavior.class);
-    private final String tag = "TaskAssignment";
-    private final String tagIdle = "Idle";
-    private final String tagChoice = "Choice";
-    private final String tagInfo = "Info";
     private RuleSystem rs;
     private TagSystem tagSystem;
     private StateHandler2 stateHandler;
-
 
     @Override
     public void init(Dialog dialog) {
@@ -64,6 +59,16 @@ public class TaskBehavior implements Behavior {
     @Override
     public void deinit() {
 //        this.stateHandler.quit();
+    }
+
+    @Override
+    public Object createSnapshot() {
+        return stateHandler.createSnapshot();
+    }
+
+    @Override
+    public void loadSnapshot(Object snapshot) {
+        stateHandler.loadSnapshot((SCEngine.ObjState) snapshot);
     }
 
     public void outputTaskSummary() {
@@ -168,6 +173,7 @@ public class TaskBehavior implements Behavior {
                     });
         });
         rs.setPriority(rule, 20);
+        tagSystem.addTag("select_task_supp", stateHandler.getCurrentState());
     }
 
     private void createAcceptTaskRule(String taskId) {
@@ -183,7 +189,7 @@ public class TaskBehavior implements Behavior {
                         sys.addToken(new Token("output_tts", tts));
                         sys.disable("accept_task");
 
-                        //TODO only create accept rule on low confidence?
+                        //TODO only create accept rule on low confidence
                         MetaDialog.createConfirmRule(sys, "confirm_task",
                                 () -> {
                                     deinit();
@@ -193,6 +199,8 @@ public class TaskBehavior implements Behavior {
                                     createAcceptTaskRule(taskId);
                                     sys.addToken(new Token("output_tts", "Okay."));
                                 });
+                        // associate the confirm_task rule to the current state.
+                        tagSystem.addTag("confirm_task", stateHandler.getCurrentState());
                     });
         });
         rs.setPriority("accept_task", 20);

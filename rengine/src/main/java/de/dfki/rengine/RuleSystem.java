@@ -14,14 +14,21 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class RuleSystem {
     private static final Logger log = LoggerFactory.getLogger(RuleSystem.class);
-    private Clock clock = new Clock(500);
+    private final Clock clock;
+    private boolean updateActive = false;
+
     private Set<Token> tokens = new HashSet<>(); //TODO maybe list?
     private PSequence<Rule> rules = TreePVector.empty();
     private Map<String, Rule> nameToRule = new HashMap<>();
-    private BlockSystem blockSystem = new BlockSystem(clock);
+    private BlockSystem blockSystem;
     private Map<Rule, Integer> priorities = new HashMap<>();
     private Map<String, Boolean> volatileMap = new HashMap<>();
     private static final int DEFAULT_PRIORITY = 50;
+
+    public RuleSystem(Clock clock) {
+        this.clock = clock;
+        this.blockSystem = new BlockSystem(clock);
+    }
 
 
     public void addToken(Token token) {
@@ -165,14 +172,8 @@ public class RuleSystem {
         return Optional.ofNullable(nameToRule.get(name));
     }
 
-    public void update() throws InterruptedException {
-        int targetSnapshot = snapshotTarget.getAndSet(-1);
-        if (targetSnapshot >= 0) {
-            this.applySnapshot(targetSnapshot);
-        }
-
-        var state = this.createSnapshot();
-        this.snapshots.put(clock.getIteration(), state);
+    public void update() {
+        updateActive = true;
 
         tokens.clear();
         //making a copy of the rule set, which allows to change the rule set within the update method
@@ -185,12 +186,9 @@ public class RuleSystem {
             if (blockSystem.isDisabled(rule)) {
                 continue;
             }
-
             rule.update(this);
         }
-
-        clock.inc();
-        Thread.sleep((long) clock.getRate()); //TODO no precise, but sufficient to start with
+        updateActive = false;
     }
 
     public int getIteration() {
@@ -201,10 +199,9 @@ public class RuleSystem {
         return rules;
     }
 
-    private Map<Integer, State> snapshots = new HashMap<>();
 
-    private State createSnapshot() {
-        State state = new State();
+    public Snapshot createSnapshot() {
+        Snapshot state = new Snapshot();
         state.blockSystem = blockSystem.copy();
 //        state.tokens = new HashSet<>();
 //        state.tokens.addAll(this.tokens)
@@ -216,13 +213,24 @@ public class RuleSystem {
         state.priorities.putAll(this.priorities);
         state.nameToRule = new HashMap<>();
         state.nameToRule.putAll(this.nameToRule);
+        state.volatileMap.putAll(this.volatileMap);
         return state;
     }
 
-    private AtomicInteger snapshotTarget = new AtomicInteger(-1);
-
-    public void rewind(int iteration) {
-        snapshotTarget.set(iteration);
+    public void applySnapshot(Snapshot snapshot) {
+        if(updateActive) {
+            throw new IllegalStateException("Can't apply snapshot while updating the RuleSystem");
+        }
+        this.clock.setIteration(snapshot.iteration);
+        this.blockSystem = snapshot.blockSystem.copy();
+        this.rules = TreePVector.empty();
+        this.rules = this.rules.plusAll(snapshot.rules);
+        this.priorities = new HashMap<>();
+        this.priorities.putAll(snapshot.priorities);
+        this.nameToRule = new HashMap<>();
+        this.nameToRule.putAll(snapshot.nameToRule);
+        this.volatileMap = new HashMap<>();
+        this.volatileMap.putAll(snapshot.volatileMap);
     }
 
     public Clock getClock() {
@@ -243,28 +251,16 @@ public class RuleSystem {
         return Optional.ofNullable(volatileMap.get(rule)).orElse(false);
     }
 
-    //TODO move to separate class
-    private void applySnapshot(int iteration) {
-        log.info("rewinding to {}", iteration);
-        //TODO check parameters
-        State state = snapshots.get(iteration);
-        this.clock.setIteration(state.iteration);
-        this.blockSystem = state.blockSystem.copy();
-        this.rules = TreePVector.empty();
-        this.rules = this.rules.plusAll(state.rules);
-        this.priorities = new HashMap<>();
-        this.priorities.putAll(state.priorities);
-        this.nameToRule = new HashMap<>();
-        this.nameToRule.putAll(state.nameToRule);
-    }
 
-    private static class State {
+    public static class Snapshot {
         public BlockSystem blockSystem;
         //        public Set<Token> tokens;
         public List<Rule> rules;
         public int iteration;
         public Map<Rule, Integer> priorities;
         public Map<String, Rule> nameToRule;
+        public Map<String, Boolean> volatileMap = new HashMap<>();
+
     }
 
 }

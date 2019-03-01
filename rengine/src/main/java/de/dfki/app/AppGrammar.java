@@ -71,7 +71,7 @@ public class AppGrammar {
             Rule taskInfoSupp = FileRuleNode.create("/grammar/task_info_supp.xml");
             grammarManager.addRule(taskInfoSupp);
         } catch (IOException e) {
-            throw new RuntimeException("could not load grammar", e);
+            throw new RuntimeException("could not loadSnapshot grammar", e);
         }
 
         Rule timeInfo = new Rule("request_time")

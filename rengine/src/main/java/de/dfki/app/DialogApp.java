@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
  */
 public class DialogApp extends Dialog {
     private static final Logger log = LoggerFactory.getLogger(DialogApp.class);
-
+    private final String navTag = "Navigation";
 
     private final AppGrammar appGrammar;
     private final HololensClient hololensClient = new HololensClient("10.2.0.32", 11000);
@@ -44,8 +44,6 @@ public class DialogApp extends Dialog {
 
 
 
-
-    private final String navTag = "Navigation";
 
     public void initNavMode() {
         //[1] where do I have go?
@@ -92,9 +90,11 @@ public class DialogApp extends Dialog {
 
     @Override
     public void init() {
-        new TaskBehavior().init(this);
+        TaskBehavior taskBehavior = new TaskBehavior();
+        this.addBehavior(taskBehavior);
+        taskBehavior.init(this);
 
-        MetaDialog.createUndoRule(rs);
+        MetaDialog.createUndoRule(this);
         tagSystem.addTag("undo", "meta");
         tagSystem.addTag("update_undo", "meta");
         createInterruptRule(rs);
@@ -124,20 +124,6 @@ public class DialogApp extends Dialog {
 //        tagSystem.addTag("focus", "simulation");
 
 
-        rs.addRule("greetings", (sys) -> {
-            sys.getTokens().stream()
-                    .filter(t -> t.topicIs("intent"))
-                    .map(t -> (Token<Intent>) t)
-                    .filter(t -> t.payload.is("greetings"))
-                    .findFirst()
-                    .ifPresent(t -> {
-                        sys.removeToken(t);
-                        sys.addToken(new Token("output_tts", "hello!"));
-                        sys.disable("greetings", Duration.ofSeconds(4));
-                    });
-        });
-        rs.setPriority("greetings", 20);
-        tagSystem.addTag("greetings", "meta");
 
 
         TimeBehavior timeBehavior = new TimeBehavior();

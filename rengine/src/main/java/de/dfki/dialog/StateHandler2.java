@@ -12,13 +12,11 @@ import java.util.stream.Collectors;
  */
 public class StateHandler2 {
     private static final Logger log = LoggerFactory.getLogger(StateHandler2.class);
-    private final TagSystem<String> tagSystem;
     private final Dialog dialog;
     private final SCEngine engine;
 
     public StateHandler2(Dialog dialog, SCEngine engine) {
         this.dialog = dialog;
-        this.tagSystem = dialog.getTagSystem();
         this.engine = engine;
     }
 
@@ -51,6 +49,7 @@ public class StateHandler2 {
      * @param tag
      */
     protected void activate(String tag) {
+        TagSystem<String> tagSystem = dialog.getTagSystem();
         dialog.rs.getRules().stream()
                 .map(r -> dialog.rs.getName(r))
                 .filter(r -> r.isPresent())
@@ -65,6 +64,7 @@ public class StateHandler2 {
      * @param tag
      */
     protected void deactivate(String tag) {
+        TagSystem<String> tagSystem = dialog.getTagSystem();
         dialog.rs.getRules().stream()
                 .map(r -> dialog.rs.getName(r))
                 .filter(r -> r.isPresent())
@@ -78,6 +78,18 @@ public class StateHandler2 {
                 });
     }
 
+
+    public SCEngine.ObjState createSnapshot() {
+        return engine.createSnapshot();
+    }
+
+    public void loadSnapshot(SCEngine.ObjState objState) {
+        engine.loadSnapshot(objState);
+    }
+
+    public String getCurrentState() {
+        return engine.getCurrentState();
+    }
 
 
     /**
