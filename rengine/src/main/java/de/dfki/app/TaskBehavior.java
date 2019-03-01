@@ -30,6 +30,7 @@ public class TaskBehavior implements Behavior {
         rs = dialog.getRuleSystem();
         tagSystem = dialog.getTagSystem();
         initTaskMode();
+        MetaDialog.createGreetingsRule(dialog);
 
         URL resource = SCMain.class.getResource("/sc/simple.scxml");
         StateChart sc = null;
@@ -193,6 +194,7 @@ public class TaskBehavior implements Behavior {
                         MetaDialog.createConfirmRule(sys, "confirm_task",
                                 () -> {
                                     deinit();
+                                    stateHandler.fire("task_accepted");
                                     String acceptTts = String.format("Okay, let's do task '%s'", taskId);
                                     sys.addToken(new Token("output_tts", acceptTts));
                                 }, () -> {

@@ -21,15 +21,15 @@
                 <button v-on:click="hello">hello</button>
                 <button v-on:click="repeat">repeat</button>
             </div>
-            <div class="btn-group">
-                <button v-on:click="showTasks">show_tasks</button>
-                <button v-on:click="hideTasks">hide_tasks</button>
-                <button v-on:click="selectTask">select_task</button>
-                <button v-on:click="selectTaskSupp">select_task_supp</button>
-                <button v-on:click="acceptTask">accept_task</button>
-                <button v-on:click="accept">accept</button>
-                <button v-on:click="reject">reject</button>
-            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div>
+            <select v-model="intentSelection">
+                <option v-for="item in intents" v-bind:value="item.intent">{{item.intent}}</option>
+            </select>
+            <textarea id="intentTextArea" cols=50 rows=10>{{intents[intentSelection]}}</textarea>
+            <button v-on:click="sendIntent">sendIntent</button>
         </div>
     </div>
     <div class="row">
@@ -77,117 +77,124 @@
 <script src="/bootstrap.min.js"></script>
 <script>
     const app = new Vue({
-        el: '#app',
-        data: {
-            interval: null,
-            iteration: 0,
-            rules: [],
-            tokens: [],
-            grammar: null,
-            tagToColorMap: {},
-            colors: ["black", "CornflowerBlue", "DarkSeaGreen", "DarkSalmon",
-                "IndianRed", "SlateGray", "LightSeaGreen", "PaleVioletRed", "Indigo", "Teal"],
-            colorIndex: 0,
-        },
-        methods: {
-            updateData: function () {
-                $.get('/iteration', function (response) {
-                    this.iteration = response.iteration;
-                }.bind(this));
+            el: '#app',
+            data: {
+                interval: null,
+                iteration: 0,
+                rules: [],
+                tokens: [],
+                grammar: null,
+                tagToColorMap: {},
+                colors: ["black", "CornflowerBlue", "DarkSeaGreen", "DarkSalmon",
+                    "IndianRed", "SlateGray", "LightSeaGreen", "PaleVioletRed", "Indigo", "Teal"],
+                colorIndex: 0,
+                intents: {
+                    "select_task": {"intent": "select_task"},
+                    "accept_task": {"intent": "accept_task"},
+                    "select_task_supp": {"intent": "select_task_supp", "task": "third"},
+                    "show_tasks": {"intent": "show_tasks"},
+                    "hide_tasks": {"intent": "hide_tasks"},
+                    "accept": {"intent": "accept"},
+                    "reject": {"intent": "reject"},
 
-                $.get('/rules', function (response) {
-                    this.rules = response;
-                }.bind(this));
+                    // {"intent": "select_task"},
+                    // {"intent": "accept_task"},
+                    // "select_task", "accept_task", "select_task_supp", "show_tasks", "hide_tasks", "accept", "reject"
+                },
+                intentSelection: ""
+            },
+            methods: {
+                updateData: function () {
+                    $.get('/iteration', function (response) {
+                        this.iteration = response.iteration;
+                    }.bind(this));
 
-                $.get('/tokens', function (rsp) {
-                    this.tokens = rsp;
-                }.bind(this));
+                    $.get('/rules', function (response) {
+                        this.rules = response;
+                    }.bind(this));
 
-                $.get('/grammar', function (rsp) {
-                    this.grammar = new XMLSerializer().serializeToString(rsp);
-                }.bind(this));
+                    $.get('/tokens', function (rsp) {
+                        this.tokens = rsp;
+                    }.bind(this));
+
+                    $.get('/grammar', function (rsp) {
+                        this.grammar = new XMLSerializer().serializeToString(rsp);
+                    }.bind(this));
+                },
+                undo: function (event) {
+                    var payload = {intent: "undo"};
+                    this._sendIntent(payload);
+                },
+                hello: function (event) {
+                    var intent = {intent: "greetings"};
+                    this._sendIntent(intent);
+                },
+                repeat: function (event) {
+                    var intent = {intent: "repeat"};
+                    this._sendIntent(intent);
+                },
+                sendIntent: function (event) {
+                    // var intent = JSON.parse(this.intentSelection);
+                    var intent = JSON.parse($("#intentTextArea").val());
+                    this._sendIntent(intent);
+                },
+                _sendIntent: function(intent) {
+                    console.log("sending intent " + intent);
+                    $.ajax({
+                        'url': '/input/intent',
+                        'method': 'POST',
+                        'dataType': 'json',
+                        'contentType': 'application/json',
+                        'data': JSON.stringify(intent),
+                        'processData': false
+                    });
+                }
+
+
             },
-            undo: function (event) {
-                var payload = {intent: "undo"};
-                $.post("/input/intent", payload);
-            },
-            hello: function (event) {
-                var payload = {intent: "greetings"};
-                $.post("/input/intent", payload);
-            },
-            repeat: function (event) {
-                var payload = {intent: "repeat"};
-                $.post("/input/intent", payload);
-            },
-            selectTask: function (event) {
-                var payload = {intent: "select_task"};
-                $.post("/input/intent", payload);
-            },
-            acceptTask: function (event) {
-                var payload = {intent: "accept_task"};
-                $.post("/input/intent", payload);
-            },
-            selectTaskSupp: function (event) {
-                var payload = {intent: "select_task_supp", task: "third"};
-                $.post("/input/intent", payload);
-            },
-            showTasks: function (event) {
-                var payload = {intent: "show_tasks"};
-                $.post("/input/intent", payload);
-            },
-            hideTasks: function (event) {
-                var payload = {intent: "hide_tasks"};
-                $.post("/input/intent", payload);
-            },
-            accept: function (event) {
-                var payload = {intent: "accept"};
-                $.post("/input/intent", payload);
-            },
-            reject: function (event) {
-                var payload = {intent: "reject"};
-                $.post("/input/intent", payload);
-            }
-        },
-        created() {
-            this.updateData();
-            this.interval = setInterval(function () {
+            created() {
                 this.updateData();
-            }.bind(this), 250);
-        },
-        directives: {
-            color: {
-                update: function (el) {
-                    //TODO how do I get the this context here? instead of app
-                    var tag = $(el).text();
-                    var data = app.$data;
-                    var color = data.tagToColorMap[tag];
-                    // console.log(color);
-                    if (color == null) {
-                        console.log("creating color for tag " + tag);
-                        color = data.colors[data.colorIndex];
-                        data.colorIndex += 1;
-                        if (data.colorIndex >= data.colors.length) {
-                            console.log("resetting color index");
-                            data.colorIndex = 0;
-                        }
-                        data.tagToColorMap[tag] = color;
-                    }
+                this.interval = setInterval(function () {
+                    this.updateData();
+                }.bind(this), 250);
 
-                    $(el).css({"background-color": color});
+            }
+            ,
+            directives: {
+                color: {
+                    update: function (el) {
+                        //TODO how do I get the this context here? instead of app
+                        var tag = $(el).text();
+                        var data = app.$data;
+                        var color = data.tagToColorMap[tag];
+                        // console.log(color);
+                        if (color == null) {
+                            console.log("creating color for tag " + tag);
+                            color = data.colors[data.colorIndex];
+                            data.colorIndex += 1;
+                            if (data.colorIndex >= data.colors.length) {
+                                console.log("resetting color index");
+                                data.colorIndex = 0;
+                            }
+                            data.tagToColorMap[tag] = color;
+                        }
+
+                        $(el).css({"background-color": color});
+                    }
                 }
             }
-        }
-        // created() {
-        //     fetch('http://localhost:50000/rules')
-        //         .then(rsp => rsp.json())
-        //         .then(json => {
-        //             this.items = json
-        //         })
-        //     fetch('http://localhost:50000/iteration')
-        //         .then(rsp => rsp.json())
-        //         .then(json => this.iteration = json.iteration)
-        // },
-    });
+            // created() {
+            //     fetch('http://localhost:50000/rules')
+            //         .then(rsp => rsp.json())
+            //         .then(json => {
+            //             this.items = json
+            //         })
+            //     fetch('http://localhost:50000/iteration')
+            //         .then(rsp => rsp.json())
+            //         .then(json => this.iteration = json.iteration)
+            // },
+        })
+    ;
 
 
 </script>

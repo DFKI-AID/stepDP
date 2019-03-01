@@ -1,9 +1,13 @@
 package de.dfki.dialog.web;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import de.dfki.dialog.Intent;
 import de.dfki.rengine.Token;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.PostConstruct;
@@ -30,11 +34,11 @@ public class Controller {
         var rs = settings.app.getRuleSystem();
         var rules = settings.app.getRuleSystem().getRules().stream()
                 .map(r -> {
-                            String id = rs.getName(r).orElse("unknown");
-                            return new Rule(id, rs.getPriority(r))
-                                    .setActive(rs.isEnabled(r))
-                                    .setTags(settings.app.getTagSystem().getTags(id));
-                        })
+                    String id = rs.getName(r).orElse("unknown");
+                    return new Rule(id, rs.getPriority(r))
+                            .setActive(rs.isEnabled(r))
+                            .setTags(settings.app.getTagSystem().getTags(id));
+                })
 
                 .sorted(Comparator.comparingInt(r -> r.priority))
                 .collect(Collectors.toList());
@@ -66,12 +70,26 @@ public class Controller {
         public String text;
     }
 
-    @PostMapping(value = "/input/intent")
-    public void postIntent(@RequestParam Map<String, Object> payload) {
-        String intentStr = Optional.ofNullable((String) payload.get("intent")).orElse("unknown");
-        payload.remove("intent");
-        Intent intent = new Intent(intentStr, payload);
+    @PostMapping(value = "/input/intent", consumes = "application/json")
+    public ResponseEntity<String> postIntent(@RequestBody Map<String, Object> body) {
+//        JsonParser parser = new JsonParser();
+//        JsonObject obj = parser.parse(body).getAsJsonObject();
+//        if(obj.get("intent") == null) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing intent");
+//        }
+//
+//        HashMap<String, Object> payload = new HashMap<>();
+//        payload.put("json", obj);
+//        Intent intent = new Intent(obj.get("intent").getAsString(), payload);
+//        settings.app.addIntent(intent);
+
+        if (!body.containsKey("intent")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing intent");
+        }
+
+        Intent intent = new Intent((String) body.get("intent"), body);
         settings.app.addIntent(intent);
+        return ResponseEntity.ok("ok");
     }
 
     @GetMapping(value = "/grammar", produces = "application/xml")
@@ -80,4 +98,8 @@ public class Controller {
         return grammar;
     }
 
+    public class JsonIntent {
+        public String intent;
+        public Map<String, String> payload;
+    }
 }

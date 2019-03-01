@@ -17,7 +17,9 @@
             <onentry>
                 <raise event="duuu"/>
             </onentry>
-            <transition type="external" event="accept_task" target="Selected"/>
+            <transition type="external" event="task_accepted" target="Selected">
+                <qt:editorinfo movePoint="59.24;32.83"/>
+            </transition>
             <transition type="external" event="show_tasks" target="Choice">
                 <qt:editorinfo endTargetFactors="83.20;73" movePoint="23.55;-14.99"/>
             </transition>
@@ -30,7 +32,7 @@
             <transition type="external" event="show_task" target="Info">
                 <qt:editorinfo endTargetFactors="35.02;72.45" movePoint="-32.89;51.65"/>
             </transition>
-            <transition type="external" event="accept_task" target="Selected">
+            <transition type="external" event="task_accepted" target="Selected">
                 <qt:editorinfo movePoint="29.98;10.71"/>
             </transition>
             <onentry>
