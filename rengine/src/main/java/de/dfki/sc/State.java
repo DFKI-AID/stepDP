@@ -12,6 +12,7 @@ public class State {
     private final String id;
     private PSequence<State> children = TreePVector.empty();
     private PSequence<Transition> transitions = TreePVector.empty();
+    private PSequence<OnEntry> onEntries = TreePVector.empty();
 
     public State(String id) {
         this.id = id;
@@ -25,6 +26,10 @@ public class State {
         transitions = transitions.plus(transition);
     }
 
+    protected void addOnEntry(OnEntry onEntry) {
+        onEntries = onEntries.plus(onEntry);
+    }
+
     public String getId() {
         return id;
     }
@@ -35,6 +40,10 @@ public class State {
 
     public List<Transition> getTransitions() {
         return transitions;
+    }
+
+    public PSequence<OnEntry> getOnEntries() {
+        return onEntries;
     }
 
     @Override

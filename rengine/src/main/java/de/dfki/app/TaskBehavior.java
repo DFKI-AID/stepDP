@@ -3,10 +3,18 @@ package de.dfki.app;
 import de.dfki.dialog.*;
 import de.dfki.rengine.RuleSystem;
 import de.dfki.rengine.Token;
+import de.dfki.sc.Parser;
+import de.dfki.sc.SCEngine;
+import de.dfki.sc.SCMain;
+import de.dfki.sc.StateChart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URL;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  *
@@ -14,26 +22,52 @@ import java.util.Optional;
 public class TaskBehavior implements Behavior {
     private static final Logger log = LoggerFactory.getLogger(TaskBehavior.class);
     private final String tag = "TaskAssignment";
-    private final String tagIdle = tag + ".Idle";
-    private final String tagChoice = tag + ".Choice";
-    private final String tagInfo = tag + ".Info";
-    private StateHandler2 stateHandler;
+    private final String tagIdle = "Idle";
+    private final String tagChoice = "Choice";
+    private final String tagInfo = "Info";
     private RuleSystem rs;
     private TagSystem tagSystem;
-
+    private StateHandler2 stateHandler;
 
 
     @Override
     public void init(Dialog dialog) {
-        this.stateHandler = new StateHandler2(dialog, tagIdle, tagChoice, tagInfo);
         rs = dialog.getRuleSystem();
         tagSystem = dialog.getTagSystem();
         initTaskMode();
+
+        URL resource = SCMain.class.getResource("/sc/simple.scxml");
+        StateChart sc = null;
+        try {
+            sc = Parser.parse(resource);
+            SCEngine engine = new SCEngine(sc);
+            AtomicInteger counter = new AtomicInteger(0);
+//            engine.addCondition("cond1", () -> counter.getAndIncrement() % 2 == 0);
+            engine.addCondition("cond1", () -> true);
+            engine.addOnEntry("outputTaskSummary", () -> outputTaskSummary());
+            stateHandler = new StateHandler2(dialog, engine);
+
+            Map<String, Set<String>> ruleActivation = Parser.loadActivations();
+            for (var entry : ruleActivation.entrySet()) {
+                String state = entry.getKey();
+                for(String rule : entry.getValue()) {
+                    tagSystem.addTag(rule, state);
+                }
+            }
+            stateHandler.init();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
+
 
     @Override
     public void deinit() {
-        this.stateHandler.quit();
+//        this.stateHandler.quit();
+    }
+
+    public void outputTaskSummary() {
+        rs.addToken(new Token("output_tts", "Okay: <summary over all tasks>"));
     }
 
     public void initTaskMode() {
@@ -50,12 +84,9 @@ public class TaskBehavior implements Behavior {
                     .findFirst()
                     .ifPresent(t -> {
                         sys.removeToken(t);
-                        sys.addToken(new Token("output_tts", "Okay: <summary over all tasks>"));
-                        stateHandler.enter(tagChoice);
+                        stateHandler.fire("show_tasks");
                     });
         });
-        tagSystem.addTag("show_tasks", tag);
-        tagSystem.addTag("show_tasks", tagIdle);
         rs.setPriority("show_tasks", 20);
 
 
@@ -71,12 +102,9 @@ public class TaskBehavior implements Behavior {
                     .ifPresent(t -> {
                         sys.removeToken(t);
                         sys.addToken(new Token("output_tts", "Okay: <hide menu in hololens>"));
-                        stateHandler.enter(tagIdle);
+                        stateHandler.fire("hide_tasks");
                     });
         });
-        tagSystem.addTag("hide_tasks", tag);
-        tagSystem.addTag("hide_tasks", tagChoice);
-        tagSystem.addTag("hide_tasks", tagInfo);
         rs.setPriority("hide_tasks", 20);
 
 
@@ -101,7 +129,7 @@ public class TaskBehavior implements Behavior {
                             sys.addToken(new Token("output_tts", msg));
                             sys.addToken(new Token("output_image", "http://.../"));
                             createAcceptTaskRule(focus.get());
-                            stateHandler.enter(tagInfo);
+                            stateHandler.fire("show_task");
                         } else {
                             //TODO check for number of available tasks
                             sys.addToken(new Token("output_tts", "which task do you mean?"));
@@ -109,13 +137,9 @@ public class TaskBehavior implements Behavior {
                         }
                     });
         });
-        tagSystem.addTag("select_task", tag);
-        tagSystem.addTag("select_task", tagChoice);
-        tagSystem.addTag("select_task", tagInfo);
         rs.setPriority("select_task", 20);
 
 
-        this.stateHandler.enter(tagIdle);
     }
 
 
@@ -139,12 +163,10 @@ public class TaskBehavior implements Behavior {
                         sys.removeToken(t);
                         rs.removeRule(rule);
                         createAcceptTaskRule((String) taskName.get());
-                        stateHandler.enter(tagInfo);
+                        stateHandler.fire("show_task");
                         sys.addToken(new Token("output_tts", "woah"));
                     });
         });
-        tagSystem.addTag(rule, tag);
-        tagSystem.addTag(rule, tagChoice);
         rs.setPriority(rule, 20);
     }
 
@@ -171,13 +193,8 @@ public class TaskBehavior implements Behavior {
                                     createAcceptTaskRule(taskId);
                                     sys.addToken(new Token("output_tts", "Okay."));
                                 });
-                        tagSystem.addTag("confirm_task", tag);
-                        tagSystem.addTag("confirm_task", tagInfo);
                     });
         });
-//        rs.disable("accept_task");
-        tagSystem.addTag("accept_task", tag);
-        tagSystem.addTag("accept_task", tagInfo);
         rs.setPriority("accept_task", 20);
     }
 }

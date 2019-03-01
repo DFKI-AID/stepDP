@@ -2,7 +2,7 @@
 <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" binding="early" xmlns:qt="http://www.qt.io/2015/02/scxml-ext" name="simple" qt:editorversion="4.8.1" initial="Idle">
     <qt:editorinfo initialGeometry="51.18;96.50;-20;-20;40;40"/>
     <state id="TaskAssignment">
-        <qt:editorinfo geometry="213.35;306.95;-137;-403.58;320.04;683.01" scenegeometry="213.35;306.95;76.35;-96.63;320.04;683.01"/>
+        <qt:editorinfo geometry="213.35;306.95;-143.42;-403.58;438.86;683.01" scenegeometry="213.35;306.95;69.93;-96.63;438.86;683.01"/>
         <state id="Idle">
             <qt:editorinfo geometry="69.84;-196.48;-106;-50;140.49;100" scenegeometry="283.19;110.47;177.19;60.47;140.49;100"/>
             <transition type="internal" target="Choice" event="show_tasks" cond="cond1">
@@ -12,20 +12,33 @@
         <state id="Info">
             <qt:editorinfo geometry="43.93;199.76;-60;-50;134.51;100" scenegeometry="257.28;506.71;197.28;456.71;134.51;100"/>
             <transition type="external" event="hide_tasks" target="Idle">
-                <qt:editorinfo movePoint="79.21;-7.73" endTargetFactors="72.81;69.66"/>
+                <qt:editorinfo movePoint="60.65;-28.43" endTargetFactors="72.81;69.66"/>
             </transition>
             <onentry>
                 <raise event="duuu"/>
             </onentry>
+            <transition type="external" event="accept_task" target="Selected"/>
+            <transition type="external" event="show_tasks" target="Choice">
+                <qt:editorinfo endTargetFactors="83.20;73" movePoint="23.55;-14.99"/>
+            </transition>
         </state>
         <state id="Choice">
-            <qt:editorinfo geometry="-57;-28.01;-60;-50;134.51;100" scenegeometry="156.35;278.94;96.35;228.94;134.51;100"/>
+            <qt:editorinfo geometry="-63.42;-10.88;-60;-50;134.51;100" scenegeometry="149.93;296.07;89.93;246.07;134.51;100"/>
             <transition type="external" event="hide_tasks" target="Idle">
-                <qt:editorinfo endTargetFactors="81.01;37.77" movePoint="98.53;13.53"/>
+                <qt:editorinfo endTargetFactors="81.01;37.77" movePoint="23.59;32.08"/>
             </transition>
             <transition type="external" event="show_task" target="Info">
-                <qt:editorinfo endTargetFactors="35.02;72.45" movePoint="-35.74;33.81"/>
+                <qt:editorinfo endTargetFactors="35.02;72.45" movePoint="-32.89;51.65"/>
             </transition>
+            <transition type="external" event="accept_task" target="Selected">
+                <qt:editorinfo movePoint="29.98;10.71"/>
+            </transition>
+            <onentry>
+                <script src="outputTaskSummary"/>
+            </onentry>
+        </state>
+        <state id="Selected">
+            <qt:editorinfo geometry="214.87;61.31;-60;-50;120;100" scenegeometry="428.22;368.26;368.22;318.26;120;100"/>
         </state>
     </state>
 </scxml>

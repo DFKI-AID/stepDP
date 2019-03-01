@@ -45,6 +45,10 @@ public class StateChart {
         return s.getTransitions();
     }
 
+    public Collection<State> getStates() {
+        return states.values();
+    }
+
     /**
      * @param state
      * @param event
@@ -66,5 +70,9 @@ public class StateChart {
             targetStates.add(transition.getTarget());
         }
         return targetStates;
+    }
+
+    public Optional<State> getState(String currentState) {
+        return Optional.ofNullable(states.get(currentState));
     }
 }

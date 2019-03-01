@@ -1,24 +1,48 @@
 package de.dfki.dialog;
 
+import de.dfki.sc.SCEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
- *
+ * TODO move to sc package, and replace dialog with rule engine
  */
 public class StateHandler2 {
     private static final Logger log = LoggerFactory.getLogger(StateHandler2.class);
-    private String currentState = "None";
     private final TagSystem<String> tagSystem;
     private final Dialog dialog;
-    private final Set<String> tags;
+    private final SCEngine engine;
 
-    public StateHandler2(Dialog dialog, String... tags) {
+    public StateHandler2(Dialog dialog, SCEngine engine) {
         this.dialog = dialog;
         this.tagSystem = dialog.getTagSystem();
-        this.tags = Set.of(tags);
+        this.engine = engine;
+    }
+
+    public void init() {
+        engine.reset();
+        update();
+    }
+
+    public void fire(String event) {
+        if (!engine.fire(event)) {
+            return;
+        }
+        update();
+    }
+
+    protected void update() {
+        String currentState = engine.getCurrentState();
+        List<String> otherStates = engine.getStates()
+                .stream()
+                .filter(s -> !s.equals(currentState)).collect(Collectors.toList());
+
+
+        otherStates.forEach(s -> deactivate(s));
+        activate(currentState);
     }
 
     /**
@@ -48,34 +72,31 @@ public class StateHandler2 {
                 .filter(r -> tagSystem.hasTag(r, tag))
                 .forEach(r -> {
                     dialog.rs.disable(r);
-                    if(dialog.rs.isVolatile(r)) {
+                    if (dialog.rs.isVolatile(r)) {
                         dialog.rs.removeRule(r);
                     }
                 });
     }
 
+
+
     /**
      * quits all states.
      */
-    public void quit() {
-        log.info("Quitting all states.");
-        tags.forEach(t -> deactivate(t));
-        currentState = "None";
-    }
+//    public void quit() {
+//        log.info("Quitting all states.");
+//        tags.forEach(t -> deactivate(t));
+//        currentState = "None";
+//    }
 
-    public void enter(String state) {
-        if (Objects.equals(state, currentState)) {
-            return;
-        }
-        log.info("Entering state {}", state);
-        tags.forEach(t -> deactivate(t));
-        activate(state);
-        currentState = state;
-    }
-
-    public void init(String initialState) {
-        tags.forEach(t -> deactivate(t));
-        enter(initialState);
-    }
+//    public void enter(String state) {
+//        if (Objects.equals(state, currentState)) {
+//            return;
+//        }
+//        log.info("Entering state {}", state);
+//        tags.forEach(t -> deactivate(t));
+//        activate(state);
+//        currentState = state;
+//    }
 
 }
