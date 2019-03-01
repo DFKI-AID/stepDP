@@ -20,7 +20,7 @@ public abstract class Dialog implements Runnable {
     protected final RuleSystem rs = new RuleSystem(clock);
     protected final TagSystem<String> tagSystem = new TagSystem();
     protected final GrammarManager grammarManager = new GrammarManager();
-    protected final Set<Behavior> behaviors = new HashSet<>();
+    protected final Map<String, Behavior> behaviors = new HashMap<>();
     protected final Map<Behavior, Map<Integer, Object>> behaviorSnapshots = new HashMap<>();
 
     protected final AtomicInteger snapshotTarget = new AtomicInteger(-1);
@@ -78,7 +78,7 @@ public abstract class Dialog implements Runnable {
         RuleSystem.Snapshot rsSnapshot = snapshots.get(targetSnapshot);
         rs.applySnapshot(rsSnapshot);
 
-        for (Behavior behavior : behaviors) {
+        for (Behavior behavior : behaviors.values()) {
             var behaviorSnapshot = behaviorSnapshots.get(behavior).get(targetSnapshot);
             behavior.loadSnapshot(behaviorSnapshot);
         }
@@ -86,7 +86,7 @@ public abstract class Dialog implements Runnable {
 
     protected void createSnapshot(int iteration) {
         snapshots.put(iteration, rs.createSnapshot());
-        for (Behavior behavior : behaviors) {
+        for (Behavior behavior : behaviors.values()) {
             Object snapshot = behavior.createSnapshot();
             if (!behaviorSnapshots.containsKey(behavior)) {
                 behaviorSnapshots.put(behavior, new HashMap<>());
@@ -124,7 +124,11 @@ public abstract class Dialog implements Runnable {
         deinit();
     }
 
-    protected void addBehavior(TaskBehavior behavior) {
-        behaviors.add(behavior);
+    protected void addBehavior(String id, TaskBehavior behavior) {
+        behaviors.put(id, behavior);
+    }
+
+    public Optional<Behavior> getBehavior(String id) {
+        return Optional.ofNullable(behaviors.get(id));
     }
 }

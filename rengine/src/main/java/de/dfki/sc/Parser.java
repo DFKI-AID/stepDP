@@ -72,8 +72,25 @@ public class Parser {
                 OnEntry onEntry = parseOnEntry(childNodes.item(i));
                 state.addOnEntry(onEntry);
             }
+
+            if(Objects.equals(child.getNodeName(), "qt:editorinfo")) {
+                Optional<Geometry> geometry = parseGeometry(childNodes.item(i));
+                if(geometry.isPresent()) {
+                    state.setGeometry(geometry.get());
+                }
+            }
         }
         return state;
+    }
+
+    private static Optional<Geometry> parseGeometry(Node item) {
+        Element element = (Element) item;
+        String geo = element.getAttribute("geometry");
+        if(geo.isEmpty()) {
+            return Optional.empty();
+        }
+        Geometry geometry = new Geometry(geo);
+        return Optional.of(geometry);
     }
 
     private static OnEntry parseOnEntry(Node node) {

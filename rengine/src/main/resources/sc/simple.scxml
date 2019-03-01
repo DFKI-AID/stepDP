@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" binding="early" xmlns:qt="http://www.qt.io/2015/02/scxml-ext" name="simple" qt:editorversion="4.8.1" initial="Idle">
-    <qt:editorinfo initialGeometry="51.18;96.50;-20;-20;40;40"/>
+    <qt:editorinfo initialGeometry="0;0;-20;-20;40;40"/>
     <state id="TaskAssignment">
-        <qt:editorinfo geometry="213.35;306.95;-143.42;-403.58;438.86;683.01" scenegeometry="213.35;306.95;69.93;-96.63;438.86;683.01"/>
+        <qt:editorinfo geometry="0;0;-143.42;-403.58;438.86;683.01" scenegeometry="213.35;306.95;69.93;-96.63;438.86;683.01"/>
         <state id="Idle">
-            <qt:editorinfo geometry="69.84;-196.48;-106;-50;140.49;100" scenegeometry="283.19;110.47;177.19;60.47;140.49;100"/>
+            <qt:editorinfo geometry="0;-200;-106;-50;100;100" scenegeometry="283.19;110.47;177.19;60.47;164.29;100"/>
             <transition type="internal" target="Choice" event="show_tasks" cond="cond1">
                 <qt:editorinfo movePoint="-65.69;14.49" endTargetFactors="38.22;25.21"/>
             </transition>

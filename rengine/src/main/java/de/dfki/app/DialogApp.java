@@ -91,7 +91,7 @@ public class DialogApp extends Dialog {
     @Override
     public void init() {
         TaskBehavior taskBehavior = new TaskBehavior();
-        this.addBehavior(taskBehavior);
+        this.addBehavior("task_behavior", taskBehavior);
         taskBehavior.init(this);
 
         MetaDialog.createUndoRule(this);

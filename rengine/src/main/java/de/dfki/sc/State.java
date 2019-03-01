@@ -4,6 +4,7 @@ import org.pcollections.PSequence;
 import org.pcollections.TreePVector;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  *
@@ -13,6 +14,7 @@ public class State {
     private PSequence<State> children = TreePVector.empty();
     private PSequence<Transition> transitions = TreePVector.empty();
     private PSequence<OnEntry> onEntries = TreePVector.empty();
+    private Geometry geometry;
 
     public State(String id) {
         this.id = id;
@@ -28,6 +30,14 @@ public class State {
 
     protected void addOnEntry(OnEntry onEntry) {
         onEntries = onEntries.plus(onEntry);
+    }
+
+    public Optional<Geometry> getGeometry() {
+        return Optional.ofNullable(geometry);
+    }
+
+    protected void setGeometry(Geometry geometry) {
+        this.geometry = geometry;
     }
 
     public String getId() {

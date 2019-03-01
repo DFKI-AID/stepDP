@@ -1,9 +1,13 @@
 package de.dfki.dialog.web;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import de.dfki.dialog.Behavior;
 import de.dfki.dialog.Intent;
+import de.dfki.dialog.StateBehavior;
 import de.dfki.rengine.Token;
+import de.dfki.sc.StateChart;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
@@ -98,8 +102,21 @@ public class Controller {
         return grammar;
     }
 
-    public class JsonIntent {
-        public String intent;
-        public Map<String, String> payload;
+
+    @GetMapping(value = "/behavior/{id}", produces = "application/json")
+    public ResponseEntity<String> getBehavior(@PathVariable("id") String id) {
+        Optional<Behavior> behavior = settings.app.getBehavior(id);
+        if(!behavior.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+
+        if(behavior.get() instanceof StateBehavior) {
+            StateBehavior sb = (StateBehavior) behavior.get();
+            StateChart sc = sb.getStateHandler().getEngine().getStateChart();
+            Gson gson = new Gson();
+            return ResponseEntity.status(HttpStatus.OK).body(gson.toJson(sc));
+        }
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("not impl");
     }
 }

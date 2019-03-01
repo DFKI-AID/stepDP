@@ -91,6 +91,9 @@ public class StateHandler2 {
         return engine.getCurrentState();
     }
 
+    public SCEngine getEngine() {
+        return engine;
+    }
 
     /**
      * quits all states.

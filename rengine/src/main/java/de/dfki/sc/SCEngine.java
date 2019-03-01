@@ -137,4 +137,8 @@ public class SCEngine {
     public String getInitialState() {
         return stateChart.getInitialState();
     }
+
+    public StateChart getStateChart() {
+        return stateChart;
+    }
 }

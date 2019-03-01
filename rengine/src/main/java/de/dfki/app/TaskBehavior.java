@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  *
  */
-public class TaskBehavior implements Behavior {
+public class TaskBehavior implements StateBehavior {
     private static final Logger log = LoggerFactory.getLogger(TaskBehavior.class);
     private RuleSystem rs;
     private TagSystem tagSystem;
@@ -206,5 +206,10 @@ public class TaskBehavior implements Behavior {
                     });
         });
         rs.setPriority("accept_task", 20);
+    }
+
+    @Override
+    public StateHandler2 getStateHandler() {
+        return stateHandler;
     }
 }
