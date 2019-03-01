@@ -36,7 +36,6 @@ public class TaskBehavior implements Behavior {
         this.stateHandler.quit();
     }
 
-
     public void initTaskMode() {
 
         /**
