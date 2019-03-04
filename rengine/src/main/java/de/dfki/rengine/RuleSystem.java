@@ -1,7 +1,6 @@
 package de.dfki.rengine;
 
-import org.pcollections.PSequence;
-import org.pcollections.TreePVector;
+import org.pcollections.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,12 +17,12 @@ public class RuleSystem {
     private final Clock clock;
     private boolean updateActive = false;
 
-    private Set<Token> tokens = new HashSet<>(); //TODO maybe list?
+    private PSet<Token> tokens = HashTreePSet.empty();
     private PSequence<Rule> rules = TreePVector.empty();
-    private Map<String, Rule> nameToRule = new HashMap<>();
+    private PMap<String, Rule> nameToRule = HashTreePMap.empty();
     private BlockSystem blockSystem;
-    private Map<Rule, Integer> priorities = new HashMap<>();
-    private Map<String, Boolean> volatileMap = new HashMap<>();
+    private PMap<Rule, Integer> priorities = HashTreePMap.empty();
+    private PMap<String, Boolean> volatileMap = HashTreePMap.empty();
     private static final int DEFAULT_PRIORITY = 50;
 
     public RuleSystem(Clock clock) {
@@ -34,18 +33,18 @@ public class RuleSystem {
 
     public void addToken(Token token) {
         log.debug("Adding {}", token);
-        this.tokens.add(token);
+        tokens = tokens.plus(token);
     }
 
     public void removeToken(Token token) {
         log.debug("Removing {}", token);
-        this.tokens.remove(token);
+        tokens = tokens.minus(token);
     }
 
-    public void setTokens(Set<Token> tokens) {
-        log.debug("Updating tokens: {}", tokens); //TODO print diff
-        this.tokens = tokens;
-    }
+//    public void setTokens(Set<Token> tokens) {
+//        log.debug("Updating tokens: {}", tokens); //TODO print diff
+//        this.tokens = tokens;
+//    }
 
     public Optional<String> getName(Rule rule) {
         return nameToRule.entrySet().stream()
@@ -55,8 +54,7 @@ public class RuleSystem {
     }
 
     public Set<Token> getTokens() {
-        //TODO sync or use persistent data structure
-        return Collections.unmodifiableSet(tokens);
+        return tokens;
     }
 
     public void addRule(String name, Rule rule) {
@@ -68,7 +66,7 @@ public class RuleSystem {
         }
 
         rules = rules.plus(rule);
-        nameToRule.put(name, rule);
+        nameToRule = nameToRule.plus(name, rule);
     }
 
     public void removeRule(Rule rule) {
@@ -83,7 +81,7 @@ public class RuleSystem {
         }
         log.info("removing rule {}", name);
         rules = rules.minus(rule.get());
-        this.nameToRule.remove(name);
+        nameToRule = nameToRule.minus(name);
     }
 
     public void enable(String ruleName) {
@@ -135,7 +133,7 @@ public class RuleSystem {
             log.warn("Can't set priority for {}: No rule available with the given name", ruleName);
             return;
         }
-        this.priorities.put(rule.get(), priority);
+        priorities = priorities.plus(rule.get(), priority);
     }
 
     public int getPriority(String ruleName) {
@@ -153,22 +151,6 @@ public class RuleSystem {
         return priorities.get(rule);
     }
 
-
-//    public void disable(String name) {
-//        Optional<Rule> rule = getRule(name);
-//        if (!rule.isPresent()) {
-//            System.out.println("can'second disable rule: no rule found with name: " + name);
-//            return;
-//        }
-//        disable(rule.get());
-//    }
-
-//    public void disable(Rule rule) {
-//        //TODO improve: disable for one iteration, disable for a certain amount of time, ...
-//        System.out.println("blocking rule " + rule);
-//        blockList.add(rule);
-//    }
-
     public Optional<Rule> getRule(String name) {
         return Optional.ofNullable(nameToRule.get(name));
     }
@@ -176,7 +158,7 @@ public class RuleSystem {
     public void update() {
         updateActive = true;
 
-        tokens.clear();
+        tokens = HashTreePSet.empty();
         //making a copy of the rule set, which allows to change the rule set within the update method
         ArrayList<Rule> rulesCopy = new ArrayList<>();
         rulesCopy.addAll(rules);
@@ -204,17 +186,11 @@ public class RuleSystem {
     public Snapshot createSnapshot() {
         Snapshot state = new Snapshot();
         state.blockSystem = blockSystem.copy();
-//        state.tokens = new HashSet<>();
-//        state.tokens.addAll(this.tokens)
-//        state.rules = new ArrayList<>();
-//        state.rules.addAll(this.rules);
-        state.rules = this.rules; //persistent data structure
+        state.rules = this.rules;
         state.iteration = clock.getIteration();
-        state.priorities = new HashMap<>();
-        state.priorities.putAll(this.priorities);
-        state.nameToRule = new HashMap<>();
-        state.nameToRule.putAll(this.nameToRule);
-        state.volatileMap.putAll(this.volatileMap);
+        state.priorities = this.priorities;
+        state.nameToRule = this.nameToRule;
+        state.volatileMap = this.volatileMap;
         return state;
     }
 
@@ -224,14 +200,10 @@ public class RuleSystem {
         }
         this.clock.setIteration(snapshot.iteration);
         this.blockSystem = snapshot.blockSystem.copy();
-        this.rules = TreePVector.empty();
-        this.rules = this.rules.plusAll(snapshot.rules);
-        this.priorities = new HashMap<>();
-        this.priorities.putAll(snapshot.priorities);
-        this.nameToRule = new HashMap<>();
-        this.nameToRule.putAll(snapshot.nameToRule);
-        this.volatileMap = new HashMap<>();
-        this.volatileMap.putAll(snapshot.volatileMap);
+        this.rules = snapshot.rules;
+        this.priorities = snapshot.priorities;
+        this.nameToRule = snapshot.nameToRule;
+        this.volatileMap = snapshot.volatileMap;
     }
 
     public Clock getClock() {
@@ -256,11 +228,11 @@ public class RuleSystem {
     public static class Snapshot {
         public BlockSystem blockSystem;
         //        public Set<Token> tokens;
-        public List<Rule> rules;
+        public PSequence<Rule> rules;
         public int iteration;
-        public Map<Rule, Integer> priorities;
-        public Map<String, Rule> nameToRule;
-        public Map<String, Boolean> volatileMap = new HashMap<>();
+        public PMap<Rule, Integer> priorities;
+        public PMap<String, Rule> nameToRule;
+        public PMap<String, Boolean> volatileMap;
 
     }
 
