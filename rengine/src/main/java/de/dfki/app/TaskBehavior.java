@@ -69,6 +69,9 @@ public class TaskBehavior implements StateBehavior {
 
     @Override
     public void loadSnapshot(Object snapshot) {
+        if (!(snapshot instanceof SCEngine.ObjState)) {
+            throw new IllegalArgumentException("expected SCEngine.ObjState as type");
+        }
         stateHandler.loadSnapshot((SCEngine.ObjState) snapshot);
     }
 
@@ -117,11 +120,6 @@ public class TaskBehavior implements StateBehavior {
         /**
          */
         rs.addRule("select_task", (sys) -> {
-            Optional<String> focus = sys.getTokens().stream()
-                    .filter(t -> t.topicIs("focus"))
-                    .map(t -> (String) t.payload)
-                    .findFirst();
-
             sys.getTokens().stream()
                     .filter(t -> t.topicIs("intent"))
                     .map(t -> (Token<Intent>) t)
@@ -130,12 +128,33 @@ public class TaskBehavior implements StateBehavior {
                     .ifPresent(t -> {
                         sys.removeToken(t);
 
-                        if (focus.isPresent()) {
+                        Optional<String> task = t.payload.getPayload("task")
+                                .filter(s -> s instanceof String)
+                                .map(s -> (String) s);
+
+
+                        Optional<Double> confidence = t.payload.getPayload("confidence")
+                                .filter(c -> c instanceof Double)
+                                .map(c -> (Double) c);
+
+                        //what should happen if the rules 'finishes'
+                        Runnable execute = () -> {
                             String msg = String.format("There is a new urgent task '%s' : A UR-3 robot stopped functioning correctly", t.payload);
                             sys.addToken(new Token("output_tts", msg));
                             sys.addToken(new Token("output_image", "http://.../"));
-                            createAcceptTaskRule(focus.get());
+                            createAcceptTaskRule(task.get());
                             stateHandler.fire("show_task");
+                        };
+
+                        if (task.isPresent()) {
+                            if (confidence.isPresent() && confidence.get() < 0.3) {
+                                System.out.println("Please confirm your selection for " + task.get());
+                                MetaDialog.createConfirmRule(sys, "confirm_task", execute, () -> {
+                                });
+                                tagSystem.addTag("confirm_task", stateHandler.getCurrentState());
+                            } else {
+                                execute.run();
+                            }
                         } else {
                             //TODO check for number of available tasks
                             sys.addToken(new Token("output_tts", "which task do you mean?"));
@@ -201,7 +220,7 @@ public class TaskBehavior implements StateBehavior {
                                 .filter(c -> c instanceof Double)
                                 .map(c -> (Double) c);
 
-                        if(confidence.isPresent() && confidence.get() < 0.3) {
+                        if (confidence.isPresent() && confidence.get() < 0.3) {
                             String tts = String.format("Please confirm your selection for task '%s'", taskId);
                             sys.addToken(new Token("output_tts", tts));
                             sys.disable("accept_task");

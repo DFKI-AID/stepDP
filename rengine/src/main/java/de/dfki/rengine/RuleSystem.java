@@ -211,7 +211,7 @@ public class RuleSystem {
     }
 
     public void setVolatile(String rule, boolean vol) {
-        volatileMap.put(rule, vol);
+        volatileMap = volatileMap.plus(rule, vol);
     }
 
     /**

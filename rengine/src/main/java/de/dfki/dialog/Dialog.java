@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public abstract class Dialog implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(Dialog.class);
 
-    protected final Clock clock = new Clock(500);
+    protected final Clock clock = new Clock(200);
     protected final RuleSystem rs = new RuleSystem(clock);
     protected final TagSystem<String> tagSystem = new TagSystem();
     protected final GrammarManager grammarManager = new GrammarManager();
