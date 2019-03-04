@@ -38,8 +38,11 @@ public class Parser {
 
             State state = parseState(scxmlNode);
 
-            String initialState = ((Element) scxmlNode).getAttribute("initial");
-            //TODO not available, state missing
+            String initialState = state.getInitial();
+            if(!state.hasInitial()) {
+                throw new IllegalArgumentException("Missing initial state for root");
+            }
+
 
             StateChart sc = new StateChart();
             sc.setRoot(state);
@@ -55,6 +58,11 @@ public class Parser {
         Element element = (Element) node;
         String id = getAttrValue("id", element);
         State state = new State(id);
+
+        //find initial state
+        //the initial state can also be encoded as a child node
+        String initialState = getAttrValue("initial", element);
+        state.setInitial(initialState);
 
         NodeList childNodes = node.getChildNodes();
         for (int i = 0; i < childNodes.getLength(); i++) {
@@ -78,6 +86,14 @@ public class Parser {
                 if(geometry.isPresent()) {
                     state.setGeometry(geometry.get());
                 }
+            }
+
+            if(Objects.equals(child.getNodeName(), "initial")) {
+                if(initialState == null) {
+                    throw new IllegalStateException("the initial state should be only defined once per state");
+                }
+                initialState = ((Element) child.getFirstChild()).getAttribute("target");
+                state.setInitial(initialState);
             }
         }
         return state;

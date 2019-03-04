@@ -15,6 +15,7 @@ public class State {
     private PSequence<Transition> transitions = TreePVector.empty();
     private PSequence<OnEntry> onEntries = TreePVector.empty();
     private Geometry geometry;
+    private String initial;
 
     public State(String id) {
         this.id = id;
@@ -54,6 +55,18 @@ public class State {
 
     public PSequence<OnEntry> getOnEntries() {
         return onEntries;
+    }
+
+    public boolean hasInitial() {
+        return initial != null && !initial.isEmpty();
+    }
+
+    public String getInitial() {
+        return initial;
+    }
+
+    protected void setInitial(String initial) {
+        this.initial = initial;
     }
 
     @Override
