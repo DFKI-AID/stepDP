@@ -46,7 +46,7 @@ public class TaskBehavior implements StateBehavior {
             Map<String, Set<String>> ruleActivation = Parser.loadActivations();
             for (var entry : ruleActivation.entrySet()) {
                 String state = entry.getKey();
-                for(String rule : entry.getValue()) {
+                for (String rule : entry.getValue()) {
                     tagSystem.addTag(rule, state);
                 }
             }
@@ -177,6 +177,16 @@ public class TaskBehavior implements StateBehavior {
         tagSystem.addTag("select_task_supp", stateHandler.getCurrentState());
     }
 
+    public static Double tryParse(String s) {
+        try {
+            double d = Double.valueOf(s);
+            return d;
+        } catch (NumberFormatException nfe) {
+            log.warn("could not parse {} to double", s, nfe);
+            return 0.0;
+        }
+    }
+
     private void createAcceptTaskRule(String taskId) {
         rs.addRule("accept_task", (sys) -> {
             sys.getTokens().stream()
@@ -186,23 +196,36 @@ public class TaskBehavior implements StateBehavior {
                     .findFirst()
                     .ifPresent(t -> {
                         sys.removeToken(t);
-                        String tts = String.format("Please confirm your selection for task '%s'", taskId);
-                        sys.addToken(new Token("output_tts", tts));
-                        sys.disable("accept_task");
 
-                        //TODO only create accept rule on low confidence
-                        MetaDialog.createConfirmRule(sys, "confirm_task",
-                                () -> {
-                                    deinit();
-                                    stateHandler.fire("task_accepted");
-                                    String acceptTts = String.format("Okay, let's do task '%s'", taskId);
-                                    sys.addToken(new Token("output_tts", acceptTts));
-                                }, () -> {
-                                    createAcceptTaskRule(taskId);
-                                    sys.addToken(new Token("output_tts", "Okay."));
-                                });
-                        // associate the confirm_task rule to the current state.
-                        tagSystem.addTag("confirm_task", stateHandler.getCurrentState());
+                        Optional<Double> confidence = t.payload.getPayload("confidence")
+                                .filter(c -> c instanceof Double)
+                                .map(c -> (Double) c);
+
+                        if(confidence.isPresent() && confidence.get() < 0.3) {
+                            String tts = String.format("Please confirm your selection for task '%s'", taskId);
+                            sys.addToken(new Token("output_tts", tts));
+                            sys.disable("accept_task");
+
+                            //TODO only create accept rule on low confidence
+                            MetaDialog.createConfirmRule(sys, "confirm_task",
+                                    () -> {
+                                        deinit();
+                                        stateHandler.fire("task_accepted");
+                                        String acceptTts = String.format("Okay, let's do task '%s'", taskId);
+                                        sys.addToken(new Token("output_tts", acceptTts));
+                                    }, () -> {
+                                        createAcceptTaskRule(taskId);
+                                        sys.addToken(new Token("output_tts", "Okay."));
+                                    });
+                            // associate the confirm_task rule to the current state.
+                            tagSystem.addTag("confirm_task", stateHandler.getCurrentState());
+                        } else {
+                            stateHandler.fire("task_accepted");
+                            String acceptTts = String.format("Okay, let's do task '%s'", taskId);
+                            sys.addToken(new Token("output_tts", acceptTts));
+                        }
+
+
                     });
         });
         rs.setPriority("accept_task", 20);

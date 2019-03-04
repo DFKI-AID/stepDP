@@ -90,12 +90,15 @@
                 colorIndex: 0,
                 intents: {
                     "select_task": {"intent": "select_task"},
-                    "accept_task": {"intent": "accept_task"},
+                    "accept_task": {"intent": "accept_task", "confidence": 0.8},
                     "select_task_supp": {"intent": "select_task_supp", "task": "third"},
                     "show_tasks": {"intent": "show_tasks"},
                     "hide_tasks": {"intent": "hide_tasks"},
                     "accept": {"intent": "accept"},
                     "reject": {"intent": "reject"},
+                    "greetings": {"intent": "greetings"},
+                    "undo": {"intent": "undo"},
+                    "repeat": {"intent": "repeat"}
 
                     // {"intent": "select_task"},
                     // {"intent": "accept_task"},
@@ -138,7 +141,7 @@
                     var intent = JSON.parse($("#intentTextArea").val());
                     this._sendIntent(intent);
                 },
-                _sendIntent: function(intent) {
+                _sendIntent: function (intent) {
                     console.log("sending intent " + intent);
                     $.ajax({
                         'url': '/input/intent',

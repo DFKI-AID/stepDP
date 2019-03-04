@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * This component manages (add / remove / enable / disable) and execute rules.
+ * TODO use persistent data structures
  */
 public class RuleSystem {
     private static final Logger log = LoggerFactory.getLogger(RuleSystem.class);
