@@ -8,6 +8,7 @@
     <meta name="author" content="Yannick Körber">
     <link rel="stylesheet" type="text/css" href="/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="/hello.css">
+    <link rel="stylesheet" type="text/css" href="/behavior.css">
     <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
     <link rel="manifest" href="/manifest.json">
 </head>
@@ -16,7 +17,7 @@
 <div id="app" class="container-fluid">
     <div class="row">
         <div id="graphContainer"
-             style="position:relative;overflow:hidden;width:600px;height:600px;background-color: lightgray;cursor:default;">
+             style="position:relative;overflow:hidden;width:1000px;height:1000px;background-color: #FDFFFC;cursor:default;">
         </div>
     </div>
 </div>
@@ -38,14 +39,45 @@
             data: {
                 interval: null,
                 statechart: null,
+                graph: null,
+                currentState: null,
             },
             methods: {
-                updateData: function () {
+                updateSC() {
                     $.get('/behavior/task_behavior', function (response) {
                         this.statechart = response;
                         var container = $("#graphContainer")[0];
                         this.drawStateChart(container, this.statechart.root);
                     }.bind(this));
+                },
+
+                updateSCState: function () {
+                    $.ajax({
+                        type: "GET",
+                        url: "/behavior/task_behavior/state",
+                        contentType: "application/json",
+                        dataType: "json",
+                        success: function (response) {
+                            let state = response.state;
+                            // if (state == this.currentState) {
+                            //     return;
+                            // }
+                            this.unhighlightState(this.currentState);
+                            this.currentState = state;
+                            this.highlightState(this.currentState);
+                        }.bind(this),
+                        error: function (x) {
+                            console.warn("could not retrieve behavior state: " + x);
+                        }
+                    });
+
+                    // $.get('/behavior/task_behavior/state', function (response) {
+                    //     console.log("!!UWUWHW");
+                    // let state = response.state;
+                    // this.unhighlightState(this.currentState);
+                    // this.currentState = state;
+                    // this.highlightState(this.currentState);
+                    // }.bind(this));
                 },
                 drawStateChart: function (container, statechart) {
                     // Checks if the browser is supported
@@ -57,17 +89,33 @@
                         mxEvent.disableContextMenu(container);
 
                         // Creates the graph inside the given container
-                        var graph = new mxGraph(container);
+                        this.graph = new mxGraph(container);
+
+                        // Create cell styles
+                        let highlightStyle = new Object();
+                        highlightStyle[mxConstants.STYLE_FONTCOLOR] = '#020100';
+                        highlightStyle[mxConstants.STYLE_FILLCOLOR] = '#C1292E';
+                        highlightStyle[mxConstants.STYLE_FONTFAMILY] = 'Open Sans';
+                        highlightStyle[mxConstants.STYLE_FONTSIZE] = '13';
+                        this.graph.getStylesheet().putCellStyle("Active", highlightStyle);
+
+                        let defaultStyle = new Object();
+                        defaultStyle[mxConstants.STYLE_FONTCOLOR] = '#020100';
+                        defaultStyle[mxConstants.STYLE_FILLCOLOR] = '#F1D302';
+                        defaultStyle[mxConstants.STYLE_FONTFAMILY] = 'Open Sans';
+                        defaultStyle[mxConstants.STYLE_FONTSIZE] = '13';
+                        this.graph.getStylesheet().putCellStyle("Default", defaultStyle);
+
 
                         // Enables rubberband selection
-                        new mxRubberband(graph);
+                        new mxRubberband(this.graph);
 
                         // Gets the default parent for inserting new cells. This
                         // is normally the first child of the root (ie. layer 0).
-                        var parent = graph.getDefaultParent();
+                        var parent = this.graph.getDefaultParent();
 
                         var context = {};
-                        context.graph = graph;
+                        context.graph = this.graph;
                         context.bbox = {minx: 0, miny: 0, maxx: 0, maxy: 0};
                         this.getBoundingBox(context, statechart);
                         console.log(context.bbox);
@@ -75,7 +123,7 @@
 
 
                         // Adds cells to the model in a single step
-                        graph.getModel().beginUpdate();
+                        this.graph.getModel().beginUpdate();
                         try {
                             this.drawState(context, parent, statechart);
                             this.drawTransitions(context, parent, statechart);
@@ -84,12 +132,61 @@
                             // var e1 = graph.insertEdge(parent, null, '', v1, v2);
                         } finally {
                             // Updates the display
-                            graph.getModel().endUpdate();
+                            this.graph.getModel().endUpdate();
                         }
+
+                        // update style
+                        this.apply(parent, (state) => {
+                            state.setStyle("Default");
+                            // refresh cell in graph
+                            this.graph.getView().clear(state, false, false);
+                            this.graph.getView().validate();
+                        });
 
                         // var encoder = new mxCodec();
                         // var node = encoder.encode(v1);
                         // console.log(mxUtils.getXml(node));
+                    }
+                },
+
+                highlightState: function (state) {
+                    if (state == null || this.graph == null) {
+                        return;
+                    }
+                    let stateCell = this.graph.getModel().getCell(state);
+                    if (stateCell == null) {
+                        console.warn("can't highlight cell: No cell found with id " + state);
+                        return;
+                    }
+                    stateCell.setStyle("Active");
+                    // refresh cell in graph
+                    this.graph.getView().clear(stateCell, false, false);
+                    this.graph.getView().validate();
+                },
+
+                unhighlightState: function (state) {
+                    if (state == null || this.graph == null) {
+                        return;
+                    }
+                    let stateCell = this.graph.getModel().getCell(state);
+                    if (stateCell == null) {
+                        console.warn("can't highlight cell: No cell found with id " + state);
+                        return;
+                    }
+                    stateCell.setStyle("Default");
+                    // refresh cell in graph
+                    this.graph.getView().clear(stateCell, false, false);
+                    this.graph.getView().validate();
+                },
+
+                apply: function(state, fnc) {
+                    fnc(state);
+                    if(state.children == null) {
+                        return;
+                    }
+                    for (let i = 0; i < state.children.length; ++i) {
+                        let childState = state.children[i];
+                        this.apply(childState, fnc);
                     }
                 },
 
@@ -98,7 +195,7 @@
                     if (geo == null) {
                         geo = {x: 0, y: 0, w: 50, h: 50};
                     }
-                    var vertex = context.graph.insertVertex(parent, null, state.id,
+                    var vertex = context.graph.insertVertex(parent, state.id, state.id,
                         geo.x - context.bbox.minx,
                         geo.y - context.bbox.miny,
                         geo.w,
@@ -108,7 +205,7 @@
 
                     for (var i = 0; i < state.children.length; ++i) {
                         var childState = state.children[i];
-                        this.drawState(context, parent, childState);
+                        this.drawState(context, vertex, childState);
                     }
                 },
 
@@ -143,10 +240,11 @@
 
             },
             created() {
-                this.updateData();
+                this.updateSC();
+                this.updateSCState();
                 this.interval = setInterval(function () {
-                    this.updateData();
-                }.bind(this), 20000);
+                    this.updateSCState();
+                }.bind(this), 1000);
 
             }
 

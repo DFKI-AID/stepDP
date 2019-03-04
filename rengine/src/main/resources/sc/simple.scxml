@@ -2,15 +2,15 @@
 <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" binding="early" xmlns:qt="http://www.qt.io/2015/02/scxml-ext" name="simple" qt:editorversion="4.8.1" initial="Idle">
     <qt:editorinfo initialGeometry="0;0;-20;-20;40;40"/>
     <state id="TaskAssignment">
-        <qt:editorinfo geometry="0;0;-143.42;-403.58;438.86;683.01" scenegeometry="213.35;306.95;69.93;-96.63;438.86;683.01"/>
+        <qt:editorinfo geometry="0;0;-143.42;-403.58;438.93;683.01" scenegeometry="0;0;-143.42;-403.58;438.93;683.01"/>
         <state id="Idle">
-            <qt:editorinfo geometry="0;-200;-106;-50;100;100" scenegeometry="283.19;110.47;177.19;60.47;164.29;100"/>
+            <qt:editorinfo geometry="0;-200;-106;-50;100;100" scenegeometry="0;-200;-106;-250;100;100"/>
             <transition type="internal" target="Choice" event="show_tasks" cond="cond1">
                 <qt:editorinfo movePoint="-65.69;14.49" endTargetFactors="38.22;25.21"/>
             </transition>
         </state>
         <state id="Info">
-            <qt:editorinfo geometry="43.93;199.76;-60;-50;134.51;100" scenegeometry="257.28;506.71;197.28;456.71;134.51;100"/>
+            <qt:editorinfo geometry="43.93;199.76;-60;-50;134.51;100" scenegeometry="43.93;199.76;-16.07;149.76;134.51;100"/>
             <transition type="external" event="hide_tasks" target="Idle">
                 <qt:editorinfo movePoint="60.65;-28.43" endTargetFactors="72.81;69.66"/>
             </transition>
@@ -25,7 +25,7 @@
             </transition>
         </state>
         <state id="Choice">
-            <qt:editorinfo geometry="-63.42;-10.88;-60;-50;134.51;100" scenegeometry="149.93;296.07;89.93;246.07;134.51;100"/>
+            <qt:editorinfo geometry="-63.42;-10.88;-60;-50;134.51;100" scenegeometry="-63.42;-10.88;-123.42;-60.88;134.51;100"/>
             <transition type="external" event="hide_tasks" target="Idle">
                 <qt:editorinfo endTargetFactors="81.01;37.77" movePoint="23.59;32.08"/>
             </transition>
@@ -40,7 +40,7 @@
             </onentry>
         </state>
         <state id="Selected">
-            <qt:editorinfo geometry="214.87;61.31;-60;-50;120;100" scenegeometry="428.22;368.26;368.22;318.26;120;100"/>
+            <qt:editorinfo geometry="214.87;61.31;-60;-50;120;100" scenegeometry="214.87;61.31;154.87;11.31;120;100"/>
         </state>
     </state>
 </scxml>

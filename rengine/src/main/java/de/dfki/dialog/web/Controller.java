@@ -119,4 +119,20 @@ public class Controller {
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("not impl");
     }
+
+    @GetMapping(value = "/behavior/{id}/state", produces = "application/json")
+    public ResponseEntity<String> getBehaviorState(@PathVariable("id") String id) {
+        Optional<Behavior> behavior = settings.app.getBehavior(id);
+        if(!behavior.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+
+        if(behavior.get() instanceof StateBehavior) {
+            StateBehavior sb = (StateBehavior) behavior.get();
+            String currentState = sb.getStateHandler().getCurrentState();
+            return ResponseEntity.status(HttpStatus.OK).body(String.format("{\"state\":\"%s\"}", currentState));
+        }
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("not impl");
+    }
 }
