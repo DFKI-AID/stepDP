@@ -60,6 +60,7 @@ public class TaskBehavior implements StateBehavior {
     @Override
     public void deinit() {
 //        this.stateHandler.quit();
+        //TODO impl
     }
 
     @Override
@@ -80,7 +81,6 @@ public class TaskBehavior implements StateBehavior {
     }
 
     public void initTaskMode() {
-
         /**
          * "Which tasks are available?"
          * Show the worker some tasks he can work on
@@ -196,16 +196,6 @@ public class TaskBehavior implements StateBehavior {
         tagSystem.addTag("select_task_supp", stateHandler.getCurrentState());
     }
 
-    public static Double tryParse(String s) {
-        try {
-            double d = Double.valueOf(s);
-            return d;
-        } catch (NumberFormatException nfe) {
-            log.warn("could not parse {} to double", s, nfe);
-            return 0.0;
-        }
-    }
-
     private void createAcceptTaskRule(String taskId) {
         rs.addRule("accept_task", (sys) -> {
             sys.getTokens().stream()
@@ -225,7 +215,6 @@ public class TaskBehavior implements StateBehavior {
                             sys.addToken(new Token("output_tts", tts));
                             sys.disable("accept_task");
 
-                            //TODO only create accept rule on low confidence
                             MetaDialog.createConfirmRule(sys, "confirm_task",
                                     () -> {
                                         deinit();

@@ -14,45 +14,51 @@
 
 
 <div id="app" class="container-fluid">
-    <div class="row">
-        <div class="btn-toolbar">
-            <div class="btn-group">
-                <button v-on:click="undo">undo</button>
-                <button v-on:click="hello">hello</button>
-                <button v-on:click="repeat">repeat</button>
+    <div class="row grow w-100">
+        <div class="col-6">
+            <div class="row">
+                <div class="btn-toolbar">
+                    <div class="btn-group">
+                        <button v-on:click="undo">undo</button>
+                        <button v-on:click="hello">hello</button>
+                        <button v-on:click="repeat">repeat</button>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div>
+                    <textarea id="intentTextArea" cols=40 rows=10>{{intents[intentSelection]}}</textarea>
+                </div>
+            </div>
+            <div>
+                <select v-model="intentSelection">
+                    <option v-for="item in intents" v-bind:value="item.intent">{{item.intent}}</option>
+                </select>
+                <button v-on:click="sendIntent">sendIntent</button>
+            </div>
+            <div class="row">
+                <div class="col-sm">
+                    <h2>iteration={{iteration}}</h2>
+
+                    <table>
+                        <tr>
+                            <th>name</th>
+                            <th>active</th>
+                            <th>priority</th>
+                            <th>tags</th>
+                        </tr>
+                        <tr v-for="item in rules">
+                            <td>{{item.name}}</td>
+                            <td>{{item.active}}</td>
+                            <td>{{item.priority}}</td>
+                            <td><span style="background-color:#00FF00" class="badge badge-secondary tag"
+                                      v-color v-for="(item, index) in item.tags">{{item}}</span></td>
+                        </tr>
+                    </table>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="row">
-        <div>
-            <select v-model="intentSelection">
-                <option v-for="item in intents" v-bind:value="item.intent">{{item.intent}}</option>
-            </select>
-            <textarea id="intentTextArea" cols=50 rows=10>{{intents[intentSelection]}}</textarea>
-            <button v-on:click="sendIntent">sendIntent</button>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-sm">
-            <h2>iteration={{iteration}}</h2>
-
-            <table>
-                <tr>
-                    <th>name</th>
-                    <th>active</th>
-                    <th>priority</th>
-                    <th>tags</th>
-                </tr>
-                <tr v-for="item in rules">
-                    <td>{{item.name}}</td>
-                    <td>{{item.active}}</td>
-                    <td>{{item.priority}}</td>
-                    <td><span style="background-color:#00FF00" class="badge badge-secondary tag"
-                              v-color v-for="(item, index) in item.tags">{{item}}</span></td>
-                </tr>
-            </table>
-        </div>
-        <div class="col-sm">
+        <div class="col-6">
             <div id="grammar">Grammar: {{grammar}}</div>
         </div>
     </div>

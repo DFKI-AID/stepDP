@@ -63,9 +63,10 @@
                             // if (state == this.currentState) {
                             //     return;
                             // }
-                            this.unhighlightState(this.currentState);
+                            // this.unhighlightState(this.currentState);
                             this.currentState = state;
-                            this.highlightState(this.currentState);
+                            // this.highlightState(this.currentState);
+                            this.updateStyle();
                         }.bind(this),
                         error: function (x) {
                             console.warn("could not retrieve behavior state: " + x);
@@ -92,20 +93,25 @@
                         // Creates the graph inside the given container
                         this.graph = new mxGraph(container);
 
-                        // Create cell styles
-                        let highlightStyle = new Object();
-                        highlightStyle[mxConstants.STYLE_FONTCOLOR] = '#020100';
-                        highlightStyle[mxConstants.STYLE_FILLCOLOR] = '#C1292E';
-                        highlightStyle[mxConstants.STYLE_FONTFAMILY] = 'Open Sans';
-                        highlightStyle[mxConstants.STYLE_FONTSIZE] = '13';
-                        this.graph.getStylesheet().putCellStyle("Active", highlightStyle);
 
-                        let defaultStyle = new Object();
-                        defaultStyle[mxConstants.STYLE_FONTCOLOR] = '#020100';
-                        defaultStyle[mxConstants.STYLE_FILLCOLOR] = '#F1D302';
-                        defaultStyle[mxConstants.STYLE_FONTFAMILY] = 'Open Sans';
-                        defaultStyle[mxConstants.STYLE_FONTSIZE] = '13';
-                        this.graph.getStylesheet().putCellStyle("Default", defaultStyle);
+                        // Create cell styles
+                        let defaultLeafStyle = new Object();
+                        defaultLeafStyle[mxConstants.STYLE_FONTCOLOR] = 'white';
+                        defaultLeafStyle[mxConstants.STYLE_FILLCOLOR] = '#23395B';
+                        defaultLeafStyle[mxConstants.STYLE_FONTFAMILY] = 'Open Sans';
+                        defaultLeafStyle[mxConstants.STYLE_FONTSIZE] = '13';
+                        defaultLeafStyle[mxConstants.STYLE_STROKECOLOR] = "black";
+                        this.graph.getStylesheet().putCellStyle("DefaultLeaf", defaultLeafStyle);
+
+                        let defaultNodeStyle = JSON.parse(JSON.stringify(defaultLeafStyle));
+                        defaultNodeStyle[mxConstants.STYLE_FILLCOLOR] = '#406E8E';
+                        this.graph.getStylesheet().putCellStyle("DefaultNode", defaultNodeStyle);
+
+                        let highlightStyle = JSON.parse(JSON.stringify(defaultLeafStyle));
+                        highlightStyle[mxConstants.STYLE_FILLCOLOR] = '#CBF7ED';
+                        highlightStyle[mxConstants.STYLE_FONTCOLOR] = 'black';
+                        defaultLeafStyle[mxConstants.STYLE_STROKECOLOR] = "#23395B";
+                        this.graph.getStylesheet().putCellStyle("Active", highlightStyle);
 
 
                         // Enables rubberband selection
@@ -113,7 +119,7 @@
 
                         // Gets the default parent for inserting new cells. This
                         // is normally the first child of the root (ie. layer 0).
-                        var parent = this.graph.getDefaultParent();
+                        this.parent = this.graph.getDefaultParent();
 
                         var context = {};
                         context.graph = this.graph;
@@ -126,8 +132,8 @@
                         // Adds cells to the model in a single step
                         this.graph.getModel().beginUpdate();
                         try {
-                            this.drawState(context, parent, statechart);
-                            this.drawTransitions(context, parent, statechart);
+                            this.drawState(context, this.parent, statechart);
+                            this.drawTransitions(context, this.parent, statechart);
                             // var v1 = graph.insertVertex(parent, null, 'Hello,', 20, 20, 80, 30);
                             // var v2 = graph.insertVertex(parent, null, 'World!', 200, 150, 80, 30);
                             // var e1 = graph.insertEdge(parent, null, '', v1, v2);
@@ -136,18 +142,37 @@
                             this.graph.getModel().endUpdate();
                         }
 
-                        // update style
-                        this.apply(parent, (state) => {
-                            state.setStyle("Default");
-                            // refresh cell in graph
-                            this.graph.getView().clear(state, false, false);
-                            this.graph.getView().validate();
-                        });
+                        this.updateStyle();
 
                         // var encoder = new mxCodec();
                         // var node = encoder.encode(v1);
                         // console.log(mxUtils.getXml(node));
                     }
+                },
+
+                updateStyle: function () {
+                    if(this.parent == null) {
+                        return;
+                    }
+
+                    this.apply(this.parent, (state) => {
+
+                        if (state.children != null && state.children.length > 0) {
+                            //intermediate node
+                            state.setStyle("DefaultNode");
+                        } else {
+                            //leaf node
+                            if (this.currentState != null && this.currentState == state.id) {
+                                state.setStyle("Active");
+                            } else {
+                                state.setStyle("DefaultLeaf");
+                            }
+                        }
+
+                        // refresh cell in graph
+                        this.graph.getView().clear(state, false, false);
+                        this.graph.getView().validate();
+                    });
                 },
 
                 highlightState: function (state) {
@@ -159,6 +184,7 @@
                         console.warn("can't highlight cell: No cell found with id " + state);
                         return;
                     }
+
                     stateCell.setStyle("Active");
                     // refresh cell in graph
                     this.graph.getView().clear(stateCell, false, false);
@@ -180,9 +206,13 @@
                     this.graph.getView().validate();
                 },
 
-                apply: function(state, fnc) {
+                apply: function (state, fnc) {
+                    if(state == null) {
+                        return;
+                    }
+
                     fnc(state);
-                    if(state.children == null) {
+                    if (state.children == null) {
                         return;
                     }
                     for (let i = 0; i < state.children.length; ++i) {
