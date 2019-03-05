@@ -59,10 +59,10 @@ public class RuleSystem {
 
     public void addRule(String name, Rule rule) {
         if (nameToRule.containsKey(name)) {
-            log.info("Overwriting rule {}", name);
+            log.info("Overwriting rule: {}", name);
             this.removeRule(name);
         } else {
-            log.info("Adding rule {}", name);
+            log.info("Adding rule: {}", name);
         }
 
         rules = rules.plus(rule);
@@ -79,7 +79,7 @@ public class RuleSystem {
         if (!rule.isPresent()) {
             return;
         }
-        log.info("Removing rule {}", name);
+        log.info("Removing rule: {}", name);
         rules = rules.minus(rule.get());
         nameToRule = nameToRule.minus(name);
     }
@@ -94,7 +94,7 @@ public class RuleSystem {
     }
 
     public void enable(Rule rule) {
-        log.info("Enabling rule {}", getName(rule));
+        log.info("Enabling rule: {}", getName(rule).orElse(null));
         blockSystem.enable(rule);
     }
 
@@ -112,7 +112,7 @@ public class RuleSystem {
     }
 
     public void disable(Rule rule) {
-        log.info("Disabling rule {}", getName(rule));
+        log.info("Disabling rule: {}", getName(rule).orElse(null));
         blockSystem.disable(rule);
     }
 

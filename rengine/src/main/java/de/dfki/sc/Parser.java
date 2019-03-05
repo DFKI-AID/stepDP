@@ -1,5 +1,7 @@
 package de.dfki.sc;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -22,6 +24,7 @@ import java.util.*;
  *
  */
 public class Parser {
+    private static final Logger log = LoggerFactory.getLogger(Parser.class);
 
 
     public static StateChart parse(URL resource) throws URISyntaxException, IOException {
@@ -39,7 +42,7 @@ public class Parser {
             State state = parseState(scxmlNode);
 
             String initialState = state.getInitial();
-            if(!state.hasInitial()) {
+            if (!state.hasInitial()) {
                 throw new IllegalArgumentException("Missing initial state for root");
             }
 
@@ -54,7 +57,7 @@ public class Parser {
     }
 
 
-    public static State parseState(Node node) {
+    public static State parseState(Node node) throws IOException {
         Element element = (Element) node;
         String id = getAttrValue("id", element);
         State state = new State(id);
@@ -76,25 +79,25 @@ public class Parser {
                 state.addTransition(transition);
             }
 
-            if(Objects.equals(child.getNodeName(), "onentry")) {
+            if (Objects.equals(child.getNodeName(), "onentry")) {
                 OnEntry onEntry = parseOnEntry(childNodes.item(i));
                 state.addOnEntry(onEntry);
             }
 
-            if(Objects.equals(child.getNodeName(), "onexit")) {
+            if (Objects.equals(child.getNodeName(), "onexit")) {
                 OnExit onExit = parseOnExit(childNodes.item(i));
                 state.addOnExit(onExit);
             }
 
-            if(Objects.equals(child.getNodeName(), "qt:editorinfo")) {
+            if (Objects.equals(child.getNodeName(), "qt:editorinfo")) {
                 Optional<Geometry> geometry = parseGeometry(childNodes.item(i));
-                if(geometry.isPresent()) {
+                if (geometry.isPresent()) {
                     state.setGeometry(geometry.get());
                 }
             }
 
-            if(Objects.equals(child.getNodeName(), "initial")) {
-                if(initialState == null) {
+            if (Objects.equals(child.getNodeName(), "initial")) {
+                if (initialState == null) {
                     throw new IllegalStateException("the initial state should be only defined once per state");
                 }
                 initialState = ((Element) child.getFirstChild()).getAttribute("target");
@@ -115,7 +118,7 @@ public class Parser {
     private static Optional<Geometry> parseGeometry(Node item) {
         Element element = (Element) item;
         String geo = element.getAttribute("geometry");
-        if(geo.isEmpty()) {
+        if (geo.isEmpty()) {
             return Optional.empty();
         }
         Geometry geometry = new Geometry(geo);
@@ -127,11 +130,11 @@ public class Parser {
         NodeList childNodes = node.getChildNodes();
         for (int i = 0; i < childNodes.getLength(); i++) {
             Node child = childNodes.item(i);
-            if(!(child instanceof Element)) {
+            if (!(child instanceof Element)) {
                 continue;
             }
             Element element = (Element) child;
-            if(!Objects.equals(element.getTagName(), "script")) {
+            if (!Objects.equals(element.getTagName(), "script")) {
                 continue;
             }
             String scriptSrc = element.getAttribute("src");
@@ -140,12 +143,35 @@ public class Parser {
         return onEntry;
     }
 
-    public static Transition parseTransition(Node node) {
+    public static Transition parseTransition(Node node) throws IOException {
         Element element = (Element) node;
         Transition transition = new Transition();
         transition.setEvent(element.getAttribute("event"));
         transition.setTarget(element.getAttribute("target"));
         transition.setCond(element.getAttribute("cond"));
+
+        String scriptSrc = element.getAttribute("src");
+        if (scriptSrc != null && !scriptSrc.isEmpty()) {
+            transition.addScript(scriptSrc);
+        }
+
+        // find script tags that are executed if a transition fires
+        NodeList childNodes = element.getChildNodes();
+        for (int i = 0; i < childNodes.getLength(); i++) {
+            Node childNode = childNodes.item(i);
+            if (!childNode.getNodeName().equals("script")) {
+                log.warn("Ignoring unsupported node under transition {}", childNode.getNodeName());
+                continue;
+            }
+
+            if(!(childNode instanceof Element)) {
+                throw new IOException("Invalid file: Expected node to be an Element: structure transition -> script");
+            }
+
+            scriptSrc = ((Element) childNode).getAttribute("src");
+            transition.addScript(scriptSrc);
+        }
+
         return transition;
     }
 

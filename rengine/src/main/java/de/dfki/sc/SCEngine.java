@@ -116,18 +116,29 @@ public class SCEngine {
         // Trigger on-exit functions if available
         sourceState.getOnExits().forEach(oe -> oe.getScripts().forEach(s -> {
             if (!objState.functions.containsKey(s)) {
-                log.warn("No script found for on-exit function {} and id {}", targetStateId, s);
+                log.warn("No script={} found for on-exit during transission {}-{}|{}|->{}",
+                        s, sourceState.getId(), transition.getEvent(), transition.getCond(), targetStateId);
                 return;
             }
             objState.functions.get(s).run();
         }));
 
+        // Trigger on-transitions functions if available
+        transition.getScripts().forEach(s -> {
+            if (!objState.functions.containsKey(s)) {
+                log.warn("No script={} found for transition during transission {}-{}|{}|->{}",
+                        s, sourceState.getId(), transition.getEvent(), transition.getCond(), targetStateId);
+                return;
+            }
+            objState.functions.get(s).run();
+        });
 
         // Trigger on-entry functions if available
         State targetState = optTargetState.get();
         targetState.getOnEntries().forEach(oe -> oe.getScripts().forEach(s -> {
             if (!objState.functions.containsKey(s)) {
-                log.warn("No script found for on-entry function {} and id {}", targetStateId, s);
+                log.warn("No script={} found for on-entry during transission {}-{}|{}|->{}",
+                        s, sourceState.getId(), transition.getEvent(), transition.getCond(), targetStateId);
                 return;
             }
             objState.functions.get(s).run();

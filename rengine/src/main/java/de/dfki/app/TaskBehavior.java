@@ -121,6 +121,12 @@ public class TaskBehavior implements StateBehavior {
         createAcceptTaskRule(currentTask);
     }
 
+    public void hideTaskInfo() {
+        rs.addToken(new Token("output_tts", "Okay: <hide menu in hololens>"));
+        //TODO update state for hololens
+        //or just use state chart
+    }
+
     public void initTaskMode() {
         /**
          * "Which tasks are available?"
@@ -151,7 +157,6 @@ public class TaskBehavior implements StateBehavior {
                     .findFirst()
                     .ifPresent(t -> {
                         sys.removeToken(t);
-                        sys.addToken(new Token("output_tts", "Okay: <hide menu in hololens>"));
                         stateHandler.fire("hide_tasks");
                     });
         });
@@ -223,17 +228,24 @@ public class TaskBehavior implements StateBehavior {
                             log.warn("no task info available. missing tag?");
                             return;
                         }
+
+                        //TODO unchecked
+                        String task = (String) taskName.get();
+                        TaskBehavior.this.currentTask = task;
                         sys.removeToken(t);
                         rs.removeRule(rule);
-                        createAcceptTaskRule((String) taskName.get());
+                        createAcceptTaskRule(task);
                         stateHandler.fire("show_task");
-                        sys.addToken(new Token("output_tts", "woah"));
                     });
         });
         rs.setPriority(rule, 20);
         tagSystem.addTag("select_task_supp", stateHandler.getCurrentState());
     }
 
+    /**
+     * TODO could be independent taskId argument -> use current_task
+     * @param taskId
+     */
     private void createAcceptTaskRule(String taskId) {
         rs.addRule("accept_task", (sys) -> {
             sys.getTokens().stream()
