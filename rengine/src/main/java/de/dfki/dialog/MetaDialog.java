@@ -2,6 +2,8 @@ package de.dfki.dialog;
 
 import de.dfki.rengine.RuleSystem;
 import de.dfki.rengine.Token;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.Objects;
@@ -10,6 +12,8 @@ import java.util.Objects;
  *
  */
 public class MetaDialog {
+    private static final Logger log = LoggerFactory.getLogger(MetaDialog.class);
+
     public static void createGreetingsRule(Dialog dialog) {
         var rs = dialog.getRuleSystem();
         var tagSystem = dialog.getTagSystem();
@@ -98,7 +102,7 @@ public class MetaDialog {
                         //jump one iteration behind the interaction
                         //this jumps to state before the last interaction was done
                         //~ undo last action
-                        dialog.rewind(Math.max(0, lastInteraction-1));
+                        dialog.rewind(Math.max(0, lastInteraction - 1));
                     });
         });
         rs.setPriority("undo", 20);
@@ -109,7 +113,9 @@ public class MetaDialog {
                     .filter(t -> t.topicIs("output_tts")) //TODO filter for other explicit interactions
                     .findFirst()
                     .ifPresent(t -> {
-                        createUndoRule(dialog, dialog.getIteration());
+                        int iteration = dialog.getIteration();
+                        log.info("Creating undo-jump point on iteration={}", iteration);
+                        createUndoRule(dialog, iteration);
                     });
         });
         rs.setPriority("update_undo", 90);
@@ -121,7 +127,7 @@ public class MetaDialog {
 
     public static void createRepeatRule(RuleSystem ruleSystem, String ruleName, String lastTts) {
         //the user can request a repeat up to 10 seconds
-        long until = ruleSystem.getClock().convert(Duration.ofSeconds(10)) + ruleSystem.getIteration();
+        long until = ruleSystem.getClock().convert(Duration.ofSeconds(25)) + ruleSystem.getIteration();
         ruleSystem.addRule(ruleName, (sys) -> {
 //            final Pattern pattern = Pattern.compile("[can ]?[you ]?repeat that[ please]?");
             sys.getTokens().stream()

@@ -118,7 +118,6 @@ public class TaskBehavior implements StateBehavior {
         String msg = String.format("There is a new urgent task '%s' : A UR-3 robot stopped functioning correctly", currentTask);
         rs.addToken(new Token("output_tts", msg));
         rs.addToken(new Token("output_image", "http://.../"));
-        createAcceptTaskRule(currentTask);
     }
 
     public void hideTaskInfo() {
@@ -208,6 +207,7 @@ public class TaskBehavior implements StateBehavior {
         rs.setPriority("select_task", 20);
 
 
+        createAcceptTaskRule();
     }
 
 
@@ -234,7 +234,6 @@ public class TaskBehavior implements StateBehavior {
                         TaskBehavior.this.currentTask = task;
                         sys.removeToken(t);
                         rs.removeRule(rule);
-                        createAcceptTaskRule(task);
                         stateHandler.fire("show_task");
                     });
         });
@@ -243,10 +242,8 @@ public class TaskBehavior implements StateBehavior {
     }
 
     /**
-     * TODO could be independent taskId argument -> use current_task
-     * @param taskId
      */
-    private void createAcceptTaskRule(String taskId) {
+    private void createAcceptTaskRule() {
         rs.addRule("accept_task", (sys) -> {
             sys.getTokens().stream()
                     .filter(t -> t.topicIs("intent"))
@@ -260,26 +257,29 @@ public class TaskBehavior implements StateBehavior {
                                 .filter(c -> c instanceof Double)
                                 .map(c -> (Double) c);
 
+                        if(currentTask == null) {
+                            return;
+                        }
+
                         if (confidence.isPresent() && confidence.get() < 0.3) {
-                            String tts = String.format("Please confirm your selection for task '%s'", taskId);
+                            String tts = String.format("Please confirm your selection for task '%s'", currentTask);
                             sys.addToken(new Token("output_tts", tts));
-                            sys.disable("accept_task");
+//                            sys.disable("accept_task");
 
                             MetaDialog.createConfirmRule(sys, "confirm_task",
                                     () -> {
-                                        deinit();
                                         stateHandler.fire("task_accepted");
-                                        String acceptTts = String.format("Okay, let's do task '%s'", taskId);
+                                        String acceptTts = String.format("Okay, let's do task '%s'", currentTask);
                                         sys.addToken(new Token("output_tts", acceptTts));
                                     }, () -> {
-                                        createAcceptTaskRule(taskId);
                                         sys.addToken(new Token("output_tts", "Okay."));
+//                                        sys.enable("accept_task");
                                     });
                             // associate the confirm_task rule to the current state.
                             tagSystem.addTag("confirm_task", stateHandler.getCurrentState());
                         } else {
                             stateHandler.fire("task_accepted");
-                            String acceptTts = String.format("Okay, let's do task '%s'", taskId);
+                            String acceptTts = String.format("Okay, let's do task '%s'", currentTask);
                             sys.addToken(new Token("output_tts", acceptTts));
                         }
 
