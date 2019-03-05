@@ -62,7 +62,7 @@ public class MetaDialog {
 
     /**
      * Helps the user to understand the current context and what can be done.
-     * E.g. show example sentences from the SRGS grammar, or generate them from the grammar
+     * E.g. show example sentences from the SRGS grammar.jsgf, or generate them from the grammar.jsgf
      *
      * @param rs
      */

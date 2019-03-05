@@ -7,6 +7,8 @@ import de.dfki.sc.Parser;
 import de.dfki.sc.SCEngine;
 import de.dfki.sc.SCMain;
 import de.dfki.sc.StateChart;
+import org.pcollections.HashTreePMap;
+import org.pcollections.PMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +18,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BooleanSupplier;
+import java.util.stream.Stream;
 
 /**
  *
@@ -92,7 +96,7 @@ public class TaskBehavior implements StateBehavior {
         stateHandler.loadSnapshot((SCEngine.ObjState) sh);
 
         Object currentTask = snapshotMap.get("current_task");
-        if(currentTask != null) {
+        if (currentTask != null) {
             if (!(currentTask instanceof String)) {
                 throw new IllegalArgumentException("expected String as type for currentTask");
             }
@@ -124,6 +128,13 @@ public class TaskBehavior implements StateBehavior {
         rs.addToken(new Token("output_tts", "Okay: <hide menu in hololens>"));
         //TODO update state for hololens
         //or just use state chart
+    }
+
+    public static Stream<Token<Intent>> filterIntent(String intent, Stream<Token> tokenStream) {
+        return tokenStream
+                .filter(t -> t.topicIs("intent"))
+                .map(t -> (Token<Intent>) t)
+                .filter(t -> t.payload.is(intent));
     }
 
     public void initTaskMode() {
@@ -206,6 +217,13 @@ public class TaskBehavior implements StateBehavior {
         });
         rs.setPriority("select_task", 20);
 
+        // convert 'show_navigation' intent to 'show_navigation' event
+        rs.addRule("show_navigation", (sys) -> {
+            filterIntent("show_navigation", sys.getTokens().stream())
+                    .forEach(t -> {
+                        stateHandler.fire("show_navigation");
+                    });
+        });
 
         createAcceptTaskRule();
     }
@@ -242,6 +260,7 @@ public class TaskBehavior implements StateBehavior {
     }
 
     /**
+     *
      */
     private void createAcceptTaskRule() {
         rs.addRule("accept_task", (sys) -> {
@@ -257,7 +276,7 @@ public class TaskBehavior implements StateBehavior {
                                 .filter(c -> c instanceof Double)
                                 .map(c -> (Double) c);
 
-                        if(currentTask == null) {
+                        if (currentTask == null) {
                             return;
                         }
 

@@ -130,7 +130,7 @@ public class UpdateGrammar implements org.apache.thrift.TBase<UpdateGrammar, Upd
     this.grammar = null;
   }
 
-  /** Returns true if field grammar is set (has been assigned a value) and false otherwise */
+  /** Returns true if field grammar.jsgf is set (has been assigned a value) and false otherwise */
   public boolean isSetGrammar() {
     return this.grammar != null;
   }
@@ -254,7 +254,7 @@ public class UpdateGrammar implements org.apache.thrift.TBase<UpdateGrammar, Upd
     java.lang.StringBuilder sb = new java.lang.StringBuilder("UpdateGrammar(");
     boolean first = true;
 
-    sb.append("grammar:");
+    sb.append("grammar.jsgf:");
     if (this.grammar == null) {
       sb.append("null");
     } else {

@@ -46,13 +46,13 @@ public abstract class Dialog implements Runnable {
     public abstract void deinit();
 
     /**
-     * Updates the global grammar based on the rules that are currently active
+     * Updates the global grammar.jsgf based on the rules that are currently active
      *
      * @param rs
      */
     public void updateGrammar(RuleSystem rs) {
         synchronized (grammarManager) {
-            //TODO: better builder and then swap grammar manager instance
+            //TODO: better builder and then swap grammar.jsgf manager instance
             grammarManager.deactivateAll();
             rs.getRules()
                     .forEach(rule -> {
