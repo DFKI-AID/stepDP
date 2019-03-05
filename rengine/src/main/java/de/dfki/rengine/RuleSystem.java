@@ -32,12 +32,12 @@ public class RuleSystem {
 
 
     public void addToken(Token token) {
-        log.debug("Adding {}", token);
+        log.debug("Adding token {}", token);
         tokens = tokens.plus(token);
     }
 
     public void removeToken(Token token) {
-        log.debug("Removing {}", token);
+        log.debug("Removing token {}", token);
         tokens = tokens.minus(token);
     }
 
@@ -59,10 +59,10 @@ public class RuleSystem {
 
     public void addRule(String name, Rule rule) {
         if (nameToRule.containsKey(name)) {
-            log.info("overwriting rule {}", name);
+            log.info("Overwriting rule {}", name);
             this.removeRule(name);
         } else {
-            log.info("adding rule {}", name);
+            log.info("Adding rule {}", name);
         }
 
         rules = rules.plus(rule);
@@ -79,7 +79,7 @@ public class RuleSystem {
         if (!rule.isPresent()) {
             return;
         }
-        log.info("removing rule {}", name);
+        log.info("Removing rule {}", name);
         rules = rules.minus(rule.get());
         nameToRule = nameToRule.minus(name);
     }
@@ -87,13 +87,14 @@ public class RuleSystem {
     public void enable(String ruleName) {
         Optional<Rule> rule = getRule(ruleName);
         if (!rule.isPresent()) {
-            log.warn("Can'second enable rule: No rule found with name {}", ruleName);
+            log.warn("Can't enable rule: No rule found with name {}", ruleName);
             return;
         }
         this.enable(rule.get());
     }
 
     public void enable(Rule rule) {
+        log.info("Enabling rule {}", getName(rule));
         blockSystem.enable(rule);
     }
 
@@ -111,10 +112,12 @@ public class RuleSystem {
     }
 
     public void disable(Rule rule) {
+        log.info("Disabling rule {}", getName(rule));
         blockSystem.disable(rule);
     }
 
     public void disable(Rule rule, Duration duration) {
+        log.info("Disabling rule {}", getName(rule));
         blockSystem.disable(rule, clock.convert(duration));
     }
 

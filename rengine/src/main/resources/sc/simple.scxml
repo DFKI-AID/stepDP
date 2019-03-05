@@ -15,7 +15,7 @@
                 <qt:editorinfo movePoint="60.65;-28.43" endTargetFactors="72.81;69.66"/>
             </transition>
             <onentry>
-                <raise event="duuu"/>
+                <script src="outputTaskInfo"/>
             </onentry>
             <transition type="external" event="task_accepted" target="Selected">
                 <qt:editorinfo movePoint="59.24;32.83"/>

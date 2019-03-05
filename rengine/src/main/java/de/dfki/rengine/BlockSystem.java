@@ -52,7 +52,7 @@ public class BlockSystem {
     }
 
     public void disable(Rule rule) {
-        log.info("Disabling: {}", rule);
+        log.debug("Disabling: {}", rule);
         blockRules = blockRules.plus(rule, () -> true);
     }
 
@@ -61,7 +61,7 @@ public class BlockSystem {
             return;
         }
 
-        log.info("Enabling: {}", rule);
+        log.debug("Enabling: {}", rule);
         blockRules = blockRules.minus(rule);
     }
 

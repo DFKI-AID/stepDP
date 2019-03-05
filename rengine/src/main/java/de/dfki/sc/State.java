@@ -14,6 +14,7 @@ public class State {
     private PSequence<State> children = TreePVector.empty();
     private PSequence<Transition> transitions = TreePVector.empty();
     private PSequence<OnEntry> onEntries = TreePVector.empty();
+    private PSequence<OnExit> onExits = TreePVector.empty();
     private Geometry geometry;
     private String initial;
 
@@ -31,6 +32,10 @@ public class State {
 
     protected void addOnEntry(OnEntry onEntry) {
         onEntries = onEntries.plus(onEntry);
+    }
+
+    protected void addOnExit(OnExit onExit) {
+        onExits = onExits.plus(onExit);
     }
 
     public Optional<Geometry> getGeometry() {
@@ -55,6 +60,10 @@ public class State {
 
     public PSequence<OnEntry> getOnEntries() {
         return onEntries;
+    }
+
+    public PSequence<OnExit> getOnExits() {
+        return onExits;
     }
 
     public boolean hasInitial() {

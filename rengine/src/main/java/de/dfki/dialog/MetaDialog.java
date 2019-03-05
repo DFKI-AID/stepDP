@@ -103,7 +103,6 @@ public class MetaDialog {
         });
         rs.setPriority("undo", 20);
 
-
         rs.removeRule("update_undo");
         rs.addRule("update_undo", (sys) -> {
             sys.getTokens().stream()

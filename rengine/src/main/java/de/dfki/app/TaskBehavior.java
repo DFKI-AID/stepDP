@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -21,12 +22,15 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class TaskBehavior implements StateBehavior {
     private static final Logger log = LoggerFactory.getLogger(TaskBehavior.class);
+    private Dialog dialog;
     private RuleSystem rs;
     private TagSystem tagSystem;
     private StateHandler2 stateHandler;
+    private String currentTask;
 
     @Override
     public void init(Dialog dialog) {
+        this.dialog = dialog;
         rs = dialog.getRuleSystem();
         tagSystem = dialog.getTagSystem();
         initTaskMode();
@@ -39,8 +43,11 @@ public class TaskBehavior implements StateBehavior {
             SCEngine engine = new SCEngine(sc);
             AtomicInteger counter = new AtomicInteger(0);
 //            engine.addCondition("cond1", () -> counter.getAndIncrement() % 2 == 0);
-            engine.addCondition("cond1", () -> true);
-            engine.addOnEntry("outputTaskSummary", () -> outputTaskSummary());
+//            engine.addCondition("cond1", () -> true);
+//            engine.addFunction("outputTaskSummary", () -> outputTaskSummary());
+//            engine.addFunction("outputTaskInfo", () -> outputTaskInfo());
+            engine.addFunctions(this);
+            engine.addConditions(this);
             stateHandler = new StateHandler2(dialog, engine);
 
             Map<String, Set<String>> ruleActivation = Parser.loadActivations();
@@ -64,20 +71,54 @@ public class TaskBehavior implements StateBehavior {
     }
 
     @Override
-    public Object createSnapshot() {
-        return stateHandler.createSnapshot();
+    public Map<String, Object> createSnapshot() {
+        Map<String, Object> snapshot = new HashMap<>();
+        snapshot.put("sh", stateHandler.createSnapshot());
+        snapshot.put("current_task", this.currentTask);
+        return snapshot;
     }
 
     @Override
     public void loadSnapshot(Object snapshot) {
-        if (!(snapshot instanceof SCEngine.ObjState)) {
-            throw new IllegalArgumentException("expected SCEngine.ObjState as type");
+        if (!(snapshot instanceof Map)) {
+            throw new IllegalArgumentException("expected Map as type");
         }
-        stateHandler.loadSnapshot((SCEngine.ObjState) snapshot);
+
+        Map<String, Object> snapshotMap = (Map<String, Object>) snapshot;
+        Object sh = snapshotMap.get("sh");
+        if (!(sh instanceof SCEngine.ObjState)) {
+            throw new IllegalArgumentException("expected SCEngine.ObjState as type for StateHandler");
+        }
+        stateHandler.loadSnapshot((SCEngine.ObjState) sh);
+
+        Object currentTask = snapshotMap.get("current_task");
+        if(currentTask != null) {
+            if (!(currentTask instanceof String)) {
+                throw new IllegalArgumentException("expected String as type for currentTask");
+            }
+        }
+        this.currentTask = (String) currentTask;
+    }
+
+    public Boolean cond1() {
+        return true;
     }
 
     public void outputTaskSummary() {
         rs.addToken(new Token("output_tts", "Okay: <summary over all tasks>"));
+    }
+
+    public void outputTaskInfo() {
+        if (currentTask == null) {
+            log.warn("Can't output task info: `currentTask` is not set");
+            return;
+        }
+
+        //TODO load from db
+        String msg = String.format("There is a new urgent task '%s' : A UR-3 robot stopped functioning correctly", currentTask);
+        rs.addToken(new Token("output_tts", msg));
+        rs.addToken(new Token("output_image", "http://.../"));
+        createAcceptTaskRule(currentTask);
     }
 
     public void initTaskMode() {
@@ -139,14 +180,11 @@ public class TaskBehavior implements StateBehavior {
 
                         //what should happen if the rules 'finishes'
                         Runnable execute = () -> {
-                            String msg = String.format("There is a new urgent task '%s' : A UR-3 robot stopped functioning correctly", t.payload);
-                            sys.addToken(new Token("output_tts", msg));
-                            sys.addToken(new Token("output_image", "http://.../"));
-                            createAcceptTaskRule(task.get());
                             stateHandler.fire("show_task");
                         };
 
                         if (task.isPresent()) {
+                            TaskBehavior.this.currentTask = task.get();
                             if (confidence.isPresent() && confidence.get() < 0.3) {
                                 System.out.println("Please confirm your selection for " + task.get());
                                 MetaDialog.createConfirmRule(sys, "confirm_task", execute, () -> {

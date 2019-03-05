@@ -1,11 +1,11 @@
 package de.dfki.sc;
 
 import org.pcollections.HashTreePMap;
-import org.pcollections.IntTreePMap;
 import org.pcollections.PMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.BooleanSupplier;
 import java.util.stream.Collectors;
@@ -21,30 +21,36 @@ public class SCEngine {
     public static class ObjState {
         private final String currentState;
         private PMap<String, BooleanSupplier> conditions = HashTreePMap.empty();
-        private PMap<String, Runnable> onEntries = HashTreePMap.empty();
+        private PMap<String, Runnable> functions = HashTreePMap.empty();
 
         public ObjState(String currentState) {
             this.currentState = currentState;
         }
 
         public ObjState setState(String state) {
-            ObjState newState = new ObjState(state);
-            newState.conditions = conditions;
-            newState.onEntries = onEntries;
-            return newState;
+            return copy(state);
         }
 
         public ObjState addCondition(String id, BooleanSupplier condition) {
-            ObjState newState = new ObjState(currentState);
+            ObjState newState = copy();
             newState.conditions = conditions.plus(id, condition);
-            newState.onEntries = onEntries;
             return newState;
         }
 
-        public ObjState addOnEntry(String id, Runnable onEntry) {
+        public ObjState addFunction(String id, Runnable onEntry) {
+            ObjState newState = copy();
+            newState.functions = functions.plus(id, onEntry);
+            return newState;
+        }
+
+        public ObjState copy() {
+            return copy(currentState);
+        }
+
+        private ObjState copy(String currentState) {
             ObjState newState = new ObjState(currentState);
             newState.conditions = conditions;
-            newState.onEntries = onEntries.plus(id, onEntry);
+            newState.functions = functions;
             return newState;
         }
     }
@@ -63,7 +69,17 @@ public class SCEngine {
         reset();
     }
 
+    /**
+     * Fires an event into the state chart. Transitions are triggered if the event matches and their conditions are
+     * fulfilled. On-entry and on-exit functions of states are called as will if available.
+     * <p>
+     * TODO if multiple transitions are available, they could be chosen randomly?
+     *
+     * @param event
+     * @return true if a transition fired
+     */
     public boolean fire(String event) {
+        // Get all transitions that can fire given the event their conditions
         List<Transition> transitions = stateChart.getTransitions(getCurrentState());
         List<Transition> transitionCandidates = transitions.stream()
                 .filter(t -> Objects.equals(t.getEvent(), event))
@@ -77,18 +93,44 @@ public class SCEngine {
         }
 
         // TODO slect transition randomly?
-        // TODO onExit
-        String targetState = transitionCandidates.get(0).getTarget();
-        log.info("state change {}->{}", getCurrentState(), targetState);
-        objState = objState.setState(targetState);
+        Transition transition = transitionCandidates.get(0);
 
-        State state = stateChart.getState(getCurrentState()).get();
-        state.getOnEntries().forEach(oe -> oe.getScripts().forEach(s -> {
-            if (!objState.onEntries.containsKey(s)) {
-                log.warn("No script found for on-entry {} and id {}", getCurrentState(), s);
+        Optional<State> optSourceState = stateChart.getState(getCurrentState());
+        if (!optSourceState.isPresent()) {
+            log.error("Can't fire transition: Source state {} is not available. Missing state in state chart?", getCurrentState());
+            return false;
+        }
+        State sourceState = optSourceState.get();
+        String targetStateId = transition.getTarget();
+        log.info("state change {}->{}", getCurrentState(), targetStateId);
+
+
+        // Update current state
+        Optional<State> optTargetState = stateChart.getState(targetStateId);
+        if (!optTargetState.isPresent()) {
+            log.error("Can't fire transition: Target state {} is not available. Missing state in state chart?", targetStateId);
+            return false;
+        }
+        objState = objState.setState(targetStateId);
+
+        // Trigger on-exit functions if available
+        sourceState.getOnExits().forEach(oe -> oe.getScripts().forEach(s -> {
+            if (!objState.functions.containsKey(s)) {
+                log.warn("No script found for on-exit function {} and id {}", targetStateId, s);
                 return;
             }
-            objState.onEntries.get(s).run();
+            objState.functions.get(s).run();
+        }));
+
+
+        // Trigger on-entry functions if available
+        State targetState = optTargetState.get();
+        targetState.getOnEntries().forEach(oe -> oe.getScripts().forEach(s -> {
+            if (!objState.functions.containsKey(s)) {
+                log.warn("No script found for on-entry function {} and id {}", targetStateId, s);
+                return;
+            }
+            objState.functions.get(s).run();
         }));
 
         return true;
@@ -121,13 +163,68 @@ public class SCEngine {
         objState = objState.addCondition(id, condition);
     }
 
-    public void addOnEntry(String id, Runnable onEntryFnc) {
-        if (objState.onEntries.containsKey(id)) {
-            log.info("Overwriting on-entry function for {}", id);
+    public void addFunction(String id, Runnable fnc) {
+        if (objState.functions.containsKey(id)) {
+            log.info("Overwriting function for {}", id);
         } else {
-            log.info("Adding on-entry function for {}", id);
+            log.info("Adding function for {}", id);
         }
-        objState = objState.addOnEntry(id, onEntryFnc);
+        objState = objState.addFunction(id, fnc);
+    }
+
+    /**
+     * Looks via reflection for functions of the form void -> void.
+     * Those functions are registered as functions that can be triggered by transitions (on-entry / on-exit)
+     *
+     * @param provider
+     */
+    public void addFunctions(Object provider) {
+        List<Method> methods = this.getAllMethods(provider.getClass());
+        methods.stream()
+                .filter(m -> m.getReturnType() == Void.class || m.getReturnType() == void.class)
+                .filter(m -> m.getParameterCount() == 0)
+                .forEach(m -> addFunction(m.getName(), () -> {
+                    try {
+                        m.invoke(provider);
+                    } catch (Exception e) {
+                        log.error("could not execute function {}", m.getName(), e);
+                    }
+                }));
+    }
+
+    /**
+     * @param clazz
+     * @return All methods of the given class including the methods of the parent class
+     */
+    public static List<Method> getAllMethods(Class clazz) {
+        List<Method> methods = new ArrayList<>();
+        while (clazz != null) {
+            methods.addAll(List.of(clazz.getDeclaredMethods()));
+            clazz = clazz.getSuperclass();
+        }
+        return methods;
+    }
+
+    /**
+     * Looks via reflection for functions of the form void -> bool.
+     * Those functions are registered as functions that can be triggered by transitions to check conditions
+     *
+     * @param provider
+     */
+    public void addConditions(Object provider) {
+        List<Method> methods = this.getAllMethods(provider.getClass());
+        methods.stream()
+                .filter(m -> m.getReturnType() == boolean.class || m.getReturnType() == Boolean.class)
+                .filter(m -> m.getParameterCount() == 0)
+                .forEach(m -> addCondition(m.getName(), () -> {
+                    try {
+                        Object result = m.invoke(provider);
+                        return (Boolean) result;
+                    } catch (Exception e) {
+                        log.error("could not execute function {}", m.getName(), e);
+                        return false;
+                    }
+                }));
     }
 
     public void reset() {

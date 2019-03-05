@@ -81,6 +81,11 @@ public class Parser {
                 state.addOnEntry(onEntry);
             }
 
+            if(Objects.equals(child.getNodeName(), "onexit")) {
+                OnExit onExit = parseOnExit(childNodes.item(i));
+                state.addOnExit(onExit);
+            }
+
             if(Objects.equals(child.getNodeName(), "qt:editorinfo")) {
                 Optional<Geometry> geometry = parseGeometry(childNodes.item(i));
                 if(geometry.isPresent()) {
@@ -97,6 +102,14 @@ public class Parser {
             }
         }
         return state;
+    }
+
+    private static OnExit parseOnExit(Node item) {
+        //OnExit has the same structure as OnEntry
+        OnEntry onEntry = parseOnEntry(item);
+        OnExit onExit = new OnExit();
+        onEntry.getScripts().forEach(s -> onExit.addScript(s));
+        return onExit;
     }
 
     private static Optional<Geometry> parseGeometry(Node item) {
