@@ -1,34 +1,45 @@
 package de.dfki.dialog;
 
+import de.dfki.app.TaskBehavior;
 import de.dfki.rengine.RuleSystem;
 import de.dfki.rengine.Token;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 /**
  *
  */
-public class MetaDialog {
-    private static final Logger log = LoggerFactory.getLogger(MetaDialog.class);
+public class MetaFactory {
+    private static final Logger log = LoggerFactory.getLogger(MetaFactory.class);
+    private static final double minConfidence = 0.3;
 
     public static void createGreetingsRule(Dialog dialog) {
         var rs = dialog.getRuleSystem();
         var tagSystem = dialog.getTagSystem();
 
         rs.addRule("greetings", (sys) -> {
+            // check for tokens with the intent 'greetings'
             sys.getTokens().stream()
                     .filter(t -> t.payloadEquals("intent", "greetings"))
                     .findFirst()
                     .ifPresent(t -> {
+                        // consume the token (subsequent rules won't see the token)
                         sys.removeToken(t);
+                        // request tts output via token
                         sys.addToken(Token.builder("output_tts").add("utterance", "hello!").build());
+                        // disable this rule for four seconds
                         sys.disable("greetings", Duration.ofSeconds(4));
                     });
         });
+        // set the priority of the greetings rule.
         rs.setPriority("greetings", 20);
+        // associate the greetings rule with the meta tag
         tagSystem.addTag("greetings", "meta");
     }
 
@@ -66,6 +77,7 @@ public class MetaDialog {
      */
     public static void createHelpRule(RuleSystem rs) {
         //TODO impl
+        throw new UnsupportedOperationException("not impl");
     }
 
     /**
@@ -77,6 +89,10 @@ public class MetaDialog {
      */
     public static void createSnapshotRule(RuleSystem rs) {
         //TODO impl
+
+        //if no name is specified, create a clarify rule / selection
+
+        throw new UnsupportedOperationException("not impl");
     }
 
     /**
@@ -148,5 +164,72 @@ public class MetaDialog {
     public static Stream<Token> filterIntent(String intent, Stream<Token> tokenStream) {
         return tokenStream
                 .filter(t -> t.payloadEquals("intent", intent));
+    }
+
+    public static void selectRule(RuleSystem rs, String ruleName, List<String> choices, Consumer<String> callback) {
+        //TODO use 'choices' to update grammar
+        rs.addRule(ruleName, (sys) -> {
+            sys.getTokens().stream()
+                    .filter(t -> t.payloadEquals("intent", "select"))
+                    .findFirst()
+                    .ifPresent(t -> {
+                        sys.removeToken(t);
+
+                        Optional<String> selection = t.get("selection")
+                                .filter(s -> s instanceof String)
+                                .map(s -> (String) s);
+
+
+                        Optional<Double> confidence = t.get("confidence")
+                                .filter(c -> c instanceof Double)
+                                .map(c -> (Double) c);
+
+                        if (selection.isPresent()) {
+                            if (confidence.isPresent() && confidence.get() < minConfidence) {
+                                System.out.println("Please confirm your selection for " + selection.get());
+                                MetaFactory.createInformAnswer(sys, "confirm_" + ruleName,
+                                        () -> callback.accept(selection.get()),
+                                        () -> {
+                                        }
+                                );
+                            } else {
+                                callback.accept(selection.get());
+                            }
+                        } else {
+                            //TODO nlg for question
+                            sys.addToken(new Token("output_tts").add("utterance", "which TODO do you mean?"));
+                            specifyRule(rs, "specify_" + ruleName, callback);
+                        }
+                    });
+        });
+        rs.setPriority("select_task", 20);
+    }
+
+
+    /**
+     * If the system can't derive the intended task referred by the user, the user
+     * may specify his request by "the first task"
+     */
+    public static void specifyRule(RuleSystem rs, String rule, Consumer<String> callback) {
+        rs.addRule(rule, (sys) -> {
+            sys.getTokens().stream()
+                    .filter(t -> t.payloadEquals("intent", "specify"))
+                    .findFirst()
+                    .ifPresent(t -> {
+                        Optional<String> specification = t.get("specification")
+                                .filter(s -> s instanceof String)
+                                .map(s -> (String) s);
+                        if (!specification.isPresent()) {
+                            log.warn("no 'specification' info available. missing tag?");
+                            return;
+                        }
+
+                        sys.removeToken(t);
+                        rs.removeRule(rule);
+                        String specificationStr = (String) specification.get();
+                        callback.accept(specificationStr);
+                    });
+        });
+        rs.setPriority(rule, 20);
     }
 }

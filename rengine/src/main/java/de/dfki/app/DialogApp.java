@@ -7,8 +7,6 @@ import de.dfki.rengine.Token;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.regex.Matcher;
@@ -91,7 +89,7 @@ public class DialogApp extends Dialog {
         this.addBehavior("task_behavior", taskBehavior);
         taskBehavior.init(this);
 
-        MetaDialog.createUndoRule(this);
+        MetaFactory.createUndoRule(this);
         tagSystem.addTag("undo", "meta");
         tagSystem.addTag("update_undo", "meta");
         createInterruptRule(rs);
@@ -125,7 +123,7 @@ public class DialogApp extends Dialog {
         timeBehavior.init(this);
 
 
-        MetaDialog.createRepeatRule(rs, "request_repeat_tts", "I did not say anything.");
+        MetaFactory.createRepeatRule(rs, "request_repeat_tts", "I did not say anything.");
 
 
         rs.addRule("TTS", (sys) -> {
@@ -140,7 +138,7 @@ public class DialogApp extends Dialog {
                         String utterance = t.get("utterance").toString();
                         System.out.println("System: " + utterance);
                         sys.removeRule("request_repeat_tts");
-                        MetaDialog.createRepeatRule(sys, "request_repeat_tts", utterance);
+                        MetaFactory.createRepeatRule(sys, "request_repeat_tts", utterance);
                         sys.setPriority("request_repeat_tts", 20);
                     });
             //TODO could als merge all TTS request into one

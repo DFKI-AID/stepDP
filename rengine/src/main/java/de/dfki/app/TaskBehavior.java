@@ -11,10 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -34,7 +31,7 @@ public class TaskBehavior implements StateBehavior {
         rs = dialog.getRuleSystem();
         tagSystem = dialog.getTagSystem();
         initTaskMode();
-        MetaDialog.createGreetingsRule(dialog);
+        MetaFactory.createGreetingsRule(dialog);
 
         URL resource = SCMain.class.getResource("/sc/simple.scxml");
         StateChart sc = null;
@@ -160,49 +157,54 @@ public class TaskBehavior implements StateBehavior {
 
         /**
          */
-        rs.addRule("select_task", (sys) -> {
-            sys.getTokens().stream()
-                    .filter(t -> t.payloadEquals("intent", "select_task"))
-                    .findFirst()
-                    .ifPresent(t -> {
-                        sys.removeToken(t);
-
-                        Optional<String> task = t.get("task")
-                                .filter(s -> s instanceof String)
-                                .map(s -> (String) s);
-
-
-                        Optional<Double> confidence = t.get("confidence")
-                                .filter(c -> c instanceof Double)
-                                .map(c -> (Double) c);
-
-                        //what should happen if the rules 'finishes'
-                        Runnable execute = () -> {
-                            stateHandler.fire("show_task");
-                        };
-
-                        if (task.isPresent()) {
-                            TaskBehavior.this.currentTask = task.get();
-                            if (confidence.isPresent() && confidence.get() < 0.3) {
-                                System.out.println("Please confirm your selection for " + task.get());
-                                MetaDialog.createInformAnswer(sys, "confirm_task", execute, () -> {
-                                });
-                                tagSystem.addTag("confirm_task", stateHandler.getCurrentState());
-                            } else {
-                                execute.run();
-                            }
-                        } else {
-                            //TODO check for number of available tasks
-                            sys.addToken(new Token("output_tts").add("utterance", "which task do you mean?"));
-                            specifyTaskRule("select_task_supp");
-                        }
-                    });
+//        rs.addRule("select_task", (sys) -> {
+//            sys.getTokens().stream()
+//                    .filter(t -> t.payloadEquals("intent", "select_task"))
+//                    .findFirst()
+//                    .ifPresent(t -> {
+//                        sys.removeToken(t);
+//
+//                        Optional<String> task = t.get("task")
+//                                .filter(s -> s instanceof String)
+//                                .map(s -> (String) s);
+//
+//
+//                        Optional<Double> confidence = t.get("confidence")
+//                                .filter(c -> c instanceof Double)
+//                                .map(c -> (Double) c);
+//
+//                        //what should happen if the rules 'finishes'
+//                        Runnable execute = () -> {
+//                            stateHandler.fire("show_task");
+//                        };
+//
+//                        if (task.isPresent()) {
+//                            TaskBehavior.this.currentTask = task.get();
+//                            if (confidence.isPresent() && confidence.get() < 0.3) {
+//                                System.out.println("Please confirm your selection for " + task.get());
+//                                MetaFactory.createInformAnswer(sys, "confirm_task", execute, () -> {
+//                                });
+//                                tagSystem.addTag("confirm_task", stateHandler.getCurrentState());
+//                            } else {
+//                                execute.run();
+//                            }
+//                        } else {
+//                            //TODO check for number of available tasks
+//                            sys.addToken(new Token("output_tts").add("utterance", "which task do you mean?"));
+//                            specifyTaskRule("select_task_supp");
+//                        }
+//                    });
+//        });
+        MetaFactory.selectRule(rs, "select_task", List.of("task1", "task2", "task3"), (task) -> {
+            //TODO filter for available tasks here?
+            this.currentTask = task;
+            stateHandler.fire("show_task");
         });
         rs.setPriority("select_task", 20);
 
         // convert 'show_navigation' intent to 'show_navigation' event
         rs.addRule("show_navigation", (sys) -> {
-            MetaDialog.filterIntent("request", sys.getTokens().stream())
+            MetaFactory.filterIntent("request", sys.getTokens().stream())
                     .filter(t -> t.payloadEquals("object", "navigation"))
                     .forEach(t -> {
                         stateHandler.fire("show_navigation");
@@ -211,7 +213,7 @@ public class TaskBehavior implements StateBehavior {
         });
 
         rs.addRule("provide_tool_info", (sys) -> {
-            MetaDialog.filterIntent("request", sys.getTokens().stream())
+            MetaFactory.filterIntent("request", sys.getTokens().stream())
                     .filter(t -> t.payloadEquals("object", "tools"))
                     .forEach(t -> {
                         sys.addToken(new Token("output_tts").add("utterance", "you need the following tools..."));
@@ -277,7 +279,7 @@ public class TaskBehavior implements StateBehavior {
                             sys.addToken(new Token("output_tts").add("utterance", tts));
 //                            sys.disable("accept_task");
 
-                            MetaDialog.createInformAnswer(sys, "confirm_task",
+                            MetaFactory.createInformAnswer(sys, "confirm_task",
                                     () -> {
                                         stateHandler.fire("task_accepted");
                                         sys.addToken(new Token("output_tts").add("utterance", acceptTts));

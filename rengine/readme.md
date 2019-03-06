@@ -3,58 +3,81 @@
 ![alt text](../doc/rengine.png  "Overview")
 
 
-A simple rule engine, where rules create or react on tokens (arbitrary data). The main idea is to determine the dialog state as the set of (active) rules and put the intelligence into a management component that creates those rules dynamically. Features and properties are:
+A rule engine, where rules act on tokens (arbitrary data like a map). The main idea is to define the dialog behavior through the set of active rules and put the intelligence into management components (e.g. state charts, slot filling, …) that creates those rules dynamically. Features are:
 
-- Rewind (e.g. jump to other states of the dialog, say "undo" to go one step back)
+- Persistent dialog state
+   - Stores a complete history of the dialog progress
+   - Rewind (e.g. jump to other states of the dialog, e.g. say "undo" to go one step back)
+      - **TODO** redo command. should be easy: Just don't overwrite the history after jumping back
+      - Allows: Pausing the demo during demonstration (during explanation)
+   - **TODO** Replay function: If the tokens (input, output) are stored as well, the whole dialog can be simulated (may be more complex...)
+   - **TODO** If there are multiple possibilities how the dialog can progress, one could create branches, follow them in parallel and keep only the promising branches.
+- MetaRuleFactory: Easy way to use reoccurring dialog patterns
+   - Confirm / Disconfirm-Rule: for yes/no questions
+   - Repeat-Rule ("can you repeat that?") outputs the last TTS again (up to x seconds)
+   - **TODO** Create help-rule: "what can I say?"
+   - **TODO** timeouts e.g. pro active behavior -> use timeouts to trigger rules
+   - **TODO** snapshot rule
+   - **TODO** selection rule (choose one option from a set of actions ~ 'radio button group')
+   - **TODO** rule waiting for output to finish
+- Web API:
+   - Overview about active rules and their tags
+   - Overview about the state chart (e.g. state diagram + active state)
+   - Trigger tokens -> Simulate input eases testing of the dialog
+- Management Components:
+   - Manual rule handling
+   - State chart (**TODO** partial scxml support, history and parallel state unsupported atm)
+   - Slot Filling **TODO** impl
+   - A combination of them
 
-   - **TODO** redo command. should be easy: Just don't overwrite the history after jumping back
-   - Allows: Pausing the demo during demonstration (during explanation)
 
-- Confirm-Rule
+
+
+
+# Components
+
+## Rules
 
 - Rules are a persistent data structure. They don't change. If they have to too, you need to create a new rule and remove the old one.
+- execution order is based on priority value. rules with higher priority value are executed later.
+- The token set is empty for each iteration and filled by the rules.
+- Using java's stream API makes writing rules easy: 
+```java
+var rs = dialog.getRuleSystem();
+var tagSystem = dialog.getTagSystem();
 
-- Tag-System: Allows to annotate multiple rules with a tag, which facilates to enable multiple rules simultaneously. 
+rs.addRule("greetings", (sys) -> {
+  // check for tokens with the intent 'greetings'
+  sys.getTokens().stream()
+          .filter(t -> t.payloadEquals("intent", "greetings"))
+          .findFirst()
+          .ifPresent(t -> {
+              // consume the token (subsequent rules won't see the token)
+              sys.removeToken(t);
+              // request tts output via token
+              sys.addToken(Token.builder("output_tts").add("utterance", "hello!").build());
+              // disable this rule for four seconds
+              sys.disable("greetings", Duration.ofSeconds(4));
+          });
+});
+// set the priority of the greetings rule.
+rs.setPriority("greetings", 20);
+// associate the greetings rule with the meta tag
+tagSystem.addTag("greetings", "meta");
+```
 
-- Web API
 
-- Repeat-Rule ("can you repeat that?") outputs the last TTS again (up to x seconds)
+
+## Tag-System
+
+Tag-System: Allows to annotate multiple rules with a tag, which facilates to enable multiple rules simultaneously. 
+
+
+
+## other
 
 - Grammar rules are chosen and merged based on the current set of active rules
 
-- **TODO** Create help-rule: "what can I say?"
-
-- **TODO** pro active behavior -> use timeouts to trigger rules
-
-- **TODO** slot filling
-
-- **TODO** state chart
-
-   - **TODO** editor: [mxgraph](https://jgraph.github.io/mxgraph/) seems to be a suitable js library for creating the state charts graphically
-
-- **TODO** timeouts
-
-- **TODO** rule waiting for output to finish
-
-- **TODO** Replay function: If the tokens (input, output) are stored as well, the whole dialog can be simulated (may be more complex...)
-
-- Using java's stream API makes writing rules easy: 
-
-- ```java
-  rs.addRule("hello", (sys) -> {
-             sys.getTokens().stream()
-                 		//look if there is at least one token with the topic 'greetings'
-                     .filter(t -> t.topicIs("greetings"))
-                     .findFirst()
-                     .ifPresent(t -> {
-                         // consume the token and create a request for tts
-                         sys.removeToken(t);
-                         sys.addToken(new Token("output_tts", "hello!"));
-                         // block this rule for 4 seconds -> reduce spam 'hello'
-                         sys.block("hello", Duration.ofSeconds(4));
-                     });
-         });
-  ```
 
 
 ## Add to Doc
@@ -76,3 +99,6 @@ Hence it should be checked whether it is possible to store and then load the gra
 
 
 #### ASR: Streaming Mic from Browser to AudioManager
+
+- comfortable way for voice input, because webbrowser are ubiquitous
+- probably requires https (e.g. in chrome mandatory) 
