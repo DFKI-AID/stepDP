@@ -22,17 +22,17 @@
                 <qt:editorinfo movePoint="59.24;32.83"/>
             </transition>
             <transition type="external" event="show_tasks" target="Choice">
-                <qt:editorinfo endTargetFactors="83.20;73" movePoint="23.55;-14.99"/>
+                <qt:editorinfo movePoint="23.55;-14.99" endTargetFactors="83.20;73"/>
             </transition>
         </state>
         <state id="Choice">
             <qt:editorinfo geometry="-63.42;-10.88;-60;-50;134.51;100" scenegeometry="-63.42;-10.88;-123.42;-60.88;134.51;100"/>
             <transition type="external" event="hide_tasks" target="Idle">
-                <qt:editorinfo endTargetFactors="81.01;37.77" movePoint="23.59;32.08"/>
+                <qt:editorinfo movePoint="23.59;32.08" endTargetFactors="81.01;37.77"/>
                 <script src="hideTaskInfo"/>
             </transition>
             <transition type="external" event="show_task" target="Info">
-                <qt:editorinfo endTargetFactors="35.02;72.45" movePoint="-32.89;51.65"/>
+                <qt:editorinfo movePoint="-32.89;51.65" endTargetFactors="35.02;72.45"/>
             </transition>
             <transition type="external" event="task_accepted" target="Selected">
                 <qt:editorinfo movePoint="29.98;10.71"/>
@@ -44,14 +44,24 @@
         <state id="Selected">
             <qt:editorinfo geometry="214.87;61.31;-60;-50;120;100" scenegeometry="214.87;61.31;154.87;11.31;120;100"/>
             <transition type="external" event="show_navigation" target="Navigation">
-                <qt:editorinfo endTargetFactors="71.29;47.01" movePoint="70.62;31.25"/>
+                <qt:editorinfo movePoint="70.62;31.25" endTargetFactors="71.29;47.01"/>
+            </transition>
+            <transition type="external" event="show_solution" target="Problem Solution">
+                <qt:editorinfo startTargetFactors="90.87;21.71" endTargetFactors="25.17;44.75"/>
             </transition>
         </state>
     </state>
     <state id="Navigation">
-        <qt:editorinfo geometry="452.67;-145.88;-60;-50;120;100" scenegeometry="452.67;-145.88;392.67;-195.88;120;100"/>
+        <qt:editorinfo geometry="426.12;-235.37;-60;-50;120;100" scenegeometry="426.12;-235.37;366.12;-285.37;120;100"/>
+        <transition type="external" event="hide_navigation" target="Selected">
+            <qt:editorinfo startTargetFactors="13.60;22.28" endTargetFactors="29.42;25.96"/>
+        </transition>
+        <transition type="external" event="show_solution" target="Problem Solution"/>
     </state>
     <state id="Problem Solution">
-        <qt:editorinfo geometry="400.34;-327.29;-60;-50;167.87;100" scenegeometry="400.34;-327.29;340.34;-377.29;167.87;100"/>
+        <qt:editorinfo geometry="515.39;48.38;-60;-50;167.87;100" scenegeometry="515.39;48.38;455.39;-1.62;167.87;100"/>
+        <transition type="external" event="hide_solution" target="Selected">
+            <qt:editorinfo startTargetFactors="12.38;83.77" movePoint="-0;17.70"/>
+        </transition>
     </state>
 </scxml>

@@ -27,12 +27,12 @@
             </div>
             <div class="row">
                 <div>
-                    <textarea id="intentTextArea" cols=40 rows=10>{{intents[intentSelection]}}</textarea>
+                    <textarea v-model="intentContent" id="intentTextArea" cols=40 rows=10></textarea>
                 </div>
             </div>
             <div>
                 <select v-model="intentSelection">
-                    <option v-for="item in intents" v-bind:value="item.intent">{{item.intent}}</option>
+                    <option v-for="(value, key) in intents">{{key}}</option>
                 </select>
                 <button v-on:click="sendIntent">sendIntent</button>
             </div>
@@ -58,9 +58,12 @@
                 </div>
             </div>
         </div>
-        <div class="col-6">
-            <div id="grammar">Grammar: {{grammar}}</div>
-        </div>
+        <!--<div class="col-6">-->
+        <!--<div id="grammar">Grammar: {{grammar}}</div>-->
+        <!--</div>-->
+        <!--TODO replace iframe with reusable vue component-->
+        <iframe id="behavior" width="50%" height="1000" src="/behavior.html">
+        </iframe>
     </div>
 </div>
 
@@ -100,17 +103,20 @@
                     "select_task_supp": {"intent": "select_task_supp", "task": "task3"},
                     "show_tasks": {"intent": "show_tasks"},
                     "hide_tasks": {"intent": "hide_tasks"},
-                    "accept": {"intent": "accept"},
-                    "reject": {"intent": "reject"},
+                    "confirm": {"intent": "answer", "content": "confirm"},
+                    "disconfirm": {"intent": "answer", "content": "disconfirm"},
                     "greetings": {"intent": "greetings"},
                     "undo": {"intent": "undo"},
-                    "repeat": {"intent": "repeat"}
+                    "repeat": {"intent": "repeat"},
+                    "show_nav": {"intent": "request", "object": "navigation"},
+                    "hide_nav": {"intent": "request", "object": "navigation"}
 
                     // {"intent": "select_task"},
                     // {"intent": "accept_task"},
                     // "select_task", "accept_task", "select_task_supp", "show_tasks", "hide_tasks", "accept", "reject"
                 },
-                intentSelection: ""
+                intentSelection: "",
+                intentContent: ""
             },
             methods: {
                 updateData: function () {
@@ -158,8 +164,12 @@
                         'processData': false
                     });
                 }
-
-
+            },
+            watch: {
+                intentSelection: function (val, oldVal) {
+                    let msg = this.intents[val];
+                    this.intentContent = JSON.stringify(msg, null, 2);
+                }
             },
             created() {
                 this.updateData();
