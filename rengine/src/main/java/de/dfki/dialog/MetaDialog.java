@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 /**
  *
@@ -34,26 +35,25 @@ public class MetaDialog {
         tagSystem.addTag("greetings", "meta");
     }
 
-    public static void createConfirmRule(RuleSystem ruleSystem, String ruleName, Runnable yes, Runnable no) {
-        ruleSystem.addRule(ruleName, (sys) -> {
-            sys.getTokens().stream()
-                    .filter(t -> t.topicIs("intent"))
-                    .map(t -> (Token<Intent>) t)
-                    .filter(t -> Objects.equals(t.payload.getIntent(), "accept")
-                            || Objects.equals(t.payload.getIntent(), "reject"))
-                    .findFirst()
-                    .ifPresent(t -> {
-                        if (Objects.equals(t.payload.getIntent(), "accept")) {
-                            yes.run();
-                        } else {
-                            no.run();
-                        }
-                        sys.removeToken(t);
-                        sys.removeRule(ruleName);
-                    });
-        });
-        ruleSystem.setVolatile(ruleName, true);
-        ruleSystem.setPriority(ruleName, 25);
+    public static void createInformAnswer(RuleSystem rs, String ruleName, Runnable yes, Runnable no) {
+        rs.addRule(ruleName, (ruleSystem) -> filterIntent("answer", rs.getTokens().stream()).forEach(t ->
+        {
+            Intent intent = t.payload;
+            if (intent.payloadEquals("content", "confirm")) {
+                yes.run();
+                rs.removeToken(t);
+                rs.removeRule(ruleName);
+            } else if (intent.payloadEquals("content", "disconfirm")) {
+                no.run();
+                rs.removeToken(t);
+                rs.removeRule(ruleName);
+            } else {
+                log.warn("malformed 'answer intent': {}", intent);
+            }
+
+        }));
+        rs.setVolatile(ruleName, true);
+        rs.setPriority(ruleName, 25);
 
         //TODO to avoid a deadlock:
         //TODO [1] it should be checked if there is still a confirmation active -> cancel it
@@ -148,5 +148,12 @@ public class MetaDialog {
 
                     });
         });
+    }
+
+    public static Stream<Token<Intent>> filterIntent(String intent, Stream<Token> tokenStream) {
+        return tokenStream
+                .filter(t -> t.topicIs("intent"))
+                .map(t -> (Token<Intent>) t)
+                .filter(t -> t.payload.is(intent));
     }
 }

@@ -7,8 +7,6 @@ import de.dfki.sc.Parser;
 import de.dfki.sc.SCEngine;
 import de.dfki.sc.SCMain;
 import de.dfki.sc.StateChart;
-import org.pcollections.HashTreePMap;
-import org.pcollections.PMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,8 +16,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BooleanSupplier;
-import java.util.stream.Stream;
 
 /**
  *
@@ -130,13 +126,6 @@ public class TaskBehavior implements StateBehavior {
         //or just use state chart
     }
 
-    public static Stream<Token<Intent>> filterIntent(String intent, Stream<Token> tokenStream) {
-        return tokenStream
-                .filter(t -> t.topicIs("intent"))
-                .map(t -> (Token<Intent>) t)
-                .filter(t -> t.payload.is(intent));
-    }
-
     public void initTaskMode() {
         /**
          * "Which tasks are available?"
@@ -202,7 +191,7 @@ public class TaskBehavior implements StateBehavior {
                             TaskBehavior.this.currentTask = task.get();
                             if (confidence.isPresent() && confidence.get() < 0.3) {
                                 System.out.println("Please confirm your selection for " + task.get());
-                                MetaDialog.createConfirmRule(sys, "confirm_task", execute, () -> {
+                                MetaDialog.createInformAnswer(sys, "confirm_task", execute, () -> {
                                 });
                                 tagSystem.addTag("confirm_task", stateHandler.getCurrentState());
                             } else {
@@ -219,9 +208,20 @@ public class TaskBehavior implements StateBehavior {
 
         // convert 'show_navigation' intent to 'show_navigation' event
         rs.addRule("show_navigation", (sys) -> {
-            filterIntent("show_navigation", sys.getTokens().stream())
+            MetaDialog.filterIntent("request", sys.getTokens().stream())
+                    .filter(t -> t.payload.payloadEquals("object", "navigation"))
                     .forEach(t -> {
                         stateHandler.fire("show_navigation");
+                        rs.removeToken(t);
+                    });
+        });
+
+        rs.addRule("provide_tool_info", (sys) -> {
+            MetaDialog.filterIntent("request", sys.getTokens().stream())
+                    .filter(t -> t.payload.payloadEquals("object", "tools"))
+                    .forEach(t -> {
+                        sys.addToken(new Token("output_tts", "you need the following tools..."));
+                        rs.removeToken(t);
                     });
         });
 
@@ -285,7 +285,7 @@ public class TaskBehavior implements StateBehavior {
                             sys.addToken(new Token("output_tts", tts));
 //                            sys.disable("accept_task");
 
-                            MetaDialog.createConfirmRule(sys, "confirm_task",
+                            MetaDialog.createInformAnswer(sys, "confirm_task",
                                     () -> {
                                         stateHandler.fire("task_accepted");
                                         String acceptTts = String.format("Okay, let's do task '%s'", currentTask);

@@ -165,11 +165,15 @@ public class RuleSystem {
         //making a copy of the rule set, which allows to change the rule set within the update method
         ArrayList<Rule> rulesCopy = new ArrayList<>();
         rulesCopy.addAll(rules);
-
         rulesCopy.sort(Comparator.comparingInt(this::getPriority));
 
         for (Rule rule : rulesCopy) {
             if (blockSystem.isDisabled(rule)) {
+                continue;
+            }
+
+            if (!this.rules.contains(rule)) {
+                // this rule was removed during the update method should not be considered here anymore
                 continue;
             }
             rule.update(this);
@@ -198,7 +202,7 @@ public class RuleSystem {
     }
 
     public void applySnapshot(Snapshot snapshot) {
-        if(updateActive) {
+        if (updateActive) {
             throw new IllegalStateException("Can't apply snapshot while updating the RuleSystem");
         }
         this.clock.setIteration(snapshot.iteration);

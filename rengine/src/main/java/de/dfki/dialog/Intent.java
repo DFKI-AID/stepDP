@@ -40,4 +40,8 @@ public class Intent {
                 .map(entry -> entry.getKey() + ": " + entry.getValue())
                 .collect(Collectors.joining());
     }
+
+    public boolean payloadEquals(String id, Object object) {
+        return Objects.equals(this.payload.get(id), object);
+    }
 }
