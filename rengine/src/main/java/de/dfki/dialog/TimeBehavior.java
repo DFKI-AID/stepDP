@@ -16,15 +16,13 @@ public class TimeBehavior implements Behavior {
         this.dialog = dialog;
         dialog.getRuleSystem().addRule("request_time", (sys) -> {
             sys.getTokens().stream()
-                    .filter(t -> t.topicIs("intent"))
-                    .map(t -> (Token<Intent>) t)
-                    .filter(t -> t.payload.is("time_request"))
+                    .filter(t -> t.payloadEquals("intent", "time_request"))
                     .findFirst()
                     .ifPresent(t -> {
                         sys.removeToken(t);
                         var now = LocalDateTime.now();
                         var tts = "it is " + now.getHour() + ":" + now.getMinute(); //TODO improve
-                        sys.addToken(new Token("output_tts", tts));
+                        sys.addToken(new Token("output_tts").add("utterance", tts));
                         sys.disable("request_time", Duration.ofMillis(3000));
                     });
         });

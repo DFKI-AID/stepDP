@@ -105,7 +105,7 @@ public class TaskBehavior implements StateBehavior {
     }
 
     public void outputTaskSummary() {
-        rs.addToken(new Token("output_tts", "Okay: <summary over all tasks>"));
+        rs.addToken(new Token("output_tts").add("utterance", "Okay: <summary over all tasks>"));
     }
 
     public void outputTaskInfo() {
@@ -116,12 +116,12 @@ public class TaskBehavior implements StateBehavior {
 
         //TODO load from db
         String msg = String.format("There is a new urgent task '%s' : A UR-3 robot stopped functioning correctly", currentTask);
-        rs.addToken(new Token("output_tts", msg));
-        rs.addToken(new Token("output_image", "http://.../"));
+        rs.addToken(new Token("output_tts").add("utterance", msg));
+        rs.addToken(new Token("output_image").add("src", "http://.../"));
     }
 
     public void hideTaskInfo() {
-        rs.addToken(new Token("output_tts", "Okay: <hide menu in hololens>"));
+        rs.addToken(new Token("output_tts").add("utterance", "Okay: <hide menu in hololens>"));
         //TODO update state for hololens
         //or just use state chart
     }
@@ -133,9 +133,7 @@ public class TaskBehavior implements StateBehavior {
          */
         rs.addRule("show_tasks", (sys) -> {
             sys.getTokens().stream()
-                    .filter(t -> t.topicIs("intent"))
-                    .map(t -> (Token<Intent>) t)
-                    .filter(t -> t.payload.is("show_tasks"))
+                    .filter(t -> t.payloadEquals("intent", "show_tasks"))
                     .findFirst()
                     .ifPresent(t -> {
                         sys.removeToken(t);
@@ -150,9 +148,7 @@ public class TaskBehavior implements StateBehavior {
          */
         rs.addRule("hide_tasks", (sys) -> {
             sys.getTokens().stream()
-                    .filter(t -> t.topicIs("intent"))
-                    .map(t -> (Token<Intent>) t)
-                    .filter(t -> t.payload.is("hide_tasks"))
+                    .filter(t -> t.payloadEquals("intent", "hide_tasks"))
                     .findFirst()
                     .ifPresent(t -> {
                         sys.removeToken(t);
@@ -166,19 +162,17 @@ public class TaskBehavior implements StateBehavior {
          */
         rs.addRule("select_task", (sys) -> {
             sys.getTokens().stream()
-                    .filter(t -> t.topicIs("intent"))
-                    .map(t -> (Token<Intent>) t)
-                    .filter(t -> t.payload.is("select_task"))
+                    .filter(t -> t.payloadEquals("intent", "select_task"))
                     .findFirst()
                     .ifPresent(t -> {
                         sys.removeToken(t);
 
-                        Optional<String> task = t.payload.getPayload("task")
+                        Optional<String> task = t.get("task")
                                 .filter(s -> s instanceof String)
                                 .map(s -> (String) s);
 
 
-                        Optional<Double> confidence = t.payload.getPayload("confidence")
+                        Optional<Double> confidence = t.get("confidence")
                                 .filter(c -> c instanceof Double)
                                 .map(c -> (Double) c);
 
@@ -199,7 +193,7 @@ public class TaskBehavior implements StateBehavior {
                             }
                         } else {
                             //TODO check for number of available tasks
-                            sys.addToken(new Token("output_tts", "which task do you mean?"));
+                            sys.addToken(new Token("output_tts").add("utterance", "which task do you mean?"));
                             specifyTaskRule("select_task_supp");
                         }
                     });
@@ -209,7 +203,7 @@ public class TaskBehavior implements StateBehavior {
         // convert 'show_navigation' intent to 'show_navigation' event
         rs.addRule("show_navigation", (sys) -> {
             MetaDialog.filterIntent("request", sys.getTokens().stream())
-                    .filter(t -> t.payload.payloadEquals("object", "navigation"))
+                    .filter(t -> t.payloadEquals("object", "navigation"))
                     .forEach(t -> {
                         stateHandler.fire("show_navigation");
                         rs.removeToken(t);
@@ -218,9 +212,9 @@ public class TaskBehavior implements StateBehavior {
 
         rs.addRule("provide_tool_info", (sys) -> {
             MetaDialog.filterIntent("request", sys.getTokens().stream())
-                    .filter(t -> t.payload.payloadEquals("object", "tools"))
+                    .filter(t -> t.payloadEquals("object", "tools"))
                     .forEach(t -> {
-                        sys.addToken(new Token("output_tts", "you need the following tools..."));
+                        sys.addToken(new Token("output_tts").add("utterance", "you need the following tools..."));
                         rs.removeToken(t);
                     });
         });
@@ -236,12 +230,10 @@ public class TaskBehavior implements StateBehavior {
     private void specifyTaskRule(String rule) {
         rs.addRule(rule, (sys) -> {
             sys.getTokens().stream()
-                    .filter(t -> t.topicIs("intent"))
-                    .map(t -> (Token<Intent>) t)
-                    .filter(t -> t.payload.is("select_task_supp"))
+                    .filter(t -> t.payloadEquals("intent", "select_task_supp"))
                     .findFirst()
                     .ifPresent(t -> {
-                        Optional<Object> taskName = t.payload.getPayload("task");
+                        Optional<Object> taskName = t.get("task");
                         if (!taskName.isPresent()) {
                             log.warn("no task info available. missing tag?");
                             return;
@@ -265,14 +257,12 @@ public class TaskBehavior implements StateBehavior {
     private void createAcceptTaskRule() {
         rs.addRule("accept_task", (sys) -> {
             sys.getTokens().stream()
-                    .filter(t -> t.topicIs("intent"))
-                    .map(t -> (Token<Intent>) t)
-                    .filter(t -> t.payload.is("accept_task"))
+                    .filter(t -> t.payloadEquals("intent", "accept_task"))
                     .findFirst()
                     .ifPresent(t -> {
                         sys.removeToken(t);
 
-                        Optional<Double> confidence = t.payload.getPayload("confidence")
+                        Optional<Double> confidence = t.get("confidence")
                                 .filter(c -> c instanceof Double)
                                 .map(c -> (Double) c);
 
@@ -280,26 +270,26 @@ public class TaskBehavior implements StateBehavior {
                             return;
                         }
 
+                        String acceptTts = String.format("Okay, let's do task '%s'", currentTask);
+
                         if (confidence.isPresent() && confidence.get() < 0.3) {
                             String tts = String.format("Please confirm your selection for task '%s'", currentTask);
-                            sys.addToken(new Token("output_tts", tts));
+                            sys.addToken(new Token("output_tts").add("utterance", tts));
 //                            sys.disable("accept_task");
 
                             MetaDialog.createInformAnswer(sys, "confirm_task",
                                     () -> {
                                         stateHandler.fire("task_accepted");
-                                        String acceptTts = String.format("Okay, let's do task '%s'", currentTask);
-                                        sys.addToken(new Token("output_tts", acceptTts));
+                                        sys.addToken(new Token("output_tts").add("utterance", acceptTts));
                                     }, () -> {
-                                        sys.addToken(new Token("output_tts", "Okay."));
+                                        sys.addToken(new Token("output_tts").add("utterance", "Okay."));
 //                                        sys.enable("accept_task");
                                     });
                             // associate the confirm_task rule to the current state.
                             tagSystem.addTag("confirm_task", stateHandler.getCurrentState());
                         } else {
                             stateHandler.fire("task_accepted");
-                            String acceptTts = String.format("Okay, let's do task '%s'", currentTask);
-                            sys.addToken(new Token("output_tts", acceptTts));
+                            sys.addToken(new Token("output_tts").add("utterance", acceptTts));
                         }
 
 

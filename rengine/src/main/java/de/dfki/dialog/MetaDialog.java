@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
-import java.util.Objects;
 import java.util.stream.Stream;
 
 /**
@@ -21,13 +20,11 @@ public class MetaDialog {
 
         rs.addRule("greetings", (sys) -> {
             sys.getTokens().stream()
-                    .filter(t -> t.topicIs("intent"))
-                    .map(t -> (Token<Intent>) t)
-                    .filter(t -> t.payload.is("greetings"))
+                    .filter(t -> t.payloadEquals("intent", "greetings"))
                     .findFirst()
                     .ifPresent(t -> {
                         sys.removeToken(t);
-                        sys.addToken(new Token("output_tts", "hello!"));
+                        sys.addToken(Token.builder("output_tts").add("utterance", "hello!").build());
                         sys.disable("greetings", Duration.ofSeconds(4));
                     });
         });
@@ -36,22 +33,23 @@ public class MetaDialog {
     }
 
     public static void createInformAnswer(RuleSystem rs, String ruleName, Runnable yes, Runnable no) {
-        rs.addRule(ruleName, (ruleSystem) -> filterIntent("answer", rs.getTokens().stream()).forEach(t ->
-        {
-            Intent intent = t.payload;
-            if (intent.payloadEquals("content", "confirm")) {
-                yes.run();
-                rs.removeToken(t);
-                rs.removeRule(ruleName);
-            } else if (intent.payloadEquals("content", "disconfirm")) {
-                no.run();
-                rs.removeToken(t);
-                rs.removeRule(ruleName);
-            } else {
-                log.warn("malformed 'answer intent': {}", intent);
-            }
-
-        }));
+        rs.addRule(ruleName, (ruleSystem) -> {
+            ruleSystem.getTokens().stream()
+                    .filter(t -> t.payloadEquals("intent", "answer"))
+                    .forEach(t -> {
+                        if (t.payloadEquals("content", "confirm")) {
+                            yes.run();
+                            rs.removeToken(t);
+                            rs.removeRule(ruleName);
+                        } else if (t.payloadEquals("content", "disconfirm")) {
+                            no.run();
+                            rs.removeToken(t);
+                            rs.removeRule(ruleName);
+                        } else {
+                            log.warn("malformed 'answer intent': {}", t);
+                        }
+                    });
+        });
         rs.setVolatile(ruleName, true);
         rs.setPriority(ruleName, 25);
 
@@ -93,9 +91,7 @@ public class MetaDialog {
         rs.removeRule("undo");
         rs.addRule("undo", (sys) -> {
             sys.getTokens().stream()
-                    .filter(t -> t.topicIs("intent"))
-                    .map(t -> (Token<Intent>) t)
-                    .filter(t -> t.payload.is("undo"))
+                    .filter(t -> t.payloadEquals("intent", "undo"))
                     .findFirst()
                     .ifPresent(t -> {
                         rs.removeToken(t);
@@ -131,29 +127,26 @@ public class MetaDialog {
         ruleSystem.addRule(ruleName, (sys) -> {
 //            final Pattern pattern = Pattern.compile("[can ]?[you ]?repeat that[ please]?");
             sys.getTokens().stream()
-                    .filter(t -> t.topicIs("intent"))
-                    .map(t -> (Token<Intent>) t)
-                    .filter(t -> t.payload.is("repeat"))
-//                    .map(t -> Tuple.of(t, match(pattern, (String) t.payload)))
-//                    .filter(tuple -> !tuple.second.isEmpty())
+                    .filter(t -> t.payloadEquals("intent", "repeat"))
                     .findFirst()
                     .ifPresent(t -> {
                         sys.removeToken(t);
                         sys.removeRule(ruleName);
                         if (sys.getIteration() >= until) {
-                            sys.addToken(new Token("output_tts", "I did not say anything."));
+                            sys.addToken(Token.builder("output_tts")
+                                    .add("utterance", "I did not say anything")
+                                    .build());
                         } else {
-                            sys.addToken(new Token("output_tts", lastTts));
+                            sys.addToken(Token.builder("output_tts")
+                                    .add("utterance", lastTts)
+                                    .build());
                         }
-
                     });
         });
     }
 
-    public static Stream<Token<Intent>> filterIntent(String intent, Stream<Token> tokenStream) {
+    public static Stream<Token> filterIntent(String intent, Stream<Token> tokenStream) {
         return tokenStream
-                .filter(t -> t.topicIs("intent"))
-                .map(t -> (Token<Intent>) t)
-                .filter(t -> t.payload.is(intent));
+                .filter(t -> t.payloadEquals("intent", intent));
     }
 }

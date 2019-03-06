@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import de.dfki.dialog.Behavior;
-import de.dfki.dialog.Intent;
 import de.dfki.dialog.StateBehavior;
 import de.dfki.rengine.Token;
 import de.dfki.sc.StateChart;
@@ -91,8 +90,9 @@ public class Controller {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing intent");
         }
 
-        Intent intent = new Intent((String) body.get("intent"), body);
-        settings.app.addIntent(intent);
+
+        Token intentToken = new Token((String) body.get("intent")).addAll(body);
+        settings.app.addIntent(intentToken);
         return ResponseEntity.ok("ok");
     }
 

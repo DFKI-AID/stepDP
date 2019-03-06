@@ -71,7 +71,7 @@ public class RuleSystem {
 
     public void removeRule(Rule rule) {
         rules = rules.minus(rule);
-        getName(rule).ifPresent(name -> nameToRule.remove(name));
+        getName(rule).ifPresent(name -> nameToRule = nameToRule.minus(name));
     }
 
     public void removeRule(String name) {

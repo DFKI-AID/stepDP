@@ -42,9 +42,6 @@ public class DialogApp extends Dialog {
     }
 
 
-
-
-
     public void initNavMode() {
         //[1] where do I have go?
         // what do i have to do?
@@ -80,10 +77,10 @@ public class DialogApp extends Dialog {
     }
 
 
-    private Queue<Intent> intentQueue = new ConcurrentLinkedDeque<>();
+    private Queue<Token> intentQueue = new ConcurrentLinkedDeque<>();
 
 
-    public void addIntent(Intent intent) {
+    public void addIntent(Token intent) {
         log.info("Received intent: {}", intent);
         intentQueue.add(intent);
     }
@@ -102,11 +99,11 @@ public class DialogApp extends Dialog {
         tagSystem.addTag("request_repeat_tts", "meta");
 
         rs.addRule("manual_intent", (sys) -> {
-            Intent intent = intentQueue.poll();
-            if (intent == null) {
+            Token intentToken = intentQueue.poll();
+            if (intentToken == null) {
                 return;
             }
-            sys.addToken(new Token("intent", intent));
+            sys.addToken(intentToken);
         });
         tagSystem.addTag("manual_intent", "simulation");
         rs.setPriority("manual_intent", 10);
@@ -124,8 +121,6 @@ public class DialogApp extends Dialog {
 //        tagSystem.addTag("focus", "simulation");
 
 
-
-
         TimeBehavior timeBehavior = new TimeBehavior();
         timeBehavior.init(this);
 
@@ -136,11 +131,16 @@ public class DialogApp extends Dialog {
         rs.addRule("TTS", (sys) -> {
             sys.getTokens().stream()
                     .filter(t -> t.topicIs("output_tts"))
-                    .findFirst()
-                    .ifPresent(t -> {
-                        System.out.println("System: " + t.payload);
+                    .forEach(t -> {
+                        if (!t.get("utterance").isPresent()) {
+                            log.warn("Missing utterance in 'output_tts' token. got {}", t);
+                            return;
+                        }
+
+                        String utterance = t.get("utterance").toString();
+                        System.out.println("System: " + utterance);
                         sys.removeRule("request_repeat_tts");
-                        MetaDialog.createRepeatRule(sys, "request_repeat_tts", (String) t.payload);
+                        MetaDialog.createRepeatRule(sys, "request_repeat_tts", utterance);
                         sys.setPriority("request_repeat_tts", 20);
                     });
             //TODO could als merge all TTS request into one
@@ -169,13 +169,11 @@ public class DialogApp extends Dialog {
     private static void createInterruptRule(RuleSystem rs) {
         rs.addRule("interrupt", (sys) -> {
             sys.getTokens().stream()
-                    .filter(t -> t.topicIs("intent"))
-                    .map(t -> (Token<Intent>) t)
-                    .filter(t -> t.payload.is("interrupt"))
+                    .filter(t -> t.payloadEquals("intent", "interrupt"))
                     .findFirst()
                     .ifPresent(t -> {
                         sys.removeToken(t);
-                        sys.addToken(new Token("interrupt_tts", null));
+                        sys.addToken(new Token("interrupt_tts"));
                     });
         });
         rs.setPriority("interrupt", 20);
