@@ -22,7 +22,7 @@ public class TimeBehavior implements Behavior {
                         sys.removeToken(t);
                         var now = LocalDateTime.now();
                         var tts = "it is " + now.getHour() + ":" + now.getMinute(); //TODO improve
-                        sys.addToken(new Token("output_tts").add("utterance", tts));
+                        dialog.present(new PresentationRequest(tts));
                         sys.disable("request_time", Duration.ofMillis(3000));
                     });
         });

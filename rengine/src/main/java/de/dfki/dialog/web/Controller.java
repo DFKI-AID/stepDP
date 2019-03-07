@@ -91,7 +91,7 @@ public class Controller {
         }
 
 
-        Token intentToken = new Token((String) body.get("intent")).addAll(body);
+        Token intentToken = new Token().addAll(body);
         settings.app.addIntent(intentToken);
         return ResponseEntity.ok("ok");
     }

@@ -162,7 +162,8 @@ public class DialogApp extends Dialog {
                     .reduce((t1, t2) -> t1)
                     .ifPresent(t -> {
                         sys.removeToken(t);
-                        sys.addToken(new Token("interrupt_tts"));
+//                        sys.addToken(new Token("interrupt_tts"));
+                        //TODO impl
                     });
         });
         rs.setPriority("interrupt", 20);
