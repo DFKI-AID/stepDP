@@ -123,40 +123,31 @@ public class DialogApp extends Dialog {
         timeBehavior.init(this);
 
 
-        MetaFactory.createRepeatRule(rs, "request_repeat_tts", "I did not say anything.");
+        MetaFactory.createRepeatRule(this, "request_repeat_tts", "I did not say anything.");
 
 
-        rs.addRule("TTS", (sys) -> {
-            sys.getTokens().stream()
-                    .filter(t -> t.topicIs("output_tts"))
-                    .forEach(t -> {
-                        if (!t.get("utterance").isPresent()) {
-                            log.warn("Missing utterance in 'output_tts' token. got {}", t);
-                            return;
-                        }
+//        rs.addRule("TTS", (sys) -> {
+//            sys.getTokens().stream()
+//                    .filter(t -> t.topicIs("output_tts"))
+//                    .forEach(t -> {
+//                        if (!t.get("utterance").isPresent()) {
+//                            log.warn("Missing utterance in 'output_tts' token. got {}", t);
+//                            return;
+//                        }
+//
+//                        String utterance = t.get("utterance").toString();
+//                        System.out.println("System: " + utterance);
+//                        sys.removeRule("request_repeat_tts");
+//                        MetaFactory.createRepeatRule(sys, "request_repeat_tts", utterance);
+//                        sys.setPriority("request_repeat_tts", 20);
+//                    });
+//            //TODO could als merge all TTS request into one
+//        });
+//        rs.setPriority("TTS", 100);
+//        tagSystem.addTag("TTS", "meta");
 
-                        String utterance = t.get("utterance").toString();
-                        System.out.println("System: " + utterance);
-                        sys.removeRule("request_repeat_tts");
-                        MetaFactory.createRepeatRule(sys, "request_repeat_tts", utterance);
-                        sys.setPriority("request_repeat_tts", 20);
-                    });
-            //TODO could als merge all TTS request into one
-
-
-        });
-        rs.setPriority("TTS", 100);
-        tagSystem.addTag("TTS", "meta");
-
-        rs.addRule("InterruptTTS", (sys) -> {
-            sys.getTokens().stream()
-                    .filter(t -> t.topicIs("interrupt_tts"))
-                    .findFirst()
-                    .ifPresent(t -> {
-                        System.out.println("-stopping tts-");
-                    });
-        });
-        tagSystem.addTag("InterruptTTS", "meta");
+        MetaFactory.turnGrabRule(rs, "turnGrab", () -> System.out.println("-stopping tts-"));
+        tagSystem.addTag("turnGrab", "meta");
     }
 
     @Override
@@ -168,7 +159,7 @@ public class DialogApp extends Dialog {
         rs.addRule("interrupt", (sys) -> {
             sys.getTokens().stream()
                     .filter(t -> t.payloadEquals("intent", "interrupt"))
-                    .findFirst()
+                    .reduce((t1, t2) -> t1)
                     .ifPresent(t -> {
                         sys.removeToken(t);
                         sys.addToken(new Token("interrupt_tts"));

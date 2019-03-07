@@ -102,7 +102,7 @@ public class TaskBehavior implements StateBehavior {
     }
 
     public void outputTaskSummary() {
-        rs.addToken(new Token("output_tts").add("utterance", "Okay: <summary over all tasks>"));
+        dialog.present(new PresentationRequest("Okay: <summary over all tasks>"));
     }
 
     public void outputTaskInfo() {
@@ -113,12 +113,12 @@ public class TaskBehavior implements StateBehavior {
 
         //TODO load from db
         String msg = String.format("There is a new urgent task '%s' : A UR-3 robot stopped functioning correctly", currentTask);
-        rs.addToken(new Token("output_tts").add("utterance", msg));
-        rs.addToken(new Token("output_image").add("src", "http://.../"));
+        dialog.present(new PresentationRequest(msg));
+        dialog.present(new PresentationRequest("http://.../"));
     }
 
     public void hideTaskInfo() {
-        rs.addToken(new Token("output_tts").add("utterance", "Okay: <hide menu in hololens>"));
+        dialog.present(new PresentationRequest("Okay: <hide menu in hololens>"));
         //TODO update state for hololens
         //or just use state chart
     }
@@ -195,12 +195,19 @@ public class TaskBehavior implements StateBehavior {
 //                        }
 //                    });
 //        });
-        MetaFactory.selectRule(rs, "select_task", List.of("task1", "task2", "task3"), (task) -> {
+        MetaFactory.selectRule(dialog, "select_task", List.of("task1", "task2", "task3"), (task) -> {
             //TODO filter for available tasks here?
             this.currentTask = task;
+            rs.removeRule("specify_select_task");
+            rs.removeRule("confirm_select_task");
             stateHandler.fire("show_task");
         });
         rs.setPriority("select_task", 20);
+        //TODO tags and the removing of the rules should be done automatically
+        dialog.getTagSystem().addTag("specify_select_task", "Choice");
+        dialog.getTagSystem().addTag("confirm_select_task", "Choice");
+        dialog.getTagSystem().addTag("specify_select_task", "Info");
+        dialog.getTagSystem().addTag("confirm_select_task", "Info");
 
         // convert 'show_navigation' intent to 'show_navigation' event
         rs.addRule("show_navigation", (sys) -> {
@@ -216,7 +223,7 @@ public class TaskBehavior implements StateBehavior {
             MetaFactory.filterIntent("request", sys.getTokens().stream())
                     .filter(t -> t.payloadEquals("object", "tools"))
                     .forEach(t -> {
-                        sys.addToken(new Token("output_tts").add("utterance", "you need the following tools..."));
+                        dialog.present(new PresentationRequest("you need the following tools..."));
                         rs.removeToken(t);
                     });
         });
@@ -275,26 +282,22 @@ public class TaskBehavior implements StateBehavior {
                         String acceptTts = String.format("Okay, let's do task '%s'", currentTask);
 
                         if (confidence.isPresent() && confidence.get() < 0.3) {
-                            String tts = String.format("Please confirm your selection for task '%s'", currentTask);
-                            sys.addToken(new Token("output_tts").add("utterance", tts));
-//                            sys.disable("accept_task");
+                            String tts = String.format("Please confirm your selection for task '%s'.", currentTask);
+                            dialog.present(new PresentationRequest(tts));
 
                             MetaFactory.createInformAnswer(sys, "confirm_task",
                                     () -> {
                                         stateHandler.fire("task_accepted");
-                                        sys.addToken(new Token("output_tts").add("utterance", acceptTts));
+                                        dialog.present(new PresentationRequest(acceptTts));
                                     }, () -> {
-                                        sys.addToken(new Token("output_tts").add("utterance", "Okay."));
-//                                        sys.enable("accept_task");
+                                        dialog.present(new PresentationRequest("Okay."));
                                     });
                             // associate the confirm_task rule to the current state.
                             tagSystem.addTag("confirm_task", stateHandler.getCurrentState());
                         } else {
                             stateHandler.fire("task_accepted");
-                            sys.addToken(new Token("output_tts").add("utterance", acceptTts));
+                            dialog.present(new PresentationRequest(acceptTts));
                         }
-
-
                     });
         });
         rs.setPriority("accept_task", 20);

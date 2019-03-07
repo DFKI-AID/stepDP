@@ -66,7 +66,15 @@ public abstract class Dialog implements Runnable {
     }
 
     public void present(PresentationRequest presentationReq) {
+        String output = presentationReq.getContent().toString();
 
+//        String utterance = t.get("utterance").toString();
+        System.out.println("System: " + output);
+        rs.removeRule("request_repeat_tts");
+        MetaFactory.createRepeatRule(this, "request_repeat_tts", output);
+        rs.setPriority("request_repeat_tts", 20);
+
+        MetaFactory.createSnapshot(this);
     }
 
     protected void applySnapshot() {

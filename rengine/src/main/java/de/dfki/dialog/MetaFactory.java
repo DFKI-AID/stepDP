@@ -32,7 +32,7 @@ public class MetaFactory {
                         // consume the token (subsequent rules won't see the token)
                         sys.removeToken(t);
                         // request tts output via token
-                        sys.addToken(Token.builder("output_tts").add("utterance", "hello!").build());
+                        dialog.present(new PresentationRequest("Hello!"));
                         // disable this rule for four seconds
                         sys.disable("greetings", Duration.ofSeconds(4));
                     });
@@ -118,26 +118,20 @@ public class MetaFactory {
                     });
         });
         rs.setPriority("undo", 20);
+    }
 
-        rs.removeRule("update_undo");
-        rs.addRule("update_undo", (sys) -> {
-            sys.getTokens().stream()
-                    .filter(t -> t.topicIs("output_tts")) //TODO filter for other explicit interactions
-                    .findFirst()
-                    .ifPresent(t -> {
-                        int iteration = dialog.getIteration();
-                        log.info("Creating undo-jump point on iteration={}", iteration);
-                        createUndoRule(dialog, iteration);
-                    });
-        });
-        rs.setPriority("update_undo", 90);
+    public static void createSnapshot(Dialog dialog) {
+        int iteration = dialog.getIteration();
+        log.info("Creating undo-jump point on iteration={}", iteration);
+        createUndoRule(dialog, iteration);
     }
 
     public static void createUndoRule(Dialog dialog) {
         createUndoRule(dialog, 0);
     }
 
-    public static void createRepeatRule(RuleSystem ruleSystem, String ruleName, String lastTts) {
+    public static void createRepeatRule(Dialog dialog, String ruleName, String lastTts) {
+        RuleSystem ruleSystem = dialog.getRuleSystem();
         //the user can request a repeat up to 10 seconds
         long until = ruleSystem.getClock().convert(Duration.ofSeconds(25)) + ruleSystem.getIteration();
         ruleSystem.addRule(ruleName, (sys) -> {
@@ -149,13 +143,9 @@ public class MetaFactory {
                         sys.removeToken(t);
                         sys.removeRule(ruleName);
                         if (sys.getIteration() >= until) {
-                            sys.addToken(Token.builder("output_tts")
-                                    .add("utterance", "I did not say anything")
-                                    .build());
+                            dialog.present(new PresentationRequest( "I did not say anything"));
                         } else {
-                            sys.addToken(Token.builder("output_tts")
-                                    .add("utterance", lastTts)
-                                    .build());
+                            dialog.present(new PresentationRequest( lastTts));
                         }
                     });
         });
@@ -166,7 +156,8 @@ public class MetaFactory {
                 .filter(t -> t.payloadEquals("intent", intent));
     }
 
-    public static void selectRule(RuleSystem rs, String ruleName, List<String> choices, Consumer<String> callback) {
+    public static void selectRule(Dialog dialog, String ruleName, List<String> choices, Consumer<String> callback) {
+        RuleSystem rs = dialog.getRuleSystem();
         //TODO use 'choices' to update grammar
         rs.addRule(ruleName, (sys) -> {
             sys.getTokens().stream()
@@ -197,7 +188,7 @@ public class MetaFactory {
                             }
                         } else {
                             //TODO nlg for question
-                            sys.addToken(new Token("output_tts").add("utterance", "which TODO do you mean?"));
+                            dialog.present(new PresentationRequest( "Which TODO do you mean?"));
                             specifyRule(rs, "specify_" + ruleName, callback);
                         }
                     });
@@ -231,5 +222,18 @@ public class MetaFactory {
                     });
         });
         rs.setPriority(rule, 20);
+    }
+
+
+    public static void turnGrabRule(RuleSystem rs, String ruleName, Runnable callback) {
+        rs.addRule(ruleName, (sys) -> {
+            sys.getTokens().stream()
+                    .filter(t -> t.payloadEquals("intent", "turn_grab"))
+                    .findFirst()
+                    .ifPresent(t -> {
+                        callback.run(); //TODO payload?
+                    });
+        });
+//        tagSystem.addTag("InterruptTTS", "meta");
     }
 }
