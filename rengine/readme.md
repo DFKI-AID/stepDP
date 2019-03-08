@@ -36,9 +36,9 @@ A rule engine, where rules act on tokens (arbitrary data like a map). The main i
 
 
 
-# Components
+## Components
 
-## Rules
+### Rules
 
 - Rules are a persistent data structure. They don't change. If they have to too, you need to create a new rule and remove the old one.
 - The structure of a rule is void -> void: Hence, Condition checking and execution is done through additional objects that are captured in the context of the function. In general, they have access to the dialog object such that the knowledge base can be accessed etc...
@@ -72,33 +72,35 @@ tagSystem.addTag("greetings", "meta");
 
 
 
-## Tag-System
+### Tag-System
 
 Tag-System: Allows to annotate multiple rules with a tag, which facilates to enable multiple rules simultaneously. 
 
 
 
-## Token
+### Token
 
 Simple persistent data structure in the form of String -> Object. In general used as input event to forward intents into the dialog.
 
 
 
-## Dialog
+### Dialog
+
+Core class that makes the components accessible to each other.
 
 
 
 
+### RuleCoordinator
 
-## other
+
+
+### other
 
 - Grammar rules are chosen and merged based on the current set of active rules
 
 
 
-## Add to Doc
-- Where to save data? sensor data (data is derived from the real world or simulation; e.g. changes frequently) should be stored in a knowledge base that can be accessed by the dialog. The dialog itself should not store any information in the knowledge base that represents its own state. Such information should be stored inside a behavior in an inmutable or persistent data structure. This is necessary to create persistent dialog history.
-- State chart as an abstraction: Rule may fire events in into the state chart which in response change the set of active rules. A state chart manages a specific set of rules which defined in table (*.csv file). The state chart is stored in the scxml format. The implementation does not support *parallel* or *history* states. It should be checked whether they are necessary or meaningful, because with the persistent dialog history the system supports already a 'history'-feature.
 
 ## TODOs
 
@@ -118,3 +120,8 @@ Hence it should be checked whether it is possible to store and then load the gra
 
 - comfortable way for voice input, because webbrowser are ubiquitous
 - probably requires https (e.g. in chrome mandatory) 
+
+
+#### Add to Doc
+- Where to save data? sensor data (data is derived from the real world or simulation; e.g. changes frequently) should be stored in a knowledge base that can be accessed by the dialog. The dialog itself should not store any information in the knowledge base that represents its own state. Such information should be stored inside a behavior in an inmutable or persistent data structure. This is necessary to create persistent dialog history.
+- State chart as an abstraction: Rule may fire events in into the state chart which in response change the set of active rules. A state chart manages a specific set of rules which defined in table (*.csv file). The state chart is stored in the scxml format. The implementation does not support *parallel* or *history* states. It should be checked whether they are necessary or meaningful, because with the persistent dialog history the system supports already a 'history'-feature.
