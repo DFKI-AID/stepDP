@@ -18,8 +18,9 @@ A rule engine, where rules act on tokens (arbitrary data like a map). The main i
    - Confirm / Disconfirm-Rule: for yes/no questions
    - Repeat-Rule ("can you repeat that?") outputs the last TTS again (up to x seconds)
    - **TODO** Create help-rule: "what can I say?"
-   - **TODO** timeouts e.g. pro active behavior -> use timeouts to trigger rules
-   - **TODO** snapshot rule
+   - timeouts e.g. pro active behavior -> use timeouts to trigger rules
+   - undo rule
+   - **TODO** snapshot & rewind rule
    - **TODO** selection rule (choose one option from a set of actions ~ 'radio button group')
    - **TODO** rule waiting for output to finish
 - Web API:

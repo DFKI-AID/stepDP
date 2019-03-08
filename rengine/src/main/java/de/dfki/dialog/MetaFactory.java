@@ -8,10 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -108,15 +105,70 @@ public class MetaFactory {
      * Creates a rule that allows the user to snapshot the current dialog state.
      * use case: worker wants to store the current state to show it to another colleague.
      * use case: worker wants to store the current such that he can continue later (takes break; other urgent task)
+     * <p>
+     * TODO if no name is specified, create a clarify rule / selection
      *
-     * @param rs
+     * @param dialog
      */
-    public static void createSnapshotRule(RuleSystem rs) {
-        //TODO impl
+    public static void snapshotRule(Dialog dialog) {
+        dialog.getRuleSystem().addRule("create_snapshot", () -> {
+            Optional<Token> intent = dialog.getTokens().stream()
+                    .filter(t -> t.payloadEquals("intent", "create_snapshot"))
+                    .findFirst();
 
-        //if no name is specified, create a clarify rule / selection
+            if (!intent.isPresent()) {
+                return;
+            }
 
-        throw new UnsupportedOperationException("not impl");
+            String tokenName = intent.get().get("name")
+                    .map(s -> tryParse(String.class, s))
+                    .orElse("");
+
+            if(tokenName.isEmpty()) {
+                //TODO maybe add clarification rule
+                return;
+            }
+
+            dialog.getRuleCoordinator().add(() -> {
+               rewindRule(dialog, tokenName, dialog.getIteration());
+            });
+        });
+        dialog.getTagSystem().addTag("create_snapshot", "meta");
+    }
+
+    /**
+     * TODO If feature is heavly used, there will be a lot of rewind_x rules. The functionality could also be put into one rule
+     *
+     * @param dialog
+     */
+    public static void rewindRule(Dialog dialog, String name, long iteration) {
+        String ruleName = "rewind_" + name;
+        dialog.getRuleSystem().addRule(ruleName, () -> {
+            Optional<Token> rewindIntent = dialog.getTokens().stream()
+                    .filter(t -> t.payloadEquals("intent", "rewind"))
+                    .findFirst();
+            if (!rewindIntent.isPresent()) {
+                return;
+            }
+
+            String tokenName = rewindIntent.get().get("name")
+                    .map(s -> tryParse(String.class, s))
+                    .orElse("");
+            if(tokenName.isEmpty()) {
+                //TODO maybe add clarification rule
+                return;
+            }
+
+            if(!Objects.equals(name, tokenName)) {
+                //other point in time
+                return;
+            }
+
+            dialog.getRuleCoordinator().add(() -> {
+                dialog.rewind(iteration);
+            }).attach(consumes, rewindIntent.get());
+        });
+        dialog.getTagSystem().addTag(ruleName, "meta");
     }
 
     /**
@@ -298,6 +350,7 @@ public class MetaFactory {
 
     /**
      * Creates a rule that triggers the given callback after some time elapsed
+     *
      * @param dialog
      * @param name
      * @param callback
@@ -307,7 +360,7 @@ public class MetaFactory {
         long untilIteration = currentIteration + dialog.getClock().convert(duration);
 
         dialog.getRuleSystem().addRule(name, () -> {
-            if(dialog.getIteration() < untilIteration) {
+            if (dialog.getIteration() < untilIteration) {
                 return;
             }
 
@@ -316,5 +369,13 @@ public class MetaFactory {
                 callback.run();
             });
         });
+    }
+
+    public static <T> T tryParse(Class<T> clazz, Object obj) {
+        if(!clazz.isAssignableFrom(obj.getClass())) {
+            return null;
+        }
+
+        return (T) obj;
     }
 }

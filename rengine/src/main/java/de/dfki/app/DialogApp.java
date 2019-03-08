@@ -125,6 +125,7 @@ public class DialogApp extends Dialog {
 
         MetaFactory.createRepeatRule(this, "request_repeat_tts", "I did not say anything.");
 
+        MetaFactory.snapshotRule(this);
 
 //        rs.add("TTS", (sys) -> {
 //            sys.getTokens().stream()
