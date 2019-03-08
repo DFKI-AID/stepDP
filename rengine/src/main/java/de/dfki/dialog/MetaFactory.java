@@ -127,7 +127,7 @@ public class MetaFactory {
      * @param dialog
      * @param lastInteraction
      */
-    public static void createUndoRule(Dialog dialog, int lastInteraction) {
+    public static void createUndoRule(Dialog dialog, long lastInteraction) {
         var rs = dialog.getRuleSystem();
         rs.removeRule("undo");
         rs.addRule("undo", () -> {
@@ -148,7 +148,7 @@ public class MetaFactory {
     }
 
     public static void createSnapshot(Dialog dialog) {
-        int iteration = dialog.getIteration();
+        long iteration = dialog.getIteration();
         log.info("Creating undo-jump point on iteration={}", iteration);
         createUndoRule(dialog, iteration);
     }
@@ -294,5 +294,27 @@ public class MetaFactory {
         return token.get("confidence")
                 .filter(c -> c instanceof Double)
                 .map(c -> (Double) c);
+    }
+
+    /**
+     * Creates a rule that triggers the given callback after some time elapsed
+     * @param dialog
+     * @param name
+     * @param callback
+     */
+    public static void timeoutRule(Dialog dialog, String name, Duration duration, Runnable callback) {
+        long currentIteration = dialog.getIteration();
+        long untilIteration = currentIteration + dialog.getClock().convert(duration);
+
+        dialog.getRuleSystem().addRule(name, () -> {
+            if(dialog.getIteration() < untilIteration) {
+                return;
+            }
+
+            dialog.getRuleCoordinator().add(() -> {
+                dialog.getRuleSystem().removeRule(name);
+                callback.run();
+            });
+        });
     }
 }

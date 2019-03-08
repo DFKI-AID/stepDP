@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  *
@@ -19,20 +19,20 @@ import java.util.concurrent.atomic.AtomicInteger;
 public abstract class Dialog implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(Dialog.class);
 
-    protected final Clock clock = new Clock(200);
+    protected final Clock clock = new Clock(100);
     protected final RuleSystem rs = new RuleSystem(clock);
     protected final TagSystem<String> tagSystem = new TagSystem();
     protected final GrammarManager grammarManager = new GrammarManager();
     protected final Map<String, Behavior> behaviors = new HashMap<>();
-    protected final Map<Behavior, Map<Integer, Object>> behaviorSnapshots = new HashMap<>();
+    protected final Map<Behavior, Map<Long, Object>> behaviorSnapshots = new HashMap<>();
     protected final RuleCoordinator ruleCoordinator = new RuleCoordinator();
     private PSet<Token> tokens = HashTreePSet.empty();
     //tokens that are used for the next iteration
     private PSet<Token> waitingTokens = HashTreePSet.empty();
 
 
-    protected final AtomicInteger snapshotTarget = new AtomicInteger(-1);
-    private Map<Integer, RuleSystem.Snapshot> snapshots = new HashMap<>();
+    protected final AtomicLong snapshotTarget = new AtomicLong(-1);
+    private Map<Long, RuleSystem.Snapshot> snapshots = new HashMap<>();
 
     //for testing
     public PSequence outputHistory = TreePVector.empty();
@@ -89,7 +89,7 @@ public abstract class Dialog implements Runnable {
     }
 
     protected void applySnapshot() {
-        int targetSnapshot = snapshotTarget.getAndSet(-1);
+        long targetSnapshot = snapshotTarget.getAndSet(-1);
         if (targetSnapshot < 0) {
             return;
         }
@@ -103,7 +103,7 @@ public abstract class Dialog implements Runnable {
         }
     }
 
-    protected void createSnapshot(int iteration) {
+    protected void createSnapshot(long iteration) {
         snapshots.put(iteration, rs.createSnapshot());
         for (Behavior behavior : behaviors.values()) {
             Object snapshot = behavior.createSnapshot();
@@ -114,11 +114,11 @@ public abstract class Dialog implements Runnable {
         }
     }
 
-    public void rewind(int iteration) {
+    public void rewind(long iteration) {
         this.snapshotTarget.set(iteration);
     }
 
-    public int getIteration() {
+    public long getIteration() {
         return clock.getIteration();
     }
 
@@ -167,5 +167,9 @@ public abstract class Dialog implements Runnable {
     public void addToken(Token token) {
         log.debug("Adding token {}", token);
         waitingTokens = waitingTokens.plus(token);
+    }
+
+    public Clock getClock() {
+        return clock;
     }
 }

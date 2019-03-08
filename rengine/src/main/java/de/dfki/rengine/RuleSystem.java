@@ -140,7 +140,7 @@ public class RuleSystem {
         updateActive = false;
     }
 
-    public int getIteration() {
+    public long getIteration() {
         return clock.getIteration();
     }
 
@@ -193,7 +193,7 @@ public class RuleSystem {
         public BlockSystem blockSystem;
         //        public Set<Token> tokens;
         public PSequence<Rule> rules;
-        public int iteration;
+        public long iteration;
         public PMap<Rule, Integer> priorities;
         public PMap<String, Rule> nameToRule;
         public PMap<String, Boolean> volatileMap;

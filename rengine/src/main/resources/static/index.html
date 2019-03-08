@@ -47,7 +47,7 @@
                             <th>tags</th>
                         </tr>
                         <tr v-bind:class="{ inactiveRule: !item.active }" v-for="item in rules">
-                            <td >{{item.name}}</td>
+                            <td>{{item.name}}</td>
                             <!--<td>{{item.active}}</td>-->
                             <td><span style="background-color:#00FF00" class="badge badge-secondary tag"
                                       v-color v-for="(item, index) in item.tags">{{item}}</span></td>
@@ -72,19 +72,17 @@
             </tr>
         </table>
     </div>
-</div>
+    <!--<div class="row grow w-100">-->
+        <!--<div>Tokens: {{tokens}}</div>-->
+    <!--</div>-->
 <body>
 
 
-<!--<div class="menu">menu</div>-->
 
 
-<!--<link rel="stylesheet" href="css/styles.css?v=1.0">-->
-<div id="rules">
 
 
-    <!--<div>Tokens: {{tokens}}</div>-->
-</div>
+
 
 
 <script src="/jquery-3.3.1.min.js"></script>
@@ -100,6 +98,7 @@
                 tokens: [],
                 grammar: null,
                 tagToColorMap: {},
+                // background colors for the tags. add more if you run out of colors. otherwise they will repeat
                 colors: ["black", "CornflowerBlue", "DarkSeaGreen", "DarkSalmon",
                     "IndianRed", "SlateGray", "LightSeaGreen", "PaleVioletRed", "Indigo", "Teal"],
                 colorIndex: 0,
@@ -117,10 +116,6 @@
                     "show_nav": {"intent": "request", "object": "navigation"},
                     "hide_nav": {"intent": "hide_navigation"},
                     "turn_grab": {"intent": "turn_grab"}
-
-                    // {"intent": "select_task"},
-                    // {"intent": "accept_task"},
-                    // "select_task", "accept_task", "select_task_supp", "show_tasks", "hide_tasks", "accept", "reject"
                 },
                 intentSelection: "",
                 intentContent: "",

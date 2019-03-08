@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URL;
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -194,6 +195,12 @@ public class TaskBehavior implements StateBehavior {
 //                    });
 //        });
 
+        MetaFactory.timeoutRule(dialog, "proactive_idle", Duration.ofSeconds(5l), () -> {
+            dialog.present(new PresentationRequest("Hey! You can ask me to show available tasks if you are ready."));
+        });
+        dialog.getTagSystem().addTag("proactive_idle", "Idle");
+
+
 
         MetaFactory.selectRule(dialog, "select_task", List.of("task1", "task2", "task3"), (task) -> {
             //TODO filter for available tasks here?
@@ -202,7 +209,7 @@ public class TaskBehavior implements StateBehavior {
             rs.removeRule("confirm_select_task");
             stateHandler.fire("show_task");
         });
-        //TODO tags and the removing of the functions should be done automatically
+        //TODO tags and the removing of the functions should be done automatically?
         dialog.getTagSystem().addTag("specify_select_task", "Choice");
         dialog.getTagSystem().addTag("confirm_select_task", "Choice");
         dialog.getTagSystem().addTag("specify_select_task", "Info");

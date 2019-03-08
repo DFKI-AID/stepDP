@@ -95,13 +95,13 @@ Simple persistent data structure in the form of String -> Object. In general use
 
 ### Dialog
 
-Core class that makes the components accessible to each other.
+Core class that makes the components accessible to each other. The run method contains the main loop of the application. Every component is updated during each iteration. After each iteration the thread sleeps to spare some cpu cycles. The dialog class also stores the dialog history.
 
 
 
 ### RuleSystem
 
-Manages the rules and the provides the interface for adding, removing, enabling and disabling rules. On each update,
+Manages the rules and the provides the interface for adding, removing, enabling and disabling rules.
 
 
 

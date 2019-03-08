@@ -5,7 +5,7 @@ import java.time.Duration;
 /**
  */
 public class Clock {
-    private int iteration = 0;
+    private long iteration = 0;
     private final double rate;
 
     public Clock(double rate) {
@@ -16,11 +16,11 @@ public class Clock {
         iteration++;
     }
 
-    public int getIteration() {
+    public long getIteration() {
         return iteration;
     }
 
-    public void setIteration(int iteration) {
+    public void setIteration(long iteration) {
         this.iteration = iteration;
     }
 
