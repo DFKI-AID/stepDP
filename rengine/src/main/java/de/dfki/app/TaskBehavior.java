@@ -117,7 +117,7 @@ public class TaskBehavior implements StateBehavior {
         //TODO load from db
         String msg = String.format("There is a new urgent task '%s' : A UR-3 robot stopped functioning correctly", currentTask);
         dialog.present(new PresentationRequest(msg));
-        dialog.present(new PresentationRequest("http://.../"));
+//        dialog.present(new PresentationRequest("http://.../"));
     }
 
     public void hideTaskInfo() {
