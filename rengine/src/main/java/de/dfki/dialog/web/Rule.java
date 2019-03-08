@@ -7,13 +7,11 @@ import java.util.Set;
  */
 public class Rule {
     public String name = "unknown";
-    public int priority = 0;
     public boolean active;
     public Set<String> tags = new HashSet<>();
 
-    public Rule(String name, int priority) {
+    public Rule(String name) {
         this.name = name;
-        this.priority = priority;
     }
 
     public Rule setActive(boolean active) {

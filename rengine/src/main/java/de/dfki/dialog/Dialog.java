@@ -83,7 +83,6 @@ public abstract class Dialog implements Runnable {
         System.out.println("System: " + output);
         rs.removeRule("request_repeat_tts");
         MetaFactory.createRepeatRule(this, "request_repeat_tts", output);
-        rs.setPriority("request_repeat_tts", 20);
 
         MetaFactory.createSnapshot(this);
         outputHistory = outputHistory.plus(output);

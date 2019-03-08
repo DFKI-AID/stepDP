@@ -31,26 +31,28 @@ public class MetaFactory {
         var utterances = List.of("Hello!", "Greetings.", "Hey");
         var rdm = new Random();
 
+        //add new rule with the name 'greetings'
         rs.addRule("greetings", () -> {
-            // check for tokens with the intent 'greetings'
+            // check for one token with the intent 'greetings'
             dialog.getTokens().stream()
                     .filter(t -> t.payloadEquals("intent", "greetings"))
                     .findFirst()
                     .ifPresent(t -> {
-                        // create an update function that may get executed later
-                        // this depends on the implementation of the rule coordinator
+                        // Create an update function that may get executed later.
+                        // This depends on the implementation of the rule coordinator
+                        // The .attach call defines that rule wants to consume the given token
+                        // If another rules wants to consume the same token, only one rule may be fired.
                         dialog.getRuleCoordinator().add(() -> {
                             String utteranace = utterances.get(rdm.nextInt(utterances.size()));
                             // request tts output via token
                             dialog.present(new PresentationRequest(utteranace));
                             // disable this rule for four seconds
                             dialog.getRuleSystem().disable("greetings", Duration.ofSeconds(4));
-                        }).attach(consumes, t);
+                        }).attach("consumes", t);
 
                     });
         });
         // set the priority of the greetings rule.
-        rs.setPriority("greetings", 20);
         // associate the greetings rule with the meta tag
         tagSystem.addTag("greetings", "meta");
     }
@@ -85,7 +87,6 @@ public class MetaFactory {
                     });
         });
         rs.setVolatile(ruleName, true);
-        rs.setPriority(ruleName, 25);
 
         //TODO to avoid a deadlock:
         //TODO [1] it should be checked if there is still a confirmation active -> cancel it
@@ -143,7 +144,6 @@ public class MetaFactory {
                         }).attach(consumes, t);
                     });
         });
-        rs.setPriority("undo", 20);
         dialog.getTagSystem().addTag("undo", "meta");
     }
 
@@ -235,7 +235,6 @@ public class MetaFactory {
             }
 
         });
-        rs.setPriority("select_task", 20);
     }
 
 
@@ -267,7 +266,6 @@ public class MetaFactory {
                         }).attach(consumes, t);
                     });
         });
-        rs.setPriority(rule, 20);
     }
 
 

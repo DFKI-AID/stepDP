@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -15,8 +16,11 @@ import java.util.stream.Collectors;
  */
 public class RuleCoordinator {
     private static final Logger log = LoggerFactory.getLogger(RuleCoordinator.class);
+    public static final String consumes = "consumes";
+    public static final String priority = "priority";
     protected PMap<String, Runnable> functions;
     protected PMap<String, Token> data;
+    private PMap<Rule, Integer> priorities = HashTreePMap.empty();
 
     public RuleCoordinator() {
         this.reset();
@@ -60,24 +64,32 @@ public class RuleCoordinator {
 //            entry.getValue().run();
 //        });
 
-        //TODO maybe sort after priority? implicit if list is used
         Map<String, Runnable> executeMap = new HashMap<>();
         executeMap.putAll(this.functions);
 
-        for (var entry : functions.entrySet()) {
-            Optional<Object> consumes1 = data.get(entry.getKey()).get("consumes");
-            for (var otherEntry : executeMap.entrySet()) {
-                if(entry.getValue() == otherEntry.getValue()) {
-                    continue;
-                }
+        Function<String, Double> getPriority = s ->
+                data.get(s).get(priority).filter(p -> p instanceof  Double).map(p -> (Double) p).orElse(0.0);
 
-                Optional<Object> consumes2 = data.get(otherEntry.getKey()).get("consumes");
-                if(consumeCollides(consumes1, consumes2)) {
-                    executeMap.remove(entry.getKey());
-                    break;
-                }
-            }
-        }
+        this.functions.entrySet().stream()
+                //sort functions after priority, lowest priority are handled first
+                .sorted(Comparator.comparingDouble(e -> getPriority.apply(e.getKey())))
+                .forEach(entry -> {
+                    // check whether other functions consume the same resource
+                    Optional<Object> consumes1 = data.get(entry.getKey()).get(consumes);
+                    for (var otherEntry : executeMap.entrySet()) {
+                        if(entry.getValue() == otherEntry.getValue()) {
+                            continue;
+                        }
+
+                        Optional<Object> consumes2 = data.get(otherEntry.getKey()).get(consumes);
+                        if(consumeCollides(consumes1, consumes2)) {
+                            //two functions consume the same resource
+                            //hence the first (lower priority) is removed
+                            executeMap.remove(entry.getKey());
+                            break;
+                        }
+                    }
+                });
 
         executeMap.entrySet().forEach(entry -> {
             log.info("executing {}", entry.getKey());

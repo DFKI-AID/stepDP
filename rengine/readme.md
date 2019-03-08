@@ -39,30 +39,39 @@ A rule engine, where rules act on tokens (arbitrary data like a map). The main i
 ## Components
 
 ### Rules
-
-- Rules are a persistent data structure. They don't change. If they have to too, you need to create a new rule and remove the old one.
+- Rules are a persistent data structure. They don't change. If they have to be changed, it is necessary to create a new rule and remove the old one.
 - The structure of a rule is void -> void: Hence, Condition checking and execution is done through additional objects that are captured in the context of the function. In general, they have access to the dialog object such that the knowledge base can be accessed etc...
-- Coordination of rules: **TODO**
-- execution order is based on priority value. rules with higher priority value are executed later.
+- deprecated (add functionality to coordinator class): execution order is based on priority value. rules with higher priority value are executed later.
 - The token set is empty for each iteration and filled by the rules.
+- **TODO** different type of rules: meta, semi-meta, app
 - Using java's stream API makes writing rules easy: 
 ```java
 var rs = dialog.getRuleSystem();
 var tagSystem = dialog.getTagSystem();
 
-rs.addRule("greetings", (sys) -> {
-  // check for tokens with the intent 'greetings'
-  sys.getTokens().stream()
-          .filter(t -> t.payloadEquals("intent", "greetings"))
-          .findFirst()
-          .ifPresent(t -> {
-              functions
-              sys.removeToken(t);
-              // request tts output via token
-              sys.addToken(Token.builder("output_tts").add("utterance", "hello!").build());
-              // disable this rule for four seconds
-              sys.disable("greetings", Duration.ofSeconds(4));
-          });
+var utterances = List.of("Hello!", "Greetings.", "Hey");
+var rdm = new Random();
+
+//add new rule with the name 'greetings'
+rs.addRule("greetings", () -> {
+    // check for one token with the intent 'greetings'
+    dialog.getTokens().stream()
+            .filter(t -> t.payloadEquals("intent", "greetings"))
+            .findFirst()
+            .ifPresent(t -> {
+                // Create an update function that may get executed later.
+                // This depends on the implementation of the rule coordinator
+                // The .attach call defines that rule wants to consume the given token
+                // If another rules wants to consume the same token, only one rule may be fired.
+                dialog.getRuleCoordinator().add(() -> {
+                    String utteranace = utterances.get(rdm.nextInt(utterances.size()));
+                    // request tts output via token
+                    dialog.present(new PresentationRequest(utteranace));
+                    // disable this rule for four seconds
+                    dialog.getRuleSystem().disable("greetings", Duration.ofSeconds(4));
+                }).attach("consumes", t);
+
+            });
 });
 // set the priority of the greetings rule.
 rs.setPriority("greetings", 20);
@@ -90,10 +99,39 @@ Core class that makes the components accessible to each other.
 
 
 
+### RuleSystem
+
+Manages the rules and the provides the interface for adding, removing, enabling and disabling rules. On each update,
+
+
+
+### Behavior
+The functionality of the dialog is defined through multiple behaviors. Each behavior is a helper class that can modify the active rule set to add new functionality. Behaviors can be implemented through state-charts, slot-filling or custom rules. The state of each behavior is implicitly defined as the set of its active rules. Nevertheless, each behavior can also store additional data if desired. It has only to be ensured, that **createSnapshot** and **loadSnapsho**t methods are implemented correctly. Those two functions can save and reload the behavior which allows to jump to arbitrary moments in the dialog history. 
+Note for the **createSnapshot** method: You may want to use persistent data structures to avoid creating copies of big data chunks.
+
+
+
+#### State Chart
+State charts can be used as an abstraction to define when rules are active. The rule logic is implemented in java. Rules may fire events into the state chart which in response change the set of active rules. A state chart manages a specific set of rules which defined in table (\*.csv file). The state chart is stored in the scxml format. The implementation does not support parallel or history states at the moment.. It should be checked whether they are necessary,, because with the persistent dialog history the system supports already a 'history'-feature.
+
+
+
+
+#### Slot Filling
+**TODO**
+
+
+
+#### Custom Rules
+
+Custom rules are the easiest way for getting started. However, you have to manage them yourself. Simple rules like **greetings** may be continously active in parallel to other behaviors. A more sophisticated pattern is that a rule that fires removes (or disables) itself and adds new rules. The **TagSystem** can be used to group rules.
+
+
 
 ### RuleCoordinator
 
-
+### Web API
+Gui -> http://localhost:50000
 
 ### other
 
@@ -124,4 +162,5 @@ Hence it should be checked whether it is possible to store and then load the gra
 
 #### Add to Doc
 - Where to save data? sensor data (data is derived from the real world or simulation; e.g. changes frequently) should be stored in a knowledge base that can be accessed by the dialog. The dialog itself should not store any information in the knowledge base that represents its own state. Such information should be stored inside a behavior in an inmutable or persistent data structure. This is necessary to create persistent dialog history.
-- State chart as an abstraction: Rule may fire events in into the state chart which in response change the set of active rules. A state chart manages a specific set of rules which defined in table (*.csv file). The state chart is stored in the scxml format. The implementation does not support *parallel* or *history* states. It should be checked whether they are necessary or meaningful, because with the persistent dialog history the system supports already a 'history'-feature.
+
+  

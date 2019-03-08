@@ -138,7 +138,6 @@ public class TaskBehavior implements StateBehavior {
                         stateHandler.fire("show_tasks");
                     }).attach("consumes", t);
                 }));
-        rs.setPriority("show_tasks", 20);
 
 
         /**
@@ -152,7 +151,6 @@ public class TaskBehavior implements StateBehavior {
                         stateHandler.fire("hide_tasks");
                     });
                 }));
-        rs.setPriority("hide_tasks", 20);
 
 
         /**
@@ -204,7 +202,6 @@ public class TaskBehavior implements StateBehavior {
             rs.removeRule("confirm_select_task");
             stateHandler.fire("show_task");
         });
-        rs.setPriority("select_task", 20);
         //TODO tags and the removing of the functions should be done automatically
         dialog.getTagSystem().addTag("specify_select_task", "Choice");
         dialog.getTagSystem().addTag("confirm_select_task", "Choice");
@@ -302,7 +299,6 @@ public class TaskBehavior implements StateBehavior {
                         }).attach("consumes", t);
                     });
         });
-        rs.setPriority(rule, 20);
         tagSystem.addTag("select_task_supp", stateHandler.getCurrentState());
     }
 
@@ -350,7 +346,6 @@ public class TaskBehavior implements StateBehavior {
 
                     });
         });
-        rs.setPriority("accept_task", 20);
     }
 
     @Override

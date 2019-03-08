@@ -39,12 +39,10 @@ public class Controller {
         var rules = settings.app.getRuleSystem().getRules().stream()
                 .map(r -> {
                     String id = rs.getName(r).orElse("unknown");
-                    return new Rule(id, rs.getPriority(r))
+                    return new Rule(id)
                             .setActive(rs.isEnabled(r))
                             .setTags(settings.app.getTagSystem().getTags(id));
                 })
-
-                .sorted(Comparator.comparingInt(r -> r.priority))
                 .collect(Collectors.toList());
         return rules;
     }
@@ -141,4 +139,6 @@ public class Controller {
         PSequence payload = settings.app.outputHistory;
         return ResponseEntity.status(HttpStatus.OK).body(payload);
     }
+
+
 }

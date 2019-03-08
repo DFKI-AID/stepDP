@@ -105,7 +105,6 @@ public class DialogApp extends Dialog {
             addToken(intentToken);
         });
         tagSystem.addTag("manual_intent", "simulation");
-        rs.setPriority("manual_intent", 10);
 
         //go back rule:
 

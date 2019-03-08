@@ -41,3 +41,8 @@ select {
     width: 200px;
     box-shadow: none;
 }
+
+/*used to change the appearance color of an inactive rule */
+.inactiveRule {
+    color: darkgray;
+}

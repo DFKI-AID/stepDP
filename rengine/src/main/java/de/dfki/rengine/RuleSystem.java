@@ -20,7 +20,6 @@ public class RuleSystem {
     private PSequence<Rule> rules = TreePVector.empty();
     private PMap<String, Rule> nameToRule = HashTreePMap.empty();
     private BlockSystem blockSystem;
-    private PMap<Rule, Integer> priorities = HashTreePMap.empty();
     private PMap<String, Boolean> volatileMap = HashTreePMap.empty();
     private static final int DEFAULT_PRIORITY = 50;
 
@@ -116,29 +115,7 @@ public class RuleSystem {
         this.disable(rule.get(), duration);
     }
 
-    public void setPriority(String ruleName, int priority) {
-        var rule = getRule(ruleName);
-        if (!rule.isPresent()) {
-            log.warn("Can't set priority for {}: No rule available with the given name", ruleName);
-            return;
-        }
-        priorities = priorities.plus(rule.get(), priority);
-    }
 
-    public int getPriority(String ruleName) {
-        var rule = getRule(ruleName);
-        if (!rule.isPresent()) {
-            return DEFAULT_PRIORITY;
-        }
-        return getPriority(rule.get());
-    }
-
-    public int getPriority(Rule rule) {
-        if (!priorities.containsKey(rule)) {
-            return DEFAULT_PRIORITY;
-        }
-        return priorities.get(rule);
-    }
 
     public Optional<Rule> getRule(String name) {
         return Optional.ofNullable(nameToRule.get(name));
@@ -147,20 +124,15 @@ public class RuleSystem {
     public void update() {
         updateActive = true;
 
-        //making a copy of the rule set, which allows to change the rule set within the update method
-        ArrayList<Rule> rulesCopy = new ArrayList<>();
-        rulesCopy.addAll(rules);
-        rulesCopy.sort(Comparator.comparingInt(this::getPriority));
-
-        Set<Implication> implications = new HashSet<>();
-
-        for (Rule rule : rulesCopy) {
+        List<Rule> rules = this.rules;
+        for (Rule rule : rules) {
             if (blockSystem.isDisabled(rule)) {
                 continue;
             }
 
             if (!this.rules.contains(rule)) {
                 // this rule was removed during the update method should not be considered here anymore
+                // with the new concept of the RuleCoordinator this should not be necessary anymore.
                 continue;
             }
             rule.update();
@@ -182,7 +154,6 @@ public class RuleSystem {
         state.blockSystem = blockSystem.copy();
         state.rules = this.rules;
         state.iteration = clock.getIteration();
-        state.priorities = this.priorities;
         state.nameToRule = this.nameToRule;
         state.volatileMap = this.volatileMap;
         return state;
@@ -195,7 +166,6 @@ public class RuleSystem {
         this.clock.setIteration(snapshot.iteration);
         this.blockSystem = snapshot.blockSystem.copy();
         this.rules = snapshot.rules;
-        this.priorities = snapshot.priorities;
         this.nameToRule = snapshot.nameToRule;
         this.volatileMap = snapshot.volatileMap;
     }
