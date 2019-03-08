@@ -74,7 +74,7 @@
             </tr>
         </table>
     </div>
-
+</div>
 <body>
 
 
@@ -191,8 +191,7 @@
                     this.updateData();
                 }.bind(this), 250);
 
-            }
-            ,
+            },
             directives: {
                 color: {
                     update: function (el) {
@@ -216,16 +215,6 @@
                     }
                 }
             }
-            // created() {
-            //     fetch('http://localhost:50000/rules')
-            //         .then(rsp => rsp.json())
-            //         .then(json => {
-            //             this.items = json
-            //         })
-            //     fetch('http://localhost:50000/iteration')
-            //         .then(rsp => rsp.json())
-            //         .then(json => this.iteration = json.iteration)
-            // },
         })
     ;
 
