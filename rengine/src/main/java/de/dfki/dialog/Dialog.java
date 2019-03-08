@@ -2,8 +2,11 @@ package de.dfki.dialog;
 
 import de.dfki.app.TaskBehavior;
 import de.dfki.dialog.grammar.GrammarManager;
-import de.dfki.rengine.Clock;
-import de.dfki.rengine.RuleSystem;
+import de.dfki.rengine.*;
+import org.pcollections.HashTreePSet;
+import org.pcollections.PSequence;
+import org.pcollections.PSet;
+import org.pcollections.TreePVector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,9 +25,17 @@ public abstract class Dialog implements Runnable {
     protected final GrammarManager grammarManager = new GrammarManager();
     protected final Map<String, Behavior> behaviors = new HashMap<>();
     protected final Map<Behavior, Map<Integer, Object>> behaviorSnapshots = new HashMap<>();
+    protected final RuleCoordinator ruleCoordinator = new RuleCoordinator();
+    private PSet<Token> tokens = HashTreePSet.empty();
+    //tokens that are used for the next iteration
+    private PSet<Token> waitingTokens = HashTreePSet.empty();
+
 
     protected final AtomicInteger snapshotTarget = new AtomicInteger(-1);
     private Map<Integer, RuleSystem.Snapshot> snapshots = new HashMap<>();
+
+    //for testing
+    public PSequence outputHistory = TreePVector.empty();
 
 
     public RuleSystem getRuleSystem() {
@@ -46,7 +57,7 @@ public abstract class Dialog implements Runnable {
     public abstract void deinit();
 
     /**
-     * Updates the global grammar.jsgf based on the rules that are currently active
+     * Updates the global grammar.jsgf based on the functions that are currently active
      *
      * @param rs
      */
@@ -75,6 +86,7 @@ public abstract class Dialog implements Runnable {
         rs.setPriority("request_repeat_tts", 20);
 
         MetaFactory.createSnapshot(this);
+        outputHistory = outputHistory.plus(output);
     }
 
     protected void applySnapshot() {
@@ -117,10 +129,15 @@ public abstract class Dialog implements Runnable {
         createSnapshot(0);
         while (!Thread.currentThread().isInterrupted()) {
             try {
+                ruleCoordinator.reset();
+                //removing all tokens that were used last round
+                waitingTokens = waitingTokens.minusAll(tokens);
+                tokens = waitingTokens;
                 applySnapshot();
                 updateGrammar(rs);
                 update();
                 rs.update();
+                ruleCoordinator.update();
                 createSnapshot(clock.getIteration());
                 Thread.sleep((long) clock.getRate()); //TODO not precise, but sufficient to start with
                 clock.inc();
@@ -138,5 +155,18 @@ public abstract class Dialog implements Runnable {
 
     public Optional<Behavior> getBehavior(String id) {
         return Optional.ofNullable(behaviors.get(id));
+    }
+
+    public RuleCoordinator getRuleCoordinator() {
+        return ruleCoordinator;
+    }
+
+    public PSet<Token> getTokens() {
+        return tokens;
+    }
+
+    public void addToken(Token token) {
+        log.debug("Adding token {}", token);
+        waitingTokens = waitingTokens.plus(token);
     }
 }

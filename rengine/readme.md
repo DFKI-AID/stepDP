@@ -1,5 +1,7 @@
 # REngine
 
+[TOC]
+
 ![alt text](../doc/rengine.png  "Overview")
 
 
@@ -39,6 +41,8 @@ A rule engine, where rules act on tokens (arbitrary data like a map). The main i
 ## Rules
 
 - Rules are a persistent data structure. They don't change. If they have to too, you need to create a new rule and remove the old one.
+- The structure of a rule is void -> void: Hence, Condition checking and execution is done through additional objects that are captured in the context of the function. In general, they have access to the dialog object such that the knowledge base can be accessed etc...
+- Coordination of rules: **TODO**
 - execution order is based on priority value. rules with higher priority value are executed later.
 - The token set is empty for each iteration and filled by the rules.
 - Using java's stream API makes writing rules easy: 
@@ -52,7 +56,7 @@ rs.addRule("greetings", (sys) -> {
           .filter(t -> t.payloadEquals("intent", "greetings"))
           .findFirst()
           .ifPresent(t -> {
-              // consume the token (subsequent rules won't see the token)
+              functions
               sys.removeToken(t);
               // request tts output via token
               sys.addToken(Token.builder("output_tts").add("utterance", "hello!").build());
@@ -71,6 +75,18 @@ tagSystem.addTag("greetings", "meta");
 ## Tag-System
 
 Tag-System: Allows to annotate multiple rules with a tag, which facilates to enable multiple rules simultaneously. 
+
+
+
+## Token
+
+Simple persistent data structure in the form of String -> Object. In general used as input event to forward intents into the dialog.
+
+
+
+## Dialog
+
+
 
 
 

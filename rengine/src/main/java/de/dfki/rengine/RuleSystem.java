@@ -9,7 +9,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * This component manages (add / remove / enable / disable) and execute rules.
+ * This component manages (add / remove / enable / disable) and execute functions.
  * TODO use persistent data structures
  */
 public class RuleSystem {
@@ -17,7 +17,6 @@ public class RuleSystem {
     private final Clock clock;
     private boolean updateActive = false;
 
-    private PSet<Token> tokens = HashTreePSet.empty();
     private PSequence<Rule> rules = TreePVector.empty();
     private PMap<String, Rule> nameToRule = HashTreePMap.empty();
     private BlockSystem blockSystem;
@@ -31,16 +30,6 @@ public class RuleSystem {
     }
 
 
-    public void addToken(Token token) {
-        log.debug("Adding token {}", token);
-        tokens = tokens.plus(token);
-    }
-
-    public void removeToken(Token token) {
-        log.debug("Removing token {}", token);
-        tokens = tokens.minus(token);
-    }
-
 //    public void setTokens(Set<Token> tokens) {
 //        log.debug("Updating tokens: {}", tokens); //TODO print diff
 //        this.tokens = tokens;
@@ -53,9 +42,6 @@ public class RuleSystem {
                 .findFirst();
     }
 
-    public Set<Token> getTokens() {
-        return tokens;
-    }
 
     public void addRule(String name, Rule rule) {
         if (nameToRule.containsKey(name)) {
@@ -161,11 +147,12 @@ public class RuleSystem {
     public void update() {
         updateActive = true;
 
-        tokens = HashTreePSet.empty();
         //making a copy of the rule set, which allows to change the rule set within the update method
         ArrayList<Rule> rulesCopy = new ArrayList<>();
         rulesCopy.addAll(rules);
         rulesCopy.sort(Comparator.comparingInt(this::getPriority));
+
+        Set<Implication> implications = new HashSet<>();
 
         for (Rule rule : rulesCopy) {
             if (blockSystem.isDisabled(rule)) {
@@ -176,7 +163,7 @@ public class RuleSystem {
                 // this rule was removed during the update method should not be considered here anymore
                 continue;
             }
-            rule.update(this);
+            rule.update();
         }
         updateActive = false;
     }
@@ -222,7 +209,7 @@ public class RuleSystem {
     }
 
     /**
-     * Volatile rules should be removed instead of disabled
+     * Volatile functions should be removed instead of disabled
      *
      * @param rule
      * @return

@@ -1,6 +1,7 @@
 package de.dfki.dialog;
 
 import de.dfki.app.TaskBehavior;
+import de.dfki.rengine.Implication;
 import de.dfki.rengine.RuleSystem;
 import de.dfki.rengine.Token;
 import org.slf4j.Logger;
@@ -9,7 +10,10 @@ import org.slf4j.LoggerFactory;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
+import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -18,23 +22,31 @@ import java.util.stream.Stream;
 public class MetaFactory {
     private static final Logger log = LoggerFactory.getLogger(MetaFactory.class);
     private static final double minConfidence = 0.3;
+    private static final String consumes = "consumes";
 
     public static void createGreetingsRule(Dialog dialog) {
         var rs = dialog.getRuleSystem();
         var tagSystem = dialog.getTagSystem();
 
-        rs.addRule("greetings", (sys) -> {
+        var utterances = List.of("Hello!", "Greetings.", "Hey");
+        var rdm = new Random();
+
+        rs.addRule("greetings", () -> {
             // check for tokens with the intent 'greetings'
-            sys.getTokens().stream()
+            dialog.getTokens().stream()
                     .filter(t -> t.payloadEquals("intent", "greetings"))
                     .findFirst()
                     .ifPresent(t -> {
-                        // consume the token (subsequent rules won't see the token)
-                        sys.removeToken(t);
-                        // request tts output via token
-                        dialog.present(new PresentationRequest("Hello!"));
-                        // disable this rule for four seconds
-                        sys.disable("greetings", Duration.ofSeconds(4));
+                        // create an update function that may get executed later
+                        // this depends on the implementation of the rule coordinator
+                        dialog.getRuleCoordinator().add(() -> {
+                            String utteranace = utterances.get(rdm.nextInt(utterances.size()));
+                            // request tts output via token
+                            dialog.present(new PresentationRequest(utteranace));
+                            // disable this rule for four seconds
+                            dialog.getRuleSystem().disable("greetings", Duration.ofSeconds(4));
+                        }).attach(consumes, t);
+
                     });
         });
         // set the priority of the greetings rule.
@@ -43,22 +55,33 @@ public class MetaFactory {
         tagSystem.addTag("greetings", "meta");
     }
 
-    public static void createInformAnswer(RuleSystem rs, String ruleName, Runnable yes, Runnable no) {
-        rs.addRule(ruleName, (ruleSystem) -> {
-            ruleSystem.getTokens().stream()
+    public static void createInformAnswer(Dialog dialog, String ruleName, Runnable yes, Runnable no) {
+        RuleSystem rs = dialog.getRuleSystem();
+        dialog.getRuleSystem().addRule(ruleName, () -> {
+            dialog.getTokens().stream()
                     .filter(t -> t.payloadEquals("intent", "answer"))
                     .forEach(t -> {
+
+                        Double confidence = getConfidence(t).orElse(1.0);
+                        if (confidence < minConfidence) {
+                            log.debug("Ignoring 'answer' intent because confidence is too low.");
+                            return;
+                        }
+
+                        final Runnable fnc;
                         if (t.payloadEquals("content", "confirm")) {
-                            yes.run();
-                            rs.removeToken(t);
-                            rs.removeRule(ruleName);
+                            fnc = yes;
                         } else if (t.payloadEquals("content", "disconfirm")) {
-                            no.run();
-                            rs.removeToken(t);
-                            rs.removeRule(ruleName);
+                            fnc = no;
                         } else {
                             log.warn("malformed 'answer intent': {}", t);
+                            return;
                         }
+
+                        dialog.getRuleCoordinator().add(() -> {
+                            fnc.run();
+                            rs.removeRule(ruleName);
+                        }).attach(consumes, t);
                     });
         });
         rs.setVolatile(ruleName, true);
@@ -66,7 +89,7 @@ public class MetaFactory {
 
         //TODO to avoid a deadlock:
         //TODO [1] it should be checked if there is still a confirmation active -> cancel it
-        //TODO [2] use a different rule name and keep both confirmation rules active (only one rule will consume the response)
+        //TODO [2] use a different rule name and keep both confirmation functions active (only one rule will consume the response)
     }
 
     /**
@@ -96,8 +119,9 @@ public class MetaFactory {
     }
 
     /**
-     * Creates two rule 'undo' and 'update_undo' that allow the user to jump back in the dialog history.
-     * Valid jump points are updated on discrete interactions like speech output, but should be further specified.
+     * Creates the rule 'undo' that allow the user to jump back in the dialog history.
+     * Valid jump points should be created on meaningful points of the dialog.
+     * See {@link #createSnapshot}
      *
      * @param dialog
      * @param lastInteraction
@@ -105,19 +129,22 @@ public class MetaFactory {
     public static void createUndoRule(Dialog dialog, int lastInteraction) {
         var rs = dialog.getRuleSystem();
         rs.removeRule("undo");
-        rs.addRule("undo", (sys) -> {
-            sys.getTokens().stream()
+        rs.addRule("undo", () -> {
+            dialog.getTokens().stream()
                     .filter(t -> t.payloadEquals("intent", "undo"))
                     .findFirst()
                     .ifPresent(t -> {
-                        rs.removeToken(t);
-                        //jump one iteration behind the interaction
-                        //this jumps to state before the last interaction was done
-                        //~ undo last action
-                        dialog.rewind(Math.max(0, lastInteraction - 1));
+
+                        dialog.getRuleCoordinator().add(() -> {
+                            //jump one iteration behind the interaction
+                            //this jumps to state before the last interaction was done
+                            //~ undo last action
+                            dialog.rewind(Math.max(0, lastInteraction - 1));
+                        }).attach(consumes, t);
                     });
         });
         rs.setPriority("undo", 20);
+        dialog.getTagSystem().addTag("undo", "meta");
     }
 
     public static void createSnapshot(Dialog dialog) {
@@ -131,22 +158,24 @@ public class MetaFactory {
     }
 
     public static void createRepeatRule(Dialog dialog, String ruleName, String lastTts) {
-        RuleSystem ruleSystem = dialog.getRuleSystem();
+        RuleSystem rs = dialog.getRuleSystem();
         //the user can request a repeat up to 10 seconds
-        long until = ruleSystem.getClock().convert(Duration.ofSeconds(25)) + ruleSystem.getIteration();
-        ruleSystem.addRule(ruleName, (sys) -> {
+        long until = rs.getClock().convert(Duration.ofSeconds(25)) + rs.getIteration();
+        rs.addRule(ruleName, () -> {
 //            final Pattern pattern = Pattern.compile("[can ]?[you ]?repeat that[ please]?");
-            sys.getTokens().stream()
+            dialog.getTokens().stream()
                     .filter(t -> t.payloadEquals("intent", "repeat"))
                     .findFirst()
                     .ifPresent(t -> {
-                        sys.removeToken(t);
-                        sys.removeRule(ruleName);
-                        if (sys.getIteration() >= until) {
-                            dialog.present(new PresentationRequest( "I did not say anything"));
-                        } else {
-                            dialog.present(new PresentationRequest( lastTts));
-                        }
+
+                        dialog.getRuleCoordinator().add(() -> {
+                            rs.removeRule(ruleName);
+                            if (rs.getIteration() >= until) {
+                                dialog.present(new PresentationRequest("I did not say anything"));
+                            } else {
+                                dialog.present(new PresentationRequest(lastTts));
+                            }
+                        }).attach(consumes, t);
                     });
         });
     }
@@ -159,39 +188,52 @@ public class MetaFactory {
     public static void selectRule(Dialog dialog, String ruleName, List<String> choices, Consumer<String> callback) {
         RuleSystem rs = dialog.getRuleSystem();
         //TODO use 'choices' to update grammar
-        rs.addRule(ruleName, (sys) -> {
-            sys.getTokens().stream()
+        rs.addRule(ruleName, () -> {
+            Optional<Token> selectToken = dialog.getTokens().stream()
                     .filter(t -> t.payloadEquals("intent", "select"))
-                    .findFirst()
-                    .ifPresent(t -> {
-                        sys.removeToken(t);
+                    .findFirst();
 
-                        Optional<String> selection = t.get("selection")
-                                .filter(s -> s instanceof String)
-                                .map(s -> (String) s);
+            if (!selectToken.isPresent()) {
+                return;
+            }
+
+            Optional<String> selection = selectToken.get().get("selection")
+                    .filter(s -> s instanceof String)
+                    .map(s -> (String) s);
 
 
-                        Optional<Double> confidence = t.get("confidence")
-                                .filter(c -> c instanceof Double)
-                                .map(c -> (Double) c);
+            Optional<Double> confidence = selectToken.get().get("confidence")
+                    .filter(c -> c instanceof Double)
+                    .map(c -> (Double) c);
 
-                        if (selection.isPresent()) {
-                            if (confidence.isPresent() && confidence.get() < minConfidence) {
-                                System.out.println("Please confirm your selection for " + selection.get());
-                                MetaFactory.createInformAnswer(sys, "confirm_" + ruleName,
-                                        () -> callback.accept(selection.get()),
-                                        () -> {
-                                        }
-                                );
-                            } else {
-                                callback.accept(selection.get());
+            if (!selection.isPresent()) {
+                dialog.getRuleCoordinator().add(() -> {
+                    //TODO nlg for question
+                    dialog.present(new PresentationRequest("Which TODO do you mean?"));
+                    specifyRule(dialog, "specify_" + ruleName, callback);
+                }).attach(consumes, selectToken.get());
+                return;
+            }
+
+            if (confidence.isPresent() && confidence.get() < minConfidence) {
+                dialog.getRuleCoordinator().add(() -> {
+                    PresentationRequest pr = new PresentationRequest("Please confirm your selection for " + selection.get());
+                    dialog.present(pr);
+
+                    MetaFactory.createInformAnswer(dialog, "confirm_" + ruleName,
+                            () -> callback.accept(selection.get()),
+                            () -> {
                             }
-                        } else {
-                            //TODO nlg for question
-                            dialog.present(new PresentationRequest( "Which TODO do you mean?"));
-                            specifyRule(rs, "specify_" + ruleName, callback);
-                        }
-                    });
+                    );
+                }).attach(consumes, selectToken.get());
+
+
+            } else {
+                dialog.getRuleCoordinator().add(() -> {
+                    callback.accept(selection.get());
+                }).attach(consumes, selectToken.get());
+            }
+
         });
         rs.setPriority("select_task", 20);
     }
@@ -200,10 +242,13 @@ public class MetaFactory {
     /**
      * If the system can't derive the intended task referred by the user, the user
      * may specify his request by "the first task"
+     * <p>
+     * TODO return whole token in callback
      */
-    public static void specifyRule(RuleSystem rs, String rule, Consumer<String> callback) {
-        rs.addRule(rule, (sys) -> {
-            sys.getTokens().stream()
+    public static void specifyRule(Dialog dialog, String rule, Consumer<String> callback) {
+        var rs = dialog.getRuleSystem();
+        rs.addRule(rule, () -> {
+            dialog.getTokens().stream()
                     .filter(t -> t.payloadEquals("intent", "specify"))
                     .findFirst()
                     .ifPresent(t -> {
@@ -215,25 +260,41 @@ public class MetaFactory {
                             return;
                         }
 
-                        sys.removeToken(t);
-                        rs.removeRule(rule);
-                        String specificationStr = (String) specification.get();
-                        callback.accept(specificationStr);
+                        dialog.getRuleCoordinator().add(() -> {
+                            rs.removeRule(rule);
+                            String specificationStr = (String) specification.get();
+                            callback.accept(specificationStr);
+                        }).attach(consumes, t);
                     });
         });
         rs.setPriority(rule, 20);
     }
 
 
-    public static void turnGrabRule(RuleSystem rs, String ruleName, Runnable callback) {
-        rs.addRule(ruleName, (sys) -> {
-            sys.getTokens().stream()
+    /**
+     * e.g. user interupts the system via gesture or speech input
+     *
+     * @param dialog
+     * @param ruleName
+     * @param callback consumer that the intent specifying the turn_grab
+     */
+    public static void turnGrabRule(Dialog dialog, String ruleName, Consumer<Token> callback) {
+        dialog.getRuleSystem().addRule(ruleName, () -> {
+            dialog.getTokens().stream()
                     .filter(t -> t.payloadEquals("intent", "turn_grab"))
                     .findFirst()
                     .ifPresent(t -> {
-                        callback.run(); //TODO payload?
+                        dialog.getRuleCoordinator().add(() -> {
+                            callback.accept(t);
+                        }).attach(consumes, t);
                     });
         });
-//        tagSystem.addTag("InterruptTTS", "meta");
+        dialog.getTagSystem().addTag(ruleName, "meta");
+    }
+
+    public static Optional<Double> getConfidence(Token token) {
+        return token.get("confidence")
+                .filter(c -> c instanceof Double)
+                .map(c -> (Double) c);
     }
 }

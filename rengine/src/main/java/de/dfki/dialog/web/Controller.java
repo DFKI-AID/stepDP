@@ -7,6 +7,7 @@ import de.dfki.dialog.Behavior;
 import de.dfki.dialog.StateBehavior;
 import de.dfki.rengine.Token;
 import de.dfki.sc.StateChart;
+import org.pcollections.PSequence;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
@@ -50,8 +51,7 @@ public class Controller {
 
     @GetMapping(value = "/tokens")
     public List<Token> getTokens() {
-        var rs = settings.app.getRuleSystem();
-        var tokens = settings.app.getRuleSystem().getTokens().stream()
+        var tokens = settings.app.getTokens().stream()
                 .collect(Collectors.toList());
         return tokens;
     }
@@ -134,5 +134,11 @@ public class Controller {
         }
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("not impl");
+    }
+
+    @GetMapping(value = "/output/history", produces = "application/json")
+    public ResponseEntity<List<String>> getOutputHistory() {
+        PSequence payload = settings.app.outputHistory;
+        return ResponseEntity.status(HttpStatus.OK).body(payload);
     }
 }

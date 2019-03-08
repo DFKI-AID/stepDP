@@ -9,21 +9,25 @@ import java.time.LocalDateTime;
  *
  */
 public class TimeBehavior implements Behavior {
+    private long timeout = 3000L;
     private Dialog dialog;
 
     @Override
     public void init(Dialog dialog) {
         this.dialog = dialog;
-        dialog.getRuleSystem().addRule("request_time", (sys) -> {
-            sys.getTokens().stream()
+        dialog.getRuleSystem().addRule("request_time", () -> {
+            dialog.getTokens().stream()
                     .filter(t -> t.payloadEquals("intent", "time_request"))
                     .findFirst()
                     .ifPresent(t -> {
-                        sys.removeToken(t);
-                        var now = LocalDateTime.now();
-                        var tts = "it is " + now.getHour() + ":" + now.getMinute(); //TODO improve
-                        dialog.present(new PresentationRequest(tts));
-                        sys.disable("request_time", Duration.ofMillis(3000));
+
+                        dialog.getRuleCoordinator().add(() -> {
+                            //output time via tts and disable the rule x seconds
+                            var now = LocalDateTime.now();
+                            var tts = "The time is " + now.getHour() + ":" + now.getMinute(); //TODO improve
+                            dialog.present(new PresentationRequest(tts));
+                            dialog.getRuleSystem().disable("request_time", Duration.ofMillis(timeout));
+                        }).attach("consumes", t);
                     });
         });
         dialog.getTagSystem().addTag("request_time", "meta");

@@ -90,18 +90,19 @@ public class DialogApp extends Dialog {
         taskBehavior.init(this);
 
         MetaFactory.createUndoRule(this);
-        tagSystem.addTag("undo", "meta");
-        tagSystem.addTag("update_undo", "meta");
-        createInterruptRule(rs);
-        tagSystem.addTag("interrupt", "meta");
+
+        MetaFactory.turnGrabRule(this, "interrupt", (token) -> {
+            System.out.println("TODO interrupt output + \"yes?\"");
+        });
+
         tagSystem.addTag("request_repeat_tts", "meta");
 
-        rs.addRule("manual_intent", (sys) -> {
+        rs.addRule("manual_intent", () -> {
             Token intentToken = intentQueue.poll();
             if (intentToken == null) {
                 return;
             }
-            sys.addToken(intentToken);
+            addToken(intentToken);
         });
         tagSystem.addTag("manual_intent", "simulation");
         rs.setPriority("manual_intent", 10);
@@ -110,7 +111,7 @@ public class DialogApp extends Dialog {
 
 
         //simulates visual focus
-//        rs.addRule("focus", (sys) -> {
+//        rs.add("focus", (sys) -> {
 //            if ((new Random().nextBoolean())) {
 //                sys.addToken(new Token("focus", "task" + (new Random()).nextInt(3)));
 //            }
@@ -126,7 +127,7 @@ public class DialogApp extends Dialog {
         MetaFactory.createRepeatRule(this, "request_repeat_tts", "I did not say anything.");
 
 
-//        rs.addRule("TTS", (sys) -> {
+//        rs.add("TTS", (sys) -> {
 //            sys.getTokens().stream()
 //                    .filter(t -> t.topicIs("output_tts"))
 //                    .forEach(t -> {
@@ -145,9 +146,6 @@ public class DialogApp extends Dialog {
 //        });
 //        rs.setPriority("TTS", 100);
 //        tagSystem.addTag("TTS", "meta");
-
-        MetaFactory.turnGrabRule(rs, "turnGrab", () -> System.out.println("-stopping tts-"));
-        tagSystem.addTag("turnGrab", "meta");
     }
 
     @Override
@@ -155,19 +153,6 @@ public class DialogApp extends Dialog {
         hololensClient.updateGrammar(grammarManager);
     }
 
-    private static void createInterruptRule(RuleSystem rs) {
-        rs.addRule("interrupt", (sys) -> {
-            sys.getTokens().stream()
-                    .filter(t -> t.payloadEquals("intent", "interrupt"))
-                    .reduce((t1, t2) -> t1)
-                    .ifPresent(t -> {
-                        sys.removeToken(t);
-//                        sys.addToken(new Token("interrupt_tts"));
-                        //TODO impl
-                    });
-        });
-        rs.setPriority("interrupt", 20);
-    }
 
     @Override
     public void deinit() {

@@ -7,6 +7,8 @@ import de.dfki.sc.Parser;
 import de.dfki.sc.SCEngine;
 import de.dfki.sc.SCMain;
 import de.dfki.sc.StateChart;
+import org.pcollections.HashTreePMap;
+import org.pcollections.PMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +23,7 @@ public class TaskBehavior implements StateBehavior {
     private static final Logger log = LoggerFactory.getLogger(TaskBehavior.class);
     private Dialog dialog;
     private RuleSystem rs;
-    private TagSystem tagSystem;
+    private TagSystem<String> tagSystem;
     private StateHandler2 stateHandler;
     private String currentTask;
 
@@ -128,36 +130,34 @@ public class TaskBehavior implements StateBehavior {
          * "Which tasks are available?"
          * Show the worker some tasks he can work on
          */
-        rs.addRule("show_tasks", (sys) -> {
-            sys.getTokens().stream()
-                    .filter(t -> t.payloadEquals("intent", "show_tasks"))
-                    .findFirst()
-                    .ifPresent(t -> {
-                        sys.removeToken(t);
+        rs.addRule("show_tasks", () -> dialog.getTokens().stream()
+                .filter(t -> t.payloadEquals("intent", "show_tasks"))
+                .findFirst()
+                .ifPresent(t -> {
+                    dialog.getRuleCoordinator().add("show_tasks", () -> {
                         stateHandler.fire("show_tasks");
-                    });
-        });
+                    }).attach("consumes", t);
+                }));
         rs.setPriority("show_tasks", 20);
 
 
         /**
          * "Hide the available task list in the hololens
          */
-        rs.addRule("hide_tasks", (sys) -> {
-            sys.getTokens().stream()
-                    .filter(t -> t.payloadEquals("intent", "hide_tasks"))
-                    .findFirst()
-                    .ifPresent(t -> {
-                        sys.removeToken(t);
+        rs.addRule("hide_tasks", () -> dialog.getTokens().stream()
+                .filter(t -> t.payloadEquals("intent", "hide_tasks"))
+                .findFirst()
+                .ifPresent(t -> {
+                    dialog.getRuleCoordinator().add("hide_tasks", () -> {
                         stateHandler.fire("hide_tasks");
                     });
-        });
+                }));
         rs.setPriority("hide_tasks", 20);
 
 
         /**
          */
-//        rs.addRule("select_task", (sys) -> {
+//        rs.add("select_task", (sys) -> {
 //            sys.getTokens().stream()
 //                    .filter(t -> t.payloadEquals("intent", "select_task"))
 //                    .findFirst()
@@ -173,7 +173,7 @@ public class TaskBehavior implements StateBehavior {
 //                                .filter(c -> c instanceof Double)
 //                                .map(c -> (Double) c);
 //
-//                        //what should happen if the rules 'finishes'
+//                        //what should happen if the functions 'finishes'
 //                        Runnable execute = () -> {
 //                            stateHandler.fire("show_task");
 //                        };
@@ -195,6 +195,8 @@ public class TaskBehavior implements StateBehavior {
 //                        }
 //                    });
 //        });
+
+
         MetaFactory.selectRule(dialog, "select_task", List.of("task1", "task2", "task3"), (task) -> {
             //TODO filter for available tasks here?
             this.currentTask = task;
@@ -203,32 +205,75 @@ public class TaskBehavior implements StateBehavior {
             stateHandler.fire("show_task");
         });
         rs.setPriority("select_task", 20);
-        //TODO tags and the removing of the rules should be done automatically
+        //TODO tags and the removing of the functions should be done automatically
         dialog.getTagSystem().addTag("specify_select_task", "Choice");
         dialog.getTagSystem().addTag("confirm_select_task", "Choice");
         dialog.getTagSystem().addTag("specify_select_task", "Info");
         dialog.getTagSystem().addTag("confirm_select_task", "Info");
 
         // convert 'show_navigation' intent to 'show_navigation' event
-        rs.addRule("show_navigation", (sys) -> {
-            MetaFactory.filterIntent("request", sys.getTokens().stream())
+        rs.addRule("show_navigation", () -> {
+            MetaFactory.filterIntent("request", dialog.getTokens().stream())
                     .filter(t -> t.payloadEquals("object", "navigation"))
                     .forEach(t -> {
-                        stateHandler.fire("show_navigation");
-                        rs.removeToken(t);
+                        dialog.getRuleCoordinator().add(() -> {
+                            stateHandler.fire("show_navigation");
+                        }).attach("consumes", t);
                     });
         });
 
-        rs.addRule("provide_tool_info", (sys) -> {
-            MetaFactory.filterIntent("request", sys.getTokens().stream())
+        rs.addRule("provide_tool_info", () -> {
+            MetaFactory.filterIntent("request", dialog.getTokens().stream())
                     .filter(t -> t.payloadEquals("object", "tools"))
                     .forEach(t -> {
-                        dialog.present(new PresentationRequest("you need the following tools..."));
-                        rs.removeToken(t);
+                        dialog.getRuleCoordinator().add(() -> {
+                            dialog.present(new PresentationRequest("you need the following tools..."));
+                        }).attach("consumes", t);
                     });
         });
 
         createAcceptTaskRule();
+
+
+
+
+        rs.addRule("add_move_action", () -> {
+            Optional<Token> token = dialog.getTokens().stream()
+                    .filter(t -> t.payloadEquals("intent", "addAtomicAction"))
+                    .filter(t -> t.payloadEquals("type", "move"))
+                    .findFirst();
+
+            if(!token.isPresent()) {
+                return;
+            }
+
+            Token intent = token.get();
+            if(!intent.get("object").isPresent()) {
+                dialog.getRuleCoordinator().add(() -> {
+                    dialog.present(new PresentationRequest("Where do you want me to go?"));
+                    MetaFactory.specifyRule(dialog, "specify_add_move_action", (specification) -> {
+                        String object = specification;
+                        Optional<Object> action = intent.get("type");
+                        rs.removeRule("specify_add_move_action");
+                        // create Atomic Action
+                    });
+
+                }).attach("consumes", intent);
+            }
+
+            dialog.getRuleCoordinator().add(() -> {
+                String object = (String) intent.get("object").get();
+                Optional<Object> action = intent.get("type");
+                rs.removeRule("specify_add_move_action");
+                // create Atomic Action
+            }).attach("consumes", intent);
+        });
+        tagSystem.addTag("add_move_action", "CreateTask");
+        rs.disable("add_move_action");
+
+        Set<String> rules = tagSystem.getTagged("CreateTask");
+        rules.forEach(r -> rs.enable(r));
+
     }
 
 
@@ -237,8 +282,8 @@ public class TaskBehavior implements StateBehavior {
      * may specify his request by "the first task"
      */
     private void specifyTaskRule(String rule) {
-        rs.addRule(rule, (sys) -> {
-            sys.getTokens().stream()
+        rs.addRule(rule, () -> {
+            dialog.getTokens().stream()
                     .filter(t -> t.payloadEquals("intent", "select_task_supp"))
                     .findFirst()
                     .ifPresent(t -> {
@@ -248,12 +293,13 @@ public class TaskBehavior implements StateBehavior {
                             return;
                         }
 
-                        //TODO unchecked
-                        String task = (String) taskName.get();
-                        TaskBehavior.this.currentTask = task;
-                        sys.removeToken(t);
-                        rs.removeRule(rule);
-                        stateHandler.fire("show_task");
+                        dialog.getRuleCoordinator().add(() -> {
+                            //TODO unchecked
+                            String task = (String) taskName.get();
+                            TaskBehavior.this.currentTask = task;
+                            rs.removeRule(rule);
+                            stateHandler.fire("show_task");
+                        }).attach("consumes", t);
                     });
         });
         rs.setPriority(rule, 20);
@@ -264,12 +310,11 @@ public class TaskBehavior implements StateBehavior {
      *
      */
     private void createAcceptTaskRule() {
-        rs.addRule("accept_task", (sys) -> {
-            sys.getTokens().stream()
+        rs.addRule("accept_task", () -> {
+            dialog.getTokens().stream()
                     .filter(t -> t.payloadEquals("intent", "accept_task"))
                     .findFirst()
                     .ifPresent(t -> {
-                        sys.removeToken(t);
 
                         Optional<Double> confidence = t.get("confidence")
                                 .filter(c -> c instanceof Double)
@@ -282,22 +327,27 @@ public class TaskBehavior implements StateBehavior {
                         String acceptTts = String.format("Okay, let's do task '%s'", currentTask);
 
                         if (confidence.isPresent() && confidence.get() < 0.3) {
-                            String tts = String.format("Please confirm your selection for task '%s'.", currentTask);
-                            dialog.present(new PresentationRequest(tts));
+                            dialog.getRuleCoordinator().add(() -> {
+                                String tts = String.format("Please confirm your selection for task '%s'.", currentTask);
+                                dialog.present(new PresentationRequest(tts));
+                                MetaFactory.createInformAnswer(dialog, "confirm_task",
+                                        () -> {
+                                            stateHandler.fire("task_accepted");
+                                            dialog.present(new PresentationRequest(acceptTts));
+                                        }, () -> {
+                                            dialog.present(new PresentationRequest("Okay."));
+                                        });
+                                // associate the confirm_task rule to the current state.
+                                tagSystem.addTag("confirm_task", stateHandler.getCurrentState());
+                            }).attach("consumes", t);
+                            return;
+                        }
 
-                            MetaFactory.createInformAnswer(sys, "confirm_task",
-                                    () -> {
-                                        stateHandler.fire("task_accepted");
-                                        dialog.present(new PresentationRequest(acceptTts));
-                                    }, () -> {
-                                        dialog.present(new PresentationRequest("Okay."));
-                                    });
-                            // associate the confirm_task rule to the current state.
-                            tagSystem.addTag("confirm_task", stateHandler.getCurrentState());
-                        } else {
+                        dialog.getRuleCoordinator().add(() -> {
                             stateHandler.fire("task_accepted");
                             dialog.present(new PresentationRequest(acceptTts));
-                        }
+                        }).attach("consumes", t);
+
                     });
         });
         rs.setPriority("accept_task", 20);

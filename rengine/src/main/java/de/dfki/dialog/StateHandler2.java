@@ -44,7 +44,7 @@ public class StateHandler2 {
     }
 
     /**
-     * Activates all rules with the given tag
+     * Activates all functions with the given tag
      *
      * @param tag
      */
@@ -59,7 +59,7 @@ public class StateHandler2 {
     }
 
     /**
-     * Deactivates all rules with the given tag
+     * Deactivates all functions with the given tag
      *
      * @param tag
      */

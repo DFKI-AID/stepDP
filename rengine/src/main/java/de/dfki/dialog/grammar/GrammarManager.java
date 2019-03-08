@@ -34,7 +34,7 @@ public class GrammarManager {
     public synchronized Grammar createGrammar() {
         Grammar grammar = new Grammar();
         rules.entrySet().stream()
-                //find all rules that are either active or not public
+                //find all functions that are either active or not public
                 .filter(entry -> isActive(entry.getKey()) || !entry.getValue().isPublic())
                 .map(entry -> entry.getValue())
                 .forEach(rule -> grammar.addRule(rule));

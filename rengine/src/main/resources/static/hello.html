@@ -16,15 +16,15 @@
 <div id="app" class="container-fluid">
     <div class="row grow w-100">
         <div class="col-6">
-            <div class="row">
-                <div class="btn-toolbar">
-                    <div class="btn-group">
-                        <button v-on:click="undo">undo</button>
-                        <button v-on:click="hello">hello</button>
-                        <button v-on:click="repeat">repeat</button>
-                    </div>
-                </div>
-            </div>
+            <!--<div class="row">-->
+            <!--<div class="btn-toolbar">-->
+            <!--<div class="btn-group">-->
+            <!--<button v-on:click="undo">undo</button>-->
+            <!--<button v-on:click="hello">hello</button>-->
+            <!--<button v-on:click="repeat">repeat</button>-->
+            <!--</div>-->
+            <!--</div>-->
+            <!--</div>-->
             <div class="row">
                 <div>
                     <textarea v-model="intentContent" id="intentTextArea" cols=40 rows=10></textarea>
@@ -62,10 +62,18 @@
         <!--<div id="grammar">Grammar: {{grammar}}</div>-->
         <!--</div>-->
         <!--TODO replace iframe with reusable vue component-->
-        <iframe id="behavior" width="50%" height="1000" src="/behavior.html">
-        </iframe>
+        <div class="col-6">
+            <iframe id="behavior" width="100%" height="1000" src="/behavior.html">
+            </iframe>
+        </div>
     </div>
-</div>
+    <div class="row grow w-100">
+        <table>
+            <tr v-for="item in outputHistory.slice().reverse()">
+                <td>{{item}}</td>
+            </tr>
+        </table>
+    </div>
 
 <body>
 
@@ -105,18 +113,20 @@
                     "hide_tasks": {"intent": "hide_tasks"},
                     "confirm": {"intent": "answer", "content": "confirm"},
                     "disconfirm": {"intent": "answer", "content": "disconfirm"},
-                    "greetings": {"intent": "greetings"},
+                    "hello": {"intent": "greetings"},
                     "undo": {"intent": "undo"},
                     "repeat": {"intent": "repeat"},
                     "show_nav": {"intent": "request", "object": "navigation"},
-                    "hide_nav": {"intent": "hide_navigation"}
+                    "hide_nav": {"intent": "hide_navigation"},
+                    "turn_grab": {"intent": "turn_grab"}
 
                     // {"intent": "select_task"},
                     // {"intent": "accept_task"},
                     // "select_task", "accept_task", "select_task_supp", "show_tasks", "hide_tasks", "accept", "reject"
                 },
                 intentSelection: "",
-                intentContent: ""
+                intentContent: "",
+                outputHistory: [],
             },
             methods: {
                 updateData: function () {
@@ -134,6 +144,10 @@
 
                     $.get('/grammar', function (rsp) {
                         this.grammar = new XMLSerializer().serializeToString(rsp);
+                    }.bind(this));
+
+                    $.get('/output/history', function (rsp) {
+                        this.outputHistory = rsp;
                     }.bind(this));
                 },
                 undo: function (event) {
