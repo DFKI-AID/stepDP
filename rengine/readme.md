@@ -26,7 +26,10 @@ A rule engine, where rules act on tokens (arbitrary data like a map). The main i
 - Web API:
    - Overview about active rules and their tags
    - Overview about the state chart (e.g. state diagram + active state)
-   - Trigger tokens -> Simulate input eases testing of the dialog
+   - Simulate input (json format) eases testing of the dialog
+     - **TODO** store new intents in the data storage
+   - TTS of WebSpeech API (beta).
+   - **TODO** ASR of WebSpeech API (beta), works only chrome and does not yet return semantics from the grammar.
 - Management Components:
    - Manual rule handling
    - State chart (**TODO** partial scxml support, history and parallel state unsupported atm)

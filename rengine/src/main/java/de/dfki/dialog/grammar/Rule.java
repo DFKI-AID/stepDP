@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * TODO impl rule ref?
  */
 public class Rule implements Node {
     private final String id;

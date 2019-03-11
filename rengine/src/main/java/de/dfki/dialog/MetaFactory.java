@@ -210,6 +210,7 @@ public class MetaFactory {
     }
 
     public static void createRepeatRule(Dialog dialog, String ruleName, String lastTts) {
+        String prefix = "I said ";
         RuleSystem rs = dialog.getRuleSystem();
         //the user can request a repeat up to 10 seconds
         long until = rs.getClock().convert(Duration.ofSeconds(25)) + rs.getIteration();
@@ -225,7 +226,7 @@ public class MetaFactory {
                             if (rs.getIteration() >= until) {
                                 dialog.present(new PresentationRequest("I did not say anything"));
                             } else {
-                                dialog.present(new PresentationRequest(lastTts));
+                                dialog.present(new PresentationRequest(prefix + lastTts));
                             }
                         }).attach(consumes, t);
                     });
