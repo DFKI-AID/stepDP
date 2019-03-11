@@ -39,21 +39,21 @@ public class DeviceControlDC implements DialogComponent {
         //Turn on _DEV
         Hypothesis.Builder turnOnBuilder = new Hypothesis.Builder("turnOn");
         Slot slot = new Slot("dev");
-        slot.setSlotConstraint(new Slot.SlotTypeConstraint(Ontology.Device));
+        slot.setSlotConstraint(new Slot.SlotTypeConstraint(Ontology.Device.getName()));
         turnOnBuilder.addSlot(slot);
         deviceControlHypos.add(turnOnBuilder.build());
 
         //Turn off _DEV
         Hypothesis.Builder turnOffBuilder = new Hypothesis.Builder("turnOff");
         slot = new Slot("dev");
-        slot.setSlotConstraint(new Slot.SlotTypeConstraint(Ontology.Device));
+        slot.setSlotConstraint(new Slot.SlotTypeConstraint(Ontology.Device.getName()));
         turnOffBuilder.addSlot(slot);
         deviceControlHypos.add(turnOffBuilder.build());
 
         //Change_color _DEV _COLOR
         Hypothesis.Builder changeColorBuilder = new Hypothesis.Builder("changeColor");
         slot = new Slot("dev");
-        slot.setSlotConstraint(new Slot.SlotTypeConstraint(Ontology.Device));
+        slot.setSlotConstraint(new Slot.SlotTypeConstraint(Ontology.Device.getName()));
         Slot slot2 = new Slot("color");
         slot2.setSlotConstraint(new Slot.SlotRangeConstraint(List.of("white", "blue", "green", "red", "yellow")));
         changeColorBuilder.addSlot(slot);
@@ -63,7 +63,7 @@ public class DeviceControlDC implements DialogComponent {
         //Increase_brightness _DEV _Brightness
         Hypothesis.Builder increaseBrightnessBuilder = new Hypothesis.Builder("increaseBrightness");
         slot = new Slot("dev");
-        slot.setSlotConstraint(new Slot.SlotTypeConstraint(Ontology.Device));
+        slot.setSlotConstraint(new Slot.SlotTypeConstraint(Ontology.Device.getName()));
         slot2 = new Slot("brightness");
         slot2.setSlotConstraint(new Slot.NumericSlotConstraint(0.0, 360.0));
         increaseBrightnessBuilder.addSlot(slot);
@@ -73,7 +73,7 @@ public class DeviceControlDC implements DialogComponent {
         //Decrease_brightness _DEV _Brightness
         Hypothesis.Builder decreaseBrightnessBuilder = new Hypothesis.Builder("decreaseBrightness");
         slot = new Slot("dev");
-        slot.setSlotConstraint(new Slot.SlotTypeConstraint(Ontology.Device));
+        slot.setSlotConstraint(new Slot.SlotTypeConstraint(Ontology.Device.getName()));
         slot2 = new Slot("brightness");
         slot2.setSlotConstraint(new Slot.NumericSlotConstraint(0.0, 360.0));
         decreaseBrightnessBuilder.addSlot(slot);

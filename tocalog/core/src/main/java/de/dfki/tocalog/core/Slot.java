@@ -176,9 +176,9 @@ public class Slot {
 
     public static class SlotTypeConstraint extends SlotConstraint {
 
-        private Type type;
+        private String type;
 
-        public SlotTypeConstraint(Type type) {
+        public SlotTypeConstraint(String type) {
             this.type = type;
         }
 
@@ -194,7 +194,7 @@ public class Slot {
 
 
         public boolean validateType(String slotType) {
-            return type.getName().toLowerCase().contains(slotType);
+            return type.toLowerCase().contains(slotType);
         }
 
         @Override
