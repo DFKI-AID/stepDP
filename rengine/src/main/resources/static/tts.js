@@ -28,6 +28,11 @@ const ttsApp = new Vue({
                     this.tts(this.utterance);
                 }
             }.bind(this));
+            if ($.isEmptyObject(this.voices)) {
+                //fix for chrome? somehow the voices can't be loaded during vue-create. (empty)
+                //hence we reload them here if they are still empty
+                this.populateVoiceList();
+            }
         },
         tts: function (utterance) {
             var utterObj = new SpeechSynthesisUtterance(utterance);
