@@ -1,12 +1,9 @@
-package de.dfki.nlg;
+package de.dfki.pdp.nlg;
 
 import com.google.gson.*;
-import com.google.gson.reflect.TypeToken;
 
 import java.io.InputStreamReader;
-import java.lang.reflect.Type;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**

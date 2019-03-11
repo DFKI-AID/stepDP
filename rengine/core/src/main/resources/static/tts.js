@@ -52,12 +52,6 @@ const ttsApp = new Vue({
             });
 
         },
-        /**
-         * @param id e.g. "Alex en-US"
-         */
-        getVoice(id) {
-
-        },
         play: function () {
             this.tts(this.manual_utterance);
         },

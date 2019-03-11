@@ -1,4 +1,4 @@
-package de.dfki.nlg;
+package de.dfki.pdp.nlg;
 
 /**
  */
