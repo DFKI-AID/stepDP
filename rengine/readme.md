@@ -1,4 +1,4 @@
-# REngine
+# PDP - Persistent Dialog Platform
 
 [TOC]
 
@@ -143,13 +143,24 @@ Custom rules are the easiest way for getting started. However, you have to manag
 ### RuleCoordinator
 
 ### Web API
-Gui -> http://localhost:50000
+The web gui can be seen through a webbrowser on http://localhost:50000 (maps to /index.html).
 
 ### other
 
 - Grammar rules are chosen and merged based on the current set of active rules
 
 
+## Project Overview
+The project is a multi-module maven project and consists of the three modules core, spring and example. 
+
+### core
+The core-module contains the main code of dialog platform. 
+
+### spring
+The spring-module uses spring boot to provide a web interface as well as application entry points and configuration. 
+
+### example
+The example-module shows how the core and spring modules can be used to build an executable jar.
 
 
 ## TODOs

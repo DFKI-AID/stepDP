@@ -68,8 +68,7 @@
         <!--</div>-->
         <!--TODO replace iframe with reusable vue component-->
         <div class="col-6">
-            <iframe id="behavior" width="100%" height="1000" src="/behavior.html">
-            </iframe>
+
         </div>
     </div>
     <div class="row grow w-100">
@@ -78,6 +77,12 @@
                 <td>{{item}}</td>
             </tr>
         </table>
+    </div>
+</div>
+
+<div id="behavior">
+    <div ref="graphContainer"
+         style="position:relative;overflow:hidden;width:5000px;height:5000px;background-color: #FDFFFC;cursor:default;">
     </div>
 </div>
 
@@ -100,7 +105,7 @@
 </div>
 
 
-<script src="/jquery-3.3.1.min.js"></script>
+<script src="/external/jquery-3.3.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue@2.5.22/dist/vue.js"></script>
 <script src="/bootstrap.min.js"></script>
 <script>
@@ -236,5 +241,13 @@
 
 </script>
 <script src="tts.js"></script>
+
+
+<script type="text/javascript">
+    mxBasePath = '/external/mxgraph';
+</script>
+<script src="/external/mxgraph/js/mxClient.js"></script>
+<script src="behavior.js"></script>
+
 </body>
 </html>
