@@ -14,35 +14,19 @@
     <dependencies>
         <dependency>
             <groupId>de.dfki.pdp</groupId>
-            <artifactId>core</artifactId>
+            <artifactId>spring</artifactId>
             <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.thrift</groupId>
+            <artifactId>libthrift</artifactId>
+            <version>0.12.0</version>
         </dependency>
     </dependencies>
 
-    <!--define plugins for [1] java version, [2] attach sources, [3] main class for executable jar-->
+    <!--define plugin for executable jar-->
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>10</source>
-                    <target>10</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>2.3</version>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <!--<phase>deploy</phase>-->
-                        <goals>
-                            <goal>jar-no-fork</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>

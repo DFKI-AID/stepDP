@@ -3,7 +3,10 @@ package de.dfki.pdp.web;
 import de.dfki.pdp.dialog.Dialog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.SpringApplication;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -23,6 +26,9 @@ public class AppConfig {
     @Value("${dialog.name}")
     public String name;
 
+    @Autowired
+    private ApplicationContext appContext;
+
     @Bean
     public Dialog getDialog() {
         return dialog;
@@ -41,16 +47,11 @@ public class AppConfig {
     public void init() {
         try {
             initDialog();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            log.error("Could not load dialog class with name '{}'. Cause: {}", name, e.getMessage());
+            log.debug("Could not load dialog class with name '{}'. Cause: {}", name, e.getMessage(), e);
+            int ec = SpringApplication.exit(appContext, () -> 1);
+            System.exit(ec);
         }
     }
 
