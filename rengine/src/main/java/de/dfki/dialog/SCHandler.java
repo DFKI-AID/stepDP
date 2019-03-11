@@ -8,14 +8,14 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * TODO move to sc package, and replace dialog with rule engine
+ * TODO fire onEnter for intial state
  */
-public class StateHandler2 {
-    private static final Logger log = LoggerFactory.getLogger(StateHandler2.class);
+public class SCHandler {
+    private static final Logger log = LoggerFactory.getLogger(SCHandler.class);
     private final Dialog dialog;
     private final SCEngine engine;
 
-    public StateHandler2(Dialog dialog, SCEngine engine) {
+    public SCHandler(Dialog dialog, SCEngine engine) {
         this.dialog = dialog;
         this.engine = engine;
     }

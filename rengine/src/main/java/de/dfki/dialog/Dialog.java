@@ -11,6 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -19,6 +21,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public abstract class Dialog implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(Dialog.class);
 
+    private AtomicBoolean started = new AtomicBoolean(false);
     protected final Clock clock = new Clock(100);
     protected final RuleSystem rs = new RuleSystem(clock);
     protected final TagSystem<String> tagSystem = new TagSystem();
@@ -50,11 +53,29 @@ public abstract class Dialog implements Runnable {
         return grammarManager;
     }
 
-    public abstract void init();
+    public void init() {
+        if(started.getAndSet(true)) {
+            throw new RuntimeException("already started");
+        }
+        behaviors.values().forEach(b -> b.init(this));
+    }
 
-    public abstract void update();
+    public void update() {
+        ruleCoordinator.reset();
+        //removing all tokens that were used last round
+        waitingTokens = waitingTokens.minusAll(tokens);
+        tokens = waitingTokens;
+        applySnapshot();
+        updateGrammar(rs);
+        rs.update();
+        ruleCoordinator.update();
+        createSnapshot(clock.getIteration());
+        clock.inc();
+    }
 
-    public abstract void deinit();
+    public void deinit() {
+        behaviors.values().forEach(b -> b.deinit());
+    }
 
     /**
      * Updates the global grammar.jsgf based on the functions that are currently active
@@ -128,27 +149,18 @@ public abstract class Dialog implements Runnable {
         createSnapshot(0);
         while (!Thread.currentThread().isInterrupted()) {
             try {
-                ruleCoordinator.reset();
-                //removing all tokens that were used last round
-                waitingTokens = waitingTokens.minusAll(tokens);
-                tokens = waitingTokens;
-                applySnapshot();
-                updateGrammar(rs);
                 update();
-                rs.update();
-                ruleCoordinator.update();
-                createSnapshot(clock.getIteration());
                 Thread.sleep((long) clock.getRate()); //TODO not precise, but sufficient to start with
-                clock.inc();
             } catch (InterruptedException e) {
                 log.warn("Dialog update interrupted. Quitting.");
                 log.debug("Dialog update interrupted. Quitting.", e);
+                break;
             }
         }
         deinit();
     }
 
-    protected void addBehavior(String id, TaskBehavior behavior) {
+    public void addBehavior(String id, Behavior behavior) {
         behaviors.put(id, behavior);
     }
 

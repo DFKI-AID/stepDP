@@ -1,7 +1,7 @@
 package de.dfki.sc;
 
 /**
- * Used to save the position of states in graphical view
+ * Used to save the position of states in a graphical view
  *
  * e.g. <qt:editorinfo geometry="0;-200;-106;-50;100;100" scenegeometry="283.19;110.47;177.19;60.47;164.29;100"/>
  */

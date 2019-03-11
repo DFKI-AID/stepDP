@@ -1,9 +1,10 @@
-package de.dfki.dialog.web;
+package de.dfki.web;
 
 import java.util.HashSet;
 import java.util.Set;
 
 /**
+ * Data container for web api
  */
 public class Rule {
     public String name = "unknown";

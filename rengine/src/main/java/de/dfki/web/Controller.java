@@ -1,9 +1,8 @@
-package de.dfki.dialog.web;
+package de.dfki.web;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import de.dfki.dialog.Behavior;
+import de.dfki.dialog.Dialog;
 import de.dfki.dialog.StateBehavior;
 import de.dfki.rengine.Token;
 import de.dfki.sc.StateChart;
@@ -19,29 +18,33 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- *
+ * REST controller that specifies the web api.
+ * Web requests e.g. for the rule set is handled here.
  */
 @RestController
 public class Controller {
+//    @Autowired
+//    private ApplicationContext context;
+    private Dialog dialog;
+
     @Autowired
-    private ApplicationContext context;
-    private AppConfig.Settings settings;
+    private AppConfig appConfig;
 
     @PostConstruct
     protected void init() {
-        settings = context.getBean(AppConfig.Settings.class);
+        dialog = appConfig.getDialog(); //context.getBean(Dialog.class);
 
     }
 
     @GetMapping(value = "/rules")
     public List<Rule> getRules() {
-        var rs = settings.app.getRuleSystem();
-        var rules = settings.app.getRuleSystem().getRules().stream()
+        var rs = dialog.getRuleSystem();
+        var rules = dialog.getRuleSystem().getRules().stream()
                 .map(r -> {
                     String id = rs.getName(r).orElse("unknown");
                     return new Rule(id)
                             .setActive(rs.isEnabled(r))
-                            .setTags(settings.app.getTagSystem().getTags(id));
+                            .setTags(dialog.getTagSystem().getTags(id));
                 })
                 .collect(Collectors.toList());
         return rules;
@@ -49,7 +52,7 @@ public class Controller {
 
     @GetMapping(value = "/tokens")
     public List<Token> getTokens() {
-        var tokens = settings.app.getTokens().stream()
+        var tokens = dialog.getTokens().stream()
                 .collect(Collectors.toList());
         return tokens;
     }
@@ -57,13 +60,13 @@ public class Controller {
     @GetMapping(value = "/iteration")
     public Map<Object, Object> getIteration() {
         var rsp = new HashMap<Object, Object>();
-        rsp.put("iteration", settings.app.getRuleSystem().getIteration());
+        rsp.put("iteration", dialog.getRuleSystem().getIteration());
         return rsp;
     }
 
     @PostMapping(value = "/rewind/{iteration}")
     public void rewind(@PathVariable("iteration") int iteration) {
-        settings.app.rewind(iteration);
+        dialog.rewind(iteration);
     }
 
 
@@ -73,37 +76,26 @@ public class Controller {
 
     @PostMapping(value = "/input/intent", consumes = "application/json")
     public ResponseEntity<String> postIntent(@RequestBody Map<String, Object> body) {
-//        JsonParser parser = new JsonParser();
-//        JsonObject obj = parser.parse(body).getAsJsonObject();
-//        if(obj.get("intent") == null) {
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing intent");
-//        }
-//
-//        HashMap<String, Object> payload = new HashMap<>();
-//        payload.put("json", obj);
-//        Intent intent = new Intent(obj.get("intent").getAsString(), payload);
-//        settings.app.addIntent(intent);
-
         if (!body.containsKey("intent")) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing intent");
         }
 
 
         Token intentToken = new Token().addAll(body);
-        settings.app.addIntent(intentToken);
+        dialog.addToken(intentToken);
         return ResponseEntity.ok("ok");
     }
 
     @GetMapping(value = "/grammar", produces = "application/xml")
     public String getGrammar() {
-        String grammar = settings.app.getGrammarManager().createGrammar().toString();
+        String grammar = dialog.getGrammarManager().createGrammar().toString();
         return grammar;
     }
 
 
     @GetMapping(value = "/behavior/{id}", produces = "application/json")
     public ResponseEntity<String> getBehavior(@PathVariable("id") String id) {
-        Optional<Behavior> behavior = settings.app.getBehavior(id);
+        Optional<Behavior> behavior = dialog.getBehavior(id);
         if(!behavior.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
@@ -120,7 +112,7 @@ public class Controller {
 
     @GetMapping(value = "/behavior/{id}/state", produces = "application/json")
     public ResponseEntity<String> getBehaviorState(@PathVariable("id") String id) {
-        Optional<Behavior> behavior = settings.app.getBehavior(id);
+        Optional<Behavior> behavior = dialog.getBehavior(id);
         if(!behavior.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
@@ -136,7 +128,7 @@ public class Controller {
 
     @GetMapping(value = "/output/history", produces = "application/json")
     public ResponseEntity<List<String>> getOutputHistory() {
-        PSequence payload = settings.app.outputHistory;
+        PSequence payload = dialog.outputHistory;
         return ResponseEntity.status(HttpStatus.OK).body(payload);
     }
 

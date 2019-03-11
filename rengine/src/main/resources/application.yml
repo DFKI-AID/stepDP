@@ -1,9 +1,4 @@
 logging.level.root: INFO
 server.port: 50000
-spring:
-  servlet:
-    multipart:
-      max-file-size: 100MB
-      max-request-size: 100MB
-storage:
-  path: /Users/yk/tmp
+dialog:
+  name: de.dfki.app.MyDialog

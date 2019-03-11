@@ -6,12 +6,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLStreamException;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -27,9 +24,12 @@ public class Parser {
     private static final Logger log = LoggerFactory.getLogger(Parser.class);
 
 
-    public static StateChart parse(URL resource) throws URISyntaxException, IOException {
+    public static StateChart loadStateChart(URL resource) throws URISyntaxException, IOException {
         File file = new File(resource.toURI());
+        return loadStateChart(file);
+    }
 
+    public static StateChart loadStateChart(File file) throws URISyntaxException, IOException {
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder dBuilder;
         try {
@@ -53,6 +53,49 @@ public class Parser {
             return sc;
         } catch (Exception e1) {
             throw new IOException(e1);
+        }
+    }
+
+    public static Map<String, Set<String>> loadRuleActivationMap(File file) throws IOException {
+        Map<String, Set<String>> result = new HashMap<>();
+        try {
+            String cvsSplitBy = ",";
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            String line;
+
+            line = br.readLine();
+            if (line == null) {
+                throw new IOException("Can't read rule activation file: Missing header");
+            }
+
+            String[] headerSplit = line.split(cvsSplitBy);
+            Map<Integer, String> rules = new HashMap<>();
+            for (int i = 1; i < headerSplit.length; i++) {
+                rules.put(i, headerSplit[i]);
+            }
+
+            while ((line = br.readLine()) != null) {
+                // use comma as separator
+                String[] lineSplit = line.split(cvsSplitBy);
+                String state = lineSplit[0];
+                result.put(state, new HashSet<>());
+
+                for (int i = 1; i < lineSplit.length; i++) {
+                    String ruleName = rules.get(i);
+                    if (ruleName == null) {
+                        //empty column
+                        continue;
+                    }
+                    String value = lineSplit[i];
+                    if (Objects.equals(value, "TRUE")) {
+                        result.get(state).add(ruleName);
+                    }
+                }
+            }
+            return result;
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -179,48 +222,5 @@ public class Parser {
         return element.getAttribute(tag);
     }
 
-    public static Map<String, Set<String>> loadActivations() throws IOException {
-        Map<String, Set<String>> result = new HashMap<>();
-        try {
-            URL resource = Parser.class.getResource("/sc/rule_activation.csv");
-            File file = new File(resource.toURI());
-            String cvsSplitBy = ",";
-            BufferedReader br = new BufferedReader(new FileReader(file));
-            String line;
 
-            line = br.readLine();
-            if (line == null) {
-                throw new IOException("Can't read rule activation file: Missing header");
-            }
-
-            String[] headerSplit = line.split(cvsSplitBy);
-            Map<Integer, String> rules = new HashMap<>();
-            for (int i = 1; i < headerSplit.length; i++) {
-                rules.put(i, headerSplit[i]);
-            }
-
-            while ((line = br.readLine()) != null) {
-                // use comma as separator
-                String[] lineSplit = line.split(cvsSplitBy);
-                String state = lineSplit[0];
-                result.put(state, new HashSet<>());
-
-                for (int i = 1; i < lineSplit.length; i++) {
-                    String ruleName = rules.get(i);
-                    if (ruleName == null) {
-                        //empty column
-                        continue;
-                    }
-                    String value = lineSplit[i];
-                    if (Objects.equals(value, "TRUE")) {
-                        result.get(state).add(ruleName);
-                    }
-                }
-            }
-            return result;
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
 }

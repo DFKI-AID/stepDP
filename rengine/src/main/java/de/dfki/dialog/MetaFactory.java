@@ -231,6 +231,7 @@ public class MetaFactory {
                         }).attach(consumes, t);
                     });
         });
+        dialog.getTagSystem().addTag(ruleName, "meta");
     }
 
     public static Stream<Token> filterIntent(String intent, Stream<Token> tokenStream) {

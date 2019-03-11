@@ -1,5 +1,0 @@
-,show_tasks,hide_tasks,select_task,accept_task,show_navigation
-Idle,TRUE,,,,
-Choice,,TRUE,TRUE,,
-Info,TRUE,TRUE,TRUE,TRUE,
-Selected,,,,,TRUE

@@ -7,11 +7,12 @@ import de.dfki.sc.Parser;
 import de.dfki.sc.SCEngine;
 import de.dfki.sc.SCMain;
 import de.dfki.sc.StateChart;
-import org.pcollections.HashTreePMap;
 import org.pcollections.PMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.Duration;
 import java.util.*;
@@ -20,84 +21,43 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  *
  */
-public class TaskBehavior implements StateBehavior {
+public class TaskBehavior extends SimpleStateBehavior {
     private static final Logger log = LoggerFactory.getLogger(TaskBehavior.class);
-    private Dialog dialog;
-    private RuleSystem rs;
-    private TagSystem<String> tagSystem;
-    private StateHandler2 stateHandler;
+
     private String currentTask;
+
+    public TaskBehavior() throws URISyntaxException {
+        super("/sc/task_behavior");
+    }
 
     @Override
     public void init(Dialog dialog) {
-        this.dialog = dialog;
-        rs = dialog.getRuleSystem();
-        tagSystem = dialog.getTagSystem();
+        super.init(dialog);
         initTaskMode();
-        MetaFactory.createGreetingsRule(dialog);
-
-        URL resource = SCMain.class.getResource("/sc/simple.scxml");
-        StateChart sc = null;
-        try {
-            sc = Parser.parse(resource);
-            SCEngine engine = new SCEngine(sc);
-            AtomicInteger counter = new AtomicInteger(0);
-//            engine.addCondition("cond1", () -> counter.getAndIncrement() % 2 == 0);
-//            engine.addCondition("cond1", () -> true);
-//            engine.addFunction("outputTaskSummary", () -> outputTaskSummary());
-//            engine.addFunction("outputTaskInfo", () -> outputTaskInfo());
-            engine.addFunctions(this);
-            engine.addConditions(this);
-            stateHandler = new StateHandler2(dialog, engine);
-
-            Map<String, Set<String>> ruleActivation = Parser.loadActivations();
-            for (var entry : ruleActivation.entrySet()) {
-                String state = entry.getKey();
-                for (String rule : entry.getValue()) {
-                    tagSystem.addTag(rule, state);
-                }
-            }
-            stateHandler.init();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
-
 
     @Override
     public void deinit() {
-//        this.stateHandler.quit();
-        //TODO impl
+        super.deinit();
     }
 
     @Override
-    public Map<String, Object> createSnapshot() {
-        Map<String, Object> snapshot = new HashMap<>();
-        snapshot.put("sh", stateHandler.createSnapshot());
-        snapshot.put("current_task", this.currentTask);
+    public PMap<String, Object> createSnapshot() {
+        PMap<String, Object> snapshot = super.createSnapshot();
+        snapshot = snapshot.plus("current_task", this.currentTask);
         return snapshot;
     }
 
     @Override
     public void loadSnapshot(Object snapshot) {
-        if (!(snapshot instanceof Map)) {
-            throw new IllegalArgumentException("expected Map as type");
+        var snapshotMap = (Map<String, Object>) snapshot;
+        super.loadSnapshot(snapshot);
+        try {
+            Object currentTask = snapshotMap.get("current_task");
+            this.currentTask = (String) currentTask;
+        } catch (Exception ex) {
+            throw new RuntimeException("could not reload snapshot", ex);
         }
-
-        Map<String, Object> snapshotMap = (Map<String, Object>) snapshot;
-        Object sh = snapshotMap.get("sh");
-        if (!(sh instanceof SCEngine.ObjState)) {
-            throw new IllegalArgumentException("expected SCEngine.ObjState as type for StateHandler");
-        }
-        stateHandler.loadSnapshot((SCEngine.ObjState) sh);
-
-        Object currentTask = snapshotMap.get("current_task");
-        if (currentTask != null) {
-            if (!(currentTask instanceof String)) {
-                throw new IllegalArgumentException("expected String as type for currentTask");
-            }
-        }
-        this.currentTask = (String) currentTask;
     }
 
     public Boolean cond1() {
@@ -201,7 +161,6 @@ public class TaskBehavior implements StateBehavior {
         dialog.getTagSystem().addTag("proactive_idle", "Idle");
 
 
-
         MetaFactory.selectRule(dialog, "select_task", List.of("task1", "task2", "task3"), (task) -> {
             //TODO filter for available tasks here?
             this.currentTask = task;
@@ -239,20 +198,18 @@ public class TaskBehavior implements StateBehavior {
         createAcceptTaskRule();
 
 
-
-
         rs.addRule("add_move_action", () -> {
             Optional<Token> token = dialog.getTokens().stream()
                     .filter(t -> t.payloadEquals("intent", "addAtomicAction"))
                     .filter(t -> t.payloadEquals("type", "move"))
                     .findFirst();
 
-            if(!token.isPresent()) {
+            if (!token.isPresent()) {
                 return;
             }
 
             Token intent = token.get();
-            if(!intent.get("object").isPresent()) {
+            if (!intent.get("object").isPresent()) {
                 dialog.getRuleCoordinator().add(() -> {
                     dialog.present(new PresentationRequest("Where do you want me to go?"));
                     MetaFactory.specifyRule(dialog, "specify_add_move_action", (specification) -> {
@@ -353,10 +310,5 @@ public class TaskBehavior implements StateBehavior {
 
                     });
         });
-    }
-
-    @Override
-    public StateHandler2 getStateHandler() {
-        return stateHandler;
     }
 }

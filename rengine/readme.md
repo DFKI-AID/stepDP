@@ -29,6 +29,7 @@ A rule engine, where rules act on tokens (arbitrary data like a map). The main i
    - Simulate input (json format) eases testing of the dialog
      - **TODO** store new intents in the data storage
    - TTS of WebSpeech API (beta).
+     - only used for systems (e.g. no feedback on presentation success)
    - **TODO** ASR of WebSpeech API (beta), works only chrome and does not yet return semantics from the grammar.
 - Management Components:
    - Manual rule handling
@@ -116,7 +117,14 @@ Note for the **createSnapshot** method: You may want to use persistent data stru
 
 
 #### State Chart
-State charts can be used as an abstraction to define when rules are active. The rule logic is implemented in java. Rules may fire events into the state chart which in response change the set of active rules. A state chart manages a specific set of rules which defined in table (\*.csv file). The state chart is stored in the scxml format. The implementation does not support parallel or history states at the moment.. It should be checked whether they are necessary,, because with the persistent dialog history the system supports already a 'history'-feature.
+State charts can be used as an abstraction to define when rules are active. The rule logic is implemented in java. Rules may fire events into the state chart which in response change the set of active rules. A state chart manages a specific set of rules which defined in table (\*.csv file). The state chart is stored in the scxml format. The implementation does not support parallel or history states at the moment.. It should be checked whether they are necessary, because with the persistent dialog history the system supports already a 'history'-feature.
+
+
+
+**TODO**
+
+- initial state has to be specified as attribute in root. scxml supports also other places for specifying the intitial state
+- initial state on compound state
 
 
 
