@@ -1,6 +1,6 @@
 package de.dfki.app;
 
-import de.dfki.dialog.grammar.*;
+import de.dfki.pdp.grammar.*;
 
 import java.io.IOException;
 

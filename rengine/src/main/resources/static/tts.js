@@ -5,9 +5,10 @@ const ttsApp = new Vue({
         outputHistory: [],
         voiceSelect: null,
         synth: null,
-        voices: null,
-        voice: null,
+        voices: {},
+        voiceStr: "",
         utterance: "hello world",
+        manual_utterance: "",
         rate: 1,
         pitch: 1,
     },
@@ -21,14 +22,14 @@ const ttsApp = new Vue({
             $.get('/output/history', function (rsp) {
                 let updated = this.outputHistory.length != rsp.length;
                 this.outputHistory = rsp;
-                this.utterance = this.outputHistory[this.outputHistory.length -1];
-                if(updated) {
+                this.utterance = this.outputHistory[this.outputHistory.length - 1];
+                if (updated) {
                     this.stop();
                     this.tts(this.utterance);
                 }
             }.bind(this));
         },
-        tts: function(utterance) {
+        tts: function (utterance) {
             var utterObj = new SpeechSynthesisUtterance(utterance);
             // var selectedOption = this.voice.getAttribute('data-name');
             utterObj.voice = this.voice;
@@ -39,12 +40,23 @@ const ttsApp = new Vue({
             // inputTxt.blur();
         },
         populateVoiceList() {
-            this.voices = this.synth.getVoices();
+            this.voices = {};
+            this.synth.getVoices().forEach(v => {
+                let id = v.name + "-" + v.lang;
+                this.voices[id] = v;
+            });
+
         },
-        play: function() {
-            this.tts(this.utterance);
+        /**
+         * @param id e.g. "Alex en-US"
+         */
+        getVoice(id) {
+
         },
-        stop: function() {
+        play: function () {
+            this.tts(this.manual_utterance);
+        },
+        stop: function () {
             this.synth.cancel();
         }
     },
@@ -61,5 +73,10 @@ const ttsApp = new Vue({
             this.updateData();
         }.bind(this), 250);
         this.populateVoiceList();
+    },
+    computed: {
+        voice: function () {
+            return this.voices[this.voiceStr];
+        }
     }
 });

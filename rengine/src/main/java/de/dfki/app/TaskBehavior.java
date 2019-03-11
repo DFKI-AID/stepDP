@@ -1,22 +1,14 @@
 package de.dfki.app;
 
-import de.dfki.dialog.*;
-import de.dfki.rengine.RuleSystem;
-import de.dfki.rengine.Token;
-import de.dfki.sc.Parser;
-import de.dfki.sc.SCEngine;
-import de.dfki.sc.SCMain;
-import de.dfki.sc.StateChart;
+import de.dfki.pdp.dialog.*;
+import de.dfki.pdp.rengine.Token;
 import org.pcollections.PMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.time.Duration;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  *

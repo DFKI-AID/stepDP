@@ -1,9 +1,9 @@
 package de.dfki.app;
 
 
-import de.dfki.dialog.Dialog;
-import de.dfki.dialog.MetaFactory;
-import de.dfki.dialog.TimeBehavior;
+import de.dfki.pdp.dialog.Dialog;
+import de.dfki.pdp.dialog.MetaFactory;
+import de.dfki.pdp.dialog.TimeBehavior;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
