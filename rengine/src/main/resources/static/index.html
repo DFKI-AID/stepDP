@@ -61,6 +61,7 @@
                     </table>
                 </div>
             </div>
+
         </div>
         <!--<div class="col-6">-->
         <!--<div id="grammar">Grammar: {{grammar}}</div>-->
@@ -77,6 +78,24 @@
                 <td>{{item}}</td>
             </tr>
         </table>
+    </div>
+</div>
+
+<div id="tts">
+    <div>
+        TTS Settings:
+        <div>
+            <label for="rate">Rate</label>
+            <input v-model="rate" type="range" min="0.5" max="2" step="0.1" id="rate">
+            <label for="pitch">Pitch</label>
+            <input v-model="pitch" type="range" min="0" max="2" step="0.1" id="pitch">
+
+            <select v-model="voiceStr">
+                <option v-for="(voice, key) in voices">{{key}}</option>
+            </select>
+            <input type="text" v-model="manual_utterance" class="txt">
+            <button v-on:click="play" id="play" type="submit">Play</button>
+        </div>
     </div>
 </div>
 
@@ -216,5 +235,6 @@
 
 
 </script>
+<script src="tts.js"></script>
 </body>
 </html>
