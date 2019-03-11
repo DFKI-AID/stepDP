@@ -11,30 +11,49 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * TODO the rule activation map should be placed in the scxml file. Maybe if there is an own scxml editor
  */
 public class SimpleStateBehavior implements StateBehavior {
     private static final Logger log = LoggerFactory.getLogger(SimpleStateBehavior.class);
-    private final File scFile;
-    private final File ruleFile;
     protected Dialog dialog;
     protected RuleSystem rs;
     protected TagSystem<String> tagSystem;
     protected SCHandler stateHandler;
+    protected final Supplier<StateChart> scLoader;
+    protected final Supplier<Map<String, Set<String>>> ruleLoader;
 
     /**
      * @param scFile   The scxml file described the state chart
      * @param ruleFile The rule file described in which state which rules are active
      */
     public SimpleStateBehavior(File scFile, File ruleFile) {
-        this.scFile = scFile;
-        this.ruleFile = ruleFile;
+        this.scLoader = () -> {
+            try {
+                StateChart sc = Parser.loadStateChart(scFile);
+                return sc;
+            } catch (Exception e) {
+                log.error("could not load state chart from {}", scFile, e);
+                throw new RuntimeException(e);
+            }
+        };
+        this.ruleLoader = () -> {
+            try {
+                Map<String, Set<String>> ruleActivation = Parser.loadRuleActivationMap(ruleFile);
+                return ruleActivation;
+            } catch (Exception e) {
+                log.error("could not load ruleActivation from {}", ruleFile, e);
+                throw new RuntimeException(e);
+            }
+        };
     }
 
     /**
@@ -50,10 +69,25 @@ public class SimpleStateBehavior implements StateBehavior {
         if (resourceStr.endsWith(".csv")) {
             resourceStr = resourceStr.substring(0, resourceStr.length() - 4);
         }
-        URL scxmlResource = SCMain.class.getResource(resourceStr + ".scxml");
-        URL csvResource = SCMain.class.getResource(resourceStr + ".csv");
-        this.scFile = new File(scxmlResource.toURI());
-        this.ruleFile = new File(csvResource.toURI());
+        InputStream scStream = SimpleStateBehavior.class.getResourceAsStream(resourceStr + ".scxml");
+        InputStream raStream = SimpleStateBehavior.class.getResourceAsStream(resourceStr + ".csv");
+        String finalResourceStr = resourceStr;
+        this.scLoader = () -> {
+            try {
+                return Parser.loadStateChart(scStream);
+            } catch (Exception e) {
+                log.error("could not load state chart from {}", finalResourceStr, e);
+                throw new RuntimeException(e);
+            }
+        };
+        this.ruleLoader = () -> {
+            try {
+                return Parser.loadRuleActivationMap(raStream);
+            } catch (Exception e) {
+                log.error("could not load ruleActivation from {}", finalResourceStr, e);
+                throw new RuntimeException(e);
+            }
+        };
     }
 
 
@@ -63,10 +97,9 @@ public class SimpleStateBehavior implements StateBehavior {
         rs = dialog.getRuleSystem();
         tagSystem = dialog.getTagSystem();
 
-        URL resource = SCMain.class.getResource("/sc/task_behavior.scxml");
         try {
             //load the state chart
-            StateChart sc = Parser.loadStateChart(resource);
+            StateChart sc = scLoader.get();
             SCEngine engine = new SCEngine(sc);
             //add this class as bridge to check for conditions and functions
             engine.addFunctions(this);
@@ -74,7 +107,7 @@ public class SimpleStateBehavior implements StateBehavior {
             stateHandler = new SCHandler(dialog, engine);
 
             // Load the rule activation map -> rules are tagged by the state names
-            Map<String, Set<String>> ruleActivation = Parser.loadRuleActivationMap(this.ruleFile);
+            Map<String, Set<String>> ruleActivation = ruleLoader.get();
             for (var entry : ruleActivation.entrySet()) {
                 String state = entry.getKey();
                 for (String rule : entry.getValue()) {
@@ -83,6 +116,7 @@ public class SimpleStateBehavior implements StateBehavior {
             }
             stateHandler.init();
         } catch (Exception e) {
+            log.error("Could not load state chart: {}", e.getMessage(), e);
             throw new RuntimeException(e);
         }
     }

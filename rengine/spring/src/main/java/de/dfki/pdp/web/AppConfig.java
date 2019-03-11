@@ -48,8 +48,7 @@ public class AppConfig {
         try {
             initDialog();
         } catch (Exception e) {
-            log.error("Could not load dialog class with name '{}'. Cause: {}", name, e.getMessage());
-            log.debug("Could not load dialog class with name '{}'. Cause: {}", name, e.getMessage(), e);
+            log.error("Could not load dialog class with name '{}'. Cause: {}", name, e.getMessage(), e);
             int ec = SpringApplication.exit(appContext, () -> 1);
             System.exit(ec);
         }

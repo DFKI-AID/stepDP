@@ -9,10 +9,7 @@ import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
@@ -23,11 +20,23 @@ import java.util.*;
 public class Parser {
     private static final Logger log = LoggerFactory.getLogger(Parser.class);
 
+    public static StateChart loadStateChart(InputStream inputStream) throws URISyntaxException, IOException {
+        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder dBuilder;
+        try {
+            dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.parse(inputStream);
+            return loadStateChart(doc);
+        } catch (Exception e1) {
+            throw new IOException(e1);
+        }
+    }
 
     public static StateChart loadStateChart(URL resource) throws URISyntaxException, IOException {
         File file = new File(resource.toURI());
         return loadStateChart(file);
     }
+
 
     public static StateChart loadStateChart(File file) throws URISyntaxException, IOException {
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -35,8 +44,16 @@ public class Parser {
         try {
             dBuilder = dbFactory.newDocumentBuilder();
             Document doc = dBuilder.parse(file);
+            return loadStateChart(doc);
+        } catch (Exception e1) {
+            throw new IOException(e1);
+        }
+    }
+
+    public static StateChart loadStateChart(Document doc) throws IOException {
+        try {
             doc.getDocumentElement().normalize();
-            System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
+            log.debug("Root element: {}", doc.getDocumentElement().getNodeName());
             Node scxmlNode = doc.getElementsByTagName("scxml").item(0);
 
             State state = parseState(scxmlNode);
@@ -56,11 +73,19 @@ public class Parser {
         }
     }
 
+    public static Map<String, Set<String>> loadRuleActivationMap(InputStream stream) throws IOException {
+        return loadRuleActivationMap(new InputStreamReader(stream));
+    }
+
     public static Map<String, Set<String>> loadRuleActivationMap(File file) throws IOException {
+        return loadRuleActivationMap(new FileReader(file));
+    }
+
+    public static Map<String, Set<String>> loadRuleActivationMap(Reader reader) throws IOException {
         Map<String, Set<String>> result = new HashMap<>();
         try {
             String cvsSplitBy = ",";
-            BufferedReader br = new BufferedReader(new FileReader(file));
+            BufferedReader br = new BufferedReader(reader);
             String line;
 
             line = br.readLine();
@@ -207,7 +232,7 @@ public class Parser {
                 continue;
             }
 
-            if(!(childNode instanceof Element)) {
+            if (!(childNode instanceof Element)) {
                 throw new IOException("Invalid file: Expected node to be an Element: structure transition -> script");
             }
 

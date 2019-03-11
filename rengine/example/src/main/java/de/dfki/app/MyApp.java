@@ -22,6 +22,8 @@ public class MyApp {
         ConfigurableApplicationContext ctx = SpringApplication.run(MyApp.class, args);
     }
 
+    public static MyDialog dialog;
+
 
 }
 
