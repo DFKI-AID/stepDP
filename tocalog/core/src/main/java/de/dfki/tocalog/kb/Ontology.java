@@ -46,6 +46,8 @@ public class Ontology {
                 .set(age, 123l)
                 .set(position, new Vector3(1, 0, 0));
 
+
+
         Entity person2 = new Entity()
                 .set(position, new Vector3(2, 0, 0));
 
@@ -160,6 +162,21 @@ public class Ontology {
     public static final Attribute<String> predicate = new Attribute<>("tocalog/predicate");
     public static final Attribute<String> object = new Attribute<>("tocalog/object");
 
+
+    public static final Attribute<String> color = new Attribute<>("tocalog/attributes/color");
+    public static final Attribute<String> size = new Attribute<>("tocalog/attributes/size");
+    public static final Attribute<Double> brightness = new Attribute<>("tocalog/attributes/brightness");
+    public static final Attribute<String> location = new Attribute<>("tocalog/attributes/location");
+
+    public static final Type DiscourseFocus = new Type("tocalog/kinect/DiscourseFocus");
+    public static final Attribute<String> discourseTarget = new Attribute<>("tocalog/kinect/discourseTarget");
+    public static final Attribute<Double> discourseConfidence = new Attribute<>("tocalog/kinect/discourseConfidence");
+
+    public static final Type VisualFocus = new Type("tocalog/kinect/VisualFocus");
+    public static final Attribute<String> visualSource = new Attribute<>("tocalog/kinect/visualSource");
+    public static final Attribute<String> visualTarget = new Attribute<>("tocalog/kinect/visualTarget");
+    public static final Attribute<Double> visualConfidence = new Attribute<>("tocalog/kinect/visualConfidence");
+
     public static final Type Person = new Type("tocalog/Person");
     public static final Type Robot = new Type("tocalog/Robot");
     public static final Type Entity = new Type("tocalog/Entity");
@@ -174,6 +191,8 @@ public class Ontology {
     public static final Type Loudspeaker = new Type("tocalog/Loudspeaker");
     public static final Type Battery = new Type("tocalog/Battery");
     public static final Type Headphones = new Type("tocalog/Headphones");
+
+    public static final Type Number = new Type("tocalog/Number");
 
     public static final Type Zone = new Type("tocalog/Zone"); //necessary?
 

@@ -1,6 +1,5 @@
 package de.dfki.tocalog.kb;
 
-import de.dfki.tocalog.input.SourceWeightFusion;
 import org.junit.Assert;
 import org.junit.Test;
 

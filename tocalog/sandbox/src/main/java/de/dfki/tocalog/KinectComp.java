@@ -15,8 +15,8 @@ import java.util.stream.Collectors;
  */
 public class KinectComp implements SensorComponent, ReferenceResolver {
     public static final String VisualFocus = "tocalog/kinect/VisualFocus";
-    public static final Attribute<String> Source = new Attribute<>("tocalog/kinect/Source");
-    public static final Attribute<String> Target = new Attribute<>("tocalog/kinect/Target");
+    public static final Attribute<String> Source = new Attribute<>("tocalog/kinect/visualSource");
+    public static final Attribute<String> Target = new Attribute<>("tocalog/kinect/visualTarget");
 
     private long focusTimeout = 5000L;
     private KnowledgeList visualFocusKL;

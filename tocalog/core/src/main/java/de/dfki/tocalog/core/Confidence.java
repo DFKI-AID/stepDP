@@ -39,6 +39,14 @@ public class Confidence implements Comparable<Confidence>{
     }
 
     private static final CComparator comparator = new CComparator();
+
+    @Override
+    public String toString() {
+        return "Confidence{" +
+                "confidence=" + confidence +
+                '}';
+    }
+
     public static class CComparator implements Comparator<Confidence> {
         @Override
         public int compare(Confidence o1, Confidence o2) {

@@ -1,6 +1,5 @@
 package de.dfki.tocalog.kb;
 
-import okhttp3.Call;
 import org.pcollections.*;
 
 /**

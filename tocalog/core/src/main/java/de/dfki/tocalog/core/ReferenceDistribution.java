@@ -2,10 +2,7 @@ package de.dfki.tocalog.core;
 
 import de.dfki.tocalog.kb.Type;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * one entry should always be none / unknown / ... to model low confidence for other values (sum has to be 1.0)//
@@ -13,21 +10,23 @@ import java.util.Set;
  */
 public class ReferenceDistribution {
     private Map<String, Double> confidences = new HashMap<>();
+    private final double THRESHOLD = .0001;
 
     protected void assertState() {
         for (Map.Entry<String, Double> c : confidences.entrySet()) {
             if (c.getValue() < 0) {
-                throw new IllegalStateException("confidence of FocusDistribution can't be < 0. key was " + c.getKey());
+                throw new IllegalStateException("confidence of the ReferenceDistribution can't be < 0. key was " + c.getKey());
             }
             if (c.getValue() > 1) {
-                throw new IllegalStateException("confidence of FocusDistribution can't be > 1. key was " + c.getKey());
+                throw new IllegalStateException("confidence of the ReferenceDistribution can't be > 1. key was " + c.getKey());
             }
         }
 
-
-        double sum = confidences.values().stream().reduce(1.0, (d1, d2) -> d1 + d2);
-        if (sum != 1.0) {
-            throw new IllegalStateException("the accumulated sum of the confidences of a FocusDistribution has to be 1.0");
+        if(!confidences.values().isEmpty()) {
+            double sum = confidences.values().stream().reduce((d1, d2) -> d1 + d2).get();
+            if (Math.abs(1.0 - sum) > THRESHOLD) {
+                throw new IllegalStateException("the accumulated sum of the confidences of a Reference Distribution has to be 1.0");
+            }
         }
     }
 
@@ -64,5 +63,31 @@ public class ReferenceDistribution {
 
     static {
 //        Empty.confidences.put("none", 1.0);
+    }
+
+    public ReferenceDistribution rescaleDistribution() {
+        Optional<Double> totalCount = this.getConfidences().values().stream().reduce((d1, d2) -> d1 + d2);
+        if (!totalCount.isPresent()) {
+            return this;
+        }
+        for (String id: this.getConfidences().keySet()) {
+            this.getConfidences().put(id, this.getConfidences().get(id) / totalCount.get());
+        }
+        return this;
+    }
+
+    public ReferenceDistribution revertDistribution() {
+        for(String id: this.getConfidences().keySet()) {
+            this.getConfidences().put(id, 1.0- this.getConfidences().get(id));
+        }
+        this.rescaleDistribution();
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return "ReferenceDistribution{" +
+                "confidences=" + confidences +
+                '}';
     }
 }

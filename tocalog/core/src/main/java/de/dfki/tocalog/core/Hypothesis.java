@@ -15,6 +15,38 @@ public class Hypothesis {
     //warum string und nicht input?
     private final Set<String> inputs;
     private final Confidence confidence;
+    private Map<Class, Confidence> matches = new HashMap<>();
+   // private boolean isFilled = false;
+
+    public Map<Class, Confidence> getMatches() {
+        return matches;
+    }
+
+    public void setMatches(Map<Class, Confidence> matches) {
+        this.matches = matches;
+    }
+
+    public void addMatch(Class clazz, Confidence confidence) {
+        this.matches.put(clazz, confidence);
+    }
+
+
+    /* public boolean isFilled() {
+        return isFilled;
+    }
+
+    public void setFilled(boolean filled) {
+        isFilled = filled;
+    }
+
+    public boolean isFilledConfident(double threshold) {
+        if(confidence.getConfidence() > threshold) {
+            return true;
+        }
+        return false;
+    }*/
+
+
 
 
     public Hypothesis(Builder builder) {
@@ -65,12 +97,25 @@ public class Hypothesis {
         return inputs;
     }
 
+
     interface Query<T extends Entity> {
         Collection<T> findMatches(KnowledgeBase kb);
     }
 
     public static Builder create(String intent) {
         return new Builder(intent);
+    }
+
+
+    @Override
+    public String toString() {
+        return "Hypothesis{" +
+                "id='" + id + '\'' +
+                ", intent='" + intent + '\'' +
+                ", slots=" + slots +
+                ", inputs=" + inputs +
+                ", confidence=" + confidence +
+                '}';
     }
 
     public static class Builder {
@@ -81,6 +126,13 @@ public class Hypothesis {
 
         public Builder(String intent) {
             this.intent = intent;
+        }
+
+        public Builder(Hypothesis otherHypothesis) {
+            this.intent = otherHypothesis.intent;
+            this.slots = otherHypothesis.slots;
+            this.confidence = otherHypothesis.confidence;
+            this.inputs = otherHypothesis.inputs;
         }
 
         public Builder setConfidence(Confidence confidence) {

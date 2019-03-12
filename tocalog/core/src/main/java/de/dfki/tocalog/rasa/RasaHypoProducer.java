@@ -55,7 +55,12 @@ public class RasaHypoProducer implements HypothesisProducer {
     protected Slot parse(RasaEntity re) {
         //TODO case: multiple slot with the same entity? slot would be lost
 
-        return new Slot(re.getEntity()) {
+        Slot slot = new Slot(re.getEntity() + re.getStart() + "-" + re.getEnd());
+                slot.setCandidates(List.of(new Entity()
+                    .set(Ontology.name, re.getValue())
+                    .set(Ontology.type, re.getEntity())
+                    .set(Ontology.confidence, re.getConfidence())));
+        /*return new Slot(re.getEntity() + re.getStart() + "-" + re.getEnd()) {
             @Override
             public Collection<Entity> getCandidates() {
                 Entity entity = new Entity()
@@ -64,7 +69,8 @@ public class RasaHypoProducer implements HypothesisProducer {
                         .set(Ontology.confidence, re.getConfidence());
                 return List.of(entity);
             }
-        };
+        };*/
+        return slot;
     }
 
 
