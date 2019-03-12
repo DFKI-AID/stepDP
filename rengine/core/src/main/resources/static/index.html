@@ -10,6 +10,8 @@
     <link rel="stylesheet" type="text/css" href="/index.css">
     <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
     <link rel="manifest" href="/manifest.json">
+    <script src="/external/jquery-3.3.1.min.js"></script>
+    <script src="/bootstrap.min.js"></script>
 </head>
 
 
@@ -18,236 +20,99 @@
 <!--</div>-->
 <body>
 
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+    <li class="nav-item">
+        <a class="nav-link active" id="rules-tab" data-toggle="tab" href="#rules" role="tab" aria-controls="home"
+           aria-selected="true">Rules</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="input-tab" data-toggle="tab" href="#input" role="tab" aria-controls="input"
+           aria-selected="false">Input</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="behavior-tab" data-toggle="tab" href="#behavior" role="tab" aria-controls="behavior"
+           aria-selected="false">Behavior</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="output-tab" data-toggle="tab" href="#output" role="tab" aria-controls="output"
+           aria-selected="false">Output</a>
+    </li>
+</ul>
+<div class="tab-content" id="myTabContent">
+    <div class="tab-pane show active" id="rules" role="tabpanel" aria-labelledby="rules-tab">
+        <h2>iteration={{iteration}}</h2>
 
-<div id="app" class="container-fluid">
-    <div class="row grow w-100">
-        <div class="col-6">
-            <!--<div class="row">-->
-            <!--<div class="btn-toolbar">-->
-            <!--<div class="btn-group">-->
-            <!--<button v-on:click="undo">undo</button>-->
-            <!--<button v-on:click="hello">hello</button>-->
-            <!--<button v-on:click="repeat">repeat</button>-->
-            <!--</div>-->
-            <!--</div>-->
-            <!--</div>-->
-            <div class="row">
-                <div>
-                    <textarea v-model="intentContent" id="intentTextArea" cols=40 rows=10></textarea>
-                </div>
-            </div>
-            <div>
-                <select v-model="intentSelection">
-                    <option v-for="(value, key) in intents">{{key}}</option>
-                </select>
-                <button v-on:click="sendIntent">sendIntent</button>
-            </div>
-            <div class="row">
-                <div class="col-sm">
-                    <h2>iteration={{iteration}}</h2>
-
-                    <table>
-                        <tr>
-                            <th>name</th>
-                            <!--<th>active</th>-->
-                            <th>tags</th>
-                        </tr>
-                        <tr v-bind:class="{ inactiveRule: !item.active }" v-for="item in rules">
-                            <td>{{item.name}}</td>
-                            <!--<td>{{item.active}}</td>-->
-                            <td><span style="background-color:#00FF00" class="badge badge-secondary tag"
-                                      v-color v-for="(item, index) in item.tags">{{item}}</span></td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
-
-        </div>
-        <!--<div class="col-6">-->
-        <!--<div id="grammar">Grammar: {{grammar}}</div>-->
-        <!--</div>-->
-        <!--TODO replace iframe with reusable vue component-->
-        <div class="col-6">
-
-        </div>
-    </div>
-    <div class="row grow w-100">
         <table>
-            <tr v-for="item in outputHistory.slice().reverse()">
-                <td>{{item}}</td>
+            <tr>
+                <th>name</th>
+                <!--<th>active</th>-->
+                <th>tags</th>
+            </tr>
+            <tr v-bind:class="{ inactiveRule: !item.active }" v-for="item in rules">
+                <td>{{item.name}}</td>
+                <!--<td>{{item.active}}</td>-->
+                <td><span style="background-color:#00FF00" class="badge badge-secondary tag"
+                          v-color v-for="(item, index) in item.tags">{{item}}</span></td>
             </tr>
         </table>
     </div>
-</div>
-
-<div id="behavior">
-    <div ref="graphContainer"
-         style="position:relative;overflow:hidden;width:5000px;height:5000px;background-color: #FDFFFC;cursor:default;">
-    </div>
-</div>
-
-<div id="tts">
-    <div>
-        TTS Settings:
+    <div class="tab-pane" id="input" role="tabpanel" aria-labelledby="input-tab">
         <div>
-            <label for="rate">Rate</label>
-            <input v-model="rate" type="range" min="0.5" max="2" step="0.1" id="rate">
-            <label for="pitch">Pitch</label>
-            <input v-model="pitch" type="range" min="0" max="2" step="0.1" id="pitch">
-
-            <select v-model="voiceStr">
-                <option v-for="(voice, key) in voices">{{key}}</option>
+            <textarea v-model="intentContent" id="intentTextArea" cols=40 rows=10></textarea>
+        </div>
+        <div>
+            <select v-model="intentSelection">
+                <option v-for="(value, key) in intents">{{key}}</option>
             </select>
-            <input type="text" v-model="manual_utterance" class="txt">
-            <button v-on:click="play" id="play" type="submit">Play</button>
+            <button v-on:click="sendIntent">sendIntent</button>
+        </div>
+    </div>
+    <div class="tab-pane" id="behavior" role="tabpanel" aria-labelledby="behavior-tab">
+        <div ref="graphContainer"
+             style="position:relative;overflow:hidden;width:5000px;height:5000px;background-color: #FDFFFC;cursor:default;">
+        </div>
+    </div>
+    <div class="tab-pane" id="output" role="tabpanel" aria-labelledby="output-tab">
+        <div id="tts">
+            <h5>TTS Settings</h5>
+            <div>
+                <label for="rate">Rate</label>
+                <input v-model="rate" type="range" min="0.5" max="2" step="0.1" id="rate">
+                <label for="pitch">Pitch</label>
+                <input v-model="pitch" type="range" min="0" max="2" step="0.1" id="pitch">
+
+                <select v-model="voiceStr">
+                    <option v-for="(voice, key) in voices">{{key}}</option>
+                </select>
+                <input type="text" v-model="manual_utterance" class="txt">
+                <button v-on:click="play" id="play" type="submit">Play</button>
+            </div>
+
+            <h5>Output History</h5>
+            <div>
+                <table>
+                    <tr v-for="item in outputHistory.slice().reverse()">
+                        <td>{{item}}</td>
+                    </tr>
+                </table>
+            </div>
         </div>
     </div>
 </div>
 
 
-<script src="/external/jquery-3.3.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue@2.5.22/dist/vue.js"></script>
-<script src="/bootstrap.min.js"></script>
-<script>
-    const app = new Vue({
-            el: '#app',
-            data: {
-                interval: null,
-                iteration: 0,
-                rules: [],
-                tokens: [],
-                grammar: null,
-                tagToColorMap: {},
-                // background colors for the tags. add more if you run out of colors. otherwise they will repeat
-                colors: ["black", "CornflowerBlue", "DarkSeaGreen", "DarkSalmon",
-                    "IndianRed", "SlateGray", "LightSeaGreen", "PaleVioletRed", "Indigo", "Teal"],
-                colorIndex: 0,
-                intents: {
-                    "select_task": {"intent": "select", "selection": "task2", "confidence": 0.8},
-                    "accept_task": {"intent": "accept_task", "confidence": 0.8},
-                    "specify_task": {"intent": "specify", "specification": "task3"},
-                    "show_tasks": {"intent": "show_tasks"},
-                    "hide_tasks": {"intent": "hide_tasks"},
-                    "confirm": {"intent": "answer", "content": "confirm"},
-                    "disconfirm": {"intent": "answer", "content": "disconfirm"},
-                    "hello": {"intent": "greetings"},
-                    "undo": {"intent": "undo"},
-                    "repeat": {"intent": "repeat"},
-                    "show_nav": {"intent": "request", "object": "navigation"},
-                    "hide_nav": {"intent": "hide_navigation"},
-                    "turn_grab": {"intent": "turn_grab"},
-                    "rewind": {"intent": "rewind", "name": "lunch_time"},
-                    "create_snapshot": {"intent": "create_snapshot", "name": "lunch_time"}
-                },
-                intentSelection: "",
-                intentContent: "",
-                outputHistory: [],
-            },
-            computed: {
-                getRowColor: function (event) {
-                    console.log(event);
-                }
-            },
-            methods: {
-                updateData: function () {
-                    $.get('/iteration', function (response) {
-                        this.iteration = response.iteration;
-                    }.bind(this));
-
-                    $.get('/rules', function (response) {
-                        this.rules = response;
-                    }.bind(this));
-
-                    $.get('/tokens', function (rsp) {
-                        this.tokens = rsp;
-                    }.bind(this));
-
-                    $.get('/grammar', function (rsp) {
-                        this.grammar = new XMLSerializer().serializeToString(rsp);
-                    }.bind(this));
-
-                    $.get('/output/history', function (rsp) {
-                        this.outputHistory = rsp;
-                    }.bind(this));
-                },
-                undo: function (event) {
-                    var payload = {intent: "undo"};
-                    this._sendIntent(payload);
-                },
-                hello: function (event) {
-                    var intent = {intent: "greetings"};
-                    this._sendIntent(intent);
-                },
-                repeat: function (event) {
-                    var intent = {intent: "repeat"};
-                    this._sendIntent(intent);
-                },
-                sendIntent: function (event) {
-                    // var intent = JSON.loadStateChart(this.intentSelection);
-                    var intent = JSON.parse($("#intentTextArea").val());
-                    this._sendIntent(intent);
-                },
-                _sendIntent: function (intent) {
-                    console.log("sending intent " + intent);
-                    $.ajax({
-                        'url': '/input/intent',
-                        'method': 'POST',
-                        'dataType': 'json',
-                        'contentType': 'application/json',
-                        'data': JSON.stringify(intent),
-                        'processData': false
-                    });
-                }
-            },
-            watch: {
-                intentSelection: function (val, oldVal) {
-                    let msg = this.intents[val];
-                    this.intentContent = JSON.stringify(msg, null, 2);
-                }
-            },
-            created() {
-                this.updateData();
-                this.interval = setInterval(function () {
-                    this.updateData();
-                }.bind(this), 250);
-
-            },
-            directives: {
-                color: {
-                    update: function (el) {
-                        //TODO how do I get the this context here? instead of app
-                        var tag = $(el).text();
-                        var data = app.$data;
-                        var color = data.tagToColorMap[tag];
-                        // console.log(color);
-                        if (color == null) {
-                            console.log("creating color for tag " + tag);
-                            color = data.colors[data.colorIndex];
-                            data.colorIndex += 1;
-                            if (data.colorIndex >= data.colors.length) {
-                                console.log("resetting color index");
-                                data.colorIndex = 0;
-                            }
-                            data.tagToColorMap[tag] = color;
-                        }
-
-                        $(el).css({"background-color": color});
-                    }
-                }
-            }
-        })
-    ;
-
-
-</script>
-<script src="tts.js"></script>
+<!--<script src="https://cdn.jsdelivr.net/npm/vue@2.5.22/dist/vue.js"/>-->
+<script src="/external/vue.js"></script>
 
 
 <script type="text/javascript">
     mxBasePath = '/external/mxgraph';
 </script>
-<script src="/external/mxgraph/js/mxClient.js"></script>
+<script src="external/mxgraph/js/mxClient.js"></script>
 <script src="behavior.js"></script>
+<script src="rules.js"></script>
+<script src="input.js"></script>
+<script src="tts.js"></script>
 
 </body>
 </html>

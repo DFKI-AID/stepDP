@@ -8,6 +8,8 @@
 // style="position:relative;overflow:hidden;width:5000px;height:5000px;background-color: #FDFFFC;cursor:default;">
 //     </div>
 
+// mxBasePath = '/external/mxgraph';
+
 const behaviorApp = new Vue({
     el: '#behavior',
     data: {
