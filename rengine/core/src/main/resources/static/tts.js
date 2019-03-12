@@ -11,6 +11,7 @@ const ttsApp = new Vue({
         manual_utterance: "",
         rate: 1,
         pitch: 1,
+        ttsEnabled: true,
     },
     computed: {
         getRowColor: function (event) {
@@ -23,7 +24,7 @@ const ttsApp = new Vue({
                 let updated = this.outputHistory.length != rsp.length;
                 this.outputHistory = rsp;
                 this.utterance = this.outputHistory[this.outputHistory.length - 1];
-                if (updated) {
+                if (updated && this.ttsEnabled) {
                     this.stop();
                     this.tts(this.utterance);
                 }
@@ -60,13 +61,13 @@ const ttsApp = new Vue({
         }
     },
     watch: {
-        intentSelection: function (val, oldVal) {
-            let msg = this.intents[val];
-            this.intentContent = JSON.stringify(msg, null, 2);
+        ttsEnabled: function (val, oldVal) {
+            localStorage.setItem("ttsEnabled", val);
         }
     },
     created() {
         this.synth = window.speechSynthesis;
+        this.ttsEnabled = JSON.parse(localStorage.getItem("ttsEnabled")) === true;
         this.updateData();
         this.interval = setInterval(function () {
             this.updateData();

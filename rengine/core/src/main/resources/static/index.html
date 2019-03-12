@@ -76,6 +76,10 @@
         <div id="tts">
             <h5>TTS Settings</h5>
             <div>
+                <div>
+                    Enable TTS:
+                    <input type="checkbox" v-model="ttsEnabled"></input>
+                </div>
                 <label for="rate">Rate</label>
                 <input v-model="rate" type="range" min="0.5" max="2" step="0.1" id="rate">
                 <label for="pitch">Pitch</label>
