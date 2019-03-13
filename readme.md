@@ -39,6 +39,21 @@ The main idea is to define the dialog behavior through the set of active rules a
    - Slot Filling **TODO** impl
    - A combination of them
 
+## Installation
+- Put java 10 and maven on your path
+- Run scripts/install-min.sh or install-all.sh
+- Add to your pom.xml
+```xml
+<dependency>
+    <groupId>de.dfki.step</groupId>
+    <artifactId>spring</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+</dependency>
+```
+
+### Changes to the Platform
+## Import into IntelliJ
+File > Open > choose pom.xml in src and "open as project"
 
 
 ## Components
