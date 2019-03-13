@@ -1,7 +1,5 @@
 package de.dfki.step.kb;
 
-import de.dfki.sire.*;
-
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
