@@ -10,7 +10,11 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
+ * Decides which rule will fire based on mutual resource consumption.
+ * Rules may register functions ("what they would do if they are executed")
+ * Rules may attach additional data for coordination (e.g. consumes resource x)
  *
+ * 'consume' is either an Object or a Collection of Objects
  */
 public class RuleCoordinator {
     private static final Logger log = LoggerFactory.getLogger(RuleCoordinator.class);

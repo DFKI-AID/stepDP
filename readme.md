@@ -141,6 +141,7 @@ State charts can be used as an abstraction to define when rules are active. The 
 
 - initial state has to be specified as attribute in root. scxml supports also other places for specifying the intitial state
 - initial state on compound state
+- conditions and functions of transitions and states can be written in java and registered on  SCEngine
 
 
 

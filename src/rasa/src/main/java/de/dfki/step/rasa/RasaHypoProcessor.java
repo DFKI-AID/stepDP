@@ -1,7 +1,7 @@
 package de.dfki.step.rasa;
 
 import de.dfki.step.core.*;
-import de.dfki.step.core.resolution.AbstractReferenceResolver;
+import de.dfki.step.resolution.AbstractReferenceResolver;
 import de.dfki.step.input.Input;
 import de.dfki.step.input.TextInput;
 import de.dfki.step.kb.Entity;
