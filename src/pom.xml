@@ -48,6 +48,7 @@
         <module>spring</module>
         <module>a3s</module>
         <module>rasa</module>
+        <module>example</module>
     </modules>
 
     <!--define versions for dependencies such that sub modules don't have to specify explicitly-->

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:v-on="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <title>Hello There</title>
+    <meta name="description" content="Hello!">
+    <meta name="author" content="Yannick Körber">
+    <link rel="stylesheet" type="text/css" href="/index.css">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+    <link rel="manifest" href="/manifest.json">
+</head>
+
+<body>
+<h1>Speech Synthesis</h1>
+
+<div id="tts">
+    <div>
+        <div>
+            last utterance from dialog:
+            <input type="text" readonly="readonly" v-model="utterance" class="txt"/>
+        </div>
+
+        Settings:
+        <div>
+            <label for="rate">Rate</label>
+            <input v-model="rate" type="range" min="0.5" max="2" step="0.1" id="rate">
+            <div class="rate-value">1</div>
+            <div class="clearfix"></div>
+        </div>
+        <div>
+            <label for="pitch">Pitch</label>
+            <input v-model="pitch" type="range" min="0" max="2" step="0.1" id="pitch">
+            <div class="pitch-value">1</div>
+            <div class="clearfix"></div>
+        </div>
+        <select v-model="voiceStr">
+            <option v-for="(voice, key) in voices">{{key}}</option>
+        </select>
+        <div class="controls">
+            <input type="text" v-model="manual_utterance" class="txt">
+            <button v-on:click="play" id="play" type="submit">Play</button>
+        </div>
+    </div>
+</div>
+
+<script src="/external/jquery-3.3.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.22/dist/vue.js"></script>
+<script src="tts.js"></script>
+</body>
+</html>
