@@ -174,6 +174,12 @@ public abstract class Dialog implements Runnable {
         return tokens;
     }
 
+    public void addTokens(Collection<Token> tokens) {
+        // TODO origin = list of e.g. inputs or random strings
+        log.debug("Adding token {}", tokens);
+        waitingTokens = waitingTokens.plusAll(tokens);
+    }
+
     public void addToken(Token token) {
         log.debug("Adding token {}", token);
         waitingTokens = waitingTokens.plus(token);
