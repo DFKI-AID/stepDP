@@ -150,6 +150,26 @@ The web gui can be seen through a webbrowser on http://localhost:50000 (maps to 
 - Grammar rules are chosen and merged based on the current set of active rules
 
 
+
+### KnowledgeBase
+- using persistance collections to provide a map and list based implementation for storing entities
+    - sync not necessary for reading
+    - entities won't change once a component request them
+- Ontology: 
+    - Entity class 
+      - supports arbitrary attributes
+      - persistent data structure / immutable (if the type of all used attribute is persistent)
+        - components can return Entities without thinking about concurrency
+        - easier to track changes like Add, Delete, Update (check)
+    - Schemes ensure that necessary properties are set
+      - each function / component has different requirements can thus define different schemes
+    - If multiple components write attributes of the same entity, they should use the **update** function. This avoids that changes of other components are overwritten
+- **TODO**: serialization for external access
+
+
+
+
+
 ## Project Overview
 The project is a multi-module maven project and consists of the three modules core, spring and example. 
 
@@ -170,20 +190,6 @@ The rasa module contains code to access a rasa NLU service.
 
 
 
-### KnowledgeBase
-- using persistance collections to provide a map and list based implementation for storing entities
-    - sync not necessary for reading
-    - entities won't change once a component request them
-- Ontology: 
-    - Entity class 
-      - supports arbitrary attributes
-      - persistent data structure / immutable (if the type of all used attribute is persistent)
-        - components can return Entities without thinking about concurrency
-        - easier to track changes like Add, Delete, Update (check)
-    - Schemes ensure that necessary properties are set
-      - each function / component has different requirements can thus define different schemes
-    - If multiple components write attributes of the same entity, they should use the **update** function. This avoids that changes of other components are overwritten
-- **TODO**: serialization for external access
 
 
 ## TODOs
