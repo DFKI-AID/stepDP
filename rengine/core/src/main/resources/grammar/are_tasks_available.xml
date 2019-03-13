@@ -1,0 +1,7 @@
+<rule id="are_tasks_available" scope="public">
+	<one-of>
+	    <item>are tasks available</item>
+	    <item>which tasks are available</item>
+		<item>can you show me available tasks</item>
+	</one-of>
+</rule>
