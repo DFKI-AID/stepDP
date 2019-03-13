@@ -50,6 +50,7 @@ The main idea is to define the dialog behavior through the set of active rules a
 - The token set is empty for each iteration and filled by the rules.
 - **TODO** different type of rules: meta, semi-meta, app
 - Using java's stream API makes writing rules easy: 
+
 ```java
 var rs = dialog.getRuleSystem();
 var tagSystem = dialog.getTagSystem();
