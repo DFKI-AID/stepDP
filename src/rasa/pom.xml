@@ -10,7 +10,6 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>rasa</artifactId>
-
     <dependencies>
         <dependency>
             <groupId>de.dfki.step</groupId>
@@ -20,7 +19,6 @@
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
-            <version>2.8.5</version>
         </dependency>
     </dependencies>
 </project>
