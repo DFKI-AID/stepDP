@@ -47,6 +47,7 @@
         <!--<module>sandbox</module>-->
         <module>spring</module>
         <module>a3s</module>
+        <module>rasa</module>
 
         <!--<module>device-platform</module>-->
 
