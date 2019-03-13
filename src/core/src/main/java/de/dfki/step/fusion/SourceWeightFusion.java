@@ -1,4 +1,4 @@
-package de.dfki.step.input;
+package de.dfki.step.fusion;
 
 import de.dfki.step.kb.Entity;
 import de.dfki.step.kb.Ontology;

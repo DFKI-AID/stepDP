@@ -1,4 +1,6 @@
-package de.dfki.step.core;
+package de.dfki.step.resolution;
+
+import de.dfki.step.resolution.ReferenceDistribution;
 
 /**
  */

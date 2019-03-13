@@ -1,8 +1,6 @@
 package de.dfki.step.resolution;
 
 import de.dfki.step.core.Event;
-import de.dfki.step.core.ReferenceDistribution;
-import de.dfki.step.core.ReferenceResolver;
 import de.dfki.step.core.SensorComponent;
 
 /**

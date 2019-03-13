@@ -1,8 +1,5 @@
 package de.dfki.step.resolution;
 
-import de.dfki.step.core.ReferenceDistribution;
-import de.dfki.step.core.ReferenceResolver;
-
 public class ReverseReferenceResolver implements ReferenceResolver {
 
     private ReferenceResolver reverseResolver;

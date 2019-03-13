@@ -1,5 +1,7 @@
-package de.dfki.step.core;
+package de.dfki.step.resolution;
 
+import de.dfki.step.core.Hypothesis;
+import de.dfki.step.core.Slot;
 import de.dfki.step.kb.Entity;
 import de.dfki.step.kb.KnowledgeBase;
 import de.dfki.step.kb.KnowledgeList;

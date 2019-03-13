@@ -1,8 +1,5 @@
 package de.dfki.step.resolution;
 
-import de.dfki.step.core.ReferenceDistribution;
-import de.dfki.step.core.ReferenceResolver;
-import de.dfki.step.core.WeightedReferenceResolver;
 import de.dfki.step.kb.*;
 
 import java.util.Collection;

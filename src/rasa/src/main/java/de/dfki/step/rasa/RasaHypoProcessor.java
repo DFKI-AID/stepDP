@@ -7,6 +7,8 @@ import de.dfki.step.input.TextInput;
 import de.dfki.step.kb.Entity;
 import de.dfki.step.kb.KnowledgeBase;
 import de.dfki.step.kb.Ontology;
+import de.dfki.step.resolution.ReferenceDistribution;
+import de.dfki.step.resolution.ReferenceResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

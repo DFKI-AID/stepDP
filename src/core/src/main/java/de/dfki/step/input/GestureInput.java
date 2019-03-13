@@ -1,24 +1,19 @@
 package de.dfki.step.input;
 
+import de.dfki.step.rengine.Token;
+
 import java.util.Optional;
 
-public class GestureInput extends AbsInput {
-    private String gestureType;
-    private Optional<String> source = Optional.empty();
+public class GestureInput  {
+    private String gesture;
 
-    public GestureInput(String gestureType) {
-        this.gestureType = gestureType;
-    }
+//    public String getGestureType() {
+//        return getSomething(String.class, "gesture").orElse("");
+//    }
 
-    public String getGestureType() {
-        return gestureType;
-    }
-
-    public void setSource(String source) {
-        this.source = Optional.of(source);
-    }
-
-    public Optional<String> getSource() {
-        return source;
-    }
+//    public <T> Optional<T> getSomething(Class<T> clazz, String id) {
+//        return get(id)
+//                .filter(x -> clazz.isAssignableFrom(x.getClass()))
+//                .map(x -> (T) x);
+//    }
 }
