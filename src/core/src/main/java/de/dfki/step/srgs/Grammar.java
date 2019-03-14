@@ -10,6 +10,8 @@ import java.util.List;
 public class Grammar implements Node {
     private List<Rule> rules = new ArrayList<>();
 
+    private String grammarType = "grammar"; //official=srgs ms=grammar
+
     public void addRule(Rule rule) {
         this.rules.add(rule);
     }
@@ -33,19 +35,19 @@ public class Grammar implements Node {
 
     protected void writeBeginGrammar(NodeWriter nw) {
         nw.newLine();
-        nw.write("<!DOCTYPE srgs PUBLIC \"-//W3C//DTD GRAMMAR 1.0//EN\" \"http://www.w3.org/TR/speech-srgs/srgs.dtd\">");
+        nw.write(String.format("<!DOCTYPE %s PUBLIC \"-//W3C//DTD GRAMMAR 1.0//EN\" \"http://www.w3.org/TR/speech-%s/%s.dtd\">", grammarType, grammarType, grammarType));
         nw.newLine();
         nw.newLine();
-        nw.write("<srgs xmlns=\"http://www.w3.org/2001/06/srgs\" xml:lang=\"en\"").newLine();
+        nw.write(String.format("<%s xmlns=\"http://www.w3.org/2001/06/%s\" xml:lang=\"en\"", grammarType, grammarType)).newLine();
         nw.write(" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"").newLine();
-        nw.write(" xsi:schemaLocation=\"http://www.w3.org/2001/06/srgs").newLine();
-        nw.write(" http://www.w3.org/TR/speech-srgs/srgs.xsd\"").newLine();
-        nw.write(" version=\"1.0\" mode=\"voice\" root=\"basicCmd\">").newLine();
+        nw.write(String.format(" xsi:schemaLocation=\"http://www.w3.org/2001/06/%s", grammarType)).newLine();
+        nw.write(String.format(" http://www.w3.org/TR/speech-%s/%s.xsd\"", grammarType, grammarType)).newLine();
+        nw.write(" version=\"1.0\" mode=\"voice\" root=\"root_rule\" tag-format=\"semantics/1.0\">").newLine();
     }
 
     protected void writeEndGrammar(NodeWriter nw) {
         nw.newLine();
-        nw.write("</srgs>").newLine();
+        nw.write(String.format("</%s>", grammarType)).newLine();
     }
 
     @Override

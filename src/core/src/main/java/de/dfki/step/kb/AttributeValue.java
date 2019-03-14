@@ -6,11 +6,11 @@ import java.util.Objects;
  */
 public class AttributeValue<T> {
     /**
-     * field type
+     * assign type
      */
     public final Attribute<T> attribute;
     /**
-     * field name
+     * assign name
      */
     public final String name;
     /**

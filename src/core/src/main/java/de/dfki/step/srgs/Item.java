@@ -1,14 +1,16 @@
 package de.dfki.step.srgs;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * TODO maybe it is necessary to add the tag data
  */
 public class Item implements Node {
     private final String content;
     private int weight = 1;
     private int minRepitions = 1;
     private int maxRepitions = 1;
-    private String tag;
+    private List<Tag> tags = new ArrayList<>();
 
     public Item(String content) {
         this.content = content;
@@ -46,12 +48,12 @@ public class Item implements Node {
         return this;
     }
 
-    public String getTag() {
-        return tag;
+    public List<Tag> getTags() {
+        return tags;
     }
 
-    public Item setTag(String tag) {
-        this.tag = tag;
+    public Item addTag(Tag tag) {
+        this.tags.add(tag);
         return this;
     }
 
@@ -65,8 +67,8 @@ public class Item implements Node {
         nw.increaseIndent();
         nw.newLine();
         nw.write(content);
-        if (tag != null) {
-            nw.write(String.format("<tag>%s</tag>", tag));
+        for(Tag tag : tags) {
+            tag.write(nw);
         }
         nw.decreaseIndent();
         nw.newLine();
