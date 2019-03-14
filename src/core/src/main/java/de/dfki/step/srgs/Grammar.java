@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
+ * TODO add e.g. tag-format="semantics/1.0" to Grammar tag; is optional according to spec but MS ASR needs it
+ * TODO add root to grammar, root_rule with refs; is optional according to spec but MS ASR needs it
  */
 public class Grammar implements Node {
     private List<Rule> rules = new ArrayList<>();
