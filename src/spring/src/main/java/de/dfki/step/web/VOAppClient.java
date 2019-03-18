@@ -1,4 +1,4 @@
-package de.dfki.step;
+package de.dfki.step.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -365,52 +365,52 @@ public class VOAppClient implements OutputComponent {
         return port;
     }
 
-    @SpringBootApplication
-    public static class App implements ApplicationRunner {
-        @Override
-        public void run(ApplicationArguments args) throws Exception {
-            KnowledgeBase kb = new KnowledgeBase();
-
-            VOAppClient client = new VOAppClient(kb);
-
-            Imp imp = new Imp(kb);
-            imp.addOutputComponent(client);
-            KnowledgeMap userKm = kb.getKnowledgeMap(Ontology.Agent);
-            final Entity m1 = new Entity().set(Ontology.id, "m1");
-            userKm.add(m1);
-
-            while (true) {
-                Ontology.Scheme scheme = Ontology.AbsScheme.builder().equal(Ontology.service, serviceType).build();
-                List<Entity> services = kb.getKnowledgeMap(Ontology.Service).getStream()
-                        .filter(x -> scheme.matches(x))
-                        .collect(Collectors.toList());
-
-                Entity imageOutput = (new OutputFactory()).createImageOutput(new URI("http:/files/sleeping.png"));
-
-                DeviceSelector deviceSelector = new DeviceSelector(imp);
-
-                OutputUnit outputUnit = new OutputUnit(imageOutput, Set.of(m1));
-                outputUnit = deviceSelector.process(outputUnit).orElse(null);
-                if (outputUnit == null) {
-                    System.out.println("no device available");
-                    Thread.sleep(500);
-                    continue;
-                }
-
-                client.allocate(outputUnit);
-//                imp.allocate(outputUnit);
-
-//                for (Entity service : services) {
-//                    client.allocate(output, service);
+//    @SpringBootApplication
+//    public static class App implements ApplicationRunner {
+//        @Override
+//        public void run(ApplicationArguments args) throws Exception {
+//            KnowledgeBase kb = new KnowledgeBase();
+//
+//            VOAppClient client = new VOAppClient(kb);
+//
+//            Imp imp = new Imp(kb);
+//            imp.addOutputComponent(client);
+//            KnowledgeMap userKm = kb.getKnowledgeMap(Ontology.Agent);
+//            final Entity m1 = new Entity().set(Ontology.id, "m1");
+//            userKm.add(m1);
+//
+//            while (true) {
+//                Ontology.Scheme scheme = Ontology.AbsScheme.builder().equal(Ontology.service, serviceType).build();
+//                List<Entity> services = kb.getKnowledgeMap(Ontology.Service).getStream()
+//                        .filter(x -> scheme.matches(x))
+//                        .collect(Collectors.toList());
+//
+//                Entity imageOutput = (new OutputFactory()).createImageOutput(new URI("http:/files/sleeping.png"));
+//
+//                DeviceSelector deviceSelector = new DeviceSelector(imp);
+//
+//                OutputUnit outputUnit = new OutputUnit(imageOutput, Set.of(m1));
+//                outputUnit = deviceSelector.process(outputUnit).orElse(null);
+//                if (outputUnit == null) {
+//                    System.out.println("no device available");
+//                    Thread.sleep(500);
+//                    continue;
 //                }
-
-                Thread.sleep(5000);
-            }
-
-        }
-    }
-
-    public static void main(String[] args) throws InterruptedException {
-        SpringApplication.run(App.class);
-    }
+//
+//                client.allocate(outputUnit);
+////                imp.allocate(outputUnit);
+//
+////                for (Entity service : services) {
+////                    client.allocate(output, service);
+////                }
+//
+//                Thread.sleep(5000);
+//            }
+//
+//        }
+//    }
+//
+//    public static void main(String[] args) throws InterruptedException {
+//        SpringApplication.run(App.class);
+//    }
 }

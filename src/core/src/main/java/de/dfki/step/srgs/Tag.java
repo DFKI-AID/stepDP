@@ -10,7 +10,12 @@ public class Tag implements Node{
         this.content = content;
     }
 
-
+    /**
+     * Creates a semantic tag for defining the intent
+     * "intent": YOUR_INTENT
+     * @param intent
+     * @return
+     */
     public static Tag intent(String intent) {
         return assign("intent", intent);
     }

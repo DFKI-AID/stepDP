@@ -1,7 +1,10 @@
 package de.dfki.step.dialog;
 
 
+import de.dfki.step.srgs.Grammar;
+import de.dfki.step.srgs.GrammarManager;
 import de.dfki.step.srgs.MyGrammar;
+import de.dfki.step.web.SpeechRecognitionClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +42,21 @@ public class MyDialog extends Dialog {
 
         MetaFactory.createRepeatRule(this, "request_repeat_tts", "I did not say anything.");
         MetaFactory.snapshotRule(this);
+    }
+
+    @Override
+    public void init() {
+        super.init();
+
+        // we use the speech-recogntion-service of the step-dp
+        GrammarManager gm = MyGrammar.create();
+        Grammar grammar = gm.createGrammar();
+        SpeechRecognitionClient src = new SpeechRecognitionClient("localhost", 9696, (s)-> {
+            //TODO feed into input
+        });
+        String grammarStr = grammar.toString();
+        src.setGrammar("main", grammarStr);
+        src.initGrammar();
     }
 
     @Override

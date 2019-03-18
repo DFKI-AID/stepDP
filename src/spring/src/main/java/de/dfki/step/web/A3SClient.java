@@ -1,4 +1,4 @@
-package de.dfki.step;
+package de.dfki.step.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -456,7 +456,7 @@ public class A3SClient implements OutputComponent {
 //            final Entity m1 = new Entity().set(Ontology.id, "m1");
 //            userKm.add(m1);
 //
-//            de.dfki.step.A3SClient client = new de.dfki.step.A3SClient(kb);
+//            de.dfki.step.web.A3SClient client = new de.dfki.step.web.A3SClient(kb);
 //            Imp imp = new Imp(kb);
 //            imp.addOutputComponent(client);
 //

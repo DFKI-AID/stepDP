@@ -50,6 +50,23 @@ public class Grammar implements Node {
         nw.write(String.format("</%s>", grammarType)).newLine();
     }
 
+    /**
+     * The speech recognizer of Microsoft requires a root_rule.
+     * This function generates this rule using all public rules.
+     */
+    protected void createRootRule() {
+        Rule rootRule = new Rule("root_rule");
+        OneOf oneOf = new OneOf();
+        for(Rule rule : this.rules) {
+            if(!rule.isPublic()){
+                continue;
+            }
+            oneOf.add(new Item(new RuleRef(rule.getId())));
+        }
+        rootRule.add(oneOf);
+        this.addRule(rootRule);
+    }
+
     @Override
     public String toString() {
         NodeWriter nw = new NodeWriter();

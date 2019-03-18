@@ -6,14 +6,23 @@ import java.util.List;
 /**
  */
 public class Item implements Node {
-    private final String content;
+    private final Node content;
     private int weight = 1;
     private int minRepitions = 1;
     private int maxRepitions = 1;
     private List<Tag> tags = new ArrayList<>();
 
     public Item(String content) {
-        this.content = content;
+        this.content = new Node() {
+            @Override
+            public void write(NodeWriter nw) {
+                nw.write(content);
+            }
+        };
+    }
+
+    public Item(RuleRef ruleRef) {
+        this.content = ruleRef;
     }
 
     public int getWeight() {
@@ -57,7 +66,7 @@ public class Item implements Node {
         return this;
     }
 
-    public String getContent() {
+    public Node getContent() {
         return content;
     }
 
@@ -66,7 +75,7 @@ public class Item implements Node {
         nw.write(String.format("<item repeat=\"%d-%d\" weight=\"%d\">", minRepitions, maxRepitions, weight));
         nw.increaseIndent();
         nw.newLine();
-        nw.write(content);
+        content.write(nw);
         for(Tag tag : tags) {
             tag.write(nw);
         }

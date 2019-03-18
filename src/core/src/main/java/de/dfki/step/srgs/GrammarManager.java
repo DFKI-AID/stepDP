@@ -32,12 +32,14 @@ public class GrammarManager {
     }
 
     public synchronized Grammar createGrammar() {
+        //TODO at the moment no rule is filtered.
         Grammar grammar = new Grammar();
         rules.entrySet().stream()
                 //find all functions that are either active or not public
-                .filter(entry -> isActive(entry.getKey()) || !entry.getValue().isPublic())
+//                .filter(entry -> isActive(entry.getKey()) || !entry.getValue().isPublic())
                 .map(entry -> entry.getValue())
                 .forEach(rule -> grammar.addRule(rule));
+        grammar.createRootRule();
         return grammar;
     }
 

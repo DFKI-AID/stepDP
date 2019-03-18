@@ -1,7 +1,9 @@
-package de.dfki.step;
+package de.dfki.step.web;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpMethod;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.socket.WebSocketHandler;
 import org.springframework.web.reactive.socket.WebSocketMessage;
 import org.springframework.web.reactive.socket.WebSocketSession;
@@ -13,6 +15,7 @@ import reactor.core.publisher.Mono;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 
@@ -20,28 +23,31 @@ import java.util.stream.Stream;
  * Opens a websocket connect to the speech-recognition-service a retrieves
  * speech recognition results (json).
  *
- * Overwrite {@link AsrClient#onSpeechRecognition}
  */
-public class AsrClient {
-    private static Logger log = LoggerFactory.getLogger(AsrClient.class);
+public class SpeechRecognitionClient {
+    private static Logger log = LoggerFactory.getLogger(SpeechRecognitionClient.class);
     private static Duration timeout = Duration.ofMillis(5000);
-    private final URI uri;
+    private final URI recogAsr;
+    private final Consumer<String> callback;
+    private String grammar;
+    private String grammarName;
 
-    public AsrClient(String host, int port) {
-        uri = URI.create(String.format("ws://%s:%d/asr", host, port));
+    public SpeechRecognitionClient(String host, int port, Consumer<String> callback) {
+        this.callback = callback;
+        recogAsr = URI.create(String.format("ws://%s:%d/asr", host, port));
     }
 
     public void init() {
         WebSocketClient wsc = new StandardWebSocketClient();
 
-        log.info("Connecting to {}", uri);
+        log.info("Connecting to {}", recogAsr);
 
         WebSocketHandler handler = new WebSocketHandler() {
             @Override
             public Mono<Void> handle(WebSocketSession session) {
                 var input = session.receive().doOnNext(m -> {
                     String speechRecog = m.getPayloadAsText(StandardCharsets.UTF_8);
-                    onSpeechRecognition(speechRecog);
+                    callback.accept(speechRecog);
                 }).doOnError(ex -> {
                     System.out.println(ex);
                 }).then();
@@ -62,10 +68,10 @@ public class AsrClient {
                 return Mono.zip(input, output).then();
             }
         };
-        Mono<Void> req = wsc.execute(uri, handler)
+        Mono<Void> req = wsc.execute(recogAsr, handler)
                 .doOnTerminate(() -> {
                     // "finished means connection lost"
-                    log.info("Lost conenction to {}", uri);
+                    log.info("Lost connection to {}", recogAsr);
                     init();
                 });
 
@@ -74,18 +80,47 @@ public class AsrClient {
                 .subscribe();
     }
 
-    protected void onSpeechRecognition(String json) {
-        log.info("Retrieved {}", json);
+
+    public void initGrammar() {
+        String srgs = null;
+        String name = null;
+        synchronized (this) {
+            srgs = this.grammar;
+            name = this.grammarName;
+        }
+
+        if(srgs == null || name == null) {
+            log.error("can't init grammar without a valid name or grammar content. got {} {}", srgs, null);
+            throw new IllegalArgumentException("can't init grammar without a valid name or grammar content.");
+        }
+
+        String finalName = name;
+        WebClient.create(recogAsr.toString() + "/" + name)
+                .method(HttpMethod.POST)
+                .syncBody(srgs)
+                .retrieve()
+                .bodyToMono(String.class)
+                .doOnError(ex -> log.warn("error while uploading grammar: {}", ex.getMessage()))
+                .doOnSuccess(s -> log.debug("successfully updated grammar for {}: rsp={}", finalName, s))
+                .doFinally(x -> initGrammar())
+                .delaySubscription(Duration.ofMillis(2000))
+                .timeout(timeout)
+                .subscribe();
     }
 
+    public synchronized void setGrammar(String name, String grammar) {
+        this.grammar = grammar;
+        this.grammarName = name;
+    }
 
     public static void main(String[] args) throws InterruptedException {
 
-        AsrClient client = new AsrClient("localhost", 9696);
+        SpeechRecognitionClient client = new SpeechRecognitionClient("localhost", 9696,
+                (s)-> log.info("Retrieved {}", s));
         client.init();
 
-        synchronized (AsrClient.class) {
-            AsrClient.class.wait();
+        synchronized (SpeechRecognitionClient.class) {
+            SpeechRecognitionClient.class.wait();
         }
     }
 }

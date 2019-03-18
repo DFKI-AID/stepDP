@@ -46,7 +46,6 @@
         <module>tecs-plugin</module>
         <!--<module>sandbox</module>-->
         <module>spring</module>
-        <module>a3s</module>
         <module>rasa</module>
         <module>example</module>
     </modules>
