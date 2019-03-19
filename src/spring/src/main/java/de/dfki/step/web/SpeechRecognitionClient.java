@@ -94,6 +94,7 @@ public class SpeechRecognitionClient {
             throw new IllegalArgumentException("can't init grammar without a valid name or grammar content.");
         }
 
+        log.debug("trying to update grammar for {}", name);
         String finalName = name;
         WebClient.create(recogAsr.toString() + "/" + name)
                 .method(HttpMethod.POST)

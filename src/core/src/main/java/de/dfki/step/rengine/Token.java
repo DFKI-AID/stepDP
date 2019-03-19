@@ -28,6 +28,9 @@ public class Token {
 
 
     public Token add(String key, Object value) {
+        if (value == null) {
+            throw new IllegalArgumentException("null is not allowed as value in a token");
+        }
         var p = payload.plus(key, value);
         Token t = new Token(p);
         return t;
@@ -36,7 +39,7 @@ public class Token {
     public Token addAll(Map<String, Object> values) {
         var p = payload;
 
-        for(var entry : values.entrySet()) {
+        for (var entry : values.entrySet()) {
             p = p.plus(entry.getKey(), entry.getValue());
         }
 
@@ -48,13 +51,38 @@ public class Token {
         return Optional.ofNullable(payload.get(key));
     }
 
+    public <T> Optional<T> get(String key, Class<T> clazz) {
+        if (!has(key)) {
+            return Optional.empty();
+        }
+        Object obj = payload.get(key);
+        if (!clazz.isAssignableFrom(obj.getClass())) {
+            return Optional.empty();
+        }
+
+        return Optional.of((T) obj);
+    }
+
+    public boolean has(String key) {
+        return payload.get(key) != null;
+    }
+
+    public <T> boolean has(String key, Class<T> clazz) {
+        if(payload.get(key) == null) {
+            return false;
+        }
+        return clazz.isAssignableFrom(payload.get(key).getClass());
+    }
+
+    public static Token Empty = new Token();
+
 
     @Override
     public String toString() {
         return "Token{" +
                 ", timestamp=" + timestamp +
                 ", payload=" + payload.entrySet().stream()
-                .map(entry -> entry.getKey() + ": " + entry.getValue())
+                .map(entry -> entry.getKey() + ": " + entry.getValue() + " ")
                 .collect(Collectors.joining()) +
                 '}';
     }
@@ -65,6 +93,22 @@ public class Token {
 
     public boolean payloadEquals(String id, Object object) {
         return Objects.equals(this.payload.get(id), object);
+    }
+
+    public boolean payloadEqualsOneOf(String id, Object... objects) {
+        if (!this.payload.containsKey(id)) {
+            return false;
+        }
+        for (Object obj : objects) {
+            if (Objects.equals(obj, payload.get(id))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public Map<String, Object> getPayload() {
+        return payload;
     }
 
     public static class Builder {

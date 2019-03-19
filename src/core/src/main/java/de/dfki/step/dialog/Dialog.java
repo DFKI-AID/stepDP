@@ -64,8 +64,10 @@ public abstract class Dialog implements Runnable {
     public void update() {
         ruleCoordinator.reset();
         //removing all tokens that were used last round
-        waitingTokens = waitingTokens.minusAll(tokens);
-        tokens = waitingTokens;
+        synchronized(this) {
+            waitingTokens = waitingTokens.minusAll(tokens);
+            tokens = waitingTokens;
+        }
         applySnapshot();
         updateGrammar(rs);
         rs.update();
@@ -86,6 +88,7 @@ public abstract class Dialog implements Runnable {
     public void updateGrammar(RuleSystem rs) {
         synchronized (grammarManager) {
             //TODO: better builder and then swap srgs.jsgf manager instance
+            //TODO put into own behavior?
             grammarManager.deactivateAll();
             rs.getRules()
                     .forEach(rule -> {
@@ -177,13 +180,13 @@ public abstract class Dialog implements Runnable {
         return tokens;
     }
 
-    public void addTokens(Collection<Token> tokens) {
+    public synchronized void addTokens(Collection<Token> tokens) {
         // TODO origin = list of e.g. inputs or random strings
         log.debug("Adding token {}", tokens);
         waitingTokens = waitingTokens.plusAll(tokens);
     }
 
-    public void addToken(Token token) {
+    public synchronized void addToken(Token token) {
         log.debug("Adding token {}", token);
         waitingTokens = waitingTokens.plus(token);
     }

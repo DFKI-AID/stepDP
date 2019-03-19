@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import java.time.Duration;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 /**
@@ -376,5 +377,17 @@ public class MetaFactory {
         }
 
         return (T) obj;
+    }
+
+    /**
+     * e.g. MADMACS demo: following the visual focus: user looks on the car, then on the billboard
+     * @param dialog
+     * @param name
+     * @param supp
+     * @param values
+     * @param <T>
+     */
+    public static <T> void cascadeRule(Dialog dialog, String name, Supplier<T> supp, List<T> values) {
+        throw new UnsupportedOperationException("not impl");
     }
 }
