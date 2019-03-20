@@ -52,7 +52,14 @@ public class SpeechRecognitionClient {
             public Mono<Void> handle(WebSocketSession session) {
                 var input = session.receive().doOnNext(m -> {
                     String speechRecog = m.getPayloadAsText(StandardCharsets.UTF_8);
-                    callback.accept(speechRecog);
+                    try {
+                        Token t = Token.fromJson(speechRecog);
+                        callback.accept(t);
+                    } catch(Exception ex) {
+                        log.warn("could not parse response from speech recognition service. json={}", speechRecog, ex);
+                        return;
+                    }
+
                 }).doOnError(ex -> {
                     System.out.println(ex);
                 }).then();
