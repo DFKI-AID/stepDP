@@ -1,7 +1,6 @@
 package de.dfki.step.fusion;
 
 import de.dfki.step.rengine.Token;
-import org.pcollections.PSequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,10 +42,10 @@ public class FusionComponent {
 
         FusionComponent fc = new FusionComponent();
         fc.addFusionNode(node, match -> {
-            List<String> origin = mergeAll("origin", String.class, match.getTokens());
-            OptionalDouble confidence = mergeAll("confidence", Double.class, match.getTokens()).stream()
+            List<String> origin = Token.mergeFields("origin", String.class, match.getTokens());
+            OptionalDouble confidence = Token.mergeFields("confidence", Double.class, match.getTokens()).stream()
                     .mapToDouble(x -> x).average();
-            Optional<String> what = get("speech", String.class, match.getTokens());
+            Optional<String> what = Token.getAny("speech", String.class, match.getTokens());
             //TODO resolve / transform id of the 'what' if necessary
 
             Token token = new Token()
@@ -161,15 +160,6 @@ public class FusionComponent {
     }
 
 
-    public static <T> Optional<T> get(String id, Class<T> clazz, Collection<Token> tokens) {
-        for (Token t : tokens) {
-            if (t.has(id)) {
-                return t.get(id, clazz);
-            }
-        }
-        return Optional.empty();
-    }
-
     /**
      * Extracts a field from all given tokens if available and the type matches
      *
@@ -184,50 +174,6 @@ public class FusionComponent {
         for (Token t : tokens) {
             if (t.has(id)) {
                 result.add(t.get(id, clazz).get());
-            }
-        }
-        return result;
-    }
-
-    /**
-     * Extracts a field from all given tokens if available and merges them into one List.
-     * If a field value is a collection, each element will be added individually.
-     * <p>
-     * e.g.
-     * t1.origin = "kinect1"
-     * t2.origin = ["hololens", "eye_tracker13"]
-     * <p>
-     * result.origin = ["kinect1", "hololens", "eye_tracker13"]
-     *
-     * @param id
-     * @param clazz
-     * @param tokens
-     * @param <T>
-     * @return The field value of all tokens if the field is set correctly
-     */
-    public static <T> List<T> mergeAll(String id, Class<T> clazz, Collection<Token> tokens) {
-        List<T> result = new ArrayList<>();
-        for (Token t : tokens) {
-            if (t.has(id)) {
-                Object obj = t.get(id).get();
-                if (Collection.class.isAssignableFrom(obj.getClass())) {
-                    Collection<Object> objCol = (Collection<Object>) obj;
-                    for (Object innerObj : objCol) {
-                        if (!clazz.isAssignableFrom(innerObj.getClass())) {
-                            log.debug("can't merge token field: type mismatch. expected={} got={}", clazz, innerObj.getClass());
-                            continue;
-                        }
-                        result.add((T) innerObj);
-                    }
-                    continue;
-                }
-
-                if (clazz.isAssignableFrom(obj.getClass())) {
-                    result.add((T) obj);
-                    continue;
-                }
-
-                log.debug("can't merge token fields: not ");
             }
         }
         return result;

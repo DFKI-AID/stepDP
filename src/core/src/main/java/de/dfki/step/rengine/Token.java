@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.pcollections.HashTreePMap;
 import org.pcollections.PMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
@@ -13,6 +15,7 @@ import java.util.stream.Collectors;
  *
  */
 public class Token {
+    private static final Logger log = LoggerFactory.getLogger(Token.class);
     public final long timestamp = System.currentTimeMillis();
     private PMap<String, Object> payload = HashTreePMap.empty();
 
@@ -26,6 +29,7 @@ public class Token {
 
     public Token() {
     }
+
 
 
     public Token add(String key, Object value) {
@@ -130,6 +134,13 @@ public class Token {
         }
     }
 
+    /**
+     * Creates a token out of an json string. json objects are represented as maps, arrays as list and primitives
+     * as java primitives.
+     * @param recJson
+     * @return
+     * @throws IOException
+     */
     public static Token fromJson(String recJson) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode obj = mapper.readTree(recJson);
@@ -175,5 +186,69 @@ public class Token {
         }
         throw new IllegalArgumentException("unhandled json node type: " +jsonNode);
     }
+
+
+    /**
+     * Extracts a field from all given tokens if available and merges them into one List.
+     * If a field value is a collection, each element will be added individually.
+     * <p>
+     * e.g.
+     * t1.origin = "kinect1"
+     * t2.origin = ["hololens", "eye_tracker13"]
+     * <p>
+     * result.origin = ["kinect1", "hololens", "eye_tracker13"]
+     *
+     * @param fieldName
+     * @param clazz The type of the field. Use Object.class if not relevant.
+     * @param tokens
+     * @param <T>
+     * @return The field value of all tokens if the field is set correctly
+     */
+    public static <T> List<T> mergeFields(String fieldName, Class<T> clazz, Collection<Token> tokens) {
+        List<T> result = new ArrayList<>();
+        for (Token t : tokens) {
+            if (t.has(fieldName)) {
+                Object obj = t.get(fieldName).get();
+                if (Collection.class.isAssignableFrom(obj.getClass())) {
+                    Collection<Object> objCol = (Collection<Object>) obj;
+                    for (Object innerObj : objCol) {
+                        if (!clazz.isAssignableFrom(innerObj.getClass())) {
+                            log.debug("can't merge token field: type mismatch. expected={} got={}", clazz, innerObj.getClass());
+                            continue;
+                        }
+                        result.add((T) innerObj);
+                    }
+                    continue;
+                }
+
+                if (clazz.isAssignableFrom(obj.getClass())) {
+                    result.add((T) obj);
+                    continue;
+                }
+
+                log.debug("can't merge token fields: not ");
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Looks in the given tokens and returns the first field value that matches the given class if available.
+     * @param fieldName
+     * @param clazz
+     * @param tokens
+     * @param <T>
+     * @return
+     */
+    public static <T> Optional<T> getAny(String fieldName, Class<T> clazz, Collection<Token> tokens) {
+        for (Token t : tokens) {
+            if (t.has(fieldName)) {
+                return t.get(fieldName, clazz);
+            }
+        }
+        return Optional.empty();
+    }
+
+
 
 }

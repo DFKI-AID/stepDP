@@ -183,7 +183,7 @@ public class Slot {
 
         @Override
         public boolean validateCandidate(Entity candidate) {
-           /* if(!type.getName().toLowerCase().contains(candidate.get(Ontology.type).orElse(""))) {
+           /* if(!type.getName().toLowerCase().contains(candidate.getAny(Ontology.type).orElse(""))) {
                 return false;
             }*/
 

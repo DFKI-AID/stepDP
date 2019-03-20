@@ -1,5 +1,6 @@
 package de.dfki.step.dialog;
 
+import de.dfki.step.fusion.FusionComponent;
 import de.dfki.step.rengine.Clock;
 import de.dfki.step.rengine.RuleCoordinator;
 import de.dfki.step.rengine.RuleSystem;
@@ -33,6 +34,7 @@ public abstract class Dialog implements Runnable {
     private PSet<Token> tokens = HashTreePSet.empty();
     //tokens that are used for the next iteration
     private PSet<Token> waitingTokens = HashTreePSet.empty();
+    private FusionComponent fusionComponent = new FusionComponent();
 
 
     protected final AtomicLong snapshotTarget = new AtomicLong(-1);
@@ -69,6 +71,8 @@ public abstract class Dialog implements Runnable {
             tokens = waitingTokens;
         }
         applySnapshot();
+        Collection<Token> intents = fusionComponent.update();
+        tokens = tokens.plusAll(intents);
         updateGrammar(rs);
         rs.update();
         ruleCoordinator.update();
@@ -104,7 +108,7 @@ public abstract class Dialog implements Runnable {
     public void present(PresentationRequest presentationReq) {
         String output = presentationReq.getContent().toString();
 
-//        String utterance = t.get("utterance").toString();
+//        String utterance = t.getAny("utterance").toString();
         System.out.println("System: " + output);
         rs.removeRule("request_repeat_tts");
         MetaFactory.createRepeatRule(this, "request_repeat_tts", output);
