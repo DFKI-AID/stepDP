@@ -45,8 +45,17 @@ public class MatchVisitor implements FusionNode.Visitor {
         matches = merge(candidates, new Match(TreePVector.empty()), 0);
     }
 
+    @Override
+    public void visit(OptionalNode node) {
+        matches = new ArrayList<>();
+        node.getChild().accept(this);
+        if(matches.isEmpty()) {
+            matches.add(new Match(new Token().add("optional", "optional")));
+        }
+    }
+
     /**
-     * Find matches by checking whether the same token is consume by another node.
+     * Find matches by checking whether the same token is consumed by another node.
      *
      * @param candidates
      * @param match

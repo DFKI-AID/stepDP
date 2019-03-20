@@ -1,11 +1,12 @@
 package de.dfki.step.rengine;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.pcollections.HashTreePMap;
 import org.pcollections.PMap;
 
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.io.IOException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -51,6 +52,7 @@ public class Token {
         return Optional.ofNullable(payload.get(key));
     }
 
+
     public <T> Optional<T> get(String key, Class<T> clazz) {
         if (!has(key)) {
             return Optional.empty();
@@ -81,10 +83,10 @@ public class Token {
     public String toString() {
         return "Token{" +
                 ", timestamp=" + timestamp +
-                ", payload=" + payload.entrySet().stream()
-                .map(entry -> entry.getKey() + ": " + entry.getValue() + " ")
+                ", payload={ " + payload.entrySet().stream()
+                .map(entry -> entry.getKey() + "=" + entry.getValue() + " ")
                 .collect(Collectors.joining()) +
-                '}';
+                "}}";
     }
 
     public static Builder builder() {
@@ -126,6 +128,52 @@ public class Token {
         public Token build() {
             return new Token(this);
         }
+    }
+
+    public static Token fromJson(String recJson) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode obj = mapper.readTree(recJson);
+        Iterator<String> iter = obj.fieldNames();
+        Token.Builder builder = Token.builder();
+        while(iter.hasNext()) {
+            String fieldName = iter.next();
+            Object value = parse(obj.get(fieldName));
+            builder.add(fieldName, value);
+        }
+
+        Token token = builder.build();
+        return token;
+    }
+
+    private static Object parse(JsonNode jsonNode) {
+        if(jsonNode.isDouble()) {
+            return jsonNode.doubleValue();
+        } else if(jsonNode.isTextual()) {
+            return jsonNode.textValue();
+        } else if(jsonNode.isLong()) {
+            return jsonNode.longValue();
+        } else if(jsonNode.isInt()) {
+            return jsonNode.intValue();
+        } else if(jsonNode.isBoolean()) {
+            return jsonNode.booleanValue();
+        } else if(jsonNode.isArray()) {
+            List<Object> values = new ArrayList<>();
+            var iter = jsonNode.iterator();
+            while(iter.hasNext()) {
+                values.add(parse(iter.next()));
+            }
+            return values;
+        } else if (jsonNode.isObject()) {
+            Map<String, Object> values = new HashMap<>();
+            Iterator<String> iter = jsonNode.fieldNames();
+            while(iter.hasNext()) {
+                String fieldName = iter.next();
+                Object value = parse(jsonNode.get(fieldName));
+                values.put(fieldName, value);
+            }
+            return Collections.unmodifiableMap(values);
+        }
+        throw new IllegalArgumentException("unhandled json node type: " +jsonNode);
     }
 
 }

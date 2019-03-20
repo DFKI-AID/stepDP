@@ -1,6 +1,7 @@
 package de.dfki.step.dialog;
 
 
+import de.dfki.step.rengine.Token;
 import de.dfki.step.srgs.Grammar;
 import de.dfki.step.srgs.GrammarManager;
 import de.dfki.step.srgs.MyGrammar;
@@ -51,8 +52,12 @@ public class MyDialog extends Dialog {
         // we use the speech-recogntion-service of the step-dp
         GrammarManager gm = MyGrammar.create();
         Grammar grammar = gm.createGrammar();
-        SpeechRecognitionClient src = new SpeechRecognitionClient("localhost", 9696, (s)-> {
+        SpeechRecognitionClient src = new SpeechRecognitionClient("localhost", 9696, (token)-> {
+            // resolve token
+            Token processedToken;
+            // add token to fc
             //TODO feed into input
+            //fc.addToken(processedToken);
         });
         String grammarStr = grammar.toString();
         src.setGrammar("main", grammarStr);

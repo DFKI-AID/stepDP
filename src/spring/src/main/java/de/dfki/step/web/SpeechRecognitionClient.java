@@ -1,5 +1,8 @@
 package de.dfki.step.web;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import de.dfki.step.rengine.Token;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
@@ -12,9 +15,11 @@ import org.springframework.web.reactive.socket.client.WebSocketClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -28,11 +33,11 @@ public class SpeechRecognitionClient {
     private static Logger log = LoggerFactory.getLogger(SpeechRecognitionClient.class);
     private static Duration timeout = Duration.ofMillis(5000);
     private final URI recogAsr;
-    private final Consumer<String> callback;
+    private final Consumer<Token> callback;
     private String grammar;
     private String grammarName;
 
-    public SpeechRecognitionClient(String host, int port, Consumer<String> callback) {
+    public SpeechRecognitionClient(String host, int port, Consumer<Token> callback) {
         this.callback = callback;
         recogAsr = URI.create(String.format("ws://%s:%d/asr", host, port));
     }
@@ -114,14 +119,24 @@ public class SpeechRecognitionClient {
         this.grammarName = name;
     }
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException, IOException {
 
-        SpeechRecognitionClient client = new SpeechRecognitionClient("localhost", 9696,
-                (s)-> log.info("Retrieved {}", s));
-        client.init();
+//        SpeechRecognitionClient client = new SpeechRecognitionClient("localhost", 9696,
+//                (s)-> log.info("Retrieved {}", s));
+//        client.init();
+//
+//        synchronized (SpeechRecognitionClient.class) {
+//            SpeechRecognitionClient.class.wait();
+//        }
 
-        synchronized (SpeechRecognitionClient.class) {
-            SpeechRecognitionClient.class.wait();
-        }
+        String s = "{\"utterance\":\"the first task\",\"confidence\":0.45802411437034607,\"semantic\":{\"out\":{\"task\":{\"value\":\"first\",\"confidence\":0.9970117},\"taskConfidence\":0.9970117},\"outConfidence\":0.4580241},\"milliseconds\":1553090661189,\"success\":false,\"grammar\":\"task\",\"original\":{\"out\":{\"task\":{}}}}";
+        Token t = Token.fromJson(s);
+        System.out.println(t);
     }
+
+//    public static class RecResult {
+//        private String utterance;
+//        private double confidence;
+//        private String
+//    }
 }

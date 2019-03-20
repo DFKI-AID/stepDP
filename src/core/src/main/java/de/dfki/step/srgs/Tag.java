@@ -28,6 +28,11 @@ public class Tag implements Node{
         return new Tag(String.format("out.%s = %s", name, value));
     }
 
+    public static Tag assignRuleText(String name, String ruleName) {
+        return new Tag(String.format("out.%s = meta.%s.text", name, ruleName));
+    }
+
+
     public static Tag raw(String content) {
         return new Tag(content);
     }

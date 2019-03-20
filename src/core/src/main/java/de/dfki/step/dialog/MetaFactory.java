@@ -263,6 +263,7 @@ public class MetaFactory {
                     //TODO nlg for question
                     dialog.present(new PresentationRequest("Which TODO do you mean?"));
                     specifyRule(dialog, "specify_" + ruleName, callback);
+
                 }).attach(consumes, selectToken.get());
                 return;
             }

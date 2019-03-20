@@ -23,21 +23,29 @@ public class FusionComponent {
         //define how our multimodal inputs looks like
         InputNode gestureNode = new InputNode(t -> t.payloadEquals("gesture", "down"));
         InputNode windowsNode = new InputNode(t -> t.payloadEqualsOneOf("speech", "all_windows", "front left window"));
-        InputNode fastNode = new InputNode(t -> t.payloadEqualsOneOf("speech", "fast"));
+        InputNode fastNode = new InputNode(t -> t.payloadEquals("speech", "fast"));
 
 //        InputNode focusNode = new InputNode(t -> t.payloadEquals("focus", "car"));
         InputNode focusNode = new InputNode(t -> t.payloadEquals("focus", "car"));
 
+        InputNode windows = new InputNode(
+                t -> {
+                    List<String> candidates = (List<String>) t.get("candidates").get();
+                    return candidates.contains("all_windows");
+                });
+
         ParallelNode node = new ParallelNode()
                 .add(gestureNode)
                 .add(windowsNode)
-                .add(fastNode)
+                .add(new OptionalNode(fastNode))
                 .add(focusNode);
 
 
         FusionComponent fc = new FusionComponent();
         fc.addFusionNode(node, match -> {
             List<String> origin = mergeAll("origin", String.class, match.getTokens());
+            OptionalDouble confidence = mergeAll("confidence", Double.class, match.getTokens()).stream()
+                    .mapToDouble(x -> x).average();
             Optional<String> what = get("speech", String.class, match.getTokens());
             //TODO resolve / transform id of the 'what' if necessary
 
@@ -46,45 +54,60 @@ public class FusionComponent {
                     .add("origin", origin)
                     .add("obj", what.get());
 
+            if(confidence.isPresent()) {
+                token = token.add("confidence", confidence.getAsDouble());
+            }
+
             return token;
+        });
+
+        InputNode intentNode= new InputNode(t -> t.has("intent"));
+        fc.addFusionNode(intentNode, match -> {
+            return match.getTokens().get(0);
         });
 
 
         var tokens = List.of(
-                new Token()
-                        .add("gesture", "down")
-                        .add("timestamp", 1000L)
-                        .add("origin", UUID.randomUUID().toString())
-                ,
+//                new Token()
+//                        .add("gesture", "down")
+//                        .add("timestamp", 1000L)
+//                        .add("origin", UUID.randomUUID().toString())
+//                        .add("confidence", 0.2)
+//                ,
                 new Token()
                         .add("gesture", "down")
                         .add("timestamp", 1500L)
                         .add("origin", UUID.randomUUID().toString())
+                        .add("confidence", 0.8)
                 ,
                 new Token()
                         .add("speech", "all_windows")
                         .add("timestamp", 2000L)
                         .add("origin", UUID.randomUUID().toString())
-                ,
-                new Token()
-                        .add("speech", "front left window")
-                        .add("timestamp", 1000L)
-                        .add("origin", UUID.randomUUID().toString())
+                        .add("confidence", 0.4)
+//                ,
+//                new Token()
+//                        .add("speech", "front left window")
+//                        .add("timestamp", 1000L)
+//                        .add("origin", UUID.randomUUID().toString())
+//                        .add("confidence", 0.8)
                 ,
                 new Token()
                         .add("focus", "car")
                         .add("timestamp", 1000L)
                         .add("origin", UUID.randomUUID().toString())
-                ,
-                new Token()
-                        .add("speech", "fast")
-                        .add("timestamp", 1000L)
-                        .add("origin", UUID.randomUUID().toString())
-                ,
-                new Token()
-                        .add("focus", "desktop")
-                        .add("timestamp", 1000L)
-                        .add("origin", UUID.randomUUID().toString())
+//                ,
+//                new Token()
+//                        .add("speech", "fast")
+//                        .add("timestamp", 1000L)
+//                        .add("origin", UUID.randomUUID().toString())
+//                        .add("confidence", 0.4)
+//                ,
+//                new Token()
+//                        .add("focus", "desktop")
+//                        .add("timestamp", 1000L)
+//                        .add("origin", UUID.randomUUID().toString())
+//                        .add("confidence", 0.6)
         );
 
 
@@ -210,9 +233,9 @@ public class FusionComponent {
         return result;
     }
 
-    public synchronized void addFusionNode(FusionNode node, Function<Match, Token> fusionOutput) {
+    public synchronized void addFusionNode(FusionNode node, Function<Match, Token> intentBuilder) {
         fusionNodes.add(node);
-        fusionOutputs.put(node, fusionOutput);
+        fusionOutputs.put(node, intentBuilder);
     }
 
 
