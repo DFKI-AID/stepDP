@@ -88,7 +88,7 @@ public class TaskBehavior extends SimpleStateBehavior {
                 .ifPresent(t -> {
                     dialog.getRuleCoordinator().add("show_tasks", () -> {
                         stateHandler.fire("show_tasks");
-                    }).attach("consumes", t);
+                    }).attachOrigin(t);
                 }));
 
 
@@ -131,7 +131,7 @@ public class TaskBehavior extends SimpleStateBehavior {
                     .forEach(t -> {
                         dialog.getRuleCoordinator().add(() -> {
                             stateHandler.fire("show_navigation");
-                        }).attach("consumes", t);
+                        }).attachOrigin(t);
                     });
         });
 
@@ -141,7 +141,7 @@ public class TaskBehavior extends SimpleStateBehavior {
                     .forEach(t -> {
                         dialog.getRuleCoordinator().add(() -> {
                             dialog.present(new PresentationRequest("you need the following tools..."));
-                        }).attach("consumes", t);
+                        }).attachOrigin(t);
                     });
         });
 
@@ -169,7 +169,7 @@ public class TaskBehavior extends SimpleStateBehavior {
                         // create Atomic Action
                     });
 
-                }).attach("consumes", intent);
+                }).attachOrigin(intent);
             }
 
             dialog.getRuleCoordinator().add(() -> {
@@ -177,7 +177,7 @@ public class TaskBehavior extends SimpleStateBehavior {
                 Optional<Object> action = intent.get("type");
                 rs.removeRule("specify_add_move_action");
                 // create Atomic Action
-            }).attach("consumes", intent);
+            }).attachOrigin(intent);
         });
         tagSystem.addTag("add_move_action", "CreateTask");
         rs.disable("add_move_action");
@@ -210,7 +210,7 @@ public class TaskBehavior extends SimpleStateBehavior {
                             TaskBehavior.this.currentTask = task;
                             rs.removeRule(rule);
                             stateHandler.fire("show_task");
-                        }).attach("consumes", t);
+                        }).attachOrigin(t);
                     });
         });
         tagSystem.addTag("select_task_supp", stateHandler.getCurrentState());
@@ -249,14 +249,14 @@ public class TaskBehavior extends SimpleStateBehavior {
                                         });
                                 // associate the confirm_task rule to the current state.
                                 tagSystem.addTag("confirm_task", stateHandler.getCurrentState());
-                            }).attach("consumes", t);
+                            }).attachOrigin( t);
                             return;
                         }
 
                         dialog.getRuleCoordinator().add(() -> {
                             stateHandler.fire("task_accepted");
                             dialog.present(new PresentationRequest(acceptTts));
-                        }).attach("consumes", t);
+                        }).attachOrigin(t);
 
                     });
         });

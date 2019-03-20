@@ -14,117 +14,9 @@ public class FusionComponent {
     private Duration tokenTimeout = Duration.ofMillis(1000);
     private List<Token> waitingTokens = new ArrayList<>();
     private List<Token> tokens = new ArrayList<>();
-    private Collection<FusionNode> fusionNodes = new ArrayList<>();
-    private Map<FusionNode, Function<Match, Token>> fusionOutputs = new HashMap<>();
+    private Map<String, FusionNode> fusionNodes = new HashMap<>();
+    private Map<String, Function<Match, Token>> fusionOutputs = new HashMap<>();
 
-    public static void main(String[] args) {
-
-        //define how our multimodal inputs looks like
-        InputNode gestureNode = new InputNode(t -> t.payloadEquals("gesture", "down"));
-        InputNode windowsNode = new InputNode(t -> t.payloadEqualsOneOf("speech", "all_windows", "front left window"));
-        InputNode fastNode = new InputNode(t -> t.payloadEquals("speech", "fast"));
-
-//        InputNode focusNode = new InputNode(t -> t.payloadEquals("focus", "car"));
-        InputNode focusNode = new InputNode(t -> t.payloadEquals("focus", "car"));
-
-        InputNode windows = new InputNode(
-                t -> {
-                    List<String> candidates = (List<String>) t.get("candidates").get();
-                    return candidates.contains("all_windows");
-                });
-
-        ParallelNode node = new ParallelNode()
-                .add(gestureNode)
-                .add(windowsNode)
-                .add(new OptionalNode(fastNode))
-                .add(focusNode);
-
-
-        FusionComponent fc = new FusionComponent();
-        fc.addFusionNode(node, match -> {
-            List<String> origin = Token.mergeFields("origin", String.class, match.getTokens());
-            OptionalDouble confidence = Token.mergeFields("confidence", Double.class, match.getTokens()).stream()
-                    .mapToDouble(x -> x).average();
-            Optional<String> what = Token.getAny("speech", String.class, match.getTokens());
-            //TODO resolve / transform id of the 'what' if necessary
-
-            Token token = new Token()
-                    .add("intent", "control_car_windows")
-                    .add("origin", origin)
-                    .add("obj", what.get());
-
-            if(confidence.isPresent()) {
-                token = token.add("confidence", confidence.getAsDouble());
-            }
-
-            return token;
-        });
-
-        InputNode intentNode= new InputNode(t -> t.has("intent"));
-        fc.addFusionNode(intentNode, match -> {
-            return match.getTokens().get(0);
-        });
-
-
-        var tokens = List.of(
-//                new Token()
-//                        .add("gesture", "down")
-//                        .add("timestamp", 1000L)
-//                        .add("origin", UUID.randomUUID().toString())
-//                        .add("confidence", 0.2)
-//                ,
-                new Token()
-                        .add("gesture", "down")
-                        .add("timestamp", 1500L)
-                        .add("origin", UUID.randomUUID().toString())
-                        .add("confidence", 0.8)
-                ,
-                new Token()
-                        .add("speech", "all_windows")
-                        .add("timestamp", 2000L)
-                        .add("origin", UUID.randomUUID().toString())
-                        .add("confidence", 0.4)
-//                ,
-//                new Token()
-//                        .add("speech", "front left window")
-//                        .add("timestamp", 1000L)
-//                        .add("origin", UUID.randomUUID().toString())
-//                        .add("confidence", 0.8)
-                ,
-                new Token()
-                        .add("focus", "car")
-                        .add("timestamp", 1000L)
-                        .add("origin", UUID.randomUUID().toString())
-//                ,
-//                new Token()
-//                        .add("speech", "fast")
-//                        .add("timestamp", 1000L)
-//                        .add("origin", UUID.randomUUID().toString())
-//                        .add("confidence", 0.4)
-//                ,
-//                new Token()
-//                        .add("focus", "desktop")
-//                        .add("timestamp", 1000L)
-//                        .add("origin", UUID.randomUUID().toString())
-//                        .add("confidence", 0.6)
-        );
-
-
-        tokens.forEach(t -> System.out.println(t));
-        System.out.println();
-//        var mv = new MatchVisitor();
-//        var result = mv.accept(node, tokens);
-//        result.forEach(r -> {
-//            System.out.println(r);
-//        });
-
-        fc.addTokens(tokens);
-        Collection<Token> intents = fc.update();
-
-        intents.forEach(intent -> {
-            System.out.println(intent);
-        });
-    }
 
     /**
      * Updates the fusion component by including newest inputs and merging them
@@ -147,9 +39,9 @@ public class FusionComponent {
 
         List<Token> intents = new ArrayList<>();
         var mv = new MatchVisitor();
-        for(FusionNode fn : fusionNodes) {
-            var fnc = fusionOutputs.get(fn);
-            var result = mv.accept(fn, tokens);
+        for(var entry : fusionNodes.entrySet()) {
+            var fnc = fusionOutputs.get(entry.getKey());
+            var result = mv.accept(entry.getValue(), tokens);
             result.forEach(match -> {
                 Token intent = fnc.apply(match);
                 intents.add(intent);
@@ -179,11 +71,15 @@ public class FusionComponent {
         return result;
     }
 
-    public synchronized void addFusionNode(FusionNode node, Function<Match, Token> intentBuilder) {
-        fusionNodes.add(node);
-        fusionOutputs.put(node, intentBuilder);
+    public synchronized void addFusionNode(String id, FusionNode node, Function<Match, Token> intentBuilder) {
+        fusionNodes.put(id, node);
+        fusionOutputs.put(id, intentBuilder);
     }
 
+    public synchronized void removeFusionNode(String id) {
+        fusionNodes.remove(id);
+        fusionOutputs.remove(id);
+    }
 
     public synchronized void addToken(Token token) {
         if (!token.has("timestamp", Long.class)) {

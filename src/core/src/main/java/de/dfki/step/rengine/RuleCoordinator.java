@@ -12,13 +12,13 @@ import java.util.stream.Collectors;
 /**
  * Decides which rule will fire based on mutual resource consumption.
  * Rules may register functions ("what they would do if they are executed")
- * Rules may attach additional data for coordination (e.g. consumes resource x)
+ * Rules may attach additional data for coordination (e.g. origin resource x)
  *
- * 'consumes' is either an Object or a Collection of Objects
+ * 'origin' is either an Object or a Collection of Objects
  */
 public class RuleCoordinator {
     private static final Logger log = LoggerFactory.getLogger(RuleCoordinator.class);
-    public static final String consumes = "consumes";
+    public static final String origin = "origin";
     public static final String priority = "priority";
     protected PMap<String, Runnable> functions;
     protected PMap<String, Token> data;
@@ -59,6 +59,10 @@ public class RuleCoordinator {
         };
     }
 
+    /**
+     * Iterates over all rule functions that were added since the last update call and fires rules
+     * based on the priority and intersection of the origin
+     */
     public void update() {
         // simple coordination = no coordination, just execute all
 //        functions.entrySet().forEach(entry -> {
@@ -77,13 +81,13 @@ public class RuleCoordinator {
                 .sorted(Comparator.comparingDouble(e -> getPriority.apply(e.getKey())))
                 .forEach(entry -> {
                     // check whether other functions consume the same resource
-                    Optional<Object> consumes1 = data.get(entry.getKey()).get(consumes);
+                    Optional<Object> consumes1 = data.get(entry.getKey()).get(origin);
                     for (var otherEntry : executeMap.entrySet()) {
                         if(entry.getValue() == otherEntry.getValue()) {
                             continue;
                         }
 
-                        Optional<Object> consumes2 = data.get(otherEntry.getKey()).get(consumes);
+                        Optional<Object> consumes2 = data.get(otherEntry.getKey()).get(origin);
                         if(consumeCollides(consumes1, consumes2)) {
                             //two functions consume the same resource
                             //hence the first (lower priority) is removed
@@ -124,5 +128,31 @@ public class RuleCoordinator {
 
     public interface DataAttacher {
         DataAttacher attach(String key, Object obj);
+
+        /**
+         * Attaches the origin (list of object specifying how a token or intent was created).
+         * e.g. a gesture g1 and speech input s1 are merge into an intent i1, which then triggers a rule to fire.
+         * The rule coordinator will decide which rules will finally fire based on the origin=[g1, s1, i1]. If the
+         * origin overlaps with other rules, only one may fire. But this depends on the coordination strategy.
+         * @param token
+         * @return
+         */
+        default DataAttacher attachOrigin(Token token) {
+            List<Object> newOrigin = new ArrayList<>();
+
+            Optional<Collection> tokenOrigins = token.get(origin, Collection.class);
+            if(tokenOrigins.isPresent()) {
+                newOrigin.addAll(tokenOrigins.get());
+            } else {
+                Optional<Object> tokenOrigin = token.get(origin);
+                if(tokenOrigin.isPresent()) {
+                    newOrigin.add(tokenOrigin.get());
+                }
+            }
+
+            this.attach("origin", newOrigin);
+            return this;
+        }
     }
+
 }

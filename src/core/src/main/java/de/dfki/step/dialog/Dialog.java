@@ -198,4 +198,8 @@ public abstract class Dialog implements Runnable {
     public Clock getClock() {
         return clock;
     }
+
+    public FusionComponent getFusionComponent() {
+        return fusionComponent;
+    }
 }

@@ -17,7 +17,6 @@ import java.util.stream.Stream;
 public class MetaFactory {
     private static final Logger log = LoggerFactory.getLogger(MetaFactory.class);
     private static final double minConfidence = 0.3;
-    private static final String consumes = "consumes";
 
     public static void createGreetingsRule(Dialog dialog) {
         var rs = dialog.getRuleSystem();
@@ -43,7 +42,7 @@ public class MetaFactory {
                             dialog.present(new PresentationRequest(utteranace));
                             // disable this rule for four seconds
                             dialog.getRuleSystem().disable("greetings", Duration.ofSeconds(4));
-                        }).attach("consumes", t);
+                        }).attachOrigin(t);
 
                     });
         });
@@ -78,7 +77,7 @@ public class MetaFactory {
                         dialog.getRuleCoordinator().add(() -> {
                             fnc.run();
                             rs.removeRule(ruleName);
-                        }).attach(consumes, t);
+                        }).attachOrigin(t);
                     });
         });
         rs.setVolatile(ruleName, true);
@@ -164,7 +163,7 @@ public class MetaFactory {
 
             dialog.getRuleCoordinator().add(() -> {
                 dialog.rewind(iteration);
-            }).attach(consumes, rewindIntent.get());
+            }).attachOrigin(rewindIntent.get());
         });
         dialog.getTagSystem().addTag(ruleName, "meta");
     }
@@ -191,7 +190,7 @@ public class MetaFactory {
                             //this jumps to state before the last interaction was done
                             //~ undo last action
                             dialog.rewind(Math.max(0, lastInteraction - 1));
-                        }).attach(consumes, t);
+                        }).attachOrigin(t);
                     });
         });
         dialog.getTagSystem().addTag("undo", "meta");
@@ -226,7 +225,7 @@ public class MetaFactory {
                             } else {
                                 dialog.present(new PresentationRequest(prefix + lastTts));
                             }
-                        }).attach(consumes, t);
+                        }).attachOrigin(t);
                     });
         });
         dialog.getTagSystem().addTag(ruleName, "meta");
@@ -264,7 +263,7 @@ public class MetaFactory {
                     dialog.present(new PresentationRequest("Which TODO do you mean?"));
                     specifyRule(dialog, "specify_" + ruleName, callback);
 
-                }).attach(consumes, selectToken.get());
+                }).attachOrigin(selectToken.get());
                 return;
             }
 
@@ -278,13 +277,13 @@ public class MetaFactory {
                             () -> {
                             }
                     );
-                }).attach(consumes, selectToken.get());
+                }).attachOrigin(selectToken.get());
 
 
             } else {
                 dialog.getRuleCoordinator().add(() -> {
                     callback.accept(selection.get());
-                }).attach(consumes, selectToken.get());
+                }).attachOrigin(selectToken.get());
             }
 
         });
@@ -316,7 +315,7 @@ public class MetaFactory {
                             rs.removeRule(rule);
                             String specificationStr = (String) specification.get();
                             callback.accept(specificationStr);
-                        }).attach(consumes, t);
+                        }).attachOrigin(t);
                     });
         });
     }
@@ -337,7 +336,7 @@ public class MetaFactory {
                     .ifPresent(t -> {
                         dialog.getRuleCoordinator().add(() -> {
                             callback.accept(t);
-                        }).attach(consumes, t);
+                        }).attachOrigin(t);
                     });
         });
         dialog.getTagSystem().addTag(ruleName, "meta");

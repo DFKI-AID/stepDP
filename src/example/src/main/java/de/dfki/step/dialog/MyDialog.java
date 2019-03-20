@@ -1,6 +1,10 @@
 package de.dfki.step.dialog;
 
 
+import de.dfki.step.fusion.FusionComponent;
+import de.dfki.step.fusion.InputNode;
+import de.dfki.step.fusion.OptionalNode;
+import de.dfki.step.fusion.ParallelNode;
 import de.dfki.step.rengine.Token;
 import de.dfki.step.srgs.Grammar;
 import de.dfki.step.srgs.GrammarManager;
@@ -10,6 +14,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Optional;
+import java.util.OptionalDouble;
 
 
 /**
@@ -48,8 +55,9 @@ public class MyDialog extends Dialog {
     @Override
     public void init() {
         super.init();
+        initFusion();
 
-        // we use the speech-recogntion-service of the step-dp
+        // speech-recogntion-service of the step-dp
         GrammarManager gm = MyGrammar.create();
         Grammar grammar = gm.createGrammar();
         SpeechRecognitionClient src = new SpeechRecognitionClient("localhost", 9696, (token)-> {
@@ -67,6 +75,45 @@ public class MyDialog extends Dialog {
     @Override
     public void update() {
         super.update();
+    }
+
+    protected void initFusion() {
+        FusionComponent fc = getFusionComponent();
+
+        //looking and pointing gesture may trigger a select_task intent
+        InputNode gesture = new InputNode(t -> t.payloadEquals("gesture", "tap"));
+        InputNode focus = new InputNode(t ->
+                t.get("focus", String.class).map(f -> f.startsWith("task")).orElse(false));
+
+        ParallelNode node = new ParallelNode()
+                .add(gesture)
+                .add(focus);
+
+
+        fc.addFusionNode("select_task1", node, match -> {
+            List<String> origin = Token.mergeFields("origin", String.class, match.getTokens());
+            OptionalDouble confidence = Token.mergeFields("confidence", Double.class, match.getTokens()).stream()
+                    .mapToDouble(x -> x).average();
+            Optional<String> task = Token.getAny("focus", String.class, match.getTokens());
+
+            Token token = new Token()
+                    .add("intent", "select_task")
+                    .add("origin", origin)
+                    .add("task", task.get());
+
+            if(confidence.isPresent()) {
+                token = token.add("confidence", confidence.getAsDouble());
+            }
+
+            return token;
+        });
+
+
+        //forward all input tokens that already have an intent
+        InputNode intentNode= new InputNode(t -> t.has("intent"));
+        fc.addFusionNode("intent_forward", intentNode, match -> {
+            return match.getTokens().get(0);
+        });
     }
 }
 

@@ -25,7 +25,7 @@ public class TimeBehavior implements Behavior {
                             var tts = "The time is " + now.getHour() + ":" + now.getMinute(); //TODO improve
                             dialog.present(new PresentationRequest(tts));
                             dialog.getRuleSystem().disable("request_time", Duration.ofMillis(timeout));
-                        }).attach("consumes", t);
+                        }).attach("origin", t);
                     });
         });
         dialog.getTagSystem().addTag("request_time", "meta");
