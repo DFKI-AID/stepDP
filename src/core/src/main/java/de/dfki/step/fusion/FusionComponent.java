@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 public class FusionComponent {
     private static Logger log = LoggerFactory.getLogger(FusionComponent.class);
-    private Duration tokenTimeout = Duration.ofMillis(1000);
+    private Duration tokenTimeout = Duration.ofMillis(10000);
     private List<Token> waitingTokens = new ArrayList<>();
     private List<Token> tokens = new ArrayList<>();
     private Map<String, FusionNode> fusionNodes = new HashMap<>();
@@ -33,9 +33,12 @@ public class FusionComponent {
         //TODO switch to iteration based model like the rule system -> makes debugging easier
         var now = System.currentTimeMillis();
         tokens = tokens.stream()
-                .filter(t -> t.get("timestamp", Long.class).get() + tokenTimeout.toMillis()< now)
+                .filter(t -> t.get("timestamp", Long.class).get() + tokenTimeout.toMillis() > now)
                 .collect(Collectors.toList());
 
+        if(tokens.isEmpty()) {
+            return Collections.EMPTY_LIST;
+        }
 
         List<Token> intents = new ArrayList<>();
         var mv = new MatchVisitor();
@@ -47,6 +50,8 @@ public class FusionComponent {
                 intents.add(intent);
             });
         }
+
+        tokens.clear(); //TODO until consumed by coordinator
 
         return intents;
     }
@@ -92,7 +97,7 @@ public class FusionComponent {
                 token = token.add("timestamp", System.currentTimeMillis());
             }
         }
-        this.tokens.add(token);
+        this.waitingTokens.add(token);
     }
 
     public synchronized void addTokens(Collection<Token> tokens) {

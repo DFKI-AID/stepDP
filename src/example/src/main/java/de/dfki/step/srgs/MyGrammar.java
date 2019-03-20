@@ -18,7 +18,7 @@ public class MyGrammar {
                                 .addTag(Tag.intent("accept")))
                         .add(new Item("no")
                                 .addTag(Tag.intent("reject")))
-                        );
+                );
         grammarManager.addRule(confirmRule);
 
         Rule acceptRule = new Rule("accept_task");
@@ -33,12 +33,20 @@ public class MyGrammar {
         );
         grammarManager.addRule(acceptRule);
 
-        Rule greetingsRule = new Rule("greetings");
-        greetingsRule.add(new OneOf()
-                .add(new Item("hi"))
-                .add(new Item("hello"))
-                .add(new Item("greetings"))
+        grammarManager.addRule(new Rule("repeat")
+                .add(new Item("can you repeat that"))
+                .add(Tag.intent("repeat"))
         );
+
+
+        Rule greetingsRule = new Rule("greetings");
+        greetingsRule
+                .add(new OneOf()
+                        .add(new Item("hi"))
+                        .add(new Item("hello"))
+                        .add(new Item("greetings")))
+                .add(Tag.intent("greetings"));
+
         grammarManager.addRule(greetingsRule);
 
 

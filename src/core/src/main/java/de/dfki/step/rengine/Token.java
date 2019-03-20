@@ -31,7 +31,6 @@ public class Token {
     }
 
 
-
     public Token add(String key, Object value) {
         if (value == null) {
             throw new IllegalArgumentException("null is not allowed as value in a token");
@@ -56,6 +55,39 @@ public class Token {
         return Optional.ofNullable(payload.get(key));
     }
 
+    public Optional<Object> get(String... keys) {
+        if (keys.length == 0) {
+            return Optional.empty();
+        }
+
+        Optional<Object> firstObj = get(keys[0]);
+        if (!firstObj.isPresent()) {
+            return Optional.empty();
+        }
+
+        Object obj = firstObj.get();
+
+        for (int i = 1; i < keys.length; i++) {
+            if (!(obj instanceof Map)) {
+                return Optional.empty();
+            }
+
+            obj = ((Map<String, Object>) obj).get(keys[i]);
+            if(obj == null) {
+                return Optional.empty();
+            }
+        }
+        return Optional.of(obj);
+    }
+
+    public <T> Optional<T> get(Class<T> clazz, String... keys) {
+        Optional<Object> obj = get(keys);
+        if(!obj.isPresent()) {
+            return Optional.empty();
+        }
+        return Optional.of((T) obj.get());
+    }
+
 
     public <T> Optional<T> get(String key, Class<T> clazz) {
         if (!has(key)) {
@@ -74,7 +106,7 @@ public class Token {
     }
 
     public <T> boolean has(String key, Class<T> clazz) {
-        if(payload.get(key) == null) {
+        if (payload.get(key) == null) {
             return false;
         }
         return clazz.isAssignableFrom(payload.get(key).getClass());
@@ -137,6 +169,7 @@ public class Token {
     /**
      * Creates a token out of an json string. json objects are represented as maps, arrays as list and primitives
      * as java primitives.
+     *
      * @param recJson
      * @return
      * @throws IOException
@@ -146,7 +179,7 @@ public class Token {
         JsonNode obj = mapper.readTree(recJson);
         Iterator<String> iter = obj.fieldNames();
         Token.Builder builder = Token.builder();
-        while(iter.hasNext()) {
+        while (iter.hasNext()) {
             String fieldName = iter.next();
             Object value = parse(obj.get(fieldName));
             builder.add(fieldName, value);
@@ -157,34 +190,34 @@ public class Token {
     }
 
     private static Object parse(JsonNode jsonNode) {
-        if(jsonNode.isDouble()) {
+        if (jsonNode.isDouble()) {
             return jsonNode.doubleValue();
-        } else if(jsonNode.isTextual()) {
+        } else if (jsonNode.isTextual()) {
             return jsonNode.textValue();
-        } else if(jsonNode.isLong()) {
+        } else if (jsonNode.isLong()) {
             return jsonNode.longValue();
-        } else if(jsonNode.isInt()) {
+        } else if (jsonNode.isInt()) {
             return jsonNode.intValue();
-        } else if(jsonNode.isBoolean()) {
+        } else if (jsonNode.isBoolean()) {
             return jsonNode.booleanValue();
-        } else if(jsonNode.isArray()) {
+        } else if (jsonNode.isArray()) {
             List<Object> values = new ArrayList<>();
             var iter = jsonNode.iterator();
-            while(iter.hasNext()) {
+            while (iter.hasNext()) {
                 values.add(parse(iter.next()));
             }
             return values;
         } else if (jsonNode.isObject()) {
             Map<String, Object> values = new HashMap<>();
             Iterator<String> iter = jsonNode.fieldNames();
-            while(iter.hasNext()) {
+            while (iter.hasNext()) {
                 String fieldName = iter.next();
                 Object value = parse(jsonNode.get(fieldName));
                 values.put(fieldName, value);
             }
             return Collections.unmodifiableMap(values);
         }
-        throw new IllegalArgumentException("unhandled json node type: " +jsonNode);
+        throw new IllegalArgumentException("unhandled json node type: " + jsonNode);
     }
 
 
@@ -199,7 +232,7 @@ public class Token {
      * result.origin = ["kinect1", "hololens", "eye_tracker13"]
      *
      * @param fieldName
-     * @param clazz The type of the field. Use Object.class if not relevant.
+     * @param clazz     The type of the field. Use Object.class if not relevant.
      * @param tokens
      * @param <T>
      * @return The field value of all tokens if the field is set correctly
@@ -234,6 +267,7 @@ public class Token {
 
     /**
      * Looks in the given tokens and returns the first field value that matches the given class if available.
+     *
      * @param fieldName
      * @param clazz
      * @param tokens
@@ -248,7 +282,6 @@ public class Token {
         }
         return Optional.empty();
     }
-
 
 
 }

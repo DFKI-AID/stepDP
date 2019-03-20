@@ -118,7 +118,7 @@ public class SpeechRecognitionClient {
                 .doFinally(x -> initGrammar())
                 .delaySubscription(Duration.ofMillis(2000))
                 .timeout(timeout)
-                .subscribe();
+                .subscribe(s -> {}, e -> {});
     }
 
     public synchronized void setGrammar(String name, String grammar) {
