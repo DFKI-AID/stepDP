@@ -1,7 +1,5 @@
 package de.dfki.step.web;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import de.dfki.step.rengine.Token;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +17,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -32,20 +29,23 @@ import java.util.stream.Stream;
 public class SpeechRecognitionClient {
     private static Logger log = LoggerFactory.getLogger(SpeechRecognitionClient.class);
     private static Duration timeout = Duration.ofMillis(5000);
-    private final URI recogAsr;
+    private final URI asrResultUri, grammarUri;
     private final Consumer<Token> callback;
     private String grammar;
     private String grammarName;
+    private final String app;
 
-    public SpeechRecognitionClient(String host, int port, Consumer<Token> callback) {
+    public SpeechRecognitionClient(String app, String host, int port, Consumer<Token> callback) {
         this.callback = callback;
-        recogAsr = URI.create(String.format("ws://%s:%d/asr", host, port));
+        asrResultUri = URI.create(String.format("ws://%s:%d/asr", host, port));
+        grammarUri = URI.create(String.format("ws://%s:%d/grammar/%s", host, port, app));
+        this.app = app;
     }
 
     public void init() {
         WebSocketClient wsc = new StandardWebSocketClient();
 
-        log.info("Connecting to {}", recogAsr);
+        log.info("Connecting to {}", asrResultUri);
 
         WebSocketHandler handler = new WebSocketHandler() {
             @Override
@@ -54,6 +54,10 @@ public class SpeechRecognitionClient {
                     String speechRecog = m.getPayloadAsText(StandardCharsets.UTF_8);
                     try {
                         Token t = Token.fromJson(speechRecog);
+                        if(!t.payloadEquals("app", app)) {
+                            // speech recognition from another app
+                            return;
+                        }
                         callback.accept(t);
                     } catch(Exception ex) {
                         log.warn("could not parse response from speech recognition service. json={}", speechRecog, ex);
@@ -80,10 +84,10 @@ public class SpeechRecognitionClient {
                 return Mono.zip(input, output).then();
             }
         };
-        Mono<Void> req = wsc.execute(recogAsr, handler)
+        Mono<Void> req = wsc.execute(asrResultUri, handler)
                 .doOnTerminate(() -> {
                     // "finished means connection lost"
-                    log.info("Lost connection to {}", recogAsr);
+                    log.info("Lost connection to {}", asrResultUri);
                     init();
                 });
 
@@ -108,7 +112,7 @@ public class SpeechRecognitionClient {
 
         log.debug("trying to update grammar for {}", name);
         String finalName = name;
-        WebClient.create(recogAsr.toString() + "/" + name)
+        WebClient.create(grammarUri.toString() + "/" + name)
                 .method(HttpMethod.POST)
                 .syncBody(srgs)
                 .retrieve()
