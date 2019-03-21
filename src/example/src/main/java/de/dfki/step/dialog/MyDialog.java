@@ -14,10 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URISyntaxException;
-import java.util.Dictionary;
-import java.util.List;
-import java.util.Optional;
-import java.util.OptionalDouble;
+import java.util.*;
 
 
 /**
@@ -63,13 +60,16 @@ public class MyDialog extends Dialog {
         Grammar grammar = gm.createGrammar();
         SpeechRecognitionClient src = new SpeechRecognitionClient("localhost", 9696, (token)-> {
             // TODO use resolution on token
-            Optional<String> intent = token.get(String.class, "semantic", "intent");
+            Optional<Map> semantic = token.get(Map.class, "semantic");
+            if(!semantic.isPresent()) {
+                return;
+            }
 
             // TODO atm. intent is copied from the speech semantics
-            Token processedToken = token;
-            if(intent.isPresent()) {
-                processedToken = processedToken.add("intent", intent.get());
-            }
+            Token processedToken = new Token((Map<String, Object>) semantic.get());
+//            if(intent.isPresent()) {
+//                processedToken = processedToken.add("intent", intent.get());
+//            }
             // add token to fc
             getFusionComponent().addToken(processedToken);
         });

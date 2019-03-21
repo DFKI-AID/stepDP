@@ -56,19 +56,19 @@ public class Main {
         Rule acceptRule = new Rule("accept_task");
         acceptRule.add(new OneOf()
                 .add(new Item("I accept this task")
-                        .addTag(Tag.intent("accept")))
+                        .add(Tag.intent("accept")))
                 .add(new Item("I reject this task")
-                        .addTag(Tag.intent("reject")))
+                        .add(Tag.intent("reject")))
         );
 
         Rule confirmRule = new Rule("confirm")
                 .add(new OneOf()
                         .add(new Item("yeah")
-                                .addTag(Tag.intent("accept")))
+                                .add(Tag.intent("accept")))
                         .add(new Item("yes")
-                                .addTag(Tag.intent("accept")))
+                                .add(Tag.intent("accept")))
                         .add(new Item("no")
-                                .addTag(Tag.intent("reject"))
+                                .add(Tag.intent("reject"))
                         ));
         grammar.addRule(confirmRule);
 

@@ -61,7 +61,7 @@ public class Item implements Node {
         return tags;
     }
 
-    public Item addTag(Tag tag) {
+    public Item add(Tag tag) {
         this.tags.add(tag);
         return this;
     }

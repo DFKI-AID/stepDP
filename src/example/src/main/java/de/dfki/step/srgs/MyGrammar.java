@@ -1,8 +1,6 @@
 package de.dfki.step.srgs;
 
 
-import java.io.IOException;
-
 /**
  *
  */
@@ -13,22 +11,22 @@ public class MyGrammar {
         Rule confirmRule = new Rule("confirm")
                 .add(new OneOf()
                         .add(new Item("yeah")
-                                .addTag(Tag.intent("accept")))
+                                .add(Tag.intent("accept")))
                         .add(new Item("yes")
-                                .addTag(Tag.intent("accept")))
+                                .add(Tag.intent("accept")))
                         .add(new Item("no")
-                                .addTag(Tag.intent("reject")))
+                                .add(Tag.intent("reject")))
                 );
         grammarManager.addRule(confirmRule);
 
         Rule acceptRule = new Rule("accept_task");
         acceptRule.add(new OneOf()
                 .add(new Item("I accept this task")
-                        .addTag(Tag.intent("accept"))
-                        .addTag(Tag.assign("rule", "accept_task")))
+                        .add(Tag.intent("accept_task"))
+                        .add(Tag.assign("rule", "accept_task")))
                 .add(new Item("I reject this task")
-                        .addTag(Tag.intent("reject"))
-                        .addTag(Tag.assign("rule", "rule_accept"))
+                        .add(Tag.intent("reject"))
+                        .add(Tag.assign("rule", "rule_accept"))
                 )
         );
         grammarManager.addRule(acceptRule);
@@ -57,17 +55,27 @@ public class MyGrammar {
         gotIt.add(new Item("got it"));
         grammarManager.addRule(gotIt);
 
-        Rule taskChoice = new Rule("task_choice")
-//                .makePrivate()
-                .add(new Item("the"))
+        grammarManager.addRule(new Rule("select_number")
                 .add(new OneOf()
                         .add(new Item("first"))
                         .add(new Item("second"))
                         .add(new Item("third"))
                 )
+        );
+
+        Rule taskChoice = new Rule("task_choice")
+//                .makePrivate()
+                .add(new Item("the"))
+                .add(new RuleRef("select_number"))
                 .add(new Item("task"))
-                .add(Tag.intent("select_task"));
+                .add(Tag.rawAssign("selection", "meta.select_number.text"))
+                .add(Tag.intent("select"));
         grammarManager.addRule(taskChoice);
+
+        grammarManager.addRule(new Rule("show_tasks")
+                .add(new Item("which tasks are available"))
+                .add(Tag.intent("show_tasks"))
+        );
 
         Rule taskInfo = new Rule("task_info");
         //can you give me more information on this task
@@ -85,7 +93,7 @@ public class MyGrammar {
 
         Rule timeInfo = new Rule("request_time")
                 .add(new Item("what time is it")
-                        .addTag(Tag.intent("request_time"))
+                        .add(Tag.intent("request_time"))
                 );
         grammarManager.addRule(timeInfo);
         return grammarManager;

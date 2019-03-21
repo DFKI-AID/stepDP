@@ -19,7 +19,7 @@ public class Token {
     public final long timestamp = System.currentTimeMillis();
     private PMap<String, Object> payload = HashTreePMap.empty();
 
-    private Token(Map<String, Object> payload) {
+    public Token(Map<String, Object> payload) {
         this.payload = this.payload.plusAll(payload);
     }
 
