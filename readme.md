@@ -65,6 +65,7 @@ File > Open > choose pom.xml in src and "open as project"
 - deprecated (add functionality to coordinator class): execution order is based on priority value. rules with higher priority value are executed later.
 - The token set is empty for each iteration and filled by the rules.
 - **TODO** different type of rules: meta, semi-meta, app
+- Volatile rules are rules that will be removed 'on a state change'. whereby 'state change' depends on the behavior impl.
 - Using java's stream API makes writing rules easy: 
 
 ```java

@@ -1,9 +1,12 @@
 package de.dfki.step.dialog;
 
+import de.dfki.step.dialog.Dialog;
+
 /**
- *
+ * As part of the dialog application, a component can be anything that has to initialize,
+ * regularly update or manages data that depends on the dialog state.
  */
-public interface Behavior {
+public interface Component {
     /**
      * Initialize the behavior by e.g. creating rules.
      * @param dialog
@@ -14,6 +17,17 @@ public interface Behavior {
      * Deinitialize the behavior by removing rules added through {@link #init(Dialog)}
      */
     void deinit();
+
+    default void beforeUpdate() {
+    }
+
+    /**
+     * Called once each iteration
+     */
+    void update();
+
+    default void afterUpdate() {
+    }
 
     /**
      * Creates a snapshot of the current state which is sufficient reload the same state

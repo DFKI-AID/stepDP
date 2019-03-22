@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 /**
  *
  */
-public class TimeBehavior implements Behavior {
+public class TimeBehavior implements Component {
     private long timeout = 3000L;
     private Dialog dialog;
 
@@ -34,6 +34,10 @@ public class TimeBehavior implements Behavior {
     @Override
     public void deinit() {
         dialog.getRuleSystem().removeRule("request_time");
+    }
+
+    @Override
+    public void update() {
     }
 
     @Override

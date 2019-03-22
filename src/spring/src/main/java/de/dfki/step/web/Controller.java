@@ -1,11 +1,13 @@
 package de.dfki.step.web;
 
 import com.google.gson.Gson;
-import de.dfki.step.dialog.Behavior;
+import de.dfki.step.dialog.Component;
 import de.dfki.step.dialog.Dialog;
-import de.dfki.step.dialog.StateBehavior;
+import de.dfki.step.sc.StateBehavior;
 import de.dfki.step.rengine.Token;
 import de.dfki.step.sc.StateChart;
+import de.dfki.step.srgs.GrammarManager;
+import de.dfki.step.srgs.GrammarManagerComponent;
 import org.pcollections.PSequence;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -87,14 +89,18 @@ public class Controller {
 
     @GetMapping(value = "/grammar", produces = "application/xml")
     public String getGrammar() {
-        String grammar = dialog.getGrammarManager().createGrammar().toString();
+        var grammarManager = dialog.getComponents(GrammarManagerComponent.class).stream().findFirst();
+        if(!grammarManager.isPresent()) {
+            return "";
+        }
+        String grammar = grammarManager.get().createGrammar().toString();
         return grammar;
     }
 
 
     @GetMapping(value = "/behavior/{id}", produces = "application/json")
     public ResponseEntity<String> getBehavior(@PathVariable("id") String id) {
-        Optional<Behavior> behavior = dialog.getBehavior(id);
+        Optional<Component> behavior = dialog.getComponent(id);
         if(!behavior.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
@@ -111,7 +117,7 @@ public class Controller {
 
     @GetMapping(value = "/behavior/{id}/state", produces = "application/json")
     public ResponseEntity<String> getBehaviorState(@PathVariable("id") String id) {
-        Optional<Behavior> behavior = dialog.getBehavior(id);
+        Optional<Component> behavior = dialog.getComponent(id);
         if(!behavior.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }

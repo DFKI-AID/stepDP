@@ -3,7 +3,6 @@ package de.dfki.step.dialog;
 
 import de.dfki.step.fusion.FusionComponent;
 import de.dfki.step.fusion.InputNode;
-import de.dfki.step.fusion.OptionalNode;
 import de.dfki.step.fusion.ParallelNode;
 import de.dfki.step.rengine.Token;
 import de.dfki.step.srgs.Grammar;
@@ -28,7 +27,7 @@ public class MyDialog extends Dialog {
     public MyDialog() {
         try {
             TaskBehavior taskBehavior = new TaskBehavior();
-            this.addBehavior("task_behavior", taskBehavior);
+            this.addComponent("task_behavior", taskBehavior);
 
         } catch (URISyntaxException e) {
             throw new RuntimeException("Could not load task behavior", e);
@@ -44,49 +43,26 @@ public class MyDialog extends Dialog {
         MetaFactory.createGreetingsRule(this);
 
         TimeBehavior timeBehavior = new TimeBehavior();
-        this.addBehavior("time_behavior", timeBehavior);
+        this.addComponent("time_behavior", timeBehavior);
 
 
         MetaFactory.createRepeatRule(this, "request_repeat_tts", "I did not say anything.");
         MetaFactory.snapshotRule(this);
+
+
+        createFusionComponent();
+        createGrammarComponent();
     }
 
-    @Override
-    public void init() {
-        super.init();
-        initFusion();
-
-        // speech-recognition-service of the step-dp
-        GrammarManager gm = MyGrammar.create();
-        Grammar grammar = gm.createGrammar();
-        SpeechRecognitionClient src = new SpeechRecognitionClient(app,"localhost", 9696, (token)-> {
-            // TODO use resolution on token
-            Optional<Map> semantic = token.get(Map.class, "semantic");
-            if(!semantic.isPresent()) {
-                return;
-            }
-
-            // TODO atm. intent is copied from the speech semantics
-            Token processedToken = new Token((Map<String, Object>) semantic.get());
-//            if(intent.isPresent()) {
-//                processedToken = processedToken.add("intent", intent.get());
-//            }
-            // add token to fc
-            getFusionComponent().addToken(processedToken);
-        });
-        String grammarStr = grammar.toString();
-        src.setGrammar("main", grammarStr);
-        src.initGrammar();
-        src.init();
-    }
 
     @Override
     public void update() {
         super.update();
     }
 
-    protected void initFusion() {
-        FusionComponent fc = getFusionComponent();
+    protected void createFusionComponent() {
+        FusionComponent fc = new FusionComponent();
+        addComponent("fusion", fc);
 
         //looking and pointing gesture may trigger a select_task intent
         InputNode gesture = new InputNode(t -> t.payloadEquals("gesture", "tap"));
@@ -122,6 +98,32 @@ public class MyDialog extends Dialog {
         fc.addFusionNode("intent_forward", intentNode, match -> {
             return match.getTokens().get(0);
         });
+    }
+
+    protected void createGrammarComponent() {
+        // speech-recognition-service of the step-dp
+        GrammarManager gm = MyGrammar.create();
+        Grammar grammar = gm.createGrammar();
+        SpeechRecognitionClient src = new SpeechRecognitionClient(app,"localhost", 9696, (token)-> {
+            // TODO use resolution on token
+            Optional<Map> semantic = token.get(Map.class, "semantic");
+            if(!semantic.isPresent()) {
+                return;
+            }
+
+            // TODO atm. intent is copied from the speech semantics
+            Token processedToken = new Token((Map<String, Object>) semantic.get());
+//            if(intent.isPresent()) {
+//                processedToken = processedToken.add("intent", intent.get());
+//            }
+            // add token to fc
+            FusionComponent fc = getComponent("fusion", FusionComponent.class).get();
+            fc.addToken(processedToken);
+        });
+        String grammarStr = grammar.toString();
+        src.setGrammar("main", grammarStr);
+        src.initGrammar();
+        src.init();
     }
 }
 

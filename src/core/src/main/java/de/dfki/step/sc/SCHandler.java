@@ -1,6 +1,8 @@
-package de.dfki.step.dialog;
+package de.dfki.step.sc;
 
-import de.dfki.step.sc.SCEngine;
+import de.dfki.step.dialog.Dialog;
+import de.dfki.step.dialog.TagSystem;
+import de.dfki.step.rengine.RuleSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,30 +52,32 @@ public class SCHandler {
      */
     protected void activate(String tag) {
         TagSystem<String> tagSystem = dialog.getTagSystem();
-        dialog.rs.getRules().stream()
-                .map(r -> dialog.rs.getName(r))
+        RuleSystem rs = dialog.getRuleSystem();
+        rs.getRules().stream()
+                .map(r -> rs.getName(r))
                 .filter(r -> r.isPresent())
                 .map(r -> r.get())
                 .filter(r -> tagSystem.hasTag(r, tag))
-                .forEach(r -> dialog.rs.enable(r));
+                .forEach(r -> rs.enable(r));
     }
 
     /**
-     * Deactivates all functions with the given tag
+     * Deactivates all functions with the given tag.
      *
      * @param tag
      */
     protected void deactivate(String tag) {
         TagSystem<String> tagSystem = dialog.getTagSystem();
-        dialog.rs.getRules().stream()
-                .map(r -> dialog.rs.getName(r))
+        RuleSystem rs = dialog.getRuleSystem();
+        rs.getRules().stream()
+                .map(r -> rs.getName(r))
                 .filter(r -> r.isPresent())
                 .map(r -> r.get())
                 .filter(r -> tagSystem.hasTag(r, tag))
                 .forEach(r -> {
-                    dialog.rs.disable(r);
-                    if (dialog.rs.isVolatile(r)) {
-                        dialog.rs.removeRule(r);
+                    rs.disable(r);
+                    if (rs.isVolatile(r)) {
+                        rs.removeRule(r);
                     }
                 });
     }

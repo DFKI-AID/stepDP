@@ -1,10 +1,8 @@
-package de.dfki.step.dialog;
+package de.dfki.step.sc;
 
+import de.dfki.step.dialog.Dialog;
+import de.dfki.step.dialog.TagSystem;
 import de.dfki.step.rengine.RuleSystem;
-import de.dfki.step.sc.Parser;
-import de.dfki.step.sc.SCEngine;
-import de.dfki.step.sc.SCMain;
-import de.dfki.step.sc.StateChart;
 import org.pcollections.HashTreePMap;
 import org.pcollections.PMap;
 import org.slf4j.Logger;
@@ -124,6 +122,10 @@ public class SimpleStateBehavior implements StateBehavior {
     public void deinit() {
 //        this.stateHandler.quit();
         //TODO impl
+    }
+
+    @Override
+    public void update() {
     }
 
     @Override

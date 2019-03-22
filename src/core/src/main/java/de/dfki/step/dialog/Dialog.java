@@ -1,11 +1,9 @@
 package de.dfki.step.dialog;
 
-import de.dfki.step.fusion.FusionComponent;
 import de.dfki.step.rengine.Clock;
 import de.dfki.step.rengine.RuleCoordinator;
 import de.dfki.step.rengine.RuleSystem;
 import de.dfki.step.rengine.Token;
-import de.dfki.step.srgs.GrammarManager;
 import org.pcollections.HashTreePSet;
 import org.pcollections.PSequence;
 import org.pcollections.PSet;
@@ -16,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -25,17 +24,14 @@ public abstract class Dialog implements Runnable {
 
     private AtomicBoolean started = new AtomicBoolean(false);
     protected final Clock clock = new Clock(100);
-    protected final RuleSystem rs = new RuleSystem(clock);
+    protected final RuleSystem ruleSystem = new RuleSystem(clock);
     protected final TagSystem<String> tagSystem = new TagSystem();
-    protected final GrammarManager grammarManager = new GrammarManager();
-    protected final Map<String, Behavior> behaviors = new HashMap<>();
-    protected final Map<Behavior, Map<Long, Object>> behaviorSnapshots = new HashMap<>();
+    protected final Map<String, Component> components = new HashMap<>();
+    protected final Map<Component, Map<Long, Object>> behaviorSnapshots = new HashMap<>();
     protected final RuleCoordinator ruleCoordinator = new RuleCoordinator();
     private PSet<Token> tokens = HashTreePSet.empty();
     //tokens that are used for the next iteration
     private PSet<Token> waitingTokens = HashTreePSet.empty();
-    private FusionComponent fusionComponent = new FusionComponent();
-
 
     protected final AtomicLong snapshotTarget = new AtomicLong(-1);
     private Map<Long, RuleSystem.Snapshot> snapshots = new HashMap<>();
@@ -45,72 +41,50 @@ public abstract class Dialog implements Runnable {
 
 
     public RuleSystem getRuleSystem() {
-        return rs;
+        return ruleSystem;
     }
 
     public TagSystem<String> getTagSystem() {
         return tagSystem;
     }
 
-    public GrammarManager getGrammarManager() {
-        return grammarManager;
-    }
-
     public void init() {
         if(started.getAndSet(true)) {
             throw new RuntimeException("already started");
         }
-        behaviors.values().forEach(b -> b.init(this));
+        components.values().forEach(b -> b.init(this));
     }
 
     public void update() {
-        ruleCoordinator.reset();
         //removing all tokens that were used last round
         synchronized(this) {
             waitingTokens = waitingTokens.minusAll(tokens);
             tokens = waitingTokens;
         }
         applySnapshot();
-        Collection<Token> intents = fusionComponent.update();
-        tokens = tokens.plusAll(intents);
-        updateGrammar(rs);
-        rs.update();
+
+        ruleCoordinator.reset();
+        components.values().forEach(c -> c.beforeUpdate());
+        components.values().forEach(c -> c.update());
+        ruleSystem.update();
         ruleCoordinator.update();
+        components.values().forEach(c -> c.afterUpdate());
         createSnapshot(clock.getIteration());
         clock.inc();
     }
 
     public void deinit() {
-        behaviors.values().forEach(b -> b.deinit());
+        components.values().forEach(b -> b.deinit());
     }
 
-    /**
-     * Updates the global srgs.jsgf based on the functions that are currently active
-     *
-     * @param rs
-     */
-    public void updateGrammar(RuleSystem rs) {
-        synchronized (grammarManager) {
-            //TODO: better builder and then swap srgs.jsgf manager instance
-            //TODO put into own behavior?
-            grammarManager.deactivateAll();
-            rs.getRules()
-                    .forEach(rule -> {
-                        Optional<String> name = rs.getName(rule);
-                        if (!name.isPresent()) {
-                            return;
-                        }
-                        grammarManager.setActive(name.get(), rs.isEnabled(rule));
-                    });
-        }
-    }
+
 
     public void present(PresentationRequest presentationReq) {
         String output = presentationReq.getContent().toString();
 
 //        String utterance = t.getAny("utterance").toString();
         System.out.println("System: " + output);
-        rs.removeRule("request_repeat_tts");
+        ruleSystem.removeRule("request_repeat_tts");
         MetaFactory.createRepeatRule(this, "request_repeat_tts", output);
 
         MetaFactory.createSnapshot(this);
@@ -124,17 +98,17 @@ public abstract class Dialog implements Runnable {
         }
         clock.setIteration(targetSnapshot);
         RuleSystem.Snapshot rsSnapshot = snapshots.get(targetSnapshot);
-        rs.applySnapshot(rsSnapshot);
+        ruleSystem.applySnapshot(rsSnapshot);
 
-        for (Behavior behavior : behaviors.values()) {
+        for (Component behavior : components.values()) {
             var behaviorSnapshot = behaviorSnapshots.get(behavior).get(targetSnapshot);
             behavior.loadSnapshot(behaviorSnapshot);
         }
     }
 
     protected void createSnapshot(long iteration) {
-        snapshots.put(iteration, rs.createSnapshot());
-        for (Behavior behavior : behaviors.values()) {
+        snapshots.put(iteration, ruleSystem.createSnapshot());
+        for (Component behavior : components.values()) {
             Object snapshot = behavior.createSnapshot();
             if (!behaviorSnapshots.containsKey(behavior)) {
                 behaviorSnapshots.put(behavior, new HashMap<>());
@@ -168,13 +142,27 @@ public abstract class Dialog implements Runnable {
         deinit();
     }
 
-    public void addBehavior(String id, Behavior behavior) {
-        behaviors.put(id, behavior);
+    public void addComponent(String id, Component behavior) {
+        components.put(id, behavior);
     }
 
-    public Optional<Behavior> getBehavior(String id) {
-        return Optional.ofNullable(behaviors.get(id));
+    public Optional<Component> getComponent(String id) {
+        return Optional.ofNullable(components.get(id));
     }
+
+    public <T extends Component> Optional<T> getComponent(String id, Class<T> clazz) {
+        return Optional.ofNullable(components.get(id))
+                .filter(c -> clazz.isAssignableFrom(c.getClass()))
+                .map(c -> (T) c);
+    }
+
+    public <T extends Component> List<T> getComponents(Class<T> clazz) {
+        return this.components.values().stream()
+                .filter(c -> clazz.isAssignableFrom(c.getClass()))
+                .map(c -> (T) c)
+                .collect(Collectors.toList());
+    }
+
 
     public RuleCoordinator getRuleCoordinator() {
         return ruleCoordinator;
@@ -197,9 +185,5 @@ public abstract class Dialog implements Runnable {
 
     public Clock getClock() {
         return clock;
-    }
-
-    public FusionComponent getFusionComponent() {
-        return fusionComponent;
     }
 }

@@ -1,6 +1,7 @@
 package de.dfki.step.dialog;
 
 import de.dfki.step.rengine.Token;
+import de.dfki.step.sc.SimpleStateBehavior;
 import org.pcollections.PMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

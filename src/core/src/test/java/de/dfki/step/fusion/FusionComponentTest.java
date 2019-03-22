@@ -46,19 +46,19 @@ public class FusionComponentTest {
         var tokens = List.of(
                 new Token()
                         .add("gesture", "down")
-                        .add("timestamp", 1000L)
+                        .add("timestamp", System.currentTimeMillis())
                         .add("origin", UUID.randomUUID().toString())
                         .add("confidence", 0.2)
                 ,
                 new Token()
                         .add("gesture", "up")
-                        .add("timestamp", 1500L)
+                        .add("timestamp", System.currentTimeMillis())
                         .add("origin", UUID.randomUUID().toString())
                         .add("confidence", 0.8)
                 ,
                 new Token()
                         .add("speech", "all_windows")
-                        .add("timestamp", 2000L)
+                        .add("timestamp", System.currentTimeMillis())
                         .add("origin", UUID.randomUUID().toString())
                         .add("confidence", 0.4)
 //                ,
@@ -70,7 +70,7 @@ public class FusionComponentTest {
                 ,
                 new Token()
                         .add("focus", "car")
-                        .add("timestamp", 1000L)
+                        .add("timestamp", System.currentTimeMillis())
                         .add("origin", UUID.randomUUID().toString())
 //                ,
 //                new Token()
@@ -91,7 +91,7 @@ public class FusionComponentTest {
 
 
         fc.addTokens(tokens);
-        Collection<Token> intents = fc.update();
+        Collection<Token> intents = fc.fuse();
         Assert.assertEquals(2, intents.size());
     }
 
