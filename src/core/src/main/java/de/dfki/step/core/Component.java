@@ -1,4 +1,4 @@
-package de.dfki.step.dialog;
+package de.dfki.step.core;
 
 import de.dfki.step.dialog.Dialog;
 
@@ -9,12 +9,12 @@ import de.dfki.step.dialog.Dialog;
 public interface Component {
     /**
      * Initialize the behavior by e.g. creating rules.
-     * @param dialog
+     * @param cm
      */
-    void init(Dialog dialog);
+    void init(ComponentManager cm);
 
     /**
-     * Deinitialize the behavior by removing rules added through {@link #init(Dialog)}
+     * Deinitialize the behavior by removing rules added through {@link #init(ComponentManager)}
      */
     void deinit();
 

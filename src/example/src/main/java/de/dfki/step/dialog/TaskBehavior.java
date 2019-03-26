@@ -1,5 +1,8 @@
 package de.dfki.step.dialog;
 
+import de.dfki.step.core.ComponentManager;
+import de.dfki.step.core.TokenComponent;
+import de.dfki.step.rengine.RuleCoordinator;
 import de.dfki.step.rengine.Token;
 import de.dfki.step.sc.SimpleStateBehavior;
 import org.pcollections.PMap;
@@ -18,13 +21,21 @@ public class TaskBehavior extends SimpleStateBehavior {
 
     private String currentTask;
 
+    private TokenComponent tc;
+    private RuleCoordinator rc;
+    private PresentationComponent pc;
+    private TagSystemComponent ts;
+    private MetaFactory metaFactory;
+
+
     public TaskBehavior() throws URISyntaxException {
         super("/sc/task_behavior");
     }
 
     @Override
-    public void init(Dialog dialog) {
-        super.init(dialog);
+    public void init(ComponentManager cm) {
+        super.init(cm);
+        metaFactory = new MetaFactory(cm);
         initTaskMode();
     }
 
@@ -57,7 +68,8 @@ public class TaskBehavior extends SimpleStateBehavior {
     }
 
     public void outputTaskSummary() {
-        dialog.present(new PresentationRequest("Okay: <summary over all tasks>"));
+        cm.retrieveComponent(PresentationComponent.class)
+                .present(PresentationComponent.simpleTTS("Okay: <summary over all tasks>"));
     }
 
     public void outputTaskInfo() {
@@ -67,27 +79,34 @@ public class TaskBehavior extends SimpleStateBehavior {
         }
 
         //TODO load from db
+
         String msg = String.format("There is a new urgent task '%s' : A UR-3 robot stopped functioning correctly", currentTask);
-        dialog.present(new PresentationRequest(msg));
-//        dialog.present(new PresentationRequest("http://.../"));
+        cm.retrieveComponent(PresentationComponent.class)
+                .present(PresentationComponent.simpleTTS(msg));
     }
 
     public void hideTaskInfo() {
-        dialog.present(new PresentationRequest("Okay: <hide menu in hololens>"));
+        cm.retrieveComponent(PresentationComponent.class)
+                .present(PresentationComponent.simpleTTS("Okay: <hide menu in hololens>"));
         //TODO update state for hololens
         //or just use state chart
     }
 
     public void initTaskMode() {
+        tc = cm.retrieveComponent(TokenComponent.class);
+        rc = cm.retrieveComponent(RuleCoordinator.class);
+        pc = cm.retrieveComponent(PresentationComponent.class);
+        ts = cm.retrieveComponent(TagSystemComponent.class);
+
         /**
          * "Which tasks are available?"
          * Show the worker some tasks he can work on
          */
-        rs.addRule("show_tasks", () -> dialog.getTokens().stream()
+        rs.addRule("show_tasks", () -> tc.getTokens().stream()
                 .filter(t -> t.payloadEquals("intent", "show_tasks"))
                 .findFirst()
                 .ifPresent(t -> {
-                    dialog.getRuleCoordinator().add("show_tasks", () -> {
+                    rc.add("show_tasks", () -> {
                         stateHandler.fire("show_tasks");
                     }).attachOrigin(t);
                 }));
@@ -96,23 +115,24 @@ public class TaskBehavior extends SimpleStateBehavior {
         /**
          * "Hide the available task list in the hololens
          */
-        rs.addRule("hide_tasks", () -> dialog.getTokens().stream()
+        rs.addRule("hide_tasks", () -> tc.getTokens().stream()
                 .filter(t -> t.payloadEquals("intent", "hide_tasks"))
                 .findFirst()
                 .ifPresent(t -> {
-                    dialog.getRuleCoordinator().add("hide_tasks", () -> {
+                    rc.add("hide_tasks", () -> {
                         stateHandler.fire("hide_tasks");
                     });
                 }));
 
 
-        MetaFactory.timeoutRule(dialog, "proactive_idle", Duration.ofSeconds(5l), () -> {
-            dialog.present(new PresentationRequest("Hey! You can ask me to show available tasks if you are ready."));
+        MetaFactory.timeoutRule(cm, "proactive_idle", Duration.ofSeconds(5l), () -> {
+            Token output = PresentationComponent.simpleTTS("Hey! You can ask me to show available tasks if you are ready.");
+            pc.present(output);
         });
-        dialog.getTagSystem().addTag("proactive_idle", "Idle");
+        ts.addTag("proactive_idle", "Idle");
 
 
-        MetaFactory.selectRule(dialog, "select_task", List.of("task1", "task2", "task3"), (task) -> {
+        metaFactory.selectRule("select_task", List.of("task1", "task2", "task3"), (task) -> {
             //TODO filter for available tasks here?
             this.currentTask = task;
             rs.removeRule("specify_select_task");
@@ -120,28 +140,28 @@ public class TaskBehavior extends SimpleStateBehavior {
             stateHandler.fire("show_task");
         });
         //TODO tags and the removing of the functions should be done automatically?
-        dialog.getTagSystem().addTag("specify_select_task", "Choice");
-        dialog.getTagSystem().addTag("confirm_select_task", "Choice");
-        dialog.getTagSystem().addTag("specify_select_task", "Info");
-        dialog.getTagSystem().addTag("confirm_select_task", "Info");
+        ts.addTag("specify_select_task", "Choice");
+        ts.addTag("confirm_select_task", "Choice");
+        ts.addTag("specify_select_task", "Info");
+        ts.addTag("confirm_select_task", "Info");
 
         // convert 'show_navigation' intent to 'show_navigation' event
         rs.addRule("show_navigation", () -> {
-            MetaFactory.filterIntent("request", dialog.getTokens().stream())
+            MetaFactory.filterIntent("request", tc.getTokens().stream())
                     .filter(t -> t.payloadEquals("object", "navigation"))
                     .forEach(t -> {
-                        dialog.getRuleCoordinator().add(() -> {
+                        rc.add(() -> {
                             stateHandler.fire("show_navigation");
                         }).attachOrigin(t);
                     });
         });
 
         rs.addRule("provide_tool_info", () -> {
-            MetaFactory.filterIntent("request", dialog.getTokens().stream())
+            MetaFactory.filterIntent("request", tc.getTokens().stream())
                     .filter(t -> t.payloadEquals("object", "tools"))
                     .forEach(t -> {
-                        dialog.getRuleCoordinator().add(() -> {
-                            dialog.present(new PresentationRequest("you need the following tools..."));
+                        rc.add(() -> {
+                            tts("you need the following tools...");
                         }).attachOrigin(t);
                     });
         });
@@ -150,7 +170,7 @@ public class TaskBehavior extends SimpleStateBehavior {
 
 
         rs.addRule("add_move_action", () -> {
-            Optional<Token> token = dialog.getTokens().stream()
+            Optional<Token> token = tc.getTokens().stream()
                     .filter(t -> t.payloadEquals("intent", "addAtomicAction"))
                     .filter(t -> t.payloadEquals("type", "move"))
                     .findFirst();
@@ -161,9 +181,9 @@ public class TaskBehavior extends SimpleStateBehavior {
 
             Token intent = token.get();
             if (!intent.get("object").isPresent()) {
-                dialog.getRuleCoordinator().add(() -> {
-                    dialog.present(new PresentationRequest("Where do you want me to go?"));
-                    MetaFactory.specifyRule(dialog, "specify_add_move_action", (specification) -> {
+                rc.add(() -> {
+                    tts("Where do you want me to go?");
+                    metaFactory.specifyRule("specify_add_move_action", (specification) -> {
                         String object = specification;
                         Optional<Object> action = intent.get("type");
                         rs.removeRule("specify_add_move_action");
@@ -173,7 +193,7 @@ public class TaskBehavior extends SimpleStateBehavior {
                 }).attachOrigin(intent);
             }
 
-            dialog.getRuleCoordinator().add(() -> {
+            rc.add(() -> {
                 String object = (String) intent.get("object").get();
                 Optional<Object> action = intent.get("type");
                 rs.removeRule("specify_add_move_action");
@@ -188,6 +208,11 @@ public class TaskBehavior extends SimpleStateBehavior {
 
     }
 
+    protected void tts(String utterance) {
+        var pc = getComponentManager().retrieveComponent(PresentationComponent.class);
+        pc.present(PresentationComponent.simpleTTS(utterance));
+    }
+
 
     /**
      * If the system can't derive the intended task referred by the user, the user
@@ -195,7 +220,7 @@ public class TaskBehavior extends SimpleStateBehavior {
      */
     private void specifyTaskRule(String rule) {
         rs.addRule(rule, () -> {
-            dialog.getTokens().stream()
+            tc.getTokens().stream()
                     .filter(t -> t.payloadEquals("intent", "select_task_supp"))
                     .findFirst()
                     .ifPresent(t -> {
@@ -205,7 +230,7 @@ public class TaskBehavior extends SimpleStateBehavior {
                             return;
                         }
 
-                        dialog.getRuleCoordinator().add(() -> {
+                        rc.add(() -> {
                             //TODO unchecked
                             String task = (String) taskName.get();
                             TaskBehavior.this.currentTask = task;
@@ -222,7 +247,7 @@ public class TaskBehavior extends SimpleStateBehavior {
      */
     private void createAcceptTaskRule() {
         rs.addRule("accept_task", () -> {
-            dialog.getTokens().stream()
+            tc.getTokens().stream()
                     .filter(t -> t.payloadEquals("intent", "accept_task"))
                     .findFirst()
                     .ifPresent(t -> {
@@ -238,25 +263,25 @@ public class TaskBehavior extends SimpleStateBehavior {
                         String acceptTts = String.format("Okay, let's do task '%s'", currentTask);
 
                         if (confidence.isPresent() && confidence.get() < 0.3) {
-                            dialog.getRuleCoordinator().add(() -> {
+                            rc.add(() -> {
                                 String tts = String.format("Please confirm your selection for task '%s'.", currentTask);
-                                dialog.present(new PresentationRequest(tts));
-                                MetaFactory.createInformAnswer(dialog, "confirm_task",
+                                this.tts(tts);
+                                metaFactory.createInformAnswer("confirm_task",
                                         () -> {
                                             stateHandler.fire("task_accepted");
-                                            dialog.present(new PresentationRequest(acceptTts));
+                                            tts(acceptTts);
                                         }, () -> {
-                                            dialog.present(new PresentationRequest("Okay."));
+                                            tts("Okay.");
                                         });
                                 // associate the confirm_task rule to the current state.
                                 tagSystem.addTag("confirm_task", stateHandler.getCurrentState());
-                            }).attachOrigin( t);
+                            }).attachOrigin(t);
                             return;
                         }
 
-                        dialog.getRuleCoordinator().add(() -> {
+                        rc.add(() -> {
                             stateHandler.fire("task_accepted");
-                            dialog.present(new PresentationRequest(acceptTts));
+                            tts(acceptTts);
                         }).attachOrigin(t);
 
                     });

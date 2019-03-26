@@ -1,5 +1,7 @@
 package de.dfki.step.rengine;
 
+import de.dfki.step.core.Component;
+import de.dfki.step.core.ComponentManager;
 import org.pcollections.HashTreePMap;
 import org.pcollections.PMap;
 import org.slf4j.Logger;
@@ -16,7 +18,7 @@ import java.util.stream.Collectors;
  *
  * 'origin' is either an Object or a Collection of Objects
  */
-public class RuleCoordinator {
+public class RuleCoordinator implements Component {
     private static final Logger log = LoggerFactory.getLogger(RuleCoordinator.class);
     public static final String origin = "origin";
     public static final String priority = "priority";
@@ -31,7 +33,7 @@ public class RuleCoordinator {
     /**
      * Resets the internal state to prepare for the next iteration
      */
-    public void reset() {
+    protected void reset() {
         this.functions = HashTreePMap.empty();
         this.data = HashTreePMap.empty();
     }
@@ -57,6 +59,21 @@ public class RuleCoordinator {
                 return this;
             }
         };
+    }
+
+    @Override
+    public void init(ComponentManager cm) {
+
+    }
+
+    @Override
+    public void deinit() {
+
+    }
+
+    @Override
+    public void beforeUpdate() {
+        reset();
     }
 
     /**
@@ -101,6 +118,16 @@ public class RuleCoordinator {
             log.info("executing {}", entry.getKey());
             entry.getValue().run();
         });
+    }
+
+    @Override
+    public Object createSnapshot() {
+        return null;
+    }
+
+    @Override
+    public void loadSnapshot(Object snapshot) {
+
     }
 
     protected boolean consumeCollides(Optional<Object> consumes1, Optional<Object> consumes2) {

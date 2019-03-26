@@ -1,6 +1,6 @@
 package de.dfki.step.sc;
 
-import de.dfki.step.dialog.Component;
+import de.dfki.step.core.Component;
 
 /**
  *

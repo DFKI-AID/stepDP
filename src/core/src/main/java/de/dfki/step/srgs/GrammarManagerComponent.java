@@ -1,18 +1,20 @@
 package de.dfki.step.srgs;
 
-import de.dfki.step.dialog.Component;
+import de.dfki.step.core.Component;
+import de.dfki.step.core.ComponentManager;
 import de.dfki.step.dialog.Dialog;
 import de.dfki.step.rengine.RuleSystem;
+import de.dfki.step.rengine.RuleSystemComponent;
 
 import java.util.Optional;
 
 public class GrammarManagerComponent implements Component {
     private final GrammarManager grammarManager = new GrammarManager();
-    private RuleSystem rs;
+    private RuleSystemComponent rsc;
 
     @Override
-    public void init(Dialog dialog) {
-        this.rs = dialog.getRuleSystem();
+    public void init(ComponentManager cm) {
+        this.rsc = cm.retrieveComponent(RuleSystemComponent.class);
     }
 
     @Override
@@ -26,6 +28,7 @@ public class GrammarManagerComponent implements Component {
             //TODO: better builder and then swap srgs.jsgf manager instance
             //TODO put into own behavior?
             grammarManager.deactivateAll();
+            RuleSystem rs = rsc.getRuleSystem();
             rs.getRules()
                     .forEach(rule -> {
                         Optional<String> name = rs.getName(rule);

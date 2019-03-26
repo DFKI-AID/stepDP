@@ -1,12 +1,14 @@
 package de.dfki.step.web;
 
 import com.google.gson.Gson;
-import de.dfki.step.dialog.Component;
+import de.dfki.step.core.Component;
+import de.dfki.step.core.TokenComponent;
 import de.dfki.step.dialog.Dialog;
+import de.dfki.step.dialog.PresentationComponent;
+import de.dfki.step.dialog.SnapshotComponent;
 import de.dfki.step.sc.StateBehavior;
 import de.dfki.step.rengine.Token;
 import de.dfki.step.sc.StateChart;
-import de.dfki.step.srgs.GrammarManager;
 import de.dfki.step.srgs.GrammarManagerComponent;
 import org.pcollections.PSequence;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,8 +68,13 @@ public class Controller {
     }
 
     @PostMapping(value = "/rewind/{iteration}")
-    public void rewind(@PathVariable("iteration") int iteration) {
-        dialog.rewind(iteration);
+    public ResponseEntity rewind(@PathVariable("iteration") int iteration) {
+        Optional<SnapshotComponent> snapshotComp = dialog.getComponent(SnapshotComponent.class);
+        if(!snapshotComp.isPresent()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("SnapshotComponent not available");
+        }
+        snapshotComp.get().rewind(iteration);
+        return ResponseEntity.ok("ok");
     }
 
 
@@ -81,9 +88,14 @@ public class Controller {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing intent");
         }
 
+        Optional<TokenComponent> tc = dialog.getComponent(TokenComponent.class);
+        if(!tc.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("TokenComponent not available");
+        }
+
 
         Token intentToken = new Token().addAll(body);
-        dialog.addToken(intentToken);
+        tc.get().addToken(intentToken);
         return ResponseEntity.ok("ok");
     }
 
@@ -133,7 +145,11 @@ public class Controller {
 
     @GetMapping(value = "/output/history", produces = "application/json")
     public ResponseEntity<List<String>> getOutputHistory() {
-        PSequence payload = dialog.outputHistory;
+        Optional<PresentationComponent> pc = dialog.getComponent(PresentationComponent.class);
+        if(!pc.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.EMPTY_LIST);
+        }
+        PSequence payload = pc.get().getOutputHistory();
         return ResponseEntity.status(HttpStatus.OK).body(payload);
     }
 

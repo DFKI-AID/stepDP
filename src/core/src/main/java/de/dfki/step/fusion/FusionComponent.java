@@ -1,7 +1,8 @@
 package de.dfki.step.fusion;
 
-import de.dfki.step.dialog.Component;
-import de.dfki.step.dialog.Dialog;
+import de.dfki.step.core.Component;
+import de.dfki.step.core.ComponentManager;
+import de.dfki.step.core.TokenComponent;
 import de.dfki.step.rengine.Token;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,11 +19,11 @@ public class FusionComponent implements Component {
     private List<Token> tokens = new ArrayList<>();
     private Map<String, FusionNode> fusionNodes = new HashMap<>();
     private Map<String, Function<Match, Token>> fusionOutputs = new HashMap<>();
-    private Dialog dialog;
+    private ComponentManager cm;
 
     @Override
-    public void init(Dialog dialog) {
-        this.dialog = dialog;
+    public void init(ComponentManager cm) {
+        this.cm = cm;
     }
 
     @Override
@@ -32,7 +33,7 @@ public class FusionComponent implements Component {
     @Override
     public void update() {
         var tokens = fuse();
-        dialog.addTokens(tokens);
+        cm.retrieveComponent(TokenComponent.class).addTokens(tokens);
     }
 
     /**

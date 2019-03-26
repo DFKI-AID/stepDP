@@ -1,5 +1,6 @@
 package de.dfki.step.rengine;
 
+import de.dfki.step.util.Clock;
 import org.pcollections.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +14,7 @@ import java.util.*;
  */
 public class RuleSystem {
     private static final Logger log = LoggerFactory.getLogger(RuleSystem.class);
-    private final Clock clock;
+    private Clock clock;
     private boolean updateActive = false;
 
     private PSequence<Rule> rules = TreePVector.empty();
@@ -158,10 +159,15 @@ public class RuleSystem {
         return state;
     }
 
-    public void applySnapshot(Snapshot snapshot) {
+    public void loadSnapshot(Object snapshotObj) {
+        if(!(snapshotObj instanceof Snapshot)) {
+            throw new IllegalArgumentException(String.format("wrong class expected %s, but got %s", Snapshot.class, snapshotObj.getClass()));
+        }
         if (updateActive) {
             throw new IllegalStateException("Can't apply snapshot while updating the RuleSystem");
         }
+        Snapshot snapshot = (Snapshot) snapshotObj;
+
         this.clock.setIteration(snapshot.iteration);
         this.blockSystem = snapshot.blockSystem.copy();
         this.rules = snapshot.rules;
@@ -169,9 +175,7 @@ public class RuleSystem {
         this.volatileMap = snapshot.volatileMap;
     }
 
-    public Clock getClock() {
-        return clock;
-    }
+
 
     public void setVolatile(String rule, boolean vol) {
         volatileMap = volatileMap.plus(rule, vol);
@@ -187,6 +191,10 @@ public class RuleSystem {
         return Optional.ofNullable(volatileMap.get(rule)).orElse(false);
     }
 
+
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
 
     public static class Snapshot {
         public BlockSystem blockSystem;

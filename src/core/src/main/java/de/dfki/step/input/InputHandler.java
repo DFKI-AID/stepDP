@@ -1,6 +1,6 @@
 package de.dfki.step.input;
 
-import de.dfki.step.rengine.Clock;
+import de.dfki.step.util.Clock;
 import de.dfki.step.rengine.RuleSystem;
 import de.dfki.step.rengine.Token;
 import org.pcollections.HashTreePSet;

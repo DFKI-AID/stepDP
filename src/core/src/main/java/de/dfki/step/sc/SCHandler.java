@@ -1,6 +1,5 @@
 package de.dfki.step.sc;
 
-import de.dfki.step.dialog.Dialog;
 import de.dfki.step.dialog.TagSystem;
 import de.dfki.step.rengine.RuleSystem;
 import org.slf4j.Logger;
@@ -14,11 +13,13 @@ import java.util.stream.Collectors;
  */
 public class SCHandler {
     private static final Logger log = LoggerFactory.getLogger(SCHandler.class);
-    private final Dialog dialog;
     private final SCEngine engine;
+    private final TagSystem<String> tagSystem;
+    private final RuleSystem rs;
 
-    public SCHandler(Dialog dialog, SCEngine engine) {
-        this.dialog = dialog;
+    public SCHandler(RuleSystem rs, TagSystem<String> tagSystem, SCEngine engine) {
+        this.rs = rs;
+        this.tagSystem = tagSystem;
         this.engine = engine;
     }
 
@@ -51,8 +52,6 @@ public class SCHandler {
      * @param tag
      */
     protected void activate(String tag) {
-        TagSystem<String> tagSystem = dialog.getTagSystem();
-        RuleSystem rs = dialog.getRuleSystem();
         rs.getRules().stream()
                 .map(r -> rs.getName(r))
                 .filter(r -> r.isPresent())
@@ -67,8 +66,6 @@ public class SCHandler {
      * @param tag
      */
     protected void deactivate(String tag) {
-        TagSystem<String> tagSystem = dialog.getTagSystem();
-        RuleSystem rs = dialog.getRuleSystem();
         rs.getRules().stream()
                 .map(r -> rs.getName(r))
                 .filter(r -> r.isPresent())

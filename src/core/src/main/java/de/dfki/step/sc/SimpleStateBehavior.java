@@ -1,8 +1,11 @@
 package de.dfki.step.sc;
 
+import de.dfki.step.core.ComponentManager;
 import de.dfki.step.dialog.Dialog;
 import de.dfki.step.dialog.TagSystem;
+import de.dfki.step.dialog.TagSystemComponent;
 import de.dfki.step.rengine.RuleSystem;
+import de.dfki.step.rengine.RuleSystemComponent;
 import org.pcollections.HashTreePMap;
 import org.pcollections.PMap;
 import org.slf4j.Logger;
@@ -20,7 +23,7 @@ import java.util.function.Supplier;
  */
 public class SimpleStateBehavior implements StateBehavior {
     private static final Logger log = LoggerFactory.getLogger(SimpleStateBehavior.class);
-    protected Dialog dialog;
+    protected ComponentManager cm;
     protected RuleSystem rs;
     protected TagSystem<String> tagSystem;
     protected SCHandler stateHandler;
@@ -88,10 +91,10 @@ public class SimpleStateBehavior implements StateBehavior {
 
 
     @Override
-    public void init(Dialog dialog) {
-        this.dialog = dialog;
-        rs = dialog.getRuleSystem();
-        tagSystem = dialog.getTagSystem();
+    public void init(ComponentManager cm) {
+        this.cm = cm;
+        rs = cm.retrieveComponent(RuleSystemComponent.class).getRuleSystem();
+        tagSystem = cm.retrieveComponent(TagSystemComponent.class);
 
         try {
             //load the state chart
@@ -100,7 +103,7 @@ public class SimpleStateBehavior implements StateBehavior {
             //add this class as bridge to check for conditions and functions
             engine.addFunctions(this);
             engine.addConditions(this);
-            stateHandler = new SCHandler(dialog, engine);
+            stateHandler = new SCHandler(rs, tagSystem, engine);
 
             // Load the rule activation map -> rules are tagged by the state names
             Map<String, Set<String>> ruleActivation = ruleLoader.get();
@@ -151,8 +154,8 @@ public class SimpleStateBehavior implements StateBehavior {
         return stateHandler;
     }
 
-    public Dialog getDialog() {
-        return dialog;
+    public ComponentManager getComponentManager() {
+        return cm;
     }
 
     public RuleSystem getRs() {

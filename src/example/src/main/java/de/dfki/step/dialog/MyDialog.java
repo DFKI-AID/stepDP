@@ -33,21 +33,22 @@ public class MyDialog extends Dialog {
             throw new RuntimeException("Could not load task behavior", e);
         }
 
-        MetaFactory.createUndoRule(this);
+        MetaFactory mf = new MetaFactory(this);
+        mf.createUndoRule();
 
-        MetaFactory.turnGrabRule(this, "interrupt", (token) -> {
+        mf.turnGrabRule( "interrupt", (token) -> {
             System.out.println("TODO interrupt output + \"yes?\"");
         });
 
 
-        MetaFactory.createGreetingsRule(this);
+        mf.createGreetingsRule();
 
         TimeBehavior timeBehavior = new TimeBehavior();
         this.addComponent("time_behavior", timeBehavior);
 
 
-        MetaFactory.createRepeatRule(this, "request_repeat_tts", "I did not say anything.");
-        MetaFactory.snapshotRule(this);
+        mf.createRepeatRule("request_repeat_tts", "I did not say anything.");
+        mf.snapshotRule();
 
 
         createFusionComponent();
