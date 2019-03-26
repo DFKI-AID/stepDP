@@ -30,6 +30,7 @@ public class SnapshotComponent implements Component {
 
     @Override
     public void update() {
+        applySnapshot();
     }
 
     @Override
