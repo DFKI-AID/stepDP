@@ -1,11 +1,12 @@
 package de.dfki.step.resolution;
 
+
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  */
-public class WeightedReferenceResolver implements ReferenceResolver {
+public class WeightedRR implements ReferenceResolver {
     private List<Pair> resolvers = new ArrayList<>();
 
     public void addResolver(ReferenceResolver rr, double weight) {
