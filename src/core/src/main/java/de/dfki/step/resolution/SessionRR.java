@@ -1,25 +1,23 @@
 package de.dfki.step.resolution;
 
 import de.dfki.step.kb.Entity;
-import de.dfki.step.kb.KnowledgeBase;
-import de.dfki.step.kb.KnowledgeMap;
 import de.dfki.step.kb.Ontology;
+
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.function.Supplier;
 
-
-public class SessionReferenceResolver implements ReferenceResolver {
+/* confidence is given to the session including the speaker */
+public class SessionRR implements ReferenceResolver {
 
 
     private String speakerId = "";
-    private KnowledgeMap sessionMap;
-    private KnowledgeMap personMap;
+    private Collection<Entity> sessions;
 
-
-    public SessionReferenceResolver(KnowledgeBase knowledgeBase) {
-        sessionMap = knowledgeBase.getKnowledgeMap(Ontology.Session);
-        personMap = knowledgeBase.getKnowledgeMap(Ontology.Person);
+    public SessionRR(Supplier<Collection<Entity>> sessionSupplier) {
+        sessions = sessionSupplier.get();
     }
 
     public void setSpeakerId(String speakerId) {
@@ -29,24 +27,20 @@ public class SessionReferenceResolver implements ReferenceResolver {
     @Override
     public ReferenceDistribution getReferences() {
         ReferenceDistribution distribution = new ReferenceDistribution();
-        if(speakerId.equals("")) {
-            for(Entity e: personMap.getAll()) {
-                distribution.getConfidences().put(e.get(Ontology.id).get(), 1.0 / personMap.getAll().size());
-            }
-            return  distribution;
-        }
 
         Entity speakerSession = new Entity();
-        Collection<Entity> othersessions = new ArrayList<Entity>();
-        for(Entity s: sessionMap.getAll()) {
+        List<Entity> otherSessions = new ArrayList<>();
+
+        for(Entity s: sessions) {
             if(s.get(Ontology.agents).isPresent()) {
                 if (s.get(Ontology.agents).get().contains(speakerId)) {
                     speakerSession = s;
-                } else {
-                    othersessions.add(s);
+                }else {
+                    otherSessions.add(s);
                 }
             }
         }
+
         if(speakerSession.get(Ontology.agents).isPresent()) {
             // better: take confidence that agent is in session
             for (String a : speakerSession.get(Ontology.agents).get()) {
@@ -54,16 +48,13 @@ public class SessionReferenceResolver implements ReferenceResolver {
             }
         }
 
-        for(Entity s: othersessions) {
+        for(Entity s: otherSessions) {
             if(s.get(Ontology.agents).isPresent()) {
                 for (String a : s.get(Ontology.agents).get()) {
                     distribution.getConfidences().put(a, 0.0);
                 }
             }
         }
-
-
-
 
         return distribution;
 

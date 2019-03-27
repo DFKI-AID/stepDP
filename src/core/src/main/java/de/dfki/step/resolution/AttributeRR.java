@@ -2,44 +2,44 @@ package de.dfki.step.resolution;
 
 import de.dfki.step.kb.*;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
-public class ObjectAttributesReferenceResolver implements ReferenceResolver {
+
+/* candidate entities get higher confidence the more requested attributes they have */
+public class AttributeRR implements ReferenceResolver {
 
 
     private Map<Attribute, AttributeValue> attributes = new HashMap<>();
-    private KnowledgeMap objectMap = new KnowledgeMap();
-    private String type = "";
-    private KnowledgeBase kb;
+    private Collection<Entity> candidates;
 
 
-    public ObjectAttributesReferenceResolver(KnowledgeBase knowledgeBase) {
-        this.kb = knowledgeBase;
+    public AttributeRR(Supplier<Collection<Entity>> candidateSupplier) {
+        this.candidates = candidateSupplier.get();
     }
 
     public void setAttributes(Map<Attribute, AttributeValue> attributes) {
         this.attributes = attributes;
     }
 
-    public void setType(String type) {
-        this.type = type;
-    }
+
 
     @Override
     public ReferenceDistribution getReferences() {
-        objectMap = kb.getKnowledgeMap(type);
+
         ReferenceDistribution objectDistribution = new ReferenceDistribution();
 
         if(attributes.isEmpty()) {
-            for(Entity e: objectMap.getAll()) {
-                objectDistribution.getConfidences().put(e.get(Ontology.id).get(), 1.0/objectMap.getAll().size());
+            for(Entity e: candidates) {
+                objectDistribution.getConfidences().put(e.get(Ontology.id).get(), 1.0/candidates.size());
             }
             return objectDistribution;
         }
 
         double matchedCount;
-        for(Entity object: objectMap.getAll()) {
+        for(Entity object: candidates) {
             matchedCount = 0.0;
             for(Attribute attribute: attributes.keySet()) {
                 if(object.get(attribute).isPresent()) {
@@ -52,8 +52,8 @@ public class ObjectAttributesReferenceResolver implements ReferenceResolver {
         }
 
         if(objectDistribution.getConfidences().isEmpty() || objectDistribution.getConfidences().values().stream().allMatch(d -> d.equals(0.0))) {
-            for(Entity e: objectMap.getAll()) {
-                objectDistribution.getConfidences().put(e.get(Ontology.id).get(), 1.0/objectMap.getAll().size());
+            for(Entity e: candidates) {
+                objectDistribution.getConfidences().put(e.get(Ontology.id).get(), 1.0/candidates.size());
             }
         }
 

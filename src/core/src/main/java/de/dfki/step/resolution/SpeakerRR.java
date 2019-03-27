@@ -1,19 +1,23 @@
 package de.dfki.step.resolution;
 
-import de.dfki.step.kb.*;
+import de.dfki.step.kb.Entity;
+import de.dfki.step.kb.Ontology;
+
 
 import java.util.Collection;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class SpeakerReferenceResolver implements ReferenceResolver {
+/* the speaker is resolved */
+public class SpeakerRR implements ReferenceResolver {
 
 
     private String speakerId = "";
-    private KnowledgeMap personMap;
+    private Collection<Entity> persons;
 
 
-    public SpeakerReferenceResolver(KnowledgeBase knowledgeBase) {
-        personMap = knowledgeBase.getKnowledgeMap(Ontology.Person);
+    public SpeakerRR(Supplier<Collection<Entity>> personSupplier) {
+        persons = personSupplier.get();
     }
 
     public void setSpeakerId(String speakerId) {
@@ -24,11 +28,11 @@ public class SpeakerReferenceResolver implements ReferenceResolver {
     public ReferenceDistribution getReferences() {
         ReferenceDistribution distribution = new ReferenceDistribution();
 
-        Collection<Entity> speakers = personMap.getAll().stream()
+        Collection<Entity> speakers = persons.stream()
                 .filter(e -> e.get(Ontology.id).get().equals(speakerId))
                 .collect(Collectors.toList());
 
-        Collection<Entity> nonspeakers = personMap.getAll().stream()
+        Collection<Entity> nonspeakers = persons.stream()
                 .filter(e -> !e.get(Ontology.id).get().equals(speakerId))
                 .collect(Collectors.toList());
 

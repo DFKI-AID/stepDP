@@ -1,23 +1,23 @@
 package de.dfki.step.resolution;
 
 import de.dfki.step.kb.Entity;
-import de.dfki.step.kb.KnowledgeBase;
-import de.dfki.step.kb.KnowledgeMap;
 import de.dfki.step.kb.Ontology;
 
 import java.util.Collection;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class GenderReferenceResolver implements ReferenceResolver {
+/* persons of the requested gender receive confidence */
+public class GenderRR implements ReferenceResolver {
 
 
     private String gender = "";
-    private KnowledgeMap personMap;
+    private Collection<Entity> persons;
 
 
 
-    public GenderReferenceResolver(KnowledgeBase knowledgeBase) {
-        personMap = knowledgeBase.getKnowledgeMap(Ontology.Person);
+    public GenderRR(Supplier<Collection<Entity>> personSupplier) {
+        persons = personSupplier.get();
     }
 
 
@@ -31,17 +31,17 @@ public class GenderReferenceResolver implements ReferenceResolver {
 
         //return equal distribution for all person when the gender is not set
         if(gender.equals("")) {
-            for(Entity person: personMap.getAll()) {
-                distribution.getConfidences().put(person.get(Ontology.id).get(),  1.0/personMap.getAll().size());
+            for(Entity person: persons) {
+                distribution.getConfidences().put(person.get(Ontology.id).get(),  1.0/persons.size());
             }
             return distribution;
         }
 
-        Collection<Entity> genderPersons = personMap.getAll().stream()
+        Collection<Entity> genderPersons = persons.stream()
                 .filter(p -> p.get(Ontology.gender).orElse("").equals(gender))
                 .collect(Collectors.toList());
 
-        Collection<Entity> otherGenderPersons = personMap.getAll().stream()
+        Collection<Entity> otherPersons = persons.stream()
                 .filter(p -> !p.get(Ontology.gender).orElse("").equals(gender))
                 .collect(Collectors.toList());
 
@@ -51,11 +51,9 @@ public class GenderReferenceResolver implements ReferenceResolver {
             distribution.getConfidences().put(p.get(Ontology.id).get(), 1.0/genderPersons.size());
         }
 
-        for(Entity p: otherGenderPersons) {
-            distribution.getConfidences().put(p.get(Ontology.id).get(), 0.0);
+        for(Entity other: otherPersons) {
+            distribution.getConfidences().put(other.get(Ontology.id).get(), 0.0);
         }
-
-
 
         return distribution;
 

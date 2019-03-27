@@ -1,10 +1,11 @@
 package de.dfki.step.resolution;
 
-public class ReverseReferenceResolver implements ReferenceResolver {
+
+public class ReverseRR implements ReferenceResolver {
 
     private ReferenceResolver reverseResolver;
 
-    public ReverseReferenceResolver(ReferenceResolver reverseResolver) {
+    public ReverseRR(ReferenceResolver reverseResolver) {
         this.reverseResolver = reverseResolver;
     }
 
