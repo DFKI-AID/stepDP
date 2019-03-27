@@ -60,7 +60,7 @@ File > Open > choose pom.xml in src and "open as project"
 ## Components
 
 ### Rules
-- Rules are a persistent data structure. They don't change. If they have to be changed, it is necessary to create a new rule and remove the old one.
+- Rules are an immutuable data structure. They don't change. If they have to be changed, it is necessary to create a new rule and remove the old one. However, rule may use the state of a behavior (which is state persistent or immutable).
 - The structure of a rule is void -> void: Hence, Condition checking and execution is done through additional objects that are captured in the context of the function. In general, they have access to the dialog object such that the knowledge base can be accessed etc...
 - deprecated (add functionality to coordinator class): execution order is based on priority value. rules with higher priority value are executed later.
 - The token set is empty for each iteration and filled by the rules.
@@ -189,7 +189,7 @@ The web gui can be seen through a webbrowser on http://localhost:50000 (maps to 
 
 
 ## Project Overview
-The project is a multi-module maven project and consists of the three modules core, spring and example. 
+The project is a multi-module maven project. This makes it easier to distribute parts of the code without many dependencies.
 
 ### core
 The core-module contains the main code of the dialog platform. 
@@ -209,15 +209,13 @@ The rasa module contains code to access a rasa NLU service.
 
 
 
+## Tools
+### Speech-Recognition
+See [grammar-based speech recognizer](https://lns-90165.sb.dfki.de/gitlab/i40/tractat/step-dp/speech-recognition-service): Supports audio streaming from e.g. a mic for ASR.
+
+
 
 ## TODOs
-
-
-#### ASR: Streaming Mic from Browser to AudioManager
-- comfortable way for voice input, because webbrowser are ubiquitous
-- probably requires https (e.g. in chrome mandatory) 
-
-
 #### Add to Doc
 - Where to save data? sensor data (data is derived from the real world or simulation; e.g. changes frequently) should be stored in a knowledge base that can be accessed by the dialog. The dialog itself should not store any information in the knowledge base that represents its own state. Such information should be stored inside a behavior in an inmutable or persistent data structure. This is necessary to create persistent dialog history.
 

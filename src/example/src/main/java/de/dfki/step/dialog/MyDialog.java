@@ -23,6 +23,7 @@ import java.util.*;
 public class MyDialog extends Dialog {
     private static final Logger log = LoggerFactory.getLogger(MyDialog.class);
     private MyGrammar appGrammar;
+    private final String app = "assemblyrobot";
 
     public MyDialog() {
         try {
@@ -58,7 +59,7 @@ public class MyDialog extends Dialog {
         // speech-recognition-service of the step-dp
         GrammarManager gm = MyGrammar.create();
         Grammar grammar = gm.createGrammar();
-        SpeechRecognitionClient src = new SpeechRecognitionClient("localhost", 9696, (token)-> {
+        SpeechRecognitionClient src = new SpeechRecognitionClient(app,"localhost", 9696, (token)-> {
             // TODO use resolution on token
             Optional<Map> semantic = token.get(Map.class, "semantic");
             if(!semantic.isPresent()) {
