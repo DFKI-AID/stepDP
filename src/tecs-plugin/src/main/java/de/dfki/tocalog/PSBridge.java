@@ -1,21 +1,24 @@
 package de.dfki.tocalog;
 
+import de.dfki.tecs.net.Event;
 import de.dfki.tecs.ps.PSClient;
 import de.dfki.tecs.ps.PSFactory;
-import de.dfki.step.core.*;
 import org.apache.thrift.TBase;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  */
-public class PSBridge implements EventProducer {
+public class PSBridge  {
     private final String uri;
     private final PSClient psc;
     private final Object monitor;
     private Thread updateThread;
-    private Queue<Event> queue = new ConcurrentLinkedQueue<>();
+    private final Callback callback;
+
+    interface Callback {
+        void onEvent(Event event);
+    }
 
     public PSBridge(Builder builder) {
         this.uri = builder.uri;
@@ -24,19 +27,14 @@ public class PSBridge implements EventProducer {
         for(String sub : builder.subscriptions) {
             psc.subscribe(sub);
         }
+        this.callback = builder.callback;
     }
 
     protected void start() {
         psc.open();
         updateThread = new Thread(() -> {
             psc.recv().ifPresent(tecsEvent -> {
-                Event dialogEvent = Event.create(tecsEvent)
-                        .setSource(this.getClass().getSimpleName())
-                        .build();
-                queue.add(dialogEvent);
-                synchronized (monitor) {
-                    monitor.notifyAll();
-                }
+                callback.onEvent(tecsEvent);
             });
         });
         updateThread.setDaemon(true);
@@ -47,21 +45,19 @@ public class PSBridge implements EventProducer {
         psc.publish(topic, payload);
     }
 
-    public static Builder build() {
-        return new Builder();
+    public static Builder build(Callback callback) {
+        return new Builder(callback);
     }
 
-    @Override
-    public Optional<Event> nextEvent() {
-        return Optional.ofNullable(queue.poll());
-    }
 
     public static class Builder {
         private String uri = "tecs://dialog@localhost:9000/ps";
         private Set<String> subscriptions = new HashSet<>();
         private Object monitor;
+        private final Callback callback;
 
-        public Builder() {
+        public Builder(Callback callback) {
+            this.callback = callback;
         }
 
         public Builder setUri(String uri) {
