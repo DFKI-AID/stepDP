@@ -43,11 +43,11 @@
     
     <modules>
         <module>core</module>
-        <module>tecs-plugin</module>
         <!--<module>sandbox</module>-->
         <module>spring</module>
         <module>rasa</module>
         <module>example</module>
+        <module>tecs-plugin</module>
     </modules>
 
     <!--define versions for dependencies such that sub modules don't have to specify explicitly-->

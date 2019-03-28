@@ -3,7 +3,7 @@ package de.dfki.step.fusion;
 import de.dfki.step.core.Component;
 import de.dfki.step.core.ComponentManager;
 import de.dfki.step.core.TokenComponent;
-import de.dfki.step.rengine.Token;
+import de.dfki.step.core.Token;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -4,7 +4,7 @@ package de.dfki.step.dialog;
 import de.dfki.step.fusion.FusionComponent;
 import de.dfki.step.fusion.InputNode;
 import de.dfki.step.fusion.ParallelNode;
-import de.dfki.step.rengine.Token;
+import de.dfki.step.core.Token;
 import de.dfki.step.srgs.Grammar;
 import de.dfki.step.srgs.GrammarManager;
 import de.dfki.step.srgs.MyGrammar;

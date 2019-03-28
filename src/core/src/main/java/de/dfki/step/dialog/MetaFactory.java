@@ -8,7 +8,7 @@ import de.dfki.step.output.PresentationComponent;
 import de.dfki.step.rengine.RuleCoordinator;
 import de.dfki.step.rengine.RuleSystem;
 import de.dfki.step.rengine.RuleSystemComponent;
-import de.dfki.step.rengine.Token;
+import de.dfki.step.core.Token;
 import de.dfki.step.core.ClockComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -125,7 +125,7 @@ public class MetaFactory {
      * use case: worker wants to store the current state to show it to another colleague.
      * use case: worker wants to store the current such that he can continue later (takes break; other urgent task)
      * <p>
-     * TODO if no name is specified, create a clarify rule / selection
+     * TODO if no name is specified, of a clarify rule / selection
      *
      */
     public void snapshotRule() {

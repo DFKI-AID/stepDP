@@ -1,9 +1,5 @@
 package de.dfki.step.input;
 
-import de.dfki.step.rengine.Token;
-
-import java.util.Optional;
-
 public class GestureInput  {
     private String gesture;
 

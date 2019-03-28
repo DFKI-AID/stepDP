@@ -1,6 +1,6 @@
 package de.dfki.step.fusion;
 
-import de.dfki.step.rengine.Token;
+import de.dfki.step.core.Token;
 import org.junit.Assert;
 import org.junit.Test;
 

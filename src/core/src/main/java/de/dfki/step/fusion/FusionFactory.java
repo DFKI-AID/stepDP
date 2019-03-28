@@ -2,9 +2,7 @@ package de.dfki.step.fusion;
 
 import de.dfki.step.dialog.Dialog;
 import de.dfki.step.rengine.Rule;
-import de.dfki.step.rengine.RuleSystem;
-import de.dfki.step.rengine.Token;
-import org.pcollections.HashPMap;
+import de.dfki.step.core.Token;
 import org.pcollections.HashTreePMap;
 import org.pcollections.PMap;
 

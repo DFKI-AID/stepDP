@@ -1,12 +1,10 @@
 package de.dfki.step.fusion;
 
-import de.dfki.step.rengine.Token;
+import de.dfki.step.core.Token;
 import org.pcollections.PSequence;
 import org.pcollections.TreePVector;
 
 import java.util.*;
-import java.util.function.BiFunction;
-import java.util.stream.Collectors;
 
 /**
  * Matches the input history against a\ FusionNode

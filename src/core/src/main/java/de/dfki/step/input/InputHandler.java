@@ -2,7 +2,7 @@ package de.dfki.step.input;
 
 import de.dfki.step.core.Clock;
 import de.dfki.step.rengine.RuleSystem;
-import de.dfki.step.rengine.Token;
+import de.dfki.step.core.Token;
 import org.pcollections.HashTreePSet;
 import org.pcollections.PSet;
 import org.slf4j.Logger;

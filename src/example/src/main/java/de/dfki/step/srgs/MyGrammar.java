@@ -85,7 +85,7 @@ public class MyGrammar {
         grammarManager.addRule(taskInfo);
 
 //        try {
-//            Rule taskInfoSupp = FileRuleNode.create("/grammar/task_info_supp.xml");
+//            Rule taskInfoSupp = FileRuleNode.of("/grammar/task_info_supp.xml");
 //            grammarManager.addRule(taskInfoSupp);
 //        } catch (IOException e) {
 //            throw new RuntimeException("could not load grammar", e);

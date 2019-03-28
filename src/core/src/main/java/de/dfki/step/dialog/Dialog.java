@@ -6,7 +6,7 @@ import de.dfki.step.rengine.RuleSystemComponent;
 import de.dfki.step.core.Clock;
 import de.dfki.step.rengine.RuleCoordinator;
 import de.dfki.step.rengine.RuleSystem;
-import de.dfki.step.rengine.Token;
+import de.dfki.step.core.Token;
 import de.dfki.step.core.ClockComponent;
 import org.pcollections.PSet;
 import org.slf4j.Logger;

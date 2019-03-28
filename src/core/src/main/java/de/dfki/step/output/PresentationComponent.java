@@ -4,7 +4,7 @@ import de.dfki.step.core.Component;
 import de.dfki.step.core.ComponentManager;
 import de.dfki.step.dialog.MetaFactory;
 import de.dfki.step.rengine.RuleSystemComponent;
-import de.dfki.step.rengine.Token;
+import de.dfki.step.core.Token;
 import org.pcollections.PSequence;
 import org.pcollections.TreePVector;
 import org.slf4j.Logger;

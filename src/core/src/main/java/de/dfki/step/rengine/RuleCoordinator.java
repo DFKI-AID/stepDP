@@ -2,6 +2,7 @@ package de.dfki.step.rengine;
 
 import de.dfki.step.core.Component;
 import de.dfki.step.core.ComponentManager;
+import de.dfki.step.core.Token;
 import org.pcollections.HashTreePMap;
 import org.pcollections.PMap;
 import org.slf4j.Logger;

@@ -7,7 +7,7 @@ import de.dfki.step.dialog.Dialog;
 import de.dfki.step.output.PresentationComponent;
 import de.dfki.step.core.SnapshotComponent;
 import de.dfki.step.sc.StateBehavior;
-import de.dfki.step.rengine.Token;
+import de.dfki.step.core.Token;
 import de.dfki.step.sc.StateChart;
 import de.dfki.step.srgs.GrammarManagerComponent;
 import org.pcollections.PSequence;

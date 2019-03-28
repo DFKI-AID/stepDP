@@ -5,7 +5,7 @@ import de.dfki.step.core.TagSystemComponent;
 import de.dfki.step.core.TokenComponent;
 import de.dfki.step.output.PresentationComponent;
 import de.dfki.step.rengine.RuleCoordinator;
-import de.dfki.step.rengine.Token;
+import de.dfki.step.core.Token;
 import de.dfki.step.sc.SimpleStateBehavior;
 import org.pcollections.PMap;
 import org.slf4j.Logger;
@@ -189,7 +189,7 @@ public class TaskBehavior extends SimpleStateBehavior {
                         String object = specification;
                         Optional<Object> action = intent.get("type");
                         rs.removeRule("specify_add_move_action");
-                        // create Atomic Action
+                        // of Atomic Action
                     });
 
                 }).attachOrigin(intent);
@@ -199,7 +199,7 @@ public class TaskBehavior extends SimpleStateBehavior {
                 String object = (String) intent.get("object").get();
                 Optional<Object> action = intent.get("type");
                 rs.removeRule("specify_add_move_action");
-                // create Atomic Action
+                // of Atomic Action
             }).attachOrigin(intent);
         });
         tagSystem.addTag("add_move_action", "CreateTask");

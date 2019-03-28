@@ -65,7 +65,7 @@ public class KnowledgeMap {
      * This method can be used to updates certain attributes of an entity without overwriting
      * changes from other components.
      * <p>
-     * TODO should not create an enitity? ... semantic has to be similar to other add functions. maybe additional merge function...
+     * TODO should not of an enitity? ... semantic has to be similar to other add functions. maybe additional merge function...
      *
      * @param entity
      * @param attributes

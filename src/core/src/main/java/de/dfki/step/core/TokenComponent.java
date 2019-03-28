@@ -1,6 +1,5 @@
 package de.dfki.step.core;
 
-import de.dfki.step.rengine.Token;
 import org.pcollections.HashTreePSet;
 import org.pcollections.PSet;
 import org.slf4j.Logger;

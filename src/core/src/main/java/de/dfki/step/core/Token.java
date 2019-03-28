@@ -1,4 +1,4 @@
-package de.dfki.step.rengine;
+package de.dfki.step.core;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,7 +12,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- *
+ * A token stores arbitrary data as a map, whereby a value can be any data like a primitive, java object, another map
+ * or token.
  */
 public class Token {
     private static final Logger log = LoggerFactory.getLogger(Token.class);
@@ -30,6 +31,11 @@ public class Token {
     public Token() {
     }
 
+    public Token remove(String key) {
+        var p = payload.minus(key);
+        Token t = new Token(p);
+        return t;
+    }
 
     public Token add(String key, Object value) {
         if (value == null) {
@@ -56,36 +62,50 @@ public class Token {
     }
 
     public Optional<Object> get(String... keys) {
-        if (keys.length == 0) {
+        return get(List.of(keys));
+    }
+
+    public Optional<Object> get(List<String> keys) {
+        if (keys.isEmpty()) {
             return Optional.empty();
         }
 
-        Optional<Object> firstObj = get(keys[0]);
+        Optional<Object> firstObj = get(keys.get(0));
         if (!firstObj.isPresent()) {
             return Optional.empty();
         }
 
         Object obj = firstObj.get();
 
-        for (int i = 1; i < keys.length; i++) {
+        for (int i = 1; i < keys.size(); i++) {
+            if(obj instanceof Token) {
+                obj = ((Token) obj).payload;
+            }
             if (!(obj instanceof Map)) {
                 return Optional.empty();
             }
 
-            obj = ((Map<String, Object>) obj).get(keys[i]);
-            if(obj == null) {
+            obj = ((Map<String, Object>) obj).get(keys.get(i));
+            if (obj == null) {
                 return Optional.empty();
             }
         }
         return Optional.of(obj);
     }
 
-    public <T> Optional<T> get(Class<T> clazz, String... keys) {
+    public <T> Optional<T> get(Class<T> clazz, List<String> keys) {
         Optional<Object> obj = get(keys);
-        if(!obj.isPresent()) {
+        if (!obj.isPresent()) {
+            return Optional.empty();
+        }
+        if (!clazz.isAssignableFrom(obj.get().getClass())) {
             return Optional.empty();
         }
         return Optional.of((T) obj.get());
+    }
+
+    public <T> Optional<T> get(Class<T> clazz, String... keys) {
+        return get(clazz, List.of(keys));
     }
 
 

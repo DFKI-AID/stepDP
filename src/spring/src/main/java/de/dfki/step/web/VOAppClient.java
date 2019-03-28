@@ -309,7 +309,7 @@ public class VOAppClient implements OutputComponent {
                 String id = displayNode.get("id").textValue();
                 Entity service = new Entity()
                         .set(Ontology.id, id)
-//                        .set(Ontology.uri, URI.create("http://172.16.59.0:60000"))
+//                        .set(Ontology.uri, URI.of("http://172.16.59.0:60000"))
                         .set(Ontology.type2, Ontology.Service)
                         .set(Ontology.service, serviceType)
                         .set(Ontology.timestamp, System.currentTimeMillis());
