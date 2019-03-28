@@ -1,4 +1,4 @@
-package de.dfki.step.output.impp;
+package de.dfki.step.output.imp;
 
 import java.util.HashSet;
 import java.util.Set;

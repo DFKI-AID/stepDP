@@ -1,7 +1,4 @@
-package de.dfki.step.dialog;
-
-import de.dfki.step.core.Component;
-import de.dfki.step.core.ComponentManager;
+package de.dfki.step.core;
 
 public class TagSystemComponent extends TagSystem<String>  implements Component {
 

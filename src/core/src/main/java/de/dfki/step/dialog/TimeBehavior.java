@@ -2,7 +2,9 @@ package de.dfki.step.dialog;
 
 import de.dfki.step.core.Component;
 import de.dfki.step.core.ComponentManager;
+import de.dfki.step.core.TagSystemComponent;
 import de.dfki.step.core.TokenComponent;
+import de.dfki.step.output.PresentationComponent;
 import de.dfki.step.rengine.RuleCoordinator;
 import de.dfki.step.rengine.RuleSystemComponent;
 
@@ -10,7 +12,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 
 /**
- *
+ * Simple behavior that outputs the time on time_request intents
  */
 public class TimeBehavior implements Component {
     private long timeout = 3000L;

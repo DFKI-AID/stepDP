@@ -1,17 +1,14 @@
 package de.dfki.step.dialog;
 
-import de.dfki.step.core.Component;
-import de.dfki.step.core.ComponentManager;
-import de.dfki.step.core.TokenComponent;
+import de.dfki.step.core.*;
+import de.dfki.step.output.PresentationComponent;
 import de.dfki.step.rengine.RuleSystemComponent;
-import de.dfki.step.util.Clock;
+import de.dfki.step.core.Clock;
 import de.dfki.step.rengine.RuleCoordinator;
 import de.dfki.step.rengine.RuleSystem;
 import de.dfki.step.rengine.Token;
-import de.dfki.step.util.ClockComponent;
-import org.pcollections.PSequence;
+import de.dfki.step.core.ClockComponent;
 import org.pcollections.PSet;
-import org.pcollections.TreePVector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

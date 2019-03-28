@@ -6,18 +6,12 @@ import de.dfki.step.kb.Entity;
 import de.dfki.step.kb.KnowledgeBase;
 import de.dfki.step.kb.KnowledgeMap;
 import de.dfki.step.kb.Ontology;
-import de.dfki.step.output.Imp;
 import de.dfki.step.output.OutputComponent;
 import de.dfki.step.output.OutputFactory;
-import de.dfki.step.output.impp.AllocationState;
-import de.dfki.step.output.impp.DeviceSelector;
-import de.dfki.step.output.impp.OutputUnit;
+import de.dfki.step.output.imp.AllocationState;
+import de.dfki.step.output.imp.OutputUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.ApplicationRunner;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -25,11 +19,9 @@ import reactor.core.publisher.Mono;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.Files;
 import java.time.Duration;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * TODO multiple outputs

@@ -1,6 +1,6 @@
 package de.dfki.step.sc;
 
-import de.dfki.step.dialog.TagSystem;
+import de.dfki.step.core.TagSystem;
 import de.dfki.step.rengine.RuleSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

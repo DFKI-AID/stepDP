@@ -1,9 +1,8 @@
 package de.dfki.step.sc;
 
 import de.dfki.step.core.ComponentManager;
-import de.dfki.step.dialog.Dialog;
-import de.dfki.step.dialog.TagSystem;
-import de.dfki.step.dialog.TagSystemComponent;
+import de.dfki.step.core.TagSystem;
+import de.dfki.step.core.TagSystemComponent;
 import de.dfki.step.rengine.RuleSystem;
 import de.dfki.step.rengine.RuleSystemComponent;
 import org.pcollections.HashTreePMap;

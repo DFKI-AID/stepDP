@@ -2,8 +2,8 @@ package de.dfki.step.rengine;
 
 import de.dfki.step.core.Component;
 import de.dfki.step.core.ComponentManager;
-import de.dfki.step.util.Clock;
-import de.dfki.step.util.ClockComponent;
+import de.dfki.step.core.Clock;
+import de.dfki.step.core.ClockComponent;
 
 public class RuleSystemComponent extends RuleSystem implements Component {
 

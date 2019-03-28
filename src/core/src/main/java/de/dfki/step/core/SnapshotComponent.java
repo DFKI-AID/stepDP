@@ -1,10 +1,4 @@
-package de.dfki.step.dialog;
-
-import de.dfki.step.core.Component;
-import de.dfki.step.core.ComponentManager;
-import de.dfki.step.rengine.RuleSystem;
-import de.dfki.step.util.Clock;
-import de.dfki.step.util.ClockComponent;
+package de.dfki.step.core;
 
 import java.util.HashMap;
 import java.util.List;

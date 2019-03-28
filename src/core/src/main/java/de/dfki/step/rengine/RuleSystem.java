@@ -1,6 +1,6 @@
 package de.dfki.step.rengine;
 
-import de.dfki.step.util.Clock;
+import de.dfki.step.core.Clock;
 import org.pcollections.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

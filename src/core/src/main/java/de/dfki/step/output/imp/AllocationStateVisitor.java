@@ -1,4 +1,4 @@
-package de.dfki.step.output.impp;
+package de.dfki.step.output.imp;
 
 import de.dfki.step.output.Imp;
 import de.dfki.step.output.OutputComponent;

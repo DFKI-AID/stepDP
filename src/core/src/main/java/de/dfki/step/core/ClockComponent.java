@@ -1,7 +1,4 @@
-package de.dfki.step.util;
-
-import de.dfki.step.core.Component;
-import de.dfki.step.core.ComponentManager;
+package de.dfki.step.core;
 
 import java.time.Duration;
 

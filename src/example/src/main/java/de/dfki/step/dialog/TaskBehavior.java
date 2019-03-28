@@ -1,7 +1,9 @@
 package de.dfki.step.dialog;
 
 import de.dfki.step.core.ComponentManager;
+import de.dfki.step.core.TagSystemComponent;
 import de.dfki.step.core.TokenComponent;
+import de.dfki.step.output.PresentationComponent;
 import de.dfki.step.rengine.RuleCoordinator;
 import de.dfki.step.rengine.Token;
 import de.dfki.step.sc.SimpleStateBehavior;

@@ -1,12 +1,15 @@
 package de.dfki.step.dialog;
 
 import de.dfki.step.core.ComponentManager;
+import de.dfki.step.core.SnapshotComponent;
+import de.dfki.step.core.TagSystemComponent;
 import de.dfki.step.core.TokenComponent;
+import de.dfki.step.output.PresentationComponent;
 import de.dfki.step.rengine.RuleCoordinator;
 import de.dfki.step.rengine.RuleSystem;
 import de.dfki.step.rengine.RuleSystemComponent;
 import de.dfki.step.rengine.Token;
-import de.dfki.step.util.ClockComponent;
+import de.dfki.step.core.ClockComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

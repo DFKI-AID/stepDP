@@ -1,4 +1,4 @@
-package de.dfki.step.dialog;
+package de.dfki.step.core;
 
 import java.util.HashMap;
 import java.util.HashSet;

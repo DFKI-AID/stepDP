@@ -1,8 +1,8 @@
-package de.dfki.step.dialog;
+package de.dfki.step.output;
 
 import de.dfki.step.core.Component;
 import de.dfki.step.core.ComponentManager;
-import de.dfki.step.rengine.RuleSystem;
+import de.dfki.step.dialog.MetaFactory;
 import de.dfki.step.rengine.RuleSystemComponent;
 import de.dfki.step.rengine.Token;
 import org.pcollections.PSequence;
