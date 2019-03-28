@@ -18,7 +18,7 @@ public class FusionComponent implements Component {
     private List<Token> waitingTokens = new ArrayList<>();
     private List<Token> tokens = new ArrayList<>();
     private Map<String, FusionNode> fusionNodes = new HashMap<>();
-    private Map<String, Function<Match, Token>> fusionOutputs = new HashMap<>();
+    private Map<String, Function<Match, Token>> intentBuilder = new HashMap<>();
     private ComponentManager cm;
 
     @Override
@@ -42,11 +42,13 @@ public class FusionComponent implements Component {
      * @return
      */
     public Collection<Token> fuse() {
+        //TODO testing
+        //this.addToken(new Token().add("focus", "task1"));
+
         synchronized (this) {
             tokens.addAll(waitingTokens);
             waitingTokens.clear();
         }
-
         //remove old tokens
         //TODO switch to iteration based model like the rule system -> makes debugging easier
         var now = System.currentTimeMillis();
@@ -61,7 +63,7 @@ public class FusionComponent implements Component {
         List<Token> intents = new ArrayList<>();
         var mv = new MatchVisitor();
         for(var entry : fusionNodes.entrySet()) {
-            var fnc = fusionOutputs.get(entry.getKey());
+            var fnc = intentBuilder.get(entry.getKey());
             var result = mv.accept(entry.getValue(), tokens);
             result.forEach(match -> {
                 Token intent = fnc.apply(match);
@@ -107,12 +109,12 @@ public class FusionComponent implements Component {
 
     public synchronized void addFusionNode(String id, FusionNode node, Function<Match, Token> intentBuilder) {
         fusionNodes.put(id, node);
-        fusionOutputs.put(id, intentBuilder);
+        this.intentBuilder.put(id, intentBuilder);
     }
 
     public synchronized void removeFusionNode(String id) {
         fusionNodes.remove(id);
-        fusionOutputs.remove(id);
+        intentBuilder.remove(id);
     }
 
     public synchronized void addToken(Token token) {
@@ -131,5 +133,36 @@ public class FusionComponent implements Component {
 
     public synchronized void addTokens(Collection<Token> tokens) {
         tokens.forEach(t -> addToken(t));
+    }
+
+    public static List<String> mergeOrigins(Collection<Token> tokens) {
+        List<String> origin = Token.mergeFields("origin", String.class, tokens);
+        return origin;
+    }
+
+    public static Optional<Double> mergeConfidence(Collection<Token> tokens) {
+        OptionalDouble confidence = Token.mergeFields("confidence", Double.class, tokens).stream()
+                .mapToDouble(x -> x).average();
+        if(confidence.isPresent()) {
+            return Optional.of(confidence.getAsDouble());
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * Builds a default token with the given intent, origin and confidence from the match
+     * @param match
+     * @param intent
+     * @return
+     */
+    public static Token defaultIntent(Match match, String intent) {
+        List<String> origin = FusionComponent.mergeOrigins(match.getTokens());
+        Optional<Double> confidence = FusionComponent.mergeConfidence(match.getTokens());
+
+        Token token = new Token()
+                .add("intent", intent)
+                .add("origin", origin)
+                .addIfPresent("confidence", confidence);
+        return token;
     }
 }

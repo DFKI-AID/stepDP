@@ -1,5 +1,6 @@
 package de.dfki.step.fusion;
 
+import de.dfki.step.core.Schema;
 import de.dfki.step.core.Token;
 import org.junit.Assert;
 import org.junit.Test;
@@ -14,31 +15,33 @@ public class FusionComponentTest {
     public void allWindows() {
         FusionComponent fc = new FusionComponent();
 
-        //define how our multimodal inputs looks like
-        InputNode gestureNode = new InputNode(t -> t.payloadEqualsOneOf("gesture", "down", "up"));
+        // define how our multimodal inputs looks like
+        // here we want to combine three unimodal inputs similar to the madmacs demonstrator:
+        // hand gesture, focus and speech to control the car windows
+
+        // using a schema to match the token
+        Schema speechOnWindows = Schema.builder()
+                .equalsOneOf(Schema.Key.of("gesture"), "down", "up")
+                .build();
+        InputNode gestureNode = new InputNode(speechOnWindows);
+
+        // can also check the data of the token directly:
         InputNode windowsNode = new InputNode(t -> t.payloadEqualsOneOf("speech", "all_windows", "front left window"));
-//        InputNode focusNode = new InputNode(t -> t.payloadEquals("focus", "car"));
         InputNode focusNode = new InputNode(t -> t.payloadEquals("focus", "car"));
-
-
         ParallelNode node = new ParallelNode()
                 .add(gestureNode)
                 .add(windowsNode)
                 .add(focusNode);
 
-
+        // what should happen if the three input nodes match on the input history
         fc.addFusionNode("all_windows1", node, match -> {
-            List<String> origin = Token.mergeFields("origin", String.class, match.getTokens());
-            OptionalDouble confidence = Token.mergeFields("confidence", Double.class, match.getTokens()).stream()
-                    .mapToDouble(x -> x).average();
+            List<String> origin = FusionComponent.mergeOrigins(match.getTokens());
+            Optional<Double> confidence = FusionComponent.mergeConfidence(match.getTokens());
 
             Token token = new Token()
                     .add("intent", "control_car_windows")
-                    .add("origin", origin);
-
-            if(confidence.isPresent()) {
-                token = token.add("confidence", confidence.getAsDouble());
-            }
+                    .add("origin", origin)
+                    .addIfPresent("confidence", confidence);
 
             return token;
         });

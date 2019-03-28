@@ -1,6 +1,7 @@
 package de.dfki.step.dialog;
 
 import de.dfki.step.core.*;
+import de.dfki.step.fusion.FusionComponent;
 import de.dfki.step.output.PresentationComponent;
 import de.dfki.step.rengine.RuleSystemComponent;
 import de.dfki.step.core.Clock;
@@ -35,6 +36,8 @@ public abstract class Dialog implements Runnable, ComponentManager {
         setPriority("snapshot", 10);
         addComponent("token", new TokenComponent());
         setPriority("token", 11);
+        addComponent("fusion", new FusionComponent());
+        setPriority("fusion", 20);
         addComponent("ruleSystem", new RuleSystemComponent(clock));
         setPriority("ruleSystem", 50);
         addComponent("coordinator", new RuleCoordinator());
@@ -43,6 +46,7 @@ public abstract class Dialog implements Runnable, ComponentManager {
         setPriority("output", 100);
         addComponent("clock", new ClockComponent(clock));
         setPriority("clock", 110);
+
     }
 
 
@@ -103,7 +107,7 @@ public abstract class Dialog implements Runnable, ComponentManager {
             throw new IllegalArgumentException("add components after starting is not supported atm");
         }
         components.put(id, comp);
-        priorityMap.put(id, 20);
+        priorityMap.put(id, 40);
     }
 
     public Optional<Component> getComponent(String id) {

@@ -63,9 +63,9 @@ public class Main {
 
         Rule confirmRule = new Rule("confirm")
                 .add(new OneOf()
-                        .add(new Item("yeah")
+                        .add(new Item("yeah do it")
                                 .add(Tag.intent("accept")))
-                        .add(new Item("yes")
+                        .add(new Item("yes please")
                                 .add(Tag.intent("accept")))
                         .add(new Item("no")
                                 .add(Tag.intent("reject"))

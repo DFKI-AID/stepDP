@@ -9,8 +9,7 @@ import java.time.Duration;
 import java.util.*;
 
 /**
- * This component manages (add / remove / enable / disable) and execute functions.
- * TODO use persistent data structures
+ * This component manages (add / remove / enable / disable) and execute rules.
  */
 public class RuleSystem {
     private static final Logger log = LoggerFactory.getLogger(RuleSystem.class);

@@ -8,6 +8,8 @@ public class MyGrammar {
 
     public static GrammarManager create() {
         GrammarManager grammarManager = new GrammarManager();
+
+
         Rule confirmRule = new Rule("confirm")
                 .add(new OneOf()
                         .add(new Item("yeah")
@@ -75,6 +77,16 @@ public class MyGrammar {
         grammarManager.addRule(new Rule("show_tasks")
                 .add(new Item("which tasks are available"))
                 .add(Tag.intent("show_tasks"))
+        );
+
+        grammarManager.addRule(new Rule("select_this")
+                .add(new OneOf()
+                        .add(new Item("i want this one"))
+                        .add(new Item("select this one"))
+                        .add(new Item("select this task")) //TODO could add task as a type
+                )
+                .add(Tag.intent("specify"))
+                .add(Tag.assign("specification", "this"))
         );
 
         Rule taskInfo = new Rule("task_info");

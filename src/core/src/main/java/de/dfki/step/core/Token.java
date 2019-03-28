@@ -41,9 +41,19 @@ public class Token {
         if (value == null) {
             throw new IllegalArgumentException("null is not allowed as value in a token");
         }
+        if(value instanceof Optional) {
+            throw new IllegalArgumentException("can't add optional as value to token");
+        }
         var p = payload.plus(key, value);
         Token t = new Token(p);
         return t;
+    }
+
+    public Token addIfPresent(String key, Optional opt) {
+        if(!opt.isPresent()) {
+            return this;
+        }
+        return this.add(key, opt.get());
     }
 
     public Token addAll(Map<String, Object> values) {

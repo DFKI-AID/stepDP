@@ -5,13 +5,13 @@ import org.pcollections.TreePVector;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.function.BiFunction;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 /**
  * Checks whether a token matches a certain pattern: e.g. if fields are set, the values of the fields
  * or the dependence between the field values.
- *
+ * <p>
  * For usage, see the unit tests
  */
 public class Schema {
@@ -75,23 +75,52 @@ public class Schema {
             return this;
         }
 
+        public Builder equals(Key key, Object value) {
+            return test(key, Object.class, x -> Objects.equals(x, value));
+        }
+
+        public Builder equals(String key, Object value) {
+            return test(Key.of(key), Object.class, x -> Objects.equals(x, value));
+        }
+
+        public Builder equalsOneOf(Key key, List<Object> values) {
+            return test(key, Object.class, x -> {
+                for (Object obj : values) {
+                    if (Objects.equals(obj, x)) {
+                        return true;
+                    }
+                }
+                return false;
+            });
+        }
+
+        public Builder equalsOneOf(Key key, Object... values) {
+            return this.equalsOneOf(key, List.of(values));
+        }
+
         public Builder lessThan(Key key, int number) {
-            compare(key, number, Integer.class, (x, y) -> x < y);
-            return this;
+            return test(key, Integer.class, x -> x < number);
         }
 
         public Builder greaterThan(Key key, int number) {
-            compare(key, number, Integer.class, (x, y) -> x > y);
-            return this;
+            return test(key, Integer.class, x -> x > number);
         }
 
-        public <T> Builder compare(Key key, T value, Class<T> clazz, BiFunction<T, T, Boolean> comp) {
+        public Builder startsWith(Key key, String prefix) {
+            return test(key, String.class, x -> x.startsWith(prefix));
+        }
+
+        public <T> Builder test(String key, Class<T> clazz, Predicate<T> pred) {
+            return test(Key.of(key), clazz, pred);
+        }
+
+        public <T> Builder test(Key key, Class<T> clazz, Predicate<T> pred) {
             add(t -> {
                 var opt = t.get(clazz, key.getKeys());
                 if (!opt.isPresent()) {
                     return false;
                 }
-                return comp.apply(opt.get(), value);
+                return pred.test(opt.get());
             });
             return this;
         }
