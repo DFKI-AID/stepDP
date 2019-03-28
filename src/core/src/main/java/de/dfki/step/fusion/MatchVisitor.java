@@ -10,11 +10,11 @@ import java.util.*;
  * Matches the input history against a\ FusionNode
  */
 public class MatchVisitor implements FusionNode.Visitor {
-    private List<Token> tokens;
+    private Set<Token> tokens;
     private Map<Token, Boolean> marked;
     private List<Match> matches;
 
-    public List<Match> accept(FusionNode fusionNode, List<Token> tokens) {
+    public List<Match> accept(FusionNode fusionNode, Set<Token> tokens) {
         this.tokens = tokens;
         marked = new HashMap<>();
         fusionNode.accept(this);

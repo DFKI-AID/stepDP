@@ -131,7 +131,7 @@ public class RuleSystem {
 
             if (!this.rules.contains(rule)) {
                 // this rule was removed during the update method should not be considered here anymore
-                // with the new concept of the RuleCoordinator this should not be necessary anymore.
+                // with the new concept of the CoordinationComponent this should not be necessary anymore.
                 continue;
             }
             rule.update();

@@ -5,7 +5,7 @@ import de.dfki.step.fusion.FusionComponent;
 import de.dfki.step.fusion.FusionNode;
 import de.dfki.step.fusion.InputNode;
 import de.dfki.step.output.PresentationComponent;
-import de.dfki.step.rengine.RuleCoordinator;
+import de.dfki.step.rengine.CoordinationComponent;
 import de.dfki.step.rengine.RuleSystem;
 import de.dfki.step.rengine.RuleSystemComponent;
 import org.slf4j.Logger;
@@ -25,7 +25,7 @@ public class MetaFactory {
     private static final double minConfidence = 0.3;
     private final RuleSystemComponent rs;
     private final TokenComponent tc;
-    private final RuleCoordinator rc;
+    private final CoordinationComponent rc;
     private final PresentationComponent pc;
     private final ClockComponent cc;
     private final TagSystemComponent tsc;
@@ -35,7 +35,7 @@ public class MetaFactory {
     public MetaFactory(ComponentManager cm) {
         rs = cm.retrieveComponent(RuleSystemComponent.class);
         tc = cm.retrieveComponent(TokenComponent.class);
-        rc = cm.retrieveComponent(RuleCoordinator.class);
+        rc = cm.retrieveComponent(CoordinationComponent.class);
         pc = cm.retrieveComponent(PresentationComponent.class);
         cc = cm.retrieveComponent(ClockComponent.class);
         tsc = cm.retrieveComponent(TagSystemComponent.class);
@@ -300,7 +300,7 @@ public class MetaFactory {
             } else {
                 rc.add(() -> {
                     callback.accept(selection.get());
-                    rs.removeRule(ruleName);
+                    //rs.removeRule(ruleName);
                 }).attachOrigin(selectToken.get());
             }
 
@@ -397,7 +397,7 @@ public class MetaFactory {
     public static void timeoutRule(ComponentManager cm, String name, Duration duration, Runnable callback) {
         var rs = cm.retrieveComponent(RuleSystemComponent.class);
         var cc = cm.retrieveComponent(ClockComponent.class);
-        var rc = cm.retrieveComponent(RuleCoordinator.class);
+        var rc = cm.retrieveComponent(CoordinationComponent.class);
 
         long currentIteration = cc.getIteration();
         long untilIteration = currentIteration + cc.convert(duration);

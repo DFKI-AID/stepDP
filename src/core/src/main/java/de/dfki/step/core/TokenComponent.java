@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
+import java.util.Objects;
 
 public class TokenComponent implements Component {
     private static Logger log = LoggerFactory.getLogger(TokenComponent.class);
@@ -49,8 +50,11 @@ public class TokenComponent implements Component {
         return tokens;
     }
 
+
     public synchronized void addTokens(Collection<Token> tokens) {
-        log.debug("Adding token {}", tokens);
+        log.debug("Adding tokens {}", tokens.stream()
+                .map(Objects::toString)
+                .reduce("", (x, y) -> x + ", " + y));
         waitingTokens = waitingTokens.plusAll(tokens);
     }
 

@@ -2,6 +2,7 @@ package de.dfki.step.rengine;
 
 import de.dfki.step.core.Component;
 import de.dfki.step.core.ComponentManager;
+import de.dfki.step.core.InputComponent;
 import de.dfki.step.core.Token;
 import org.pcollections.HashTreePMap;
 import org.pcollections.PMap;
@@ -16,18 +17,19 @@ import java.util.stream.Collectors;
  * Decides which rule will fire based on mutual resource consumption.
  * Rules may register functions ("what they would do if they are executed")
  * Rules may attach additional data for coordination (e.g. origin resource x)
- *
+ * <p>
  * 'origin' is either an Object or a Collection of Objects
  */
-public class RuleCoordinator implements Component {
-    private static final Logger log = LoggerFactory.getLogger(RuleCoordinator.class);
+public class CoordinationComponent implements Component {
+    private static final Logger log = LoggerFactory.getLogger(CoordinationComponent.class);
     public static final String origin = "origin";
     public static final String priority = "priority";
     protected PMap<String, Runnable> functions;
     protected PMap<String, Token> data;
     private PMap<Rule, Integer> priorities = HashTreePMap.empty();
+    private InputComponent ic;
 
-    public RuleCoordinator() {
+    public CoordinationComponent() {
         this.reset();
     }
 
@@ -39,7 +41,7 @@ public class RuleCoordinator implements Component {
         this.data = HashTreePMap.empty();
     }
 
-    protected RuleCoordinator attach(String id, String key, Object obj) {
+    protected CoordinationComponent attach(String id, String key, Object obj) {
         data = data.plus(id, data.get(id).add(key, obj));
         return this;
     }
@@ -56,7 +58,7 @@ public class RuleCoordinator implements Component {
         return new DataAttacher() {
             @Override
             public DataAttacher attach(String key, Object obj) {
-                RuleCoordinator.this.attach(id, key, data);
+                CoordinationComponent.this.attach(id, key, obj);
                 return this;
             }
         };
@@ -64,7 +66,7 @@ public class RuleCoordinator implements Component {
 
     @Override
     public void init(ComponentManager cm) {
-
+        this.ic = cm.retrieveComponent(InputComponent.class);
     }
 
     @Override
@@ -91,8 +93,9 @@ public class RuleCoordinator implements Component {
         Map<String, Runnable> executeMap = new HashMap<>();
         executeMap.putAll(this.functions);
 
+        //define function to get the priority for each function
         Function<String, Double> getPriority = s ->
-                data.get(s).get(priority).filter(p -> p instanceof  Double).map(p -> (Double) p).orElse(0.0);
+                data.get(s).get(priority, Double.class).orElse(0.0);
 
         this.functions.entrySet().stream()
                 //sort functions after priority, lowest priority are handled first
@@ -101,12 +104,12 @@ public class RuleCoordinator implements Component {
                     // check whether other functions consume the same resource
                     Optional<Object> consumes1 = data.get(entry.getKey()).get(origin);
                     for (var otherEntry : executeMap.entrySet()) {
-                        if(entry.getValue() == otherEntry.getValue()) {
+                        if (entry.getValue() == otherEntry.getValue()) {
                             continue;
                         }
 
                         Optional<Object> consumes2 = data.get(otherEntry.getKey()).get(origin);
-                        if(consumeCollides(consumes1, consumes2)) {
+                        if (consumeCollides(consumes1, consumes2)) {
                             //two functions consume the same resource
                             //hence the first (lower priority) is removed
                             executeMap.remove(entry.getKey());
@@ -116,8 +119,15 @@ public class RuleCoordinator implements Component {
                 });
 
         executeMap.entrySet().forEach(entry -> {
-            log.info("executing {}", entry.getKey());
+            //consume input
+            Collection<Object> fncOrigin = convert(data.get(entry.getKey()).get(origin));
+            ic.consume(fncOrigin);
+
+            log.info("executing {} with origin={}", entry.getKey(),
+                    fncOrigin.stream().reduce("", (x, y) -> x + "," + y));
             entry.getValue().run();
+
+
         });
     }
 
@@ -143,11 +153,11 @@ public class RuleCoordinator implements Component {
     }
 
     protected Collection<Object> convert(Optional<Object> obj) {
-        if(!obj.isPresent()) {
+        if (!obj.isPresent()) {
             return Collections.EMPTY_SET;
         }
 
-        if(obj.get() instanceof Collection) {
+        if (obj.get() instanceof Collection) {
             return (Collection) obj.get();
         } else {
             return List.of(obj.get());
@@ -162,6 +172,7 @@ public class RuleCoordinator implements Component {
          * e.g. a gesture g1 and speech input s1 are merge into an intent i1, which then triggers a rule to fire.
          * The rule coordinator will decide which rules will finally fire based on the origin=[g1, s1, i1]. If the
          * origin overlaps with other rules, only one may fire. But this depends on the coordination strategy.
+         *
          * @param token
          * @return
          */
@@ -169,11 +180,11 @@ public class RuleCoordinator implements Component {
             List<Object> newOrigin = new ArrayList<>();
 
             Optional<Collection> tokenOrigins = token.get(origin, Collection.class);
-            if(tokenOrigins.isPresent()) {
+            if (tokenOrigins.isPresent()) {
                 newOrigin.addAll(tokenOrigins.get());
             } else {
                 Optional<Object> tokenOrigin = token.get(origin);
-                if(tokenOrigin.isPresent()) {
+                if (tokenOrigin.isPresent()) {
                     newOrigin.add(tokenOrigin.get());
                 }
             }

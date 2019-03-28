@@ -3,9 +3,9 @@ package de.dfki.step.dialog;
 import de.dfki.step.core.*;
 import de.dfki.step.fusion.FusionComponent;
 import de.dfki.step.output.PresentationComponent;
+import de.dfki.step.rengine.CoordinationComponent;
 import de.dfki.step.rengine.RuleSystemComponent;
 import de.dfki.step.core.Clock;
-import de.dfki.step.rengine.RuleCoordinator;
 import de.dfki.step.rengine.RuleSystem;
 import de.dfki.step.core.Token;
 import de.dfki.step.core.ClockComponent;
@@ -36,11 +36,13 @@ public abstract class Dialog implements Runnable, ComponentManager {
         setPriority("snapshot", 10);
         addComponent("token", new TokenComponent());
         setPriority("token", 11);
+        addComponent("input", new InputComponent());
+        setPriority("input", 14);
         addComponent("fusion", new FusionComponent());
         setPriority("fusion", 20);
         addComponent("ruleSystem", new RuleSystemComponent(clock));
         setPriority("ruleSystem", 50);
-        addComponent("coordinator", new RuleCoordinator());
+        addComponent("coordinator", new CoordinationComponent());
         setPriority("coordinator", 90);
         addComponent("output", new PresentationComponent());
         setPriority("output", 100);
@@ -143,8 +145,8 @@ public abstract class Dialog implements Runnable, ComponentManager {
     }
 
 
-    public RuleCoordinator getRuleCoordinator() {
-        return retrieveComponent(RuleCoordinator.class);
+    public CoordinationComponent getRuleCoordinator() {
+        return retrieveComponent(CoordinationComponent.class);
     }
 
     public SnapshotComponent getSnapshotComp() {

@@ -4,7 +4,7 @@ import de.dfki.step.core.ComponentManager;
 import de.dfki.step.core.TagSystemComponent;
 import de.dfki.step.core.TokenComponent;
 import de.dfki.step.output.PresentationComponent;
-import de.dfki.step.rengine.RuleCoordinator;
+import de.dfki.step.rengine.CoordinationComponent;
 import de.dfki.step.core.Token;
 import de.dfki.step.sc.SimpleStateBehavior;
 import org.pcollections.PMap;
@@ -24,7 +24,7 @@ public class TaskBehavior extends SimpleStateBehavior {
     private String currentTask;
 
     private TokenComponent tc;
-    private RuleCoordinator rc;
+    private CoordinationComponent rc;
     private PresentationComponent pc;
     private TagSystemComponent ts;
     private MetaFactory metaFactory;
@@ -96,7 +96,7 @@ public class TaskBehavior extends SimpleStateBehavior {
 
     public void initTaskMode() {
         tc = cm.retrieveComponent(TokenComponent.class);
-        rc = cm.retrieveComponent(RuleCoordinator.class);
+        rc = cm.retrieveComponent(CoordinationComponent.class);
         pc = cm.retrieveComponent(PresentationComponent.class);
         ts = cm.retrieveComponent(TagSystemComponent.class);
 

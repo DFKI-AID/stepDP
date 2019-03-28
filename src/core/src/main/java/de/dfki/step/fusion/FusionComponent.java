@@ -1,9 +1,7 @@
 package de.dfki.step.fusion;
 
-import de.dfki.step.core.Component;
-import de.dfki.step.core.ComponentManager;
-import de.dfki.step.core.TokenComponent;
-import de.dfki.step.core.Token;
+import de.dfki.step.core.*;
+import org.pcollections.PSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,16 +12,15 @@ import java.util.stream.Collectors;
 
 public class FusionComponent implements Component {
     private static Logger log = LoggerFactory.getLogger(FusionComponent.class);
-    private Duration tokenTimeout = Duration.ofMillis(10000);
-    private List<Token> waitingTokens = new ArrayList<>();
-    private List<Token> tokens = new ArrayList<>();
     private Map<String, FusionNode> fusionNodes = new HashMap<>();
     private Map<String, Function<Match, Token>> intentBuilder = new HashMap<>();
     private ComponentManager cm;
+    private InputComponent ic;
 
     @Override
     public void init(ComponentManager cm) {
         this.cm = cm;
+        this.ic = cm.retrieveComponent(InputComponent.class);
     }
 
     @Override
@@ -32,8 +29,9 @@ public class FusionComponent implements Component {
 
     @Override
     public void update() {
-        var tokens = fuse();
-        cm.retrieveComponent(TokenComponent.class).addTokens(tokens);
+        PSet<Token> tokens = ic.getTokens();
+        var fusedTokens = fuse(tokens);
+        cm.retrieveComponent(TokenComponent.class).addTokens(fusedTokens);
     }
 
     /**
@@ -41,21 +39,7 @@ public class FusionComponent implements Component {
      *
      * @return
      */
-    public Collection<Token> fuse() {
-        //TODO testing
-        //this.addToken(new Token().add("focus", "task1"));
-
-        synchronized (this) {
-            tokens.addAll(waitingTokens);
-            waitingTokens.clear();
-        }
-        //remove old tokens
-        //TODO switch to iteration based model like the rule system -> makes debugging easier
-        var now = System.currentTimeMillis();
-        tokens = tokens.stream()
-                .filter(t -> t.get("timestamp", Long.class).get() + tokenTimeout.toMillis() > now)
-                .collect(Collectors.toList());
-
+    public Collection<Token> fuse(Set<Token> tokens) {
         if(tokens.isEmpty()) {
             return Collections.EMPTY_LIST;
         }
@@ -70,8 +54,6 @@ public class FusionComponent implements Component {
                 intents.add(intent);
             });
         }
-
-        tokens.clear(); //TODO until consumed by coordinator
 
         return intents;
     }
@@ -115,24 +97,6 @@ public class FusionComponent implements Component {
     public synchronized void removeFusionNode(String id) {
         fusionNodes.remove(id);
         intentBuilder.remove(id);
-    }
-
-    public synchronized void addToken(Token token) {
-        if (!token.has("timestamp", Long.class)) {
-            if (token.has("timestamp", Number.class)) {
-                //timestamp found, but with wrong type -> convert
-                long timestamp = (Long) token.get("timestamp").get();
-                token = token.add("timestamp", timestamp);
-            } else {
-                //none timestamp found -> use current time
-                token = token.add("timestamp", System.currentTimeMillis());
-            }
-        }
-        this.waitingTokens.add(token);
-    }
-
-    public synchronized void addTokens(Collection<Token> tokens) {
-        tokens.forEach(t -> addToken(t));
     }
 
     public static List<String> mergeOrigins(Collection<Token> tokens) {

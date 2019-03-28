@@ -1,6 +1,7 @@
 package de.dfki.step.dialog;
 
 
+import de.dfki.step.core.InputComponent;
 import de.dfki.step.core.Schema;
 import de.dfki.step.fusion.FusionComponent;
 import de.dfki.step.fusion.InputNode;
@@ -133,8 +134,8 @@ public class MyDialog extends Dialog {
 //                processedToken = processedToken.add("intent", intent.get());
 //            }
             // add token to fc
-            FusionComponent fc = getComponent("fusion", FusionComponent.class).get();
-            fc.addToken(processedToken);
+            InputComponent ic = retrieveComponent(InputComponent.class);
+            ic.addToken(processedToken);
         });
         String grammarStr = grammar.toString();
         src.setGrammar("main", grammarStr);

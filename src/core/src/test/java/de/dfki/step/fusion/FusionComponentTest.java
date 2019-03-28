@@ -1,5 +1,6 @@
 package de.dfki.step.fusion;
 
+import de.dfki.step.core.InputComponent;
 import de.dfki.step.core.Schema;
 import de.dfki.step.core.Token;
 import org.junit.Assert;
@@ -46,7 +47,7 @@ public class FusionComponentTest {
             return token;
         });
 
-        var tokens = List.of(
+        var tokens = Set.of(
                 new Token()
                         .add("gesture", "down")
                         .add("timestamp", System.currentTimeMillis())
@@ -90,11 +91,7 @@ public class FusionComponentTest {
         );
 
 
-
-
-
-        fc.addTokens(tokens);
-        Collection<Token> intents = fc.fuse();
+        Collection<Token> intents = fc.fuse(tokens);
         Assert.assertEquals(2, intents.size());
     }
 
