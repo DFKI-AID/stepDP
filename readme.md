@@ -40,8 +40,15 @@ The main idea is to define the dialog behavior through the set of active rules a
    - Slot Filling **TODO** impl
    - A combination of them
 
+
+### Getting Started
+- Get familiar with the [java stream api](https://www.baeldung.com/java-8-streams) and [persistent data structures](https://www.baeldung.com/java-pcollections)
+- (Optional) Get familiar with spring boot. Necessary for some extensions or changes.
+- Checkout out the [example application](TODO).
+
+
 ## Installation
-- Put java 10 and maven on your path
+- Put java 10 (or higher) and maven on your path
 - Run scripts/install-min.sh or install-all.sh
 - Add to your pom.xml
 ```xml
@@ -54,10 +61,11 @@ The main idea is to define the dialog behavior through the set of active rules a
 
 ### Changes to the Platform
 ## Import into IntelliJ
-File > Open > choose pom.xml in src and "open as project"
-
+File > Open > choose pom.xml in src and "open as project".
+This process should be similar for other IDEs.
 
 ## Components
+This section describes all components of the dialog platform. Each component has a small task and are interchangeable with different implementations.
 
 ### Rules
 - Rules are an immutuable data structure. They don't change. If they have to be changed, it is necessary to create a new rule and remove the old one. However, rule may use the state of a behavior (which is state persistent or immutable).
@@ -135,7 +143,7 @@ Note for the **createSnapshot** method: You may want to use persistent data stru
 
 
 #### State Chart
-State charts can be used as an abstraction to define when rules are active. The rule logic is implemented in java. Rules may fire events into the state chart which in response change the set of active rules. A state chart manages a specific set of rules which defined in table (\*.csv file). The state chart is stored in the scxml format. The implementation does not support parallel or history states at the moment.. It should be checked whether they are necessary, because with the persistent dialog history the system supports already a 'history'-feature.
+State charts can be used as an abstraction to define when rules are active. The rule logic is implemented in java. Rules may fire events into the state chart which in response change the set of active rules. A state chart manages a specific set of rules which defined in table (\*.csv file). The state chart is stored in the scxml format. The implementation does not support parallel or history states at the moment. It should be checked whether they are necessary, because with the persistent dialog history the system already supports a 'history'-feature.
 
 
 
@@ -159,10 +167,10 @@ Custom rules are the easiest way for getting started. However, you have to manag
 
 
 
-### RuleCoordinator
+### Rule Coordination
 
-### Web API
-The web gui can be seen through a webbrowser on http://localhost:50000 (maps to /index.html).
+
+
 
 ### other
 
@@ -211,13 +219,27 @@ The rasa module contains code to access a rasa NLU service.
 
 
 ## Tools
-### Speech-Recognition
-See [grammar-based speech recognizer](https://lns-90165.sb.dfki.de/gitlab/i40/tractat/step-dp/speech-recognition-service): Supports audio streaming from e.g. a mic for ASR.
+### Web GUI / API
+The web gui can be opened with a webbrowser on e.g. [http://localhost:50000](http://localhost:50000) (maps to /index.html) .
 
+### Speech-Recognition
+See [grammar-based speech recognizer](https://lns-90165.sb.dfki.de/gitlab/i40/tractat/step-dp/speech-recognition-service): Supports audio streaming from e.g. a webbrowser for ASR.
+
+
+## Versioning
+Use semantic versioning MAJOR.MINOR.PATCH and SNAPSHOT suffix for beta versions. See the [script](/scripts/update-mvn-version.sh) to update the version of every module.
 
 
 ## TODOs
 #### Add to Doc
 - Where to save data? sensor data (data is derived from the real world or simulation; e.g. changes frequently) should be stored in a knowledge base that can be accessed by the dialog. The dialog itself should not store any information in the knowledge base that represents its own state. Such information should be stored inside a behavior in an inmutable or persistent data structure. This is necessary to create persistent dialog history.
 
-  
+
+## How To
+
+##### How to avoid firing complete but false intents?
+Scenario: We have as input *gesture_down* (timestamp=1000, confidence=0.2), *all_windows* (timestamp=1200, confidence=0.9). A rule may consume the created intent, but it could wait some time, because the confidence of the gesture was rather low. The problem is as follows: If we get *gesture_up* (timestamp=2000, confidence=0.8), the input *all_windows* could be already consumed.
+
+Impl: A rule should only fire if the intent is older than x seconds depending on the confidence. Add the iteration of the earliest input to the intent.
+
+Impl2: Delay forwarding of intents.

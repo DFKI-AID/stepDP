@@ -9,6 +9,33 @@
     <packaging>pom</packaging>
     <version>1.0.0-SNAPSHOT</version>
 
+    <developers>
+        <developer>
+            <id>yako02</id>
+            <name>Yannick Körber</name>
+            <email>Yannick.Koerber@DFKI.de</email>
+            <url>http://www.dfki.de/web/kontakt/mitarbeiter/base_view?uid=yako02</url>
+            <organization>DFKI GmbH</organization>
+            <organizationUrl>http://www.dfki.de/</organizationUrl>
+            <timezone>+1</timezone>
+            <roles>
+                <role>Researcher</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>maka04</id>
+            <name>Magdalena Kaiser</name>
+            <email>Magdalena.Kaiser@DFKI.de</email>
+            <url>http://www.dfki.de/web/kontakt/mitarbeiter/base_view?uid=maka04</url>
+            <organization>DFKI GmbH</organization>
+            <organizationUrl>http://www.dfki.de/</organizationUrl>
+            <timezone>+1</timezone>
+            <roles>
+                <role>Researcher</role>
+            </roles>
+        </developer>
+    </developers>
+
     <build>
         <plugins>
             <plugin>
