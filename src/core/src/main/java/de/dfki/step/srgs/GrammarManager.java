@@ -5,7 +5,7 @@ import java.util.Map;
 
 /**
  * Manages multiple sub-grammars and of a SRGS (xml) representation.
- * TODO: add function to add srgs string
+ * TODO: add function to add de.dfki.step.srgs string
  */
 public class GrammarManager {
     private Map<String, Rule> rules = new HashMap<>();

@@ -25,7 +25,7 @@ public class GrammarManagerComponent implements Component {
     @Override
     public void update() {
         synchronized (grammarManager) {
-            //TODO: better builder and then swap srgs.jsgf manager instance
+            //TODO: better builder and then swap de.dfki.step.srgs.jsgf manager instance
             //TODO put into own behavior?
             grammarManager.deactivateAll();
             RuleSystem rs = rsc.getRuleSystem();

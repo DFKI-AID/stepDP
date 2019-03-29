@@ -111,7 +111,7 @@ public class MetaFactory {
 
     /**
      * Helps the user to understand the current context and what can be done.
-     * E.g. show example sentences from the SRGS srgs.jsgf, or generate them from the srgs.jsgf
+     * E.g. show example sentences from the SRGS de.dfki.step.srgs.jsgf, or generate them from the de.dfki.step.srgs.jsgf
      *
      * @param rs
      */
@@ -255,7 +255,7 @@ public class MetaFactory {
     }
 
     public void selectRule(String ruleName, List<String> choices, Consumer<String> callback) {
-        //TODO use 'choices' to update srgs
+        //TODO use 'choices' to update de.dfki.step.srgs
 
 
 

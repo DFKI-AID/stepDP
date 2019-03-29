@@ -10,7 +10,7 @@ import java.util.List;
 public class Grammar implements Node {
     private List<Rule> rules = new ArrayList<>();
 
-    private String grammarType = "grammar"; //official=srgs ms=grammar
+    private String grammarType = "grammar"; //official=de.dfki.step.srgs ms=grammar
 
     public void addRule(Rule rule) {
         this.rules.add(rule);
