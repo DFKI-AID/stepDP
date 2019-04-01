@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URISyntaxException;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -20,14 +21,13 @@ import java.util.function.Supplier;
 /**
  * TODO the rule activation map should be placed in the scxml file. Maybe if there is an own scxml editor
  */
-public class SimpleStateBehavior implements StateBehavior {
+public abstract class SimpleStateBehavior implements StateBehavior {
     private static final Logger log = LoggerFactory.getLogger(SimpleStateBehavior.class);
     protected ComponentManager cm;
     protected RuleSystem rs;
     protected TagSystem<String> tagSystem;
     protected SCHandler stateHandler;
     protected final Supplier<StateChart> scLoader;
-    protected final Supplier<Map<String, Set<String>>> ruleLoader;
 
     /**
      * @param scFile   The scxml file described the state chart
@@ -40,15 +40,6 @@ public class SimpleStateBehavior implements StateBehavior {
                 return sc;
             } catch (Exception e) {
                 log.error("could not load state chart from {}", scFile, e);
-                throw new RuntimeException(e);
-            }
-        };
-        this.ruleLoader = () -> {
-            try {
-                Map<String, Set<String>> ruleActivation = Parser.loadRuleActivationMap(ruleFile);
-                return ruleActivation;
-            } catch (Exception e) {
-                log.error("could not load ruleActivation from {}", ruleFile, e);
                 throw new RuntimeException(e);
             }
         };
@@ -68,21 +59,12 @@ public class SimpleStateBehavior implements StateBehavior {
             resourceStr = resourceStr.substring(0, resourceStr.length() - 4);
         }
         InputStream scStream = SimpleStateBehavior.class.getResourceAsStream(resourceStr + ".scxml");
-        InputStream raStream = SimpleStateBehavior.class.getResourceAsStream(resourceStr + ".csv");
         String finalResourceStr = resourceStr;
         this.scLoader = () -> {
             try {
                 return Parser.loadStateChart(scStream);
             } catch (Exception e) {
                 log.error("could not load state chart from {}", finalResourceStr, e);
-                throw new RuntimeException(e);
-            }
-        };
-        this.ruleLoader = () -> {
-            try {
-                return Parser.loadRuleActivationMap(raStream);
-            } catch (Exception e) {
-                log.error("could not load ruleActivation from {}", finalResourceStr, e);
                 throw new RuntimeException(e);
             }
         };
@@ -105,18 +87,23 @@ public class SimpleStateBehavior implements StateBehavior {
             stateHandler = new SCHandler(rs, tagSystem, engine);
 
             // Load the rule activation map -> rules are tagged by the state names
-            Map<String, Set<String>> ruleActivation = ruleLoader.get();
-            for (var entry : ruleActivation.entrySet()) {
-                String state = entry.getKey();
-                for (String rule : entry.getValue()) {
-                    tagSystem.addTag(rule, state);
-                }
-            }
             stateHandler.init();
+            updateActiveRules();
         } catch (Exception e) {
             log.error("Could not load state chart: {}", e.getMessage(), e);
             throw new RuntimeException(e);
         }
+    }
+
+    protected void updateActiveRules() {
+        Collection<String> states = stateHandler.getStates();
+        for (String state : states) {
+            Set<String> rules = getActiveRules(state);
+            for (String rule : rules) {
+                tagSystem.addTag(rule, state);
+            }
+        }
+
     }
 
 
@@ -128,6 +115,7 @@ public class SimpleStateBehavior implements StateBehavior {
 
     @Override
     public void update() {
+        updateActiveRules();
     }
 
     @Override
@@ -164,4 +152,12 @@ public class SimpleStateBehavior implements StateBehavior {
     public TagSystem<String> getTagSystem() {
         return tagSystem;
     }
+
+    /**
+     * Get the names of the rules that should be active in the given state
+     *
+     * @param state
+     * @return
+     */
+    public abstract Set<String> getActiveRules(String state);
 }

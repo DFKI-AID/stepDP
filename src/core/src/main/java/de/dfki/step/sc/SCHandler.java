@@ -96,6 +96,10 @@ public class SCHandler {
         return engine;
     }
 
+    public Collection<String> getStates() {
+        return engine.getStates();
+    }
+
     /**
      * quits all states.
      */
