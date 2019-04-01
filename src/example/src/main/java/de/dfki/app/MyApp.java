@@ -1,7 +1,6 @@
 package de.dfki.app;
 
 
-import de.dfki.step.dialog.MyDialog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
