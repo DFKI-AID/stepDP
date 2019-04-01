@@ -51,6 +51,10 @@ public class TokenComponent implements Component {
     }
 
 
+    /**
+     * Add tokens which are used during the next iteration
+     * @param tokens
+     */
     public synchronized void addTokens(Collection<Token> tokens) {
         log.debug("Adding tokens {}", tokens.stream()
                 .map(Objects::toString)
@@ -58,6 +62,10 @@ public class TokenComponent implements Component {
         waitingTokens = waitingTokens.plusAll(tokens);
     }
 
+    /**
+     * Add a token which used during the next iteration
+     * @param token
+     */
     public synchronized void addToken(Token token) {
         log.debug("Adding token {}", token);
         waitingTokens = waitingTokens.plus(token);

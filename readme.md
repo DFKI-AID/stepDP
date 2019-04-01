@@ -170,6 +170,11 @@ Custom rules are the easiest way for getting started. However, you have to manag
 ### Rule Coordination
 
 
+### Clock
+Step-dp does not use the system clock (e.g. System.currentTimeMillis()). The clock itself counts the number of update calls, whereby the frequency can be defined when the clock object is created. This approach makes 
+- debugging easier: Time does not progress during break points
+- it easier to define snapshot points
+The clock class provides function for converting time into the number of iteration.
 
 
 ### other
@@ -221,6 +226,9 @@ The rasa module contains code to access a rasa NLU service.
 ## Tools
 ### Web GUI / API
 The web gui can be opened with a webbrowser on e.g. [http://localhost:50000](http://localhost:50000) (maps to /index.html) .
+
+### State Chart Editor
+The [Qt Editor](https://www.qt.io/download) comes with a scxml editor that can be used to create the state chart. You don't have to install the whole qt package, the editor is enough. See checkboxes during installation.
 
 ### Speech-Recognition
 See [grammar-based speech recognizer](https://lns-90165.sb.dfki.de/gitlab/i40/tractat/step-dp/speech-recognition-service): Supports audio streaming from e.g. a webbrowser for ASR.

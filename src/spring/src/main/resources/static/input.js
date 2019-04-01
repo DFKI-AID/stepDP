@@ -31,7 +31,12 @@ const inputApp = new Vue({
     methods: {
         updateData: function () {
             $.get('/grammar', function (rsp) {
-                this.grammar = new XMLSerializer().serializeToString(rsp);
+                try {
+                    this.grammar = new XMLSerializer().serializeToString(rsp);
+                } catch(error) {
+                    console.log("could not load grammar: " + error);
+                    this.grammar = "";
+                }
             }.bind(this));
 
         },

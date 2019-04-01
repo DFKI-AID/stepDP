@@ -8,8 +8,17 @@ public class Clock {
     private long iteration = 0;
     private final double rate;
 
+    /**
+     * How often the clock is updated. In Milliseconds
+     * @param rate
+     */
     public Clock(double rate) {
         this.rate = rate;
+    }
+
+
+    public Clock() {
+        this(50);
     }
 
     public void inc() {
