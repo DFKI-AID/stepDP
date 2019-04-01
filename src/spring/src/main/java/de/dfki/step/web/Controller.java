@@ -36,7 +36,6 @@ public class Controller {
     @PostConstruct
     protected void init() {
         dialog = appConfig.getDialog(); //context.getBean(Dialog.class);
-
     }
 
     @GetMapping(value = "/rules")

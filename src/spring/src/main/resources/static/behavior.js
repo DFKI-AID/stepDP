@@ -17,10 +17,11 @@ const behaviorApp = new Vue({
         statechart: null,
         graph: null,
         currentState: null,
+        behavior: "task_behavior",
     },
     methods: {
         updateSC() {
-            $.get('/behavior/task_behavior', function (response) {
+            $.get('/behavior/' + this.behavior, function (response) {
                 this.statechart = response;
                 var container = this.$refs.graphContainer;
                 this.drawStateChart(container, this.statechart.root);
@@ -30,7 +31,7 @@ const behaviorApp = new Vue({
         updateSCState: function () {
             $.ajax({
                 type: "GET",
-                url: "/behavior/task_behavior/state",
+                url: "/behavior/" +  this.behavior+ "/state",
                 contentType: "application/json",
                 dataType: "json",
                 success: function (response) {
