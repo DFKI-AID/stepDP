@@ -170,7 +170,7 @@ public abstract class Dialog implements Runnable, ComponentManager {
     }
 
     @Override
-    public <T extends Component> List<T> getComponents(Class<T> clazz) {
+    public synchronized <T extends Component> List<T> getComponents(Class<T> clazz) {
         return components.values().stream()
                 .filter(c -> clazz.isAssignableFrom(c.getClass()))
                 .map(c -> (T) c)
@@ -178,7 +178,16 @@ public abstract class Dialog implements Runnable, ComponentManager {
     }
 
     @Override
-    public void setPriority(String id, int priority) {
+    public synchronized void setPriority(String id, int priority) {
         priorityMap.put(id, priority);
+    }
+
+    @Override
+    public <T extends Component> Map<String, T> getComponentsMap(Class<T> clazz) {
+        Map<String, T> map = components.entrySet().stream()
+                .filter(e -> clazz.isAssignableFrom(e.getValue().getClass()))
+                .map(e -> (Map.Entry<String, T>) e)
+                .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
+        return map;
     }
 }
