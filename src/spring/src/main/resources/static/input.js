@@ -22,6 +22,11 @@ const inputApp = new Vue({
         },
         intentSelection: "",
         intentContent: "",
+        inputs: {
+            "gesture": { "gesture": "down", "confidence": 0.6}
+        },
+        inputSelection: "",
+        inputContent: ""
     },
     computed: {
         getRowColor: function (event) {
@@ -43,24 +48,32 @@ const inputApp = new Vue({
         sendIntent: function (event) {
             // var intent = JSON.loadStateChart(this.intentSelection);
             var intent = JSON.parse($("#intentTextArea").val());
-            this._sendIntent(intent);
+            this._send(intent, '/input/intent');
         },
-        _sendIntent: function (intent) {
-            console.log("sending intent " + intent);
+        _send: function (jsonPayload, path) {
+            console.log("sending " + jsonPayload + " to " + path);
             $.ajax({
-                'url': '/input/intent',
+                'url': path,
                 'method': 'POST',
                 'dataType': 'json',
                 'contentType': 'application/json',
-                'data': JSON.stringify(intent),
+                'data': JSON.stringify(jsonPayload),
                 'processData': false
             });
+        },
+        sendInput: function (event) {
+            var input = JSON.parse($("#inputTextArea").val());
+            this._send(input, '/input');
         }
     },
     watch: {
         intentSelection: function (val, oldVal) {
             let msg = this.intents[val];
             this.intentContent = JSON.stringify(msg, null, 2);
+        },
+        inputSelection: function (val, oldVal) {
+            let msg = this.inputs[val];
+            this.inputContent = JSON.stringify(msg, null, 2);
         }
     },
     created() {

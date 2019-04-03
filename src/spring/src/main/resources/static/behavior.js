@@ -16,7 +16,7 @@ const behaviorApp = new Vue({
         interval: null,
         graph: null,
         currentState: null,
-        behavior: "task_behavior",
+        behavior: "TaskBehavior",
         behaviors: {},
         parent: null,
     },

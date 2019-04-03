@@ -13,7 +13,7 @@ public class SnapshotComponent implements Component {
 
     @Override
     public void init(ComponentManager cm) {
-        cc = cm.getComponent("clock", ClockComponent.class).get();
+        cc = cm.retrieveComponent(ClockComponent.class);
         this.cm = cm;
         createSnapshot(0);
     }

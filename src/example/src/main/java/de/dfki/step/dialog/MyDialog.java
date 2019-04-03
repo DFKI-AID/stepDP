@@ -29,7 +29,7 @@ public class MyDialog extends Dialog {
     public MyDialog() {
         try {
             TaskBehavior taskBehavior = new TaskBehavior();
-            this.addComponent("task_behavior", taskBehavior);
+            this.addComponent(taskBehavior);
 
         } catch (URISyntaxException e) {
             throw new RuntimeException("Could not load task behavior", e);
@@ -46,7 +46,7 @@ public class MyDialog extends Dialog {
         mf.createGreetingsRule();
 
         TimeBehavior timeBehavior = new TimeBehavior();
-        this.addComponent("time_behavior", timeBehavior);
+        this.addComponent(timeBehavior);
 
 
         mf.createRepeatRule("request_repeat_tts", "I did not say anything.");

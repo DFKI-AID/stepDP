@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public interface ComponentManager {
-    void addComponent(String id, Component behavior);
+    void addComponent(Component behavior);
 
     Optional<Component> getComponent(String id);
 
@@ -24,6 +24,8 @@ public interface ComponentManager {
     <T extends Component> Optional<T> getComponent(Class<T> clazz);
 
     void setPriority(String id, int priority);
+
+    int getPriority(String id);
 
 //    default <T extends Component> void setPriority(int priority, Class<T> clazz) {
 //        getComponents(clazz).forEach(c -> setPriority(priority, c));

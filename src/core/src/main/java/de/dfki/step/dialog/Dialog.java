@@ -9,6 +9,7 @@ import de.dfki.step.core.Clock;
 import de.dfki.step.rengine.RuleSystem;
 import de.dfki.step.core.Token;
 import de.dfki.step.core.ClockComponent;
+import de.dfki.step.util.Tuple;
 import org.pcollections.PSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
  */
 public abstract class Dialog implements Runnable, ComponentManager {
     private static final Logger log = LoggerFactory.getLogger(Dialog.class);
+    private int defaultPriority = 150;
 
     private AtomicBoolean started = new AtomicBoolean(false);
 
@@ -30,34 +32,28 @@ public abstract class Dialog implements Runnable, ComponentManager {
 
     public Dialog() {
         Clock clock = new Clock(200);
-        addComponent("tag", new TagSystemComponent());
+        addComponent(new TagSystemComponent());
 
-        addComponent("snapshot", new SnapshotComponent());
-        setPriority("snapshot", 10);
-        addComponent("token", new TokenComponent());
-        setPriority("token", 11);
-        addComponent("input", new InputComponent());
-        setPriority("input", 14);
-        addComponent("fusion", new FusionComponent());
-        setPriority("fusion", 20);
-        addComponent("ruleSystem", new RuleSystemComponent(clock));
-        setPriority("ruleSystem", 50);
-        addComponent("coordinator", new CoordinationComponent());
-        setPriority("coordinator", 90);
-        addComponent("output", new PresentationComponent());
-        setPriority("output", 100);
-        addComponent("clock", new ClockComponent(clock));
-        setPriority("clock", 110);
+        var defaultComponents = List.of(
+                new Tuple<>(new SnapshotComponent(), 100),
+                new Tuple<>(new InputComponent(), 200),
+                new Tuple<>(new FusionComponent(), 300),
+                new Tuple<>(new TokenComponent(), 400),
+                new Tuple<>(new RuleSystemComponent(clock), 500),
+                new Tuple<>(new CoordinationComponent(), 600),
+                new Tuple<>(new PresentationComponent(), 700),
+                new Tuple<>(new ClockComponent(clock), 800)
+        );
 
+        for (var tup : defaultComponents) {
+            addComponent(tup.x);
+            setPriority(tup.x.getId(), tup.y);
+        }
     }
 
 
-
-
-
-
     public void init() {
-        if(started.getAndSet(true)) {
+        if (started.getAndSet(true)) {
             throw new RuntimeException("already started");
         }
         components.values().forEach(b -> b.init(this));
@@ -82,8 +78,6 @@ public abstract class Dialog implements Runnable, ComponentManager {
     }
 
 
-
-
     public long getIteration() {
         return getComponents(ClockComponent.class).get(0).getIteration();
     }
@@ -104,12 +98,13 @@ public abstract class Dialog implements Runnable, ComponentManager {
         deinit();
     }
 
-    public void addComponent(String id, Component comp) {
-        if(started.get()) {
+    public void addComponent(Component comp) {
+        String id = comp.getId();
+        if (started.get()) {
             throw new IllegalArgumentException("add components after starting is not supported atm");
         }
         components.put(id, comp);
-        priorityMap.put(id, 40);
+        priorityMap.put(id, defaultPriority);
     }
 
     public Optional<Component> getComponent(String id) {
@@ -136,7 +131,7 @@ public abstract class Dialog implements Runnable, ComponentManager {
                 .map(c -> (T) c)
                 .findAny();
 
-        if(!comp.isPresent()) {
+        if (!comp.isPresent()) {
             throw new IllegalArgumentException(String.format(
                     "Component %s not available. %s", clazz, errMsg)
             );
@@ -180,6 +175,14 @@ public abstract class Dialog implements Runnable, ComponentManager {
     @Override
     public synchronized void setPriority(String id, int priority) {
         priorityMap.put(id, priority);
+    }
+
+    @Override
+    public synchronized int getPriority(String id) {
+        if (!priorityMap.containsKey(id)) {
+            return defaultPriority;
+        }
+        return priorityMap.get(id);
     }
 
     @Override

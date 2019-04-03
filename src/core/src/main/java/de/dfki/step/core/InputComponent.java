@@ -44,8 +44,6 @@ public class InputComponent implements Component {
 
     @Override
     public void update() {
-        //TODO testing
-        this.addVolatileToken(new Token().add("focus", "task1"));
 
         //removing all tokens that were used last round
         synchronized(this) {
