@@ -7,7 +7,8 @@ import org.pcollections.TreePVector;
 import java.util.*;
 
 /**
- * Matches the input history against a\ FusionNode
+ * Matches the input history against a FusionNode
+ *
  */
 public class MatchVisitor implements FusionNode.Visitor {
     private Set<Token> tokens;
@@ -26,7 +27,7 @@ public class MatchVisitor implements FusionNode.Visitor {
         matches = new ArrayList<>();
         tokens.stream()
                 .filter(t -> input.matches(t))
-                .forEach(t -> matches.add(new Match(List.of(t))));
+                .forEach(t -> matches.add(new Match(input, t)));
     }
 
     @Override
@@ -40,7 +41,7 @@ public class MatchVisitor implements FusionNode.Visitor {
         }
 
 
-        matches = merge(candidates, new Match(TreePVector.empty()), 0);
+        matches = merge(candidates, new Match(), 0);
     }
 
     @Override
@@ -48,7 +49,8 @@ public class MatchVisitor implements FusionNode.Visitor {
         matches = new ArrayList<>();
         node.getChild().accept(this);
         if(matches.isEmpty()) {
-            matches.add(new Match(new Token().add("optional", "optional")));
+//            matches.add(new Match(node.getChild(), new Token().add("optional", "optional")));
+            matches.add(new Match());
         }
     }
 

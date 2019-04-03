@@ -43,6 +43,7 @@ public class FusionComponent implements Component {
         if(tokens.isEmpty()) {
             return Collections.EMPTY_LIST;
         }
+        //TODO impl additional visitor that checks if a InputNode is used at most once for a tree
 
         List<Token> intents = new ArrayList<>();
         var mv = new MatchVisitor();

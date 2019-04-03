@@ -149,5 +149,12 @@ public class InputComponent implements Component {
         return token;
     }
 
-
+    /**
+     * Sets the maximal duration of input tokens.
+     * Tokens that are older than this timeout will be removed
+     * @param timeout
+     */
+    public synchronized void setTimeout(Duration timeout) {
+        this.tokenTimeout = timeout;
+    }
 }

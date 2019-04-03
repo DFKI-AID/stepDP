@@ -14,17 +14,22 @@ const behaviorApp = new Vue({
     el: '#behavior',
     data: {
         interval: null,
-        statechart: null,
         graph: null,
         currentState: null,
         behavior: "task_behavior",
+        behaviors: {},
+        parent: null,
     },
     methods: {
         updateSC() {
-            $.get('/behavior/' + this.behavior, function (response) {
-                this.statechart = response;
+            $.get('/behaviors', function (response) {
+                this.behaviors = response;
                 var container = this.$refs.graphContainer;
-                this.drawStateChart(container, this.statechart.root);
+                var stateChart = this.behaviors[this.behavior];
+                if(stateChart == null) {
+                    return;
+                }
+                this.drawStateChart(container, stateChart.root);
             }.bind(this));
         },
 
@@ -102,7 +107,7 @@ const behaviorApp = new Vue({
                 context.graph = this.graph;
                 context.bbox = {minx: 0, miny: 0, maxx: 0, maxy: 0};
                 this.getBoundingBox(context, statechart);
-                console.log(context.bbox);
+                //console.log(context.bbox);
                 context.vertices = {};
 
 
@@ -249,8 +254,8 @@ const behaviorApp = new Vue({
     },
     created() {
         this.updateSC();
-        this.updateSCState();
         this.interval = setInterval(function () {
+            this.updateSC();
             this.updateSCState();
         }.bind(this), 1000);
 

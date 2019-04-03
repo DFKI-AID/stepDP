@@ -43,14 +43,14 @@ The main idea is to define the dialog behavior through the set of active rules a
 
 ### Getting Started
 - Get familiar with the [java stream api](https://www.baeldung.com/java-8-streams) and [persistent data structures](https://www.baeldung.com/java-pcollections)
-- (Optional) Get familiar with spring boot. Necessary for some extensions or changes.
-- Checkout out the [example application](TODO).
+- (Optional) Get familiar with spring boot. Necessary for some extensions (e.g. http) or changes.
+- Checkout out the [example applications](https://lns-90165.sb.dfki.de/gitlab/i40/tractat/step-dp/step-examples).
 
 
 ## Installation
 - Put java 10 (or higher) and maven on your path
 - Run scripts/install-min.sh or install-all.sh
-- Add to your pom.xml
+- Add to your pom.xml (Update version!)
 ```xml
 <dependency>
     <groupId>de.dfki.step</groupId>
@@ -64,63 +64,31 @@ The main idea is to define the dialog behavior through the set of active rules a
 File > Open > choose pom.xml in src and "open as project".
 This process should be similar for other IDEs.
 
-## Components
+
+## Components and Classes
 This section describes all components of the dialog platform. Each component has a small task and are interchangeable with different implementations.
 
+### Token
+An important class is the [Token](src/main/java/de/dfki/step/core/Token.java). It is persistent data structure to store arbitrary data. Think of it as map (in the form of String -> Object) or as a json object. Nevertheless, any java object can be stored. It is recommended, to only store immutable data to avoid concurrent modification and ensure a persistent dialog history. Input to the fusion component are stored in token. Intents or other messages are forwareded as tokens into the dialog core. Requests for presentation are encapsulated in tokens as well. This allows a very flexible approach with respect to extensiblity and reusablity of algorithms. However, data access may be more inconvenient. If your data is getting to complex, it might be suitable to create a own class for it and use a token to move it through the system. See [TokenTest](src/test/java/de/dfki/step/core/TokenTest.java) for such an example and general usage.
+
+### Schema
+
 ### Rules
-- Rules are an immutuable data structure. They don't change. If they have to be changed, it is necessary to create a new rule and remove the old one. However, rule may use the state of a behavior (which is state persistent or immutable).
+- Rules are an immutuable data structure. They don't change. If they have to be changed, it is necessary to create a new rule and remove the old one. However, rule may use the state of a behavior (which has a persistent or immutable state).
 - The structure of a rule is void -> void: Hence, Condition checking and execution is done through additional objects that are captured in the context of the function. In general, they have access to the dialog object such that the knowledge base can be accessed etc...
 - deprecated (add functionality to coordinator class): execution order is based on priority value. rules with higher priority value are executed later.
 - The token set is empty for each iteration and filled by the rules.
 - **TODO** different type of rules: meta, semi-meta, de.dfki.step.app
 - Volatile rules are rules that will be removed 'on a state change'. whereby 'state change' depends on the behavior impl.
-- Using java's stream API makes writing rules easy: 
-
-```java
-var rs = dialog.getRuleSystem();
-var tagSystem = dialog.getTagSystem();
-
-var utterances = List.of("Hello!", "Greetings.", "Hey");
-var rdm = new Random();
-
-//add new rule with the name 'greetings'
-rs.addRule("greetings", () -> {
-    // check for one token with the intent 'greetings'
-    dialog.getTokens().stream()
-            .filter(t -> t.payloadEquals("intent", "greetings"))
-            .findFirst()
-            .ifPresent(t -> {
-                // Create an update function that may get executed later.
-                // This depends on the implementation of the rule coordinator
-                // The .attach call defines that rule wants to consume the given token
-                // If another rules wants to consume the same token, only one rule may be fired.
-                dialog.getRuleCoordinator().add(() -> {
-                    String utteranace = utterances.get(rdm.nextInt(utterances.size()));
-                    // request tts output via token
-                    dialog.present(new PresentationRequest(utteranace));
-                    // disable this rule for four seconds
-                    dialog.getRuleSystem().disable("greetings", Duration.ofSeconds(4));
-                }).attach("consumes", t);
-
-            });
-});
-// set the priority of the greetings rule.
-rs.setPriority("greetings", 20);
-// associate the greetings rule with the meta tag
-tagSystem.addTag("greetings", "meta");
-```
-
+- See: [example](https://lns-90165.sb.dfki.de/gitlab/i40/tractat/step-dp/step-examples/blob/master/src/main/java/de/dfki/step/dialog/MyDialog10.java)
 
 
 ### Tag-System
 
-Tag-System: Allows to annotate multiple rules with a tag, which facilates to enable multiple rules simultaneously. 
+Tag-System: Allows to annotate multiple objects with a tag. It used to group rules such that they can be enabled or disabled at once.
 
 
 
-### Token
-
-Simple persistent data structure in the form of String -> Object. In general used as input event to forward intents into the dialog.
 
 
 
@@ -167,7 +135,8 @@ Custom rules are the easiest way for getting started. However, you have to manag
 
 
 
-### Rule Coordination
+### Coordination
+The CoordinationComponent 
 
 
 ### Clock
@@ -251,3 +220,8 @@ Scenario: We have as input *gesture_down* (timestamp=1000, confidence=0.2), *all
 Impl: A rule should only fire if the intent is older than x seconds depending on the confidence. Add the iteration of the earliest input to the intent.
 
 Impl2: Delay forwarding of intents.
+
+##### Files from resources won't load. (Website can't be visited)
+e.g. *Caused by: java.lang.IllegalArgumentException: Could not resolve placeholder 'dialog.name' in value "${dialog.name}"*
+
+Run `mvn clean package` from a terminal.
