@@ -26,7 +26,6 @@ public class CoordinationComponent implements Component {
     public static final String priority = "priority";
     protected PMap<String, Runnable> functions;
     protected PMap<String, Token> data;
-    private PMap<Rule, Integer> priorities = HashTreePMap.empty();
     private InputComponent ic;
 
     public CoordinationComponent() {

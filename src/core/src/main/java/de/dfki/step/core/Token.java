@@ -14,6 +14,8 @@ import java.util.stream.Collectors;
 /**
  * A token stores arbitrary data as a map, whereby a value can be any data like a primitive, java object, another map
  * or token.
+ *
+ * It is recommended to only store immutable data structures inside a token.
  */
 public class Token {
     private static final Logger log = LoggerFactory.getLogger(Token.class);

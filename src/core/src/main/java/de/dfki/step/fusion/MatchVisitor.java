@@ -7,7 +7,7 @@ import org.pcollections.TreePVector;
 import java.util.*;
 
 /**
- * Matches the input history against a\ FusionNode
+ * Matches the input history against a FusionNode
  */
 public class MatchVisitor implements FusionNode.Visitor {
     private Set<Token> tokens;

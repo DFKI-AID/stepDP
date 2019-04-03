@@ -8,6 +8,7 @@ import org.pcollections.PMap;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class TokenTest {
 
@@ -65,6 +66,39 @@ public class TokenTest {
         } catch (IOException e) {
             Assert.fail("could not parse json into token: " + e);
         }
+    }
 
+
+    static class MyData {
+        private final int age;
+        private final String name;
+
+        public MyData(int age, String name) {
+            this.age = age;
+            this.name = name;
+        }
+
+    }
+
+    /**
+     * This example shows how you can store any data in a token
+     */
+    @Test
+    public void customData() {
+        Token t = Token.builder()
+                .add("data", new MyData(123, "abc"))
+                .build();
+
+        Optional<MyData> opt = t.get("data", MyData.class);
+        Assert.assertTrue(opt.isPresent());
+        MyData data = opt.get();
+        Assert.assertEquals(data.age, 123);
+        Assert.assertEquals(data.name, "abc");
+
+        // functional for accessing the data
+        t.get("data", MyData.class).ifPresent(d -> {
+            Assert.assertEquals(d.age, 123);
+            Assert.assertEquals(d.name, "abc");
+        });
     }
 }
