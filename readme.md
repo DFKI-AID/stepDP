@@ -225,3 +225,11 @@ Impl2: Delay forwarding of intents.
 e.g. *Caused by: java.lang.IllegalArgumentException: Could not resolve placeholder 'dialog.name' in value "${dialog.name}"*
 
 Run `mvn clean package` from a terminal.
+
+##### Application failed to start.
+```
+Description:
+
+The Tomcat connector configured to listen on port 50000 failed to start. The port may already be in use or the connector may be misconfigured.
+```
+The port is already in use. Close the other application that blocks the port, or change the port by changing applicatin.yml or by adding '-Dserver.port=50001' before "-jar mydialog.jar"

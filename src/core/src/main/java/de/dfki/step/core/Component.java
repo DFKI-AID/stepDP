@@ -5,6 +5,7 @@ import de.dfki.step.dialog.Dialog;
 /**
  * As part of the dialog application, a component can be anything that has to initialize,
  * regularly update or manages data that depends on the dialog state.
+ *
  */
 public interface Component {
     /**
@@ -42,4 +43,8 @@ public interface Component {
      * @throws IllegalArgumentException on invalid snapshot.
      */
     void loadSnapshot(Object snapshot);
+
+    default String getId() {
+        return this.getClass().getSimpleName();
+    }
 }
