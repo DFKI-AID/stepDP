@@ -126,6 +126,15 @@ public class Controller {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("not impl");
     }
 
+    @GetMapping(value = "/behaviors", produces = "application/json")
+    public ResponseEntity<Object> getBehaviors() {
+        Map<String, StateBehavior> scs = dialog.getComponentsMap(StateBehavior.class);
+        Map<String, StateChart> body = scs.entrySet().stream()
+                .map(e -> new AbstractMap.SimpleEntry<>(e.getKey(), e.getValue().getStateHandler().getEngine().getStateChart()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        return ResponseEntity.status(HttpStatus.OK).body(body);
+    }
+
     @GetMapping(value = "/behavior/{id}/state", produces = "application/json")
     public ResponseEntity<String> getBehaviorState(@PathVariable("id") String id) {
         Optional<Component> behavior = dialog.getComponent(id);

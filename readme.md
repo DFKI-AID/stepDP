@@ -251,3 +251,8 @@ Scenario: We have as input *gesture_down* (timestamp=1000, confidence=0.2), *all
 Impl: A rule should only fire if the intent is older than x seconds depending on the confidence. Add the iteration of the earliest input to the intent.
 
 Impl2: Delay forwarding of intents.
+
+##### Files from resources won't load. (Website can't be visited)
+e.g. *Caused by: java.lang.IllegalArgumentException: Could not resolve placeholder 'dialog.name' in value "${dialog.name}"*
+
+Run `mvn clean package` from a terminal.

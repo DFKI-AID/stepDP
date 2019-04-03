@@ -68,20 +68,20 @@ public class TaskBehavior extends SimpleStateBehavior {
     @Override
     public Set<String> getActiveRules(String state) {
         if(Objects.equals(state, "Idle")) {
-            List.of("show_tasks",  "proactive_idle");
+            return Set.of("show_tasks",  "proactive_idle");
         }
         if(Objects.equals(state, "Choice")) {
-            List.of("select_task",  "hide_tasks");
+            return Set.of("select_task",  "hide_tasks");
         }
         if(Objects.equals(state, "Info")) {
-            List.of("show_tasks",  "hide_tasks", "select_task", "accept_task");
+            return Set.of("show_tasks",  "hide_tasks", "select_task", "accept_task");
         }
         if(Objects.equals(state, "Selected")) {
-            List.of("show_navigation");
+            return Set.of("show_navigation");
         }
 
 
-        log.warn("no rules for state {}", state);
+        //log.warn("no rules for state {}", state);
         return Collections.EMPTY_SET;
     }
 

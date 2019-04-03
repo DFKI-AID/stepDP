@@ -19,7 +19,6 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 /**
- * TODO the rule activation map should be placed in the scxml file. Maybe if there is an own scxml editor
  */
 public abstract class SimpleStateBehavior implements StateBehavior {
     private static final Logger log = LoggerFactory.getLogger(SimpleStateBehavior.class);
@@ -31,9 +30,8 @@ public abstract class SimpleStateBehavior implements StateBehavior {
 
     /**
      * @param scFile   The scxml file described the state chart
-     * @param ruleFile The rule file described in which state which rules are active
      */
-    public SimpleStateBehavior(File scFile, File ruleFile) {
+    public SimpleStateBehavior(File scFile) {
         this.scLoader = () -> {
             try {
                 StateChart sc = Parser.loadStateChart(scFile);
@@ -54,9 +52,6 @@ public abstract class SimpleStateBehavior implements StateBehavior {
     public SimpleStateBehavior(String resourceStr) throws URISyntaxException {
         if (resourceStr.endsWith(".scxml")) {
             resourceStr = resourceStr.substring(0, resourceStr.length() - 6);
-        }
-        if (resourceStr.endsWith(".csv")) {
-            resourceStr = resourceStr.substring(0, resourceStr.length() - 4);
         }
         InputStream scStream = SimpleStateBehavior.class.getResourceAsStream(resourceStr + ".scxml");
         String finalResourceStr = resourceStr;
