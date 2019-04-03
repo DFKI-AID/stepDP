@@ -43,14 +43,14 @@ The main idea is to define the dialog behavior through the set of active rules a
 
 ### Getting Started
 - Get familiar with the [java stream api](https://www.baeldung.com/java-8-streams) and [persistent data structures](https://www.baeldung.com/java-pcollections)
-- (Optional) Get familiar with spring boot. Necessary for some extensions or changes.
-- Checkout out the [example application](TODO).
+- (Optional) Get familiar with spring boot. Necessary for some extensions (e.g. http) or changes.
+- Checkout out the [example applications](https://lns-90165.sb.dfki.de/gitlab/i40/tractat/step-dp/step-examples).
 
 
 ## Installation
 - Put java 10 (or higher) and maven on your path
 - Run scripts/install-min.sh or install-all.sh
-- Add to your pom.xml
+- Add to your pom.xml (Update version!)
 ```xml
 <dependency>
     <groupId>de.dfki.step</groupId>
