@@ -36,13 +36,10 @@ public class FusionComponentTest {
 
         // what should happen if the three input nodes match on the input history
         fc.addFusionNode("all_windows1", node, match -> {
-            List<String> origin = FusionComponent.mergeOrigins(match.getTokens());
-            Optional<Double> confidence = FusionComponent.mergeConfidence(match.getTokens());
-
-            Token token = new Token()
-                    .add("intent", "control_car_windows")
-                    .add("origin", origin)
-                    .addIfPresent("confidence", confidence);
+            Token token = FusionComponent.defaultIntent(match, "control_car_windows");
+            // the gesture node is always present because we did not use an OptionalNode
+            Token gestureToken = match.getToken(gestureNode).get();
+            token = token.add("direction", gestureToken.get("gesture", String.class).get());
 
             return token;
         });
@@ -93,6 +90,9 @@ public class FusionComponentTest {
 
         Collection<Token> intents = fc.fuse(tokens);
         Assert.assertEquals(2, intents.size());
+        intents.stream().forEach(t -> {
+            Assert.assertTrue(t.payloadEqualsOneOf("direction", String.class, "up", "down"));
+        });
     }
 
 

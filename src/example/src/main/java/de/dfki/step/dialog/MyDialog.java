@@ -98,7 +98,7 @@ public class MyDialog extends Dialog {
         //forward all input tokens that already have an intent
         InputNode intentNode = new InputNode(t -> t.has("intent"));
         fc.addFusionNode("intent_forward", intentNode, match -> {
-            return match.getTokens().get(0);
+            return match.getTokens().iterator().next();
         });
 
 
