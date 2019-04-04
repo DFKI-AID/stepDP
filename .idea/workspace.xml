@@ -1,0 +1,398 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="1e3bad86-9db3-4119-8fc5-8a1edf21abdd" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/../../dialog/src/main/java/de/dfki/step/app/HololensClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/java/de/dfki/pdp/dialog/Behavior.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/java/de/dfki/pdp/dialog/Dialog.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/java/de/dfki/pdp/dialog/MetaFactory.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/java/de/dfki/pdp/dialog/PresentationRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/java/de/dfki/pdp/dialog/RuleBuilder.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/java/de/dfki/pdp/dialog/SCHandler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/java/de/dfki/pdp/dialog/SimpleStateBehavior.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/java/de/dfki/pdp/dialog/StateBehavior.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/java/de/dfki/pdp/dialog/TagSystem.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/java/de/dfki/pdp/dialog/TimeBehavior.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/java/de/dfki/pdp/grammar/Example.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/java/de/dfki/pdp/grammar/FileRuleNode.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/java/de/dfki/pdp/grammar/Grammar.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/java/de/dfki/pdp/grammar/GrammarManager.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/java/de/dfki/pdp/grammar/Item.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/java/de/dfki/pdp/grammar/Main.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/java/de/dfki/pdp/grammar/Node.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/java/de/dfki/pdp/grammar/NodeWriter.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/java/de/dfki/pdp/grammar/OneOf.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/java/de/dfki/pdp/grammar/Rule.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/java/de/dfki/pdp/grammar/RuleRef.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/java/de/dfki/pdp/grammar/TagBuilder.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/java/de/dfki/pdp/nlg/ComplexTask.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/java/de/dfki/pdp/nlg/MoveTask.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/java/de/dfki/pdp/nlg/NLGenerator.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/java/de/dfki/pdp/nlg/PickTask.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/java/de/dfki/pdp/nlg/PrintVisitor.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/java/de/dfki/pdp/nlg/SimpleTask.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/java/de/dfki/pdp/nlg/Task.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/java/de/dfki/pdp/nlg/TaskVisitor.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/java/de/dfki/pdp/rengine/BlockSystem.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/java/de/dfki/pdp/rengine/Clock.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/java/de/dfki/pdp/rengine/Implication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/java/de/dfki/pdp/rengine/Rule.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/java/de/dfki/pdp/rengine/RuleBlocker.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/java/de/dfki/pdp/rengine/RuleCoordinator.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/java/de/dfki/pdp/rengine/RuleSystem.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/java/de/dfki/pdp/rengine/Token.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/java/de/dfki/pdp/sc/Geometry.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/java/de/dfki/pdp/sc/OnEntry.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/java/de/dfki/pdp/sc/OnExit.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/java/de/dfki/pdp/sc/Parser.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/java/de/dfki/pdp/sc/SCEngine.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/java/de/dfki/pdp/sc/SCMain.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/java/de/dfki/pdp/sc/State.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/java/de/dfki/pdp/sc/StateChart.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/java/de/dfki/pdp/sc/Transition.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/grammar/are_tasks_available.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/grammar/task_info_supp.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/asr.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/asr.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/behavior.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/behavior.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/behavior.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/bootstrap.min.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/bootstrap.min.css.map" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/bootstrap.min.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/bootstrap.min.js.map" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/jquery-3.3.1.min.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/LICENSE" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/css/common.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/css/explorer.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/images/button.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/images/close.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/images/collapsed.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/images/error.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/images/expanded.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/images/maximize.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/images/minimize.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/images/normalize.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/images/point.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/images/resize.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/images/separator.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/images/submenu.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/images/transparent.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/images/warning.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/images/warning.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/images/window-title.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/images/window.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/editor/mxDefaultKeyHandler.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/editor/mxDefaultPopupMenu.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/editor/mxDefaultToolbar.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/editor/mxEditor.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/handler/mxCellHighlight.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/handler/mxCellMarker.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/handler/mxCellTracker.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/handler/mxConnectionHandler.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/handler/mxConstraintHandler.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/handler/mxEdgeHandler.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/handler/mxEdgeSegmentHandler.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/handler/mxElbowEdgeHandler.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/handler/mxGraphHandler.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/handler/mxHandle.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/handler/mxKeyHandler.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/handler/mxPanningHandler.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/handler/mxPopupMenuHandler.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/handler/mxRubberband.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/handler/mxSelectionCellsHandler.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/handler/mxTooltipHandler.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/handler/mxVertexHandler.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/index.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/io/mxCellCodec.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/io/mxChildChangeCodec.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/io/mxCodec.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/io/mxCodecRegistry.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/io/mxDefaultKeyHandlerCodec.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/io/mxDefaultPopupMenuCodec.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/io/mxDefaultToolbarCodec.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/io/mxEditorCodec.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/io/mxGenericChangeCodec.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/io/mxGraphCodec.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/io/mxGraphViewCodec.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/io/mxModelCodec.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/io/mxObjectCodec.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/io/mxRootChangeCodec.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/io/mxStylesheetCodec.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/io/mxTerminalChangeCodec.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/layout/hierarchical/model/mxGraphAbstractHierarchyCell.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/layout/hierarchical/model/mxGraphHierarchyEdge.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/layout/hierarchical/model/mxGraphHierarchyModel.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/layout/hierarchical/model/mxGraphHierarchyNode.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/layout/hierarchical/model/mxSwimlaneModel.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/layout/hierarchical/mxHierarchicalLayout.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/layout/hierarchical/mxSwimlaneLayout.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/layout/hierarchical/stage/mxCoordinateAssignment.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/layout/hierarchical/stage/mxHierarchicalLayoutStage.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/layout/hierarchical/stage/mxMedianHybridCrossingReduction.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/layout/hierarchical/stage/mxMinimumCycleRemover.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/layout/hierarchical/stage/mxSwimlaneOrdering.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/layout/mxCircleLayout.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/layout/mxCompactTreeLayout.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/layout/mxCompositeLayout.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/layout/mxEdgeLabelLayout.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/layout/mxFastOrganicLayout.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/layout/mxGraphLayout.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/layout/mxParallelEdgeLayout.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/layout/mxPartitionLayout.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/layout/mxRadialTreeLayout.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/layout/mxStackLayout.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/model/mxCell.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/model/mxCellPath.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/model/mxGeometry.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/model/mxGraphModel.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/mxClient.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/shape/mxActor.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/shape/mxArrow.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/shape/mxArrowConnector.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/shape/mxCloud.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/shape/mxConnector.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/shape/mxCylinder.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/shape/mxDoubleEllipse.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/shape/mxEllipse.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/shape/mxHexagon.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/shape/mxImageShape.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/shape/mxLabel.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/shape/mxLine.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/shape/mxMarker.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/shape/mxPolyline.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/shape/mxRectangleShape.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/shape/mxRhombus.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/shape/mxShape.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/shape/mxStencil.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/shape/mxStencilRegistry.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/shape/mxSwimlane.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/shape/mxText.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/shape/mxTriangle.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/util/mxAbstractCanvas2D.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/util/mxAnimation.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/util/mxAutoSaveManager.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/util/mxClipboard.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/util/mxConstants.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/util/mxDictionary.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/util/mxDivResizer.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/util/mxDragSource.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/util/mxEffects.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/util/mxEvent.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/util/mxEventObject.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/util/mxEventSource.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/util/mxForm.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/util/mxGuide.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/util/mxImage.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/util/mxImageBundle.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/util/mxImageExport.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/util/mxLog.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/util/mxMorphing.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/util/mxMouseEvent.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/util/mxObjectIdentity.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/util/mxPanningManager.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/util/mxPoint.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/util/mxPopupMenu.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/util/mxRectangle.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/util/mxResources.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/util/mxSvgCanvas2D.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/util/mxToolbar.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/util/mxUndoManager.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/util/mxUndoableEdit.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/util/mxUrlConverter.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/util/mxUtils.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/util/mxVmlCanvas2D.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/util/mxWindow.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/util/mxXmlCanvas2D.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/util/mxXmlRequest.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/view/mxCellEditor.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/view/mxCellOverlay.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/view/mxCellRenderer.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/view/mxCellState.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/view/mxCellStatePreview.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/view/mxConnectionConstraint.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/view/mxEdgeStyle.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/view/mxGraph.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/view/mxGraphSelectionModel.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/view/mxGraphView.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/view/mxLayoutManager.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/view/mxMultiplicity.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/view/mxOutline.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/view/mxPerimeter.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/view/mxPrintPreview.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/view/mxStyleRegistry.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/view/mxStylesheet.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/view/mxSwimlaneManager.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/js/view/mxTemporaryCellStates.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/resources/editor.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/resources/editor_de.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/resources/editor_zh.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/resources/graph.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/resources/graph_de.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/mxgraph/resources/graph_zh.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/external/vue.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/grammar.jsgf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/grammar.srgs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/graph.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/images/gear.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/index.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/index.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/input.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/manifest.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/rules.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/tts.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/core/src/main/resources/static/tts.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/example/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/example/src/main/java/de/dfki/app/AppGrammar.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/example/src/main/java/de/dfki/app/HololensClient.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/example/src/main/java/de/dfki/app/MyApp.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/example/src/main/java/de/dfki/app/MyDialog.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/example/src/main/java/de/dfki/app/TaskBehavior.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/example/src/main/java/de/dfki/assemblyrobot/AssemblyRobotView.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/example/src/main/java/de/dfki/assemblyrobot/UpdateGrammar.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/example/src/main/resources/application.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/example/src/main/resources/rtasks.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/example/src/main/resources/sc/task_behavior.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/example/src/main/resources/sc/task_behavior.scxml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/readme.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/requirements.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/spring/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/spring/src/main/java/de/dfki/pdp/web/AppConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/spring/src/main/java/de/dfki/pdp/web/Controller.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/spring/src/main/java/de/dfki/pdp/web/Rule.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../rengine/ti.py" beforeDir="false" />
+    </list>
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileEditorManager">
+    <leaf>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/pom.xml">
+          <provider selected="true" editor-type-id="text-editor" />
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
+  </component>
+  <component name="ProjectFrameBounds">
+    <option name="x" value="188" />
+    <option name="y" value="41" />
+    <option name="width" value="1123" />
+    <option name="height" value="1328" />
+  </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectView">
+    <navigator proportions="" version="1">
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="PackagesPane" />
+      <pane id="Scope" />
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="step-dp" type="b2602c69:ProjectViewProjectNode" />
+              <item name="step-dp" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="step-dp" type="b2602c69:ProjectViewProjectNode" />
+              <item name="step-dp" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/src" />
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="1e3bad86-9db3-4119-8fc5-8a1edf21abdd" name="Default Changelist" comment="" />
+      <created>1554281162076</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1554281162076</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="188" y="41" width="1123" height="1328" extended-state="0" />
+    <editor active="true" />
+    <layout>
+      <window_info id="Image Layers" />
+      <window_info id="Designer" />
+      <window_info id="UI Designer" />
+      <window_info id="Capture Tool" />
+      <window_info id="Favorites" side_tool="true" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.24929444" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info anchor="bottom" id="Version Control" />
+      <window_info anchor="bottom" id="Terminal" />
+      <window_info anchor="bottom" id="Event Log" side_tool="true" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Run" order="2" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="right" id="Palette" />
+      <window_info anchor="right" id="Theme Preview" />
+      <window_info anchor="right" id="Capture Analysis" />
+      <window_info anchor="right" id="Palette&#9;" />
+      <window_info anchor="right" id="Maven" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+    </layout>
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/src/pom.xml">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+  </component>
+  <component name="masterDetails">
+    <states>
+      <state key="ProjectJDKs.UI">
+        <settings>
+          <last-edited>1.8</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+    </states>
+  </component>
+</project>

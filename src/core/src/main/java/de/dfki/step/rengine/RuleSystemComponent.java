@@ -2,9 +2,12 @@ package de.dfki.step.rengine;
 
 import de.dfki.step.core.Component;
 import de.dfki.step.core.ComponentManager;
-import de.dfki.step.util.Clock;
-import de.dfki.step.util.ClockComponent;
+import de.dfki.step.core.Clock;
+import de.dfki.step.core.ClockComponent;
 
+/**
+ * Wraps a {@link RuleSystem} into a component such that other components can access the rules.
+ */
 public class RuleSystemComponent extends RuleSystem implements Component {
 
     public RuleSystemComponent(Clock clock) {

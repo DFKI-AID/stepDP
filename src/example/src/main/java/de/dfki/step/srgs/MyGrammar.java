@@ -8,6 +8,8 @@ public class MyGrammar {
 
     public static GrammarManager create() {
         GrammarManager grammarManager = new GrammarManager();
+
+
         Rule confirmRule = new Rule("confirm")
                 .add(new OneOf()
                         .add(new Item("yeah")
@@ -77,6 +79,16 @@ public class MyGrammar {
                 .add(Tag.intent("show_tasks"))
         );
 
+        grammarManager.addRule(new Rule("select_this")
+                .add(new OneOf()
+                        .add(new Item("i want this one"))
+                        .add(new Item("select this one"))
+                        .add(new Item("select this task")) //TODO could add task as a type
+                )
+                .add(Tag.intent("specify"))
+                .add(Tag.assign("specification", "this"))
+        );
+
         Rule taskInfo = new Rule("task_info");
         //can you give me more information on this task
         taskInfo.add(new Item("can you").makeOptional());
@@ -85,7 +97,7 @@ public class MyGrammar {
         grammarManager.addRule(taskInfo);
 
 //        try {
-//            Rule taskInfoSupp = FileRuleNode.create("/grammar/task_info_supp.xml");
+//            Rule taskInfoSupp = FileRuleNode.of("/grammar/task_info_supp.xml");
 //            grammarManager.addRule(taskInfoSupp);
 //        } catch (IOException e) {
 //            throw new RuntimeException("could not load grammar", e);

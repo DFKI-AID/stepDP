@@ -1,9 +1,11 @@
 package de.dfki.step.dialog;
 
 import de.dfki.step.core.ComponentManager;
+import de.dfki.step.core.TagSystemComponent;
 import de.dfki.step.core.TokenComponent;
-import de.dfki.step.rengine.RuleCoordinator;
-import de.dfki.step.rengine.Token;
+import de.dfki.step.output.PresentationComponent;
+import de.dfki.step.rengine.CoordinationComponent;
+import de.dfki.step.core.Token;
 import de.dfki.step.sc.SimpleStateBehavior;
 import org.pcollections.PMap;
 import org.slf4j.Logger;
@@ -22,7 +24,7 @@ public class TaskBehavior extends SimpleStateBehavior {
     private String currentTask;
 
     private TokenComponent tc;
-    private RuleCoordinator rc;
+    private CoordinationComponent rc;
     private PresentationComponent pc;
     private TagSystemComponent ts;
     private MetaFactory metaFactory;
@@ -63,6 +65,26 @@ public class TaskBehavior extends SimpleStateBehavior {
         }
     }
 
+    @Override
+    public Set<String> getActiveRules(String state) {
+        if(Objects.equals(state, "Idle")) {
+            return Set.of("show_tasks",  "proactive_idle");
+        }
+        if(Objects.equals(state, "Choice")) {
+            return Set.of("select_task",  "hide_tasks");
+        }
+        if(Objects.equals(state, "Info")) {
+            return Set.of("show_tasks",  "hide_tasks", "select_task", "accept_task");
+        }
+        if(Objects.equals(state, "Selected")) {
+            return Set.of("show_navigation");
+        }
+
+
+        //log.warn("no rules for state {}", state);
+        return Collections.EMPTY_SET;
+    }
+
     public Boolean cond1() {
         return true;
     }
@@ -94,7 +116,7 @@ public class TaskBehavior extends SimpleStateBehavior {
 
     public void initTaskMode() {
         tc = cm.retrieveComponent(TokenComponent.class);
-        rc = cm.retrieveComponent(RuleCoordinator.class);
+        rc = cm.retrieveComponent(CoordinationComponent.class);
         pc = cm.retrieveComponent(PresentationComponent.class);
         ts = cm.retrieveComponent(TagSystemComponent.class);
 
@@ -187,7 +209,7 @@ public class TaskBehavior extends SimpleStateBehavior {
                         String object = specification;
                         Optional<Object> action = intent.get("type");
                         rs.removeRule("specify_add_move_action");
-                        // create Atomic Action
+                        // of Atomic Action
                     });
 
                 }).attachOrigin(intent);
@@ -197,7 +219,7 @@ public class TaskBehavior extends SimpleStateBehavior {
                 String object = (String) intent.get("object").get();
                 Optional<Object> action = intent.get("type");
                 rs.removeRule("specify_add_move_action");
-                // create Atomic Action
+                // of Atomic Action
             }).attachOrigin(intent);
         });
         tagSystem.addTag("add_move_action", "CreateTask");

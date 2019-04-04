@@ -1,22 +1,21 @@
 package de.dfki.step.fusion;
 
-import de.dfki.step.rengine.Token;
+import de.dfki.step.core.Token;
 import org.pcollections.PSequence;
 import org.pcollections.TreePVector;
 
 import java.util.*;
-import java.util.function.BiFunction;
-import java.util.stream.Collectors;
 
 /**
- * Matches the input history against a\ FusionNode
+ * Matches the input history against a FusionNode
+ *
  */
 public class MatchVisitor implements FusionNode.Visitor {
-    private List<Token> tokens;
+    private Set<Token> tokens;
     private Map<Token, Boolean> marked;
     private List<Match> matches;
 
-    public List<Match> accept(FusionNode fusionNode, List<Token> tokens) {
+    public List<Match> accept(FusionNode fusionNode, Set<Token> tokens) {
         this.tokens = tokens;
         marked = new HashMap<>();
         fusionNode.accept(this);
@@ -28,7 +27,7 @@ public class MatchVisitor implements FusionNode.Visitor {
         matches = new ArrayList<>();
         tokens.stream()
                 .filter(t -> input.matches(t))
-                .forEach(t -> matches.add(new Match(List.of(t))));
+                .forEach(t -> matches.add(new Match(input, t)));
     }
 
     @Override
@@ -42,7 +41,7 @@ public class MatchVisitor implements FusionNode.Visitor {
         }
 
 
-        matches = merge(candidates, new Match(TreePVector.empty()), 0);
+        matches = merge(candidates, new Match(), 0);
     }
 
     @Override
@@ -50,7 +49,8 @@ public class MatchVisitor implements FusionNode.Visitor {
         matches = new ArrayList<>();
         node.getChild().accept(this);
         if(matches.isEmpty()) {
-            matches.add(new Match(new Token().add("optional", "optional")));
+//            matches.add(new Match(node.getChild(), new Token().add("optional", "optional")));
+            matches.add(new Match());
         }
     }
 

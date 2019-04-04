@@ -1,10 +1,12 @@
 package de.dfki.step.dialog;
 
 
+import de.dfki.step.core.InputComponent;
+import de.dfki.step.core.Schema;
 import de.dfki.step.fusion.FusionComponent;
 import de.dfki.step.fusion.InputNode;
 import de.dfki.step.fusion.ParallelNode;
-import de.dfki.step.rengine.Token;
+import de.dfki.step.core.Token;
 import de.dfki.step.srgs.Grammar;
 import de.dfki.step.srgs.GrammarManager;
 import de.dfki.step.srgs.MyGrammar;
@@ -27,7 +29,8 @@ public class MyDialog extends Dialog {
     public MyDialog() {
         try {
             TaskBehavior taskBehavior = new TaskBehavior();
-            this.addComponent("task_behavior", taskBehavior);
+            this.addComponent(taskBehavior);
+            this.addComponent(new SimpleBehavior());
 
         } catch (URISyntaxException e) {
             throw new RuntimeException("Could not load task behavior", e);
@@ -36,7 +39,7 @@ public class MyDialog extends Dialog {
         MetaFactory mf = new MetaFactory(this);
         mf.createUndoRule();
 
-        mf.turnGrabRule( "interrupt", (token) -> {
+        mf.turnGrabRule("interrupt", (token) -> {
             System.out.println("TODO interrupt output + \"yes?\"");
         });
 
@@ -44,14 +47,14 @@ public class MyDialog extends Dialog {
         mf.createGreetingsRule();
 
         TimeBehavior timeBehavior = new TimeBehavior();
-        this.addComponent("time_behavior", timeBehavior);
+        this.addComponent(timeBehavior);
 
 
         mf.createRepeatRule("request_repeat_tts", "I did not say anything.");
         mf.snapshotRule();
 
 
-        createFusionComponent();
+        initFusionComponent();
         createGrammarComponent();
     }
 
@@ -61,19 +64,18 @@ public class MyDialog extends Dialog {
         super.update();
     }
 
-    protected void createFusionComponent() {
-        FusionComponent fc = new FusionComponent();
-        addComponent("fusion", fc);
+    protected void initFusionComponent() {
+        FusionComponent fc = retrieveComponent(FusionComponent.class);
+        //addComponent("fusion", fc);
 
         //looking and pointing gesture may trigger a select_task intent
         InputNode gesture = new InputNode(t -> t.payloadEquals("gesture", "tap"));
-        InputNode focus = new InputNode(t ->
+        InputNode taskFocus = new InputNode(t ->
                 t.get("focus", String.class).map(f -> f.startsWith("task")).orElse(false));
 
         ParallelNode node = new ParallelNode()
                 .add(gesture)
-                .add(focus);
-
+                .add(taskFocus);
 
         fc.addFusionNode("select_task1", node, match -> {
             List<String> origin = Token.mergeFields("origin", String.class, match.getTokens());
@@ -86,7 +88,7 @@ public class MyDialog extends Dialog {
                     .add("origin", origin)
                     .add("task", task.get());
 
-            if(confidence.isPresent()) {
+            if (confidence.isPresent()) {
                 token = token.add("confidence", confidence.getAsDouble());
             }
 
@@ -95,20 +97,35 @@ public class MyDialog extends Dialog {
 
 
         //forward all input tokens that already have an intent
-        InputNode intentNode= new InputNode(t -> t.has("intent"));
+        InputNode intentNode = new InputNode(t -> t.has("intent"));
         fc.addFusionNode("intent_forward", intentNode, match -> {
-            return match.getTokens().get(0);
+            return match.getTokens().iterator().next();
         });
+
+
+        //focus + speech for task selection: "Select this one"
+        Schema selectThisSchema = Schema.builder()
+                .equals("intent", "specify")
+                .equals("specification", "this")
+                .build();
+        fc.addFusionNode("select_task2", new ParallelNode()
+                        .add(new InputNode(selectThisSchema))
+                        .add(taskFocus)
+                , match -> {
+                    Token intent = FusionComponent.defaultIntent(match, "select");
+                    intent = intent.add("selection", Token.getAny("focus", String.class, match.getTokens()).get());
+                    return intent;
+                });
     }
 
     protected void createGrammarComponent() {
         // speech-recognition-service of the step-dp
         GrammarManager gm = MyGrammar.create();
         Grammar grammar = gm.createGrammar();
-        SpeechRecognitionClient src = new SpeechRecognitionClient(app,"localhost", 9696, (token)-> {
+        SpeechRecognitionClient src = new SpeechRecognitionClient(app, "localhost", 9696, (token) -> {
             // TODO use resolution on token
             Optional<Map> semantic = token.get(Map.class, "semantic");
-            if(!semantic.isPresent()) {
+            if (!semantic.isPresent()) {
                 return;
             }
 
@@ -118,8 +135,8 @@ public class MyDialog extends Dialog {
 //                processedToken = processedToken.add("intent", intent.get());
 //            }
             // add token to fc
-            FusionComponent fc = getComponent("fusion", FusionComponent.class).get();
-            fc.addToken(processedToken);
+            InputComponent ic = retrieveComponent(InputComponent.class);
+            ic.addToken(processedToken);
         });
         String grammarStr = grammar.toString();
         src.setGrammar("main", grammarStr);

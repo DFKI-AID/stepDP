@@ -1,13 +1,10 @@
 package de.dfki.step.web;
 
 import com.google.gson.Gson;
-import de.dfki.step.core.Component;
-import de.dfki.step.core.TokenComponent;
+import de.dfki.step.core.*;
 import de.dfki.step.dialog.Dialog;
-import de.dfki.step.dialog.PresentationComponent;
-import de.dfki.step.dialog.SnapshotComponent;
+import de.dfki.step.output.PresentationComponent;
 import de.dfki.step.sc.StateBehavior;
-import de.dfki.step.rengine.Token;
 import de.dfki.step.sc.StateChart;
 import de.dfki.step.srgs.GrammarManagerComponent;
 import org.pcollections.PSequence;
@@ -36,7 +33,6 @@ public class Controller {
     @PostConstruct
     protected void init() {
         dialog = appConfig.getDialog(); //context.getBean(Dialog.class);
-
     }
 
     @GetMapping(value = "/rules")
@@ -99,6 +95,19 @@ public class Controller {
         return ResponseEntity.ok("ok");
     }
 
+    @PostMapping(value = "/input", consumes = "application/json")
+    public ResponseEntity<String> postInput(@RequestBody Map<String, Object> body) {
+
+        Optional<InputComponent> ic = dialog.getComponent(InputComponent.class);
+        if(!ic.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("InputComponent not available");
+        }
+
+        Token token = new Token().addAll(body);
+        ic.get().addToken(token);
+        return ResponseEntity.ok("ok");
+    }
+
     @GetMapping(value = "/grammar", produces = "application/xml")
     public String getGrammar() {
         var grammarManager = dialog.getComponents(GrammarManagerComponent.class).stream().findFirst();
@@ -125,6 +134,15 @@ public class Controller {
         }
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("not impl");
+    }
+
+    @GetMapping(value = "/behaviors", produces = "application/json")
+    public ResponseEntity<Object> getBehaviors() {
+        Map<String, StateBehavior> scs = dialog.getComponentsMap(StateBehavior.class);
+        Map<String, StateChart> body = scs.entrySet().stream()
+                .map(e -> new AbstractMap.SimpleEntry<>(e.getKey(), e.getValue().getStateHandler().getEngine().getStateChart()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        return ResponseEntity.status(HttpStatus.OK).body(body);
     }
 
     @GetMapping(value = "/behavior/{id}/state", produces = "application/json")

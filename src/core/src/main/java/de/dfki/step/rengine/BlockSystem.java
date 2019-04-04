@@ -1,6 +1,6 @@
 package de.dfki.step.rengine;
 
-import de.dfki.step.util.Clock;
+import de.dfki.step.core.Clock;
 import org.pcollections.HashTreePMap;
 import org.pcollections.PMap;
 import org.slf4j.Logger;

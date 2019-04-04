@@ -15,7 +15,7 @@ import java.net.URL;
 import java.util.*;
 
 /**
- *
+ * TODO not all scxml features are supported. e.g. nested states may produce problems
  */
 public class Parser {
     private static final Logger log = LoggerFactory.getLogger(Parser.class);
@@ -144,6 +144,10 @@ public class Parser {
             }
             if (Objects.equals(child.getNodeName(), "transition")) {
                 Transition transition = parseTransition(childNodes.item(i));
+                if(transition.getTarget().isEmpty()) {
+                    //if the target is not set, it is a transition to itself
+                    transition.setTarget(id);
+                }
                 state.addTransition(transition);
             }
 

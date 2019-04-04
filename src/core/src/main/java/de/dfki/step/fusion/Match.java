@@ -1,30 +1,39 @@
 package de.dfki.step.fusion;
 
-import de.dfki.step.rengine.Token;
+import de.dfki.step.core.Token;
+import de.dfki.step.input.Input;
+import org.pcollections.HashTreePMap;
+import org.pcollections.PMap;
 import org.pcollections.PSequence;
 import org.pcollections.TreePVector;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class Match {
-    private PSequence<Token> tokens;
+    private PMap<InputNode, Token> tokens;
 
-    /**
-     * @param tokens All tokens that are necessary to specify this match
-     */
-    public Match(PSequence<Token> tokens) {
-        this.tokens = tokens;
+//    /**
+//     * @param tokens All tokens that are necessary to specify this match
+//     */
+//    public Match(PSequence<Token> tokens) {
+//        this.tokens = tokens;
+//    }
+
+    public Match() {
+        this.tokens = HashTreePMap.empty();
     }
 
-    public Match(Token token) {
-        tokens = TreePVector.empty();
-        tokens = tokens.plus(token);
+    public Match(InputNode node, Token token) {
+        this.tokens = HashTreePMap.empty();
+        tokens = tokens.plus(node, token);
     }
 
-    public Match(Collection<Token> tokens) {
-        this.tokens = TreePVector.empty();
+    public Match(Map<InputNode, Token> tokens) {
+        this.tokens = HashTreePMap.empty();
         this.tokens = this.tokens.plusAll(tokens);
     }
 
@@ -33,29 +42,35 @@ public class Match {
     }
 
     public Match add(Match other) {
+        //TODO throw exception on key conflict
         var tokens = this.tokens.plusAll(other.tokens);
         return new Match(tokens);
     }
 
-    public Match add(List<Token> tokens) {
-        return new Match(this.tokens.plusAll(tokens));
-    }
+//    public Match add(List<Token> tokens) {
+//        return new Match(this.tokens.plusAll(tokens));
+//    }
 
-    public Match intersects(Match other) {
-        List<Token> it = tokens.stream()
-                .filter(t -> other.tokens.contains(t))
+    public List<Token> intersects(Match other) {
+        List<Token> it = tokens.values().stream()
+                .filter(t -> other.tokens.values().contains(t))
                 .collect(Collectors.toList());
-        return new Match(it);
+        return it;
     }
 
     @Override
     public String toString() {
         return "Match{" +
-                "tokens=" + tokens.stream().map(Token::toString).reduce("", (t1,t2) -> t1 + t2) +
+                "tokens=" + tokens.values().stream().map(Token::toString).reduce("", (t1,t2) -> t1 + t2) +
                 '}';
     }
 
-    public PSequence<Token> getTokens() {
-        return tokens;
+    public Collection<Token> getTokens() {
+        return tokens.values();
     }
+
+    public Optional<Token> getToken(InputNode node) {
+        return Optional.of(tokens.get(node));
+    }
+
 }

@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Manages multiple sub-grammars and create a SRGS (xml) representation.
+ * Manages multiple sub-grammars and of a SRGS (xml) representation.
  * TODO: add function to add srgs string
  */
 public class GrammarManager {

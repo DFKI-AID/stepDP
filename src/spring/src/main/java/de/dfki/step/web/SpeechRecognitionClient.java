@@ -1,6 +1,6 @@
 package de.dfki.step.web;
 
-import de.dfki.step.rengine.Token;
+import de.dfki.step.core.Token;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;

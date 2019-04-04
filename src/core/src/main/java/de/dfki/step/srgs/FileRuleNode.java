@@ -9,7 +9,7 @@ import java.util.List;
  * Reads srgs rules from a file.
  *
  * TODO atm only supported if the srgs is missing
- * TODO move into Rule and create real parser
+ * TODO move into Rule and of real parser
  */
 public class FileRuleNode extends Rule {
     private final String content;

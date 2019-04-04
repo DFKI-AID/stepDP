@@ -11,7 +11,10 @@ import java.util.function.BooleanSupplier;
 import java.util.stream.Collectors;
 
 /**
+ * Manages the state of state chart. If events are fired (@link {@link #fire(String)},
+ * it checks conditions to fire transitions. OnEntry and OnExit functions are fired as well.
  *
+ * TODO onEnter in intial is not called
  */
 public class SCEngine {
     private static final Logger log = LoggerFactory.getLogger(SCEngine.class);

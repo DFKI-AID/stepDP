@@ -1,6 +1,7 @@
 package de.dfki.step.core;
 
 /**
+ *
  */
 public enum Mode {
     Audition,

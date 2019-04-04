@@ -1,12 +1,12 @@
 package de.dfki.step.core;
 
-import de.dfki.step.rengine.Token;
 import org.pcollections.HashTreePSet;
 import org.pcollections.PSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
+import java.util.Objects;
 
 public class TokenComponent implements Component {
     private static Logger log = LoggerFactory.getLogger(TokenComponent.class);
@@ -50,11 +50,22 @@ public class TokenComponent implements Component {
         return tokens;
     }
 
+
+    /**
+     * Add tokens which are used during the next iteration
+     * @param tokens
+     */
     public synchronized void addTokens(Collection<Token> tokens) {
-        log.debug("Adding token {}", tokens);
+        log.debug("Adding tokens {}", tokens.stream()
+                .map(Objects::toString)
+                .reduce("", (x, y) -> x + ", " + y));
         waitingTokens = waitingTokens.plusAll(tokens);
     }
 
+    /**
+     * Add a token which used during the next iteration
+     * @param token
+     */
     public synchronized void addToken(Token token) {
         log.debug("Adding token {}", token);
         waitingTokens = waitingTokens.plus(token);

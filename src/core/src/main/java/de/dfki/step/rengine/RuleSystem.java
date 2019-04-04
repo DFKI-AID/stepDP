@@ -1,6 +1,6 @@
 package de.dfki.step.rengine;
 
-import de.dfki.step.util.Clock;
+import de.dfki.step.core.Clock;
 import org.pcollections.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,8 +9,7 @@ import java.time.Duration;
 import java.util.*;
 
 /**
- * This component manages (add / remove / enable / disable) and execute functions.
- * TODO use persistent data structures
+ * This component manages (add / remove / enable / disable) and execute rules.
  */
 public class RuleSystem {
     private static final Logger log = LoggerFactory.getLogger(RuleSystem.class);
@@ -132,7 +131,7 @@ public class RuleSystem {
 
             if (!this.rules.contains(rule)) {
                 // this rule was removed during the update method should not be considered here anymore
-                // with the new concept of the RuleCoordinator this should not be necessary anymore.
+                // with the new concept of the CoordinationComponent this should not be necessary anymore.
                 continue;
             }
             rule.update();

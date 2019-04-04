@@ -14,34 +14,32 @@ const behaviorApp = new Vue({
     el: '#behavior',
     data: {
         interval: null,
-        statechart: null,
         graph: null,
         currentState: null,
+        behavior: "",
+        behaviors: {},
+        parent: null,
+        container: null,
     },
     methods: {
         updateSC() {
-            $.get('/behavior/task_behavior', function (response) {
-                this.statechart = response;
-                var container = this.$refs.graphContainer;
-                this.drawStateChart(container, this.statechart.root);
+            $.get('/behaviors', function (response) {
+                this.behaviors = response;
             }.bind(this));
         },
 
         updateSCState: function () {
+            if(this.behavior == "" || this.behavior == null) {
+                return;
+            }
             $.ajax({
                 type: "GET",
-                url: "/behavior/task_behavior/state",
+                url: "/behavior/" +  this.behavior+ "/state",
                 contentType: "application/json",
                 dataType: "json",
                 success: function (response) {
                     let state = response.state;
-                    // if (state == this.currentState) {
-                    //     return;
-                    // }
-                    // this.unhighlightState(this.currentState);
                     this.currentState = state;
-                    // this.highlightState(this.currentState);
-                    this.updateStyle();
                 }.bind(this),
                 error: function (x) {
                     console.warn("could not retrieve behavior state: " + x);
@@ -56,17 +54,18 @@ const behaviorApp = new Vue({
             // this.highlightState(this.currentState);
             // }.bind(this));
         },
-        drawStateChart: function (container, statechart) {
+        initGraph: function() {
+
             // Checks if the browser is supported
             if (!mxClient.isBrowserSupported()) {
                 // Displays an error message if the browser is not supported.
                 mxUtils.error('Browser is not supported!', 200, false);
             } else {
                 // Disables the built-in context menu
-                mxEvent.disableContextMenu(container);
+                mxEvent.disableContextMenu(this.container);
 
                 // Creates the graph inside the given container
-                this.graph = new mxGraph(container);
+                this.graph = new mxGraph(this.container);
                 this.graph.getView().setScale(0.8);
 
 
@@ -97,11 +96,25 @@ const behaviorApp = new Vue({
                 // is normally the first child of the root (ie. layer 0).
                 this.parent = this.graph.getDefaultParent();
 
+                // var encoder = new mxCodec();
+                // var node = encoder.encode(v1);
+                // console.log(mxUtils.getXml(node));
+            }
+        },
+        drawStateChart: function (statechart) {
+            if(this.parent == null) {
+                return;
+            }
+
+            //remove old graph if present
+            this.graph.removeCells(this.graph.getChildVertices(this.parent));
+
+
                 var context = {};
                 context.graph = this.graph;
                 context.bbox = {minx: 0, miny: 0, maxx: 0, maxy: 0};
                 this.getBoundingBox(context, statechart);
-                console.log(context.bbox);
+                //console.log(context.bbox);
                 context.vertices = {};
 
 
@@ -119,11 +132,6 @@ const behaviorApp = new Vue({
                 }
 
                 this.updateStyle();
-
-                // var encoder = new mxCodec();
-                // var node = encoder.encode(v1);
-                // console.log(mxUtils.getXml(node));
-            }
         },
 
         updateStyle: function () {
@@ -131,6 +139,7 @@ const behaviorApp = new Vue({
                 return;
             }
 
+            this.graph.getModel().beginUpdate();
             this.apply(this.parent, (state) => {
 
                 if (state.children != null && state.children.length > 0) {
@@ -149,6 +158,7 @@ const behaviorApp = new Vue({
                 this.graph.getView().clear(state, false, false);
                 this.graph.getView().validate();
             });
+            this.graph.getModel().endUpdate();
         },
 
         highlightState: function (state) {
@@ -247,12 +257,27 @@ const behaviorApp = new Vue({
 
     },
     created() {
-        this.updateSC();
-        this.updateSCState();
-        this.interval = setInterval(function () {
-            this.updateSCState();
-        }.bind(this), 1000);
-
-    }
+    },
+    mounted() {
+                this.container = this.$refs.graphContainer;
+                this.initGraph();
+                this.updateSC();
+                this.interval = setInterval(function () {
+                    this.updateSC();
+                    this.updateSCState();
+                }.bind(this), 1000);
+    },
+    watch: {
+        currentState: function (val, oldVal) {
+             this.updateStyle();
+        },
+        behavior: function (val, oldVal) {
+            var stateChart = this.behaviors[val];
+            if(stateChart == null) {
+                return;
+            }
+            this.drawStateChart(stateChart.root);
+        }
+    },
 
 });

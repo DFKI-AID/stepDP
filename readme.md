@@ -40,10 +40,17 @@ The main idea is to define the dialog behavior through the set of active rules a
    - Slot Filling **TODO** impl
    - A combination of them
 
+
+### Getting Started
+- Get familiar with the [java stream api](https://www.baeldung.com/java-8-streams) and [persistent data structures](https://www.baeldung.com/java-pcollections)
+- (Optional) Get familiar with spring boot. Necessary for some extensions (e.g. http) or changes.
+- Checkout out the [example applications](https://lns-90165.sb.dfki.de/gitlab/i40/tractat/step-dp/step-examples).
+
+
 ## Installation
-- Put java 10 and maven on your path
+- Put java 10 (or higher) and maven on your path
 - Run scripts/install-min.sh or install-all.sh
-- Add to your pom.xml
+- Add to your pom.xml (Update version!)
 ```xml
 <dependency>
     <groupId>de.dfki.step</groupId>
@@ -54,65 +61,34 @@ The main idea is to define the dialog behavior through the set of active rules a
 
 ### Changes to the Platform
 ## Import into IntelliJ
-File > Open > choose pom.xml in src and "open as project"
+File > Open > choose pom.xml in src and "open as project".
+This process should be similar for other IDEs.
 
 
-## Components
+## Components and Classes
+This section describes all components of the dialog platform. Each component has a small task and are interchangeable with different implementations.
+
+### Token
+An important class is the [Token](src/main/java/de/dfki/step/core/Token.java). It is persistent data structure to store arbitrary data. Think of it as map (in the form of String -> Object) or as a json object. Nevertheless, any java object can be stored. It is recommended, to only store immutable data to avoid concurrent modification and ensure a persistent dialog history. Input to the fusion component are stored in token. Intents or other messages are forwareded as tokens into the dialog core. Requests for presentation are encapsulated in tokens as well. This allows a very flexible approach with respect to extensiblity and reusablity of algorithms. However, data access may be more inconvenient. If your data is getting to complex, it might be suitable to create a own class for it and use a token to move it through the system. See [TokenTest](src/test/java/de/dfki/step/core/TokenTest.java) for such an example and general usage.
+
+### Schema
 
 ### Rules
-- Rules are an immutuable data structure. They don't change. If they have to be changed, it is necessary to create a new rule and remove the old one. However, rule may use the state of a behavior (which is state persistent or immutable).
+- Rules are an immutuable data structure. They don't change. If they have to be changed, it is necessary to create a new rule and remove the old one. However, rule may use the state of a behavior (which has a persistent or immutable state).
 - The structure of a rule is void -> void: Hence, Condition checking and execution is done through additional objects that are captured in the context of the function. In general, they have access to the dialog object such that the knowledge base can be accessed etc...
 - deprecated (add functionality to coordinator class): execution order is based on priority value. rules with higher priority value are executed later.
 - The token set is empty for each iteration and filled by the rules.
 - **TODO** different type of rules: meta, semi-meta, app
 - Volatile rules are rules that will be removed 'on a state change'. whereby 'state change' depends on the behavior impl.
-- Using java's stream API makes writing rules easy: 
-
-```java
-var rs = dialog.getRuleSystem();
-var tagSystem = dialog.getTagSystem();
-
-var utterances = List.of("Hello!", "Greetings.", "Hey");
-var rdm = new Random();
-
-//add new rule with the name 'greetings'
-rs.addRule("greetings", () -> {
-    // check for one token with the intent 'greetings'
-    dialog.getTokens().stream()
-            .filter(t -> t.payloadEquals("intent", "greetings"))
-            .findFirst()
-            .ifPresent(t -> {
-                // Create an update function that may get executed later.
-                // This depends on the implementation of the rule coordinator
-                // The .attach call defines that rule wants to consume the given token
-                // If another rules wants to consume the same token, only one rule may be fired.
-                dialog.getRuleCoordinator().add(() -> {
-                    String utteranace = utterances.get(rdm.nextInt(utterances.size()));
-                    // request tts output via token
-                    dialog.present(new PresentationRequest(utteranace));
-                    // disable this rule for four seconds
-                    dialog.getRuleSystem().disable("greetings", Duration.ofSeconds(4));
-                }).attach("consumes", t);
-
-            });
-});
-// set the priority of the greetings rule.
-rs.setPriority("greetings", 20);
-// associate the greetings rule with the meta tag
-tagSystem.addTag("greetings", "meta");
-```
-
+- See: [example](https://lns-90165.sb.dfki.de/gitlab/i40/tractat/step-dp/step-examples/blob/master/src/main/java/de/dfki/step/dialog/MyDialog10.java)
 
 
 ### Tag-System
 
-Tag-System: Allows to annotate multiple rules with a tag, which facilates to enable multiple rules simultaneously. 
+Tag-System: Allows to annotate multiple objects with a tag. It used to group rules such that they can be enabled or disabled at once.
 
 
 
-### Token
-
-Simple persistent data structure in the form of String -> Object. In general used as input event to forward intents into the dialog.
 
 
 
@@ -135,7 +111,7 @@ Note for the **createSnapshot** method: You may want to use persistent data stru
 
 
 #### State Chart
-State charts can be used as an abstraction to define when rules are active. The rule logic is implemented in java. Rules may fire events into the state chart which in response change the set of active rules. A state chart manages a specific set of rules which defined in table (\*.csv file). The state chart is stored in the scxml format. The implementation does not support parallel or history states at the moment.. It should be checked whether they are necessary, because with the persistent dialog history the system supports already a 'history'-feature.
+State charts can be used as an abstraction to define when rules are active. The rule logic is implemented in java. Rules may fire events into the state chart which in response change the set of active rules. A state chart manages a specific set of rules which defined in table (\*.csv file). The state chart is stored in the scxml format. The implementation does not support parallel or history states at the moment. It should be checked whether they are necessary, because with the persistent dialog history the system already supports a 'history'-feature.
 
 
 
@@ -159,10 +135,16 @@ Custom rules are the easiest way for getting started. However, you have to manag
 
 
 
-### RuleCoordinator
+### Coordination
+The CoordinationComponent 
 
-### Web API
-The web gui can be seen through a webbrowser on http://localhost:50000 (maps to /index.html).
+
+### Clock
+Step-dp does not use the system clock (e.g. System.currentTimeMillis()). The clock itself counts the number of update calls, whereby the frequency can be defined when the clock object is created. This approach makes 
+- debugging easier: Time does not progress during break points
+- it easier to define snapshot points
+The clock class provides function for converting time into the number of iteration.
+
 
 ### other
 
@@ -211,13 +193,43 @@ The rasa module contains code to access a rasa NLU service.
 
 
 ## Tools
-### Speech-Recognition
-See [grammar-based speech recognizer](https://lns-90165.sb.dfki.de/gitlab/i40/tractat/step-dp/speech-recognition-service): Supports audio streaming from e.g. a mic for ASR.
+### Web GUI / API
+The web gui can be opened with a webbrowser on e.g. [http://localhost:50000](http://localhost:50000) (maps to /index.html) .
 
+### State Chart Editor
+The [Qt Editor](https://www.qt.io/download) comes with a scxml editor that can be used to create the state chart. You don't have to install the whole qt package, the editor is enough. See checkboxes during installation.
+
+### Speech-Recognition
+See [grammar-based speech recognizer](https://lns-90165.sb.dfki.de/gitlab/i40/tractat/step-dp/speech-recognition-service): Supports audio streaming from e.g. a webbrowser for ASR.
+
+
+## Versioning
+Use semantic versioning MAJOR.MINOR.PATCH and SNAPSHOT suffix for beta versions. See the [script](/scripts/update-mvn-version.sh) to update the version of every module.
 
 
 ## TODOs
 #### Add to Doc
 - Where to save data? sensor data (data is derived from the real world or simulation; e.g. changes frequently) should be stored in a knowledge base that can be accessed by the dialog. The dialog itself should not store any information in the knowledge base that represents its own state. Such information should be stored inside a behavior in an inmutable or persistent data structure. This is necessary to create persistent dialog history.
 
-  
+
+## How To
+
+##### How to avoid firing complete but false intents?
+Scenario: We have as input *gesture_down* (timestamp=1000, confidence=0.2), *all_windows* (timestamp=1200, confidence=0.9). A rule may consume the created intent, but it could wait some time, because the confidence of the gesture was rather low. The problem is as follows: If we get *gesture_up* (timestamp=2000, confidence=0.8), the input *all_windows* could be already consumed.
+
+Impl: A rule should only fire if the intent is older than x seconds depending on the confidence. Add the iteration of the earliest input to the intent.
+
+Impl2: Delay forwarding of intents.
+
+##### Files from resources won't load. (Website can't be visited)
+e.g. *Caused by: java.lang.IllegalArgumentException: Could not resolve placeholder 'dialog.name' in value "${dialog.name}"*
+
+Run `mvn clean package` from a terminal.
+
+##### Application failed to start.
+```
+Description:
+
+The Tomcat connector configured to listen on port 50000 failed to start. The port may already be in use or the connector may be misconfigured.
+```
+The port is already in use. Close the other application that blocks the port, or change the port by changing applicatin.yml or by adding '-Dserver.port=50001' before "-jar mydialog.jar"

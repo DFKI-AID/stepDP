@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.dfki.step.kb.*;
 import de.dfki.step.output.OutputComponent;
 import de.dfki.step.output.OutputFactory;
-import de.dfki.step.output.impp.AllocationState;
-import de.dfki.step.output.impp.OutputUnit;
+import de.dfki.step.output.imp.AllocationState;
+import de.dfki.step.output.imp.OutputUnit;
 import org.pcollections.HashPMap;
 import org.pcollections.IntTreePMap;
 import org.pcollections.PMap;
@@ -78,7 +78,7 @@ public class A3SClient implements OutputComponent {
         try {
             createAudioSession(id, outputUnit);
         } catch (Exception ex) {
-            log.warn("could not create audio session: {}", ex.getMessage());
+            log.warn("could not of audio session: {}", ex.getMessage());
             synchronized (this) {
                 allocationStates = allocationStates.plus(id, AllocationState.getError(ex));
             }
@@ -435,7 +435,7 @@ public class A3SClient implements OutputComponent {
 //            //TODO fixed entities
 //            Entity p1 = new Entity()
 //                    .set(Ontology.id, "p1")
-//                    .set(Ontology.uri, URI.create("http://172.16.59.0:60000"))
+//                    .set(Ontology.uri, URI.of("http://172.16.59.0:60000"))
 //                    .set(Ontology.type2, Ontology.Service)
 //                    .set(Ontology.service, serviceType)
 //                    .set(Ontology.timestamp, 0l);

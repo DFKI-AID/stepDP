@@ -1,12 +1,13 @@
 package de.dfki.step.dialog;
 
-import de.dfki.step.core.ComponentManager;
-import de.dfki.step.core.TokenComponent;
-import de.dfki.step.rengine.RuleCoordinator;
+import de.dfki.step.core.*;
+import de.dfki.step.fusion.FusionComponent;
+import de.dfki.step.fusion.FusionNode;
+import de.dfki.step.fusion.InputNode;
+import de.dfki.step.output.PresentationComponent;
+import de.dfki.step.rengine.CoordinationComponent;
 import de.dfki.step.rengine.RuleSystem;
 import de.dfki.step.rengine.RuleSystemComponent;
-import de.dfki.step.rengine.Token;
-import de.dfki.step.util.ClockComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,27 +18,29 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 /**
- *
+ * Helper class for creatin rules and fusion nodes for recurring dialog patterns
  */
 public class MetaFactory {
     private static final Logger log = LoggerFactory.getLogger(MetaFactory.class);
     private static final double minConfidence = 0.3;
     private final RuleSystemComponent rs;
     private final TokenComponent tc;
-    private final RuleCoordinator rc;
+    private final CoordinationComponent rc;
     private final PresentationComponent pc;
     private final ClockComponent cc;
     private final TagSystemComponent tsc;
     private final SnapshotComponent sc;
+    private final FusionComponent fc;
 
     public MetaFactory(ComponentManager cm) {
         rs = cm.retrieveComponent(RuleSystemComponent.class);
         tc = cm.retrieveComponent(TokenComponent.class);
-        rc = cm.retrieveComponent(RuleCoordinator.class);
+        rc = cm.retrieveComponent(CoordinationComponent.class);
         pc = cm.retrieveComponent(PresentationComponent.class);
         cc = cm.retrieveComponent(ClockComponent.class);
         tsc = cm.retrieveComponent(TagSystemComponent.class);
         sc = cm.retrieveComponent(SnapshotComponent.class);
+        fc = cm.retrieveComponent(FusionComponent.class);
     }
 
     public void createGreetingsRule() {
@@ -122,7 +125,7 @@ public class MetaFactory {
      * use case: worker wants to store the current state to show it to another colleague.
      * use case: worker wants to store the current such that he can continue later (takes break; other urgent task)
      * <p>
-     * TODO if no name is specified, create a clarify rule / selection
+     * TODO if no name is specified, of a clarify rule / selection
      *
      */
     public void snapshotRule() {
@@ -253,6 +256,9 @@ public class MetaFactory {
 
     public void selectRule(String ruleName, List<String> choices, Consumer<String> callback) {
         //TODO use 'choices' to update srgs
+
+
+
         rs.addRule(ruleName, () -> {
             Optional<Token> selectToken = tc.getTokens().stream()
                     .filter(t -> t.payloadEquals("intent", "select"))
@@ -262,26 +268,23 @@ public class MetaFactory {
                 return;
             }
 
-            Optional<String> selection = selectToken.get().get("selection")
-                    .filter(s -> s instanceof String)
-                    .map(s -> (String) s);
+            Optional<String> selection = selectToken.get().get("selection", String.class);
 
-
-            Optional<Double> confidence = selectToken.get().get("confidence")
-                    .filter(c -> c instanceof Double)
-                    .map(c -> (Double) c);
+            Double confidence = selectToken.get().get("confidence", Double.class)
+                    .orElse(1.0);
 
             if (!selection.isPresent()) {
                 rc.add(() -> {
                     //TODO nlg for question
                     tts("Which TODO do you mean?");
                     specifyRule("specify_" + ruleName, callback);
+                    //specifyFusion("specify_" + ruleName, choices);
 
                 }).attachOrigin(selectToken.get());
                 return;
             }
 
-            if (confidence.isPresent() && confidence.get() < minConfidence) {
+            if (confidence < minConfidence) {
                 rc.add(() -> {
                     String utterance = "Please confirm your selection for " + selection.get();
                     tts(utterance);
@@ -297,6 +300,7 @@ public class MetaFactory {
             } else {
                 rc.add(() -> {
                     callback.accept(selection.get());
+                    //rs.removeRule(ruleName);
                 }).attachOrigin(selectToken.get());
             }
 
@@ -307,14 +311,33 @@ public class MetaFactory {
         pc.present(PresentationComponent.simpleTTS(utterance));
     }
 
+    public void specifyFusion(String name, List<String> choices) {
+        Schema speechFocus = Schema.builder()
+                .equalsOneOf(Schema.Key.of("speech_focus"), choices)
+                .build();
+        FusionNode fusionNode = new InputNode(speechFocus);
+        fc.addFusionNode(name, fusionNode, match -> {
+            var intent = FusionComponent.defaultIntent(match, "specify");
+            List<String> speechFocusList = Token.mergeFields("speech_focus", String.class, match.getTokens());
+            if(speechFocusList.size() != 1) {
+                throw new IllegalArgumentException("found speech_focus in multiple focus. todo: impl resolve which one to take");
+            }
+
+            intent = intent.add("selection", speechFocusList.get(0));
+            return intent;
+        });
+
+        //TODO "this one" + focus
+    }
+
     /**
      * If the system can't derive the intended task referred by the user, the user
-     * may specify his request by "the first task"
+     * may specify his request by an incomplete utterance like "the second task"
      * <p>
      * TODO return whole token in callback
      */
-    public void specifyRule(String rule, Consumer<String> callback) {
-        rs.addRule(rule, () -> {
+    public void specifyRule(String ruleName, Consumer<String> callback) {
+        rs.addRule(ruleName, () -> {
             tc.getTokens().stream()
                     .filter(t -> t.payloadEquals("intent", "specify"))
                     .findFirst()
@@ -328,9 +351,10 @@ public class MetaFactory {
                         }
 
                         rc.add(() -> {
-                            rs.removeRule(rule);
+                            rs.removeRule(ruleName);
                             String specificationStr = (String) specification.get();
                             callback.accept(specificationStr);
+                            fc.removeFusionNode(ruleName);
                         }).attachOrigin(t);
                     });
         });
@@ -373,7 +397,7 @@ public class MetaFactory {
     public static void timeoutRule(ComponentManager cm, String name, Duration duration, Runnable callback) {
         var rs = cm.retrieveComponent(RuleSystemComponent.class);
         var cc = cm.retrieveComponent(ClockComponent.class);
-        var rc = cm.retrieveComponent(RuleCoordinator.class);
+        var rc = cm.retrieveComponent(CoordinationComponent.class);
 
         long currentIteration = cc.getIteration();
         long untilIteration = currentIteration + cc.convert(duration);
