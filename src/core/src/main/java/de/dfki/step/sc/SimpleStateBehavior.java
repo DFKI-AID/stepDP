@@ -44,8 +44,7 @@ public abstract class SimpleStateBehavior implements StateBehavior {
     }
 
     /**
-     * Looks into the resources folder (src/main/resources/YOUR_PATH/YOUR_FILE) for two files with the
-     * suffix *.csv and *.scxml
+     * Looks into the resources folder (src/main/resources/YOUR_PATH/YOUR_FILE) for your state chart file *.scxml
      *
      * @param resourceStr
      */
