@@ -30,6 +30,7 @@ public class MyDialog extends Dialog {
         try {
             TaskBehavior taskBehavior = new TaskBehavior();
             this.addComponent(taskBehavior);
+            this.addComponent(new SimpleBehavior());
 
         } catch (URISyntaxException e) {
             throw new RuntimeException("Could not load task behavior", e);
