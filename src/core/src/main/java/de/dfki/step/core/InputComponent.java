@@ -19,12 +19,14 @@ import java.util.stream.Collectors;
  * a fusion component can read from it {@link FusionComponent#update()}
  * or
  * the coordinator can remove consumed tokens {@link CoordinationComponent#update()}
- *
+ * <p>
  * TODO consume could also invalidate inputs that are older than the origin
+ * in a sense of: we interpreted the last interacting successfully
  */
 public class InputComponent implements Component {
     private static Logger log = LoggerFactory.getLogger(InputComponent.class);
     private Duration tokenTimeout = Duration.ofMillis(10000);
+    private ClockComponent cc;
 
     private PSet<Token> tokens = HashTreePSet.empty();
     //tokens that are used for the next iteration
@@ -34,7 +36,7 @@ public class InputComponent implements Component {
 
     @Override
     public void init(ComponentManager cm) {
-
+        cc = cm.retrieveComponent(ClockComponent.class);
     }
 
     @Override
@@ -46,7 +48,7 @@ public class InputComponent implements Component {
     public void update() {
 
         //removing all tokens that were used last round
-        synchronized(this) {
+        synchronized (this) {
             tokens = tokens.plusAll(waitingTokens);
             waitingTokens = HashTreePSet.empty();
             currentTokens = tokens.plusAll(volatileTokens);
@@ -54,15 +56,12 @@ public class InputComponent implements Component {
         }
 
 
-
         //remove old tokens
-        //TODO switch to iteration based model like the rule system -> makes debugging easier
-//        var now = System.currentTimeMillis();
-//        for(Token t : tokens.stream()
-//                .filter(t -> t.get("timestamp", Long.class).get() + tokenTimeout.toMillis() > now)
-//                .collect(Collectors.toList())) {
-//            tokens = tokens.minus(t);
-//        }
+        long now = cc.getIteration();
+        long timeout = cc.convert(tokenTimeout);
+        tokens = tokens.minusAll(tokens.stream()
+                .filter(t -> t.get("timestamp", Long.class).get() + timeout > now)
+                .collect(Collectors.toList()));
     }
 
     @Override
@@ -85,7 +84,8 @@ public class InputComponent implements Component {
 //    }
 
     /**
-     * Remove all tokens that one of the origins in their origin field
+     * Remove all tokens that have one of the given origins in their origin field
+     *
      * @param origins
      */
     public void consume(Collection<Object> origins) {
@@ -108,7 +108,7 @@ public class InputComponent implements Component {
     }
 
     public synchronized void addToken(Token token) {
-        token = ensureTimestamp(token);
+        token = addTimestamp(token);
         token = ensureOrigin(token);
         log.debug("Adding token {}", token);
         waitingTokens = waitingTokens.plus(token);
@@ -117,26 +117,19 @@ public class InputComponent implements Component {
     /**
      * Tokens added via this function will only survive one iteration. e.g. use this for
      * continuous input that does not trigger something on its own like visual focus.
+     *
      * @param token
      */
     public synchronized void addVolatileToken(Token token) {
-        token = ensureTimestamp(token);
+        token = addTimestamp(token);
         token = ensureOrigin(token);
         log.debug("Adding volatile token {}", token);
         volatileTokens = volatileTokens.plus(token);
     }
 
-    public static Token ensureTimestamp(Token token) {
-        if (!token.has("timestamp", Long.class)) {
-            if (token.has("timestamp", Number.class)) {
-                //timestamp found, but with wrong type -> convert
-                long timestamp = (Long) token.get("timestamp").get();
-                token = token.add("timestamp", timestamp);
-            } else {
-                //none timestamp found -> use current time
-                token = token.add("timestamp", System.currentTimeMillis());
-            }
-        }
+    public Token addTimestamp(Token token) {
+        long iteration = cc.getIteration();
+        token = token.add("timestamp", iteration);
         return token;
     }
 
@@ -150,9 +143,18 @@ public class InputComponent implements Component {
     /**
      * Sets the maximal duration of input tokens.
      * Tokens that are older than this timeout will be removed
+     *
      * @param timeout
      */
     public synchronized void setTimeout(Duration timeout) {
+        this.tokenTimeout = timeout;
+    }
+
+    public synchronized Duration getTokenTimeout() {
+        return tokenTimeout;
+    }
+
+    public synchronized void setTokenTimeout(Duration timeout) {
         this.tokenTimeout = timeout;
     }
 }
