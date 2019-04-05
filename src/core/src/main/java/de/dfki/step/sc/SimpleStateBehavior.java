@@ -3,8 +3,8 @@ package de.dfki.step.sc;
 import de.dfki.step.core.ComponentManager;
 import de.dfki.step.core.TagSystem;
 import de.dfki.step.core.TagSystemComponent;
+import de.dfki.step.rengine.RuleComponent;
 import de.dfki.step.rengine.RuleSystem;
-import de.dfki.step.rengine.RuleSystemComponent;
 import org.pcollections.HashTreePMap;
 import org.pcollections.PMap;
 import org.slf4j.Logger;
@@ -68,7 +68,7 @@ public abstract class SimpleStateBehavior implements StateBehavior {
     @Override
     public void init(ComponentManager cm) {
         this.cm = cm;
-        rs = cm.retrieveComponent(RuleSystemComponent.class).getRuleSystem();
+        rs = cm.retrieveComponent(RuleComponent.class).getRuleSystem();
         tagSystem = cm.retrieveComponent(TagSystemComponent.class);
 
         try {

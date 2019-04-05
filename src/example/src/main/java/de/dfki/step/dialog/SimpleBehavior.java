@@ -2,9 +2,8 @@ package de.dfki.step.dialog;
 
 import de.dfki.step.core.ComponentManager;
 import de.dfki.step.core.TokenComponent;
-import de.dfki.step.rengine.CoordinationComponent;
-import de.dfki.step.rengine.RuleSystem;
-import de.dfki.step.rengine.RuleSystemComponent;
+import de.dfki.step.core.CoordinationComponent;
+import de.dfki.step.rengine.RuleComponent;
 import de.dfki.step.sc.SimpleStateBehavior;
 
 import java.net.URISyntaxException;
@@ -19,7 +18,7 @@ public class SimpleBehavior extends SimpleStateBehavior {
     public void init(ComponentManager cm) {
         super.init(cm);
 
-        RuleSystemComponent rsc = cm.retrieveComponent(RuleSystemComponent.class);
+        RuleComponent rsc = cm.retrieveComponent(RuleComponent.class);
         TokenComponent tc = cm.retrieveComponent(TokenComponent.class);
         CoordinationComponent cc = cm.retrieveComponent(CoordinationComponent.class);
         rsc.addRule("simpleRule", () -> {

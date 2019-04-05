@@ -1,7 +1,6 @@
 package de.dfki.step.core;
 
 import de.dfki.step.fusion.FusionComponent;
-import de.dfki.step.rengine.CoordinationComponent;
 import org.pcollections.HashTreePSet;
 import org.pcollections.PSet;
 import org.slf4j.Logger;

@@ -1,11 +1,8 @@
 package de.dfki.step.fusion;
 
 import de.dfki.step.core.Token;
-import de.dfki.step.input.Input;
 import org.pcollections.HashTreePMap;
 import org.pcollections.PMap;
-import org.pcollections.PSequence;
-import org.pcollections.TreePVector;
 
 import java.util.Collection;
 import java.util.List;
@@ -15,13 +12,6 @@ import java.util.stream.Collectors;
 
 public class Match {
     private PMap<InputNode, Token> tokens;
-
-//    /**
-//     * @param tokens All tokens that are necessary to specify this match
-//     */
-//    public Match(PSequence<Token> tokens) {
-//        this.tokens = tokens;
-//    }
 
     public Match() {
         this.tokens = HashTreePMap.empty();
@@ -46,10 +36,6 @@ public class Match {
         var tokens = this.tokens.plusAll(other.tokens);
         return new Match(tokens);
     }
-
-//    public Match add(List<Token> tokens) {
-//        return new Match(this.tokens.plusAll(tokens));
-//    }
 
     public List<Token> intersects(Match other) {
         List<Token> it = tokens.values().stream()
