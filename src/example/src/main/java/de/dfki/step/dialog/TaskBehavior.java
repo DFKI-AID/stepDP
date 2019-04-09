@@ -4,7 +4,7 @@ import de.dfki.step.core.ComponentManager;
 import de.dfki.step.core.TagSystemComponent;
 import de.dfki.step.core.TokenComponent;
 import de.dfki.step.output.PresentationComponent;
-import de.dfki.step.rengine.CoordinationComponent;
+import de.dfki.step.core.CoordinationComponent;
 import de.dfki.step.core.Token;
 import de.dfki.step.sc.SimpleStateBehavior;
 import org.pcollections.PMap;

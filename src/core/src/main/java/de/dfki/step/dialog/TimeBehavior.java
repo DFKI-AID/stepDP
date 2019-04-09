@@ -5,8 +5,8 @@ import de.dfki.step.core.ComponentManager;
 import de.dfki.step.core.TagSystemComponent;
 import de.dfki.step.core.TokenComponent;
 import de.dfki.step.output.PresentationComponent;
-import de.dfki.step.rengine.CoordinationComponent;
-import de.dfki.step.rengine.RuleSystemComponent;
+import de.dfki.step.core.CoordinationComponent;
+import de.dfki.step.rengine.RuleComponent;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -21,7 +21,7 @@ public class TimeBehavior implements Component {
     @Override
     public void init(ComponentManager cm) {
         this.cm = cm;
-        var rsc = cm.retrieveComponent(RuleSystemComponent.class);
+        var rsc = cm.retrieveComponent(RuleComponent.class);
         var rcc = cm.retrieveComponent(CoordinationComponent.class);
         var tc = cm.retrieveComponent(TokenComponent.class);
         var pc = cm.retrieveComponent(PresentationComponent.class);
@@ -51,7 +51,7 @@ public class TimeBehavior implements Component {
 
     @Override
     public void deinit() {
-        cm.getComponent(RuleSystemComponent.class).ifPresent(rs -> {
+        cm.getComponent(RuleComponent.class).ifPresent(rs -> {
             rs.getRuleSystem().removeRule("request_time");
         });
     }
