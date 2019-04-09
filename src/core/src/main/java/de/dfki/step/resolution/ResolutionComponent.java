@@ -1,15 +1,12 @@
 package de.dfki.step.resolution;
 
-import de.dfki.step.core.Component;
-import de.dfki.step.core.ComponentManager;
-import de.dfki.step.core.TokenComponent;
+import de.dfki.step.core.*;
 import de.dfki.step.fusion.FusionComponent;
 import de.dfki.step.fusion.FusionNode;
 import de.dfki.step.fusion.Match;
 import de.dfki.step.kb.Attribute;
 import de.dfki.step.kb.AttributeValue;
 import de.dfki.step.kb.Entity;
-import de.dfki.step.rengine.Token;
 import org.pcollections.PSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +54,7 @@ public class ResolutionComponent implements Component {
 
     @Override
     public void update() {
-        PSet<Token> tokens = cm.retrieveComponent(TokenComponent.class).getTokens();
+        PSet<Token> tokens = cm.retrieveComponent(InputComponent.class).getTokens();
         for(Token token: tokens) {
             distributions.add(doResolution(token));
         }
