@@ -12,6 +12,9 @@ import java.util.Objects;
  * Forward tokens into the dialog core. In general, each token should represent an intent of a user.
  * However, it can also contain arbitrary data. Rules may check which tokens are available and
  * react accordingly.
+ *
+ * TODO maybe rename, because the InputComponent has similar capabilties. It should be clear that this class
+ * forwards tokens into the dialog core (rules).
  */
 public class TokenComponent implements Component {
     private static Logger log = LoggerFactory.getLogger(TokenComponent.class);
