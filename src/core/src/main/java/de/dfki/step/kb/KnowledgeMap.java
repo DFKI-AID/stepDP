@@ -262,7 +262,7 @@ public class KnowledgeMap {
         Iterator<Entity> iter = ordered.iterator();
         while (entities.size() > maxCount) {
             Entity entity = iter.next();
-            this.entities.minus(entity);
+            entities = entities.minus(entity);
             onRemove(entity);
         }
     }
