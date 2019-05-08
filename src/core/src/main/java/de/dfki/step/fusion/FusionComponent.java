@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 
 /**
@@ -17,6 +18,7 @@ public class FusionComponent implements Component {
     private static Logger log = LoggerFactory.getLogger(FusionComponent.class);
     private PMap<String, FusionNode> fusionNodes = HashTreePMap.empty();
     private PMap<String, Function<Match, Token>> intentBuilders = HashTreePMap.empty();
+    private PMap<String, BooleanSupplier> activeSuppliers = HashTreePMap.empty();
     private ComponentManager cm;
     private InputComponent ic;
 
@@ -32,6 +34,14 @@ public class FusionComponent implements Component {
 
     @Override
     public void update() {
+        // remove fusion nodes if should not be active anymore
+        synchronized (this) {
+            fusionNodes.keySet().stream()
+                    .filter(id -> !isAlive(id))
+                    .forEach(id -> removeFusionNode(id));
+        }
+
+
         PSet<Token> tokens = ic.getTokens();
         var fusedTokens = fuse(tokens);
         cm.retrieveComponent(TokenComponent.class).addTokens(fusedTokens);
@@ -55,6 +65,9 @@ public class FusionComponent implements Component {
             var result = mv.accept(entry.getValue(), tokens);
             result.forEach(match -> {
                 Token intent = fnc.apply(match);
+                if(intent == null) {
+                    return;
+                }
                 intents.add(intent);
             });
         }
@@ -94,14 +107,40 @@ public class FusionComponent implements Component {
         return result;
     }
 
+    /**
+     * Adds a fusion nodes that used to combine inputs
+     * @param id
+     * @param node
+     * @param intentBuilder
+     */
     public synchronized void addFusionNode(String id, FusionNode node, Function<Match, Token> intentBuilder) {
+        log.info("Adding fusion node {}", id);
         fusionNodes = fusionNodes.plus(id, node);
         intentBuilders = intentBuilders.plus(id, intentBuilder);
     }
 
     public synchronized void removeFusionNode(String id) {
+        log.info("Removing fusion node {}", id);
         fusionNodes = fusionNodes.minus(id);
         intentBuilders = intentBuilders.minus(id);
+        activeSuppliers = activeSuppliers.minus(id);
+    }
+
+    /**
+     * Register a condition that whether a fusion should be active.
+     * If the provided function returns false, the fusion node will be removed.
+     * @param id
+     * @param activeSupplier
+     */
+    public synchronized void addActiveRule(String id, BooleanSupplier activeSupplier) {
+        activeSuppliers = activeSuppliers.plus(id, activeSupplier);
+    }
+
+    private synchronized boolean isAlive(String id) {
+        if(!this.activeSuppliers.containsKey(id)) {
+            return true;
+        }
+        return activeSuppliers.get(id).getAsBoolean();
     }
 
     public static List<String> mergeOrigins(Collection<Token> tokens) {
