@@ -8,6 +8,14 @@ import org.slf4j.LoggerFactory;
 import java.util.Collection;
 import java.util.Objects;
 
+/**
+ * Forward tokens into the dialog core. In general, each token should represent an intent of a user.
+ * However, it can also contain arbitrary data. Rules may check which tokens are available and
+ * react accordingly.
+ *
+ * TODO maybe rename, because the InputComponent has similar capabilties. It should be clear that this class
+ * forwards tokens into the dialog core (rules).
+ */
 public class TokenComponent implements Component {
     private static Logger log = LoggerFactory.getLogger(TokenComponent.class);
     private PSet<Token> tokens = HashTreePSet.empty();
@@ -16,15 +24,11 @@ public class TokenComponent implements Component {
 
     @Override
     public void init(ComponentManager cm) {
-
     }
 
     @Override
     public void deinit() {
-
     }
-
-
 
     @Override
     public void update() {
@@ -37,19 +41,17 @@ public class TokenComponent implements Component {
 
     @Override
     public Object createSnapshot() {
-        //TODO impl
+        //nothing stored because the tokens are removed after each iteration
         return null;
     }
 
     @Override
     public void loadSnapshot(Object snapshot) {
-
     }
 
     public PSet<Token> getTokens() {
         return tokens;
     }
-
 
     /**
      * Add tokens which are used during the next iteration

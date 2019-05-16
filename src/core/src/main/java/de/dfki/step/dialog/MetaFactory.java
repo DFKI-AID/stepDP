@@ -5,9 +5,9 @@ import de.dfki.step.fusion.FusionComponent;
 import de.dfki.step.fusion.FusionNode;
 import de.dfki.step.fusion.InputNode;
 import de.dfki.step.output.PresentationComponent;
-import de.dfki.step.rengine.CoordinationComponent;
+import de.dfki.step.core.CoordinationComponent;
+import de.dfki.step.rengine.RuleComponent;
 import de.dfki.step.rengine.RuleSystem;
-import de.dfki.step.rengine.RuleSystemComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +23,7 @@ import java.util.stream.Stream;
 public class MetaFactory {
     private static final Logger log = LoggerFactory.getLogger(MetaFactory.class);
     private static final double minConfidence = 0.3;
-    private final RuleSystemComponent rs;
+    private final RuleComponent rs;
     private final TokenComponent tc;
     private final CoordinationComponent rc;
     private final PresentationComponent pc;
@@ -33,7 +33,7 @@ public class MetaFactory {
     private final FusionComponent fc;
 
     public MetaFactory(ComponentManager cm) {
-        rs = cm.retrieveComponent(RuleSystemComponent.class);
+        rs = cm.retrieveComponent(RuleComponent.class);
         tc = cm.retrieveComponent(TokenComponent.class);
         rc = cm.retrieveComponent(CoordinationComponent.class);
         pc = cm.retrieveComponent(PresentationComponent.class);
@@ -395,7 +395,7 @@ public class MetaFactory {
      * @param callback
      */
     public static void timeoutRule(ComponentManager cm, String name, Duration duration, Runnable callback) {
-        var rs = cm.retrieveComponent(RuleSystemComponent.class);
+        var rs = cm.retrieveComponent(RuleComponent.class);
         var cc = cm.retrieveComponent(ClockComponent.class);
         var rc = cm.retrieveComponent(CoordinationComponent.class);
 

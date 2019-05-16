@@ -3,8 +3,8 @@ package de.dfki.step.dialog;
 import de.dfki.step.core.*;
 import de.dfki.step.fusion.FusionComponent;
 import de.dfki.step.output.PresentationComponent;
-import de.dfki.step.rengine.CoordinationComponent;
-import de.dfki.step.rengine.RuleSystemComponent;
+import de.dfki.step.core.CoordinationComponent;
+import de.dfki.step.rengine.RuleComponent;
 import de.dfki.step.core.Clock;
 import de.dfki.step.rengine.RuleSystem;
 import de.dfki.step.core.Token;
@@ -39,7 +39,7 @@ public abstract class Dialog implements Runnable, ComponentManager {
                 new Tuple<>(new InputComponent(), 200),
                 new Tuple<>(new FusionComponent(), 300),
                 new Tuple<>(new TokenComponent(), 400),
-                new Tuple<>(new RuleSystemComponent(clock), 500),
+                new Tuple<>(new RuleComponent(clock), 500),
                 new Tuple<>(new CoordinationComponent(), 600),
                 new Tuple<>(new PresentationComponent(), 700),
                 new Tuple<>(new ClockComponent(clock), 800)
@@ -157,7 +157,7 @@ public abstract class Dialog implements Runnable, ComponentManager {
     }
 
     public RuleSystem getRuleSystem() {
-        return getComponents(RuleSystemComponent.class).get(0).getRuleSystem();
+        return getComponents(RuleComponent.class).get(0).getRuleSystem();
     }
 
     public Clock getClock() {

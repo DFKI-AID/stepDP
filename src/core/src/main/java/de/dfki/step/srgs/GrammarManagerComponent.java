@@ -2,19 +2,18 @@ package de.dfki.step.srgs;
 
 import de.dfki.step.core.Component;
 import de.dfki.step.core.ComponentManager;
-import de.dfki.step.dialog.Dialog;
+import de.dfki.step.rengine.RuleComponent;
 import de.dfki.step.rengine.RuleSystem;
-import de.dfki.step.rengine.RuleSystemComponent;
 
 import java.util.Optional;
 
 public class GrammarManagerComponent implements Component {
     private final GrammarManager grammarManager = new GrammarManager();
-    private RuleSystemComponent rsc;
+    private RuleComponent rsc;
 
     @Override
     public void init(ComponentManager cm) {
-        this.rsc = cm.retrieveComponent(RuleSystemComponent.class);
+        this.rsc = cm.retrieveComponent(RuleComponent.class);
     }
 
     @Override

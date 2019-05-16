@@ -3,7 +3,7 @@ package de.dfki.step.output;
 import de.dfki.step.core.Component;
 import de.dfki.step.core.ComponentManager;
 import de.dfki.step.dialog.MetaFactory;
-import de.dfki.step.rengine.RuleSystemComponent;
+import de.dfki.step.rengine.RuleComponent;
 import de.dfki.step.core.Token;
 import org.pcollections.PSequence;
 import org.pcollections.TreePVector;
@@ -12,13 +12,13 @@ import org.slf4j.LoggerFactory;
 
 public class PresentationComponent implements Component {
     private static Logger log = LoggerFactory.getLogger(PresentationComponent.class);
-    private RuleSystemComponent rs;
+    private RuleComponent rs;
     private MetaFactory mf;
     private PSequence outputHistory = TreePVector.empty();
 
     @Override
     public void init(ComponentManager cm) {
-        this.rs = cm.retrieveComponent(RuleSystemComponent.class);
+        this.rs = cm.retrieveComponent(RuleComponent.class);
         this.mf = new MetaFactory(cm);
     }
 
