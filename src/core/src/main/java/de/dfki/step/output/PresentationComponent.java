@@ -10,6 +10,9 @@ import org.pcollections.TreePVector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class PresentationComponent implements Component {
     private static Logger log = LoggerFactory.getLogger(PresentationComponent.class);
     private RuleComponent rs;
@@ -56,6 +59,15 @@ public class PresentationComponent implements Component {
 
         mf.createSnapshot();
         outputHistory = outputHistory.plus(output);
+
+        if(token.payloadEquals("type", "robot_control")) {
+            Map<String, Object> robotInfo = token.get("robot_info", HashMap.class).get();
+            String action = (String) robotInfo.get("action");
+            if(action.equals("move")) {
+
+            }
+        }
+
     }
 
     public static Token simpleTTS(String utterance) {

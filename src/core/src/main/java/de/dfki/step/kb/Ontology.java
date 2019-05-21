@@ -138,7 +138,7 @@ public class Ontology {
      */
     public static final Attribute<String> device = new Attribute<>("tocalog/device");
 
-    public static final Attribute<Vector2> resolution = new Attribute<>("tocalog/resolution");
+    public static final Attribute<Vector2> resolution = new Attribute<>("tocalog/resolution_entity");
     public static final Attribute<String> partOf = new Attribute<>("tocalog/partOf");
     public static final Attribute<Reference> owner = new Attribute<>("tocalog/owner");
 

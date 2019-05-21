@@ -1,8 +1,7 @@
-package de.dfki.step.resolution;
+package de.dfki.step.resolution_entity;
 
-import de.dfki.step.kb.Entity;
-import de.dfki.step.kb.Ontology;
-import de.dfki.step.kb.Reference;
+import de.dfki.step.kb.*;
+
 
 import java.util.Collection;
 import java.util.function.Supplier;

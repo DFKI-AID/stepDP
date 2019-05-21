@@ -1,14 +1,13 @@
-package de.dfki.step.resolution;
+package de.dfki.step.resolution_entity;
 
-import de.dfki.step.kb.Entity;
-import de.dfki.step.kb.Ontology;
+import de.dfki.step.kb.*;
 
 import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Supplier;
 
 /*candidate entities get higher confidence if they have been mentioned recently in the discourse */
-public class DiscourseFocusRR implements ReferenceResolver {
+public class DiscourseFocusRR implements ReferenceResolver{
 
 
     private long discourseTimeout = 5000L;

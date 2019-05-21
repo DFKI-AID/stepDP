@@ -1,12 +1,8 @@
-package de.dfki.step.resolution;
+package de.dfki.step.resolution_entity;
 
-import de.dfki.step.core.Component;
-import de.dfki.step.core.ComponentManager;
-import de.dfki.step.core.InputComponent;
-import de.dfki.step.core.Token;
+import de.dfki.step.core.*;
 import de.dfki.step.kb.Attribute;
 import de.dfki.step.kb.AttributeValue;
-import de.dfki.step.kb.DataEntry;
 import de.dfki.step.kb.Entity;
 import org.pcollections.PSequence;
 import org.pcollections.PSet;
@@ -22,22 +18,22 @@ public class ResolutionComponent implements Component {
 
     private static Logger log = LoggerFactory.getLogger(ResolutionComponent.class);
     private ComponentManager cm;
-    private Supplier<Collection<DataEntry>> personSupplier;
-    private Supplier<Collection<DataEntry>> physicalEntitySupplier;
-    private Supplier<Collection<DataEntry>> sessionSupplier;
+    private Supplier<Collection<Entity>> personSupplier;
+    private Supplier<Collection<Entity>> physicalEntitySupplier;
+    private Supplier<Collection<Entity>> sessionSupplier;
     private PSequence<ReferenceDistribution> distributions = TreePVector.empty();
     private final double RESOLUTION_CONFIDENCE = 0.1;
 
 
-    public void setPersonSupplier(Supplier<Collection<DataEntry>> personSupplier) {
+    public void setPersonSupplier(Supplier<Collection<Entity>> personSupplier) {
         this.personSupplier = personSupplier;
     }
 
-    public void setPhysicalEntitySupplier(Supplier<Collection<DataEntry>> physicalEntitySupplier) {
+    public void setPhysicalEntitySupplier(Supplier<Collection<Entity>> physicalEntitySupplier) {
         this.physicalEntitySupplier = physicalEntitySupplier;
     }
 
-    public void setSessionSupplier(Supplier<Collection<DataEntry>> sessionSupplier) {
+    public void setSessionSupplier(Supplier<Collection<Entity>> sessionSupplier) {
         this.sessionSupplier = sessionSupplier;
     }
 
@@ -81,21 +77,21 @@ public class ResolutionComponent implements Component {
                 if(slotinfo.containsKey("slot_type")) {
                     if(slotinfo.get("slot_type").equals("entity")) {
                         if(slotinfo.get("entity_type").equals("person")) {
-                         //   rr = new PersonRR(personSupplier);
+                            rr = new PersonRR(personSupplier);
                         }else if(slotinfo.get("entity_type").equals("personal_pronoun")) {
-                          //  rr = new PersonPronounRR(personSupplier, sessionSupplier);
+                            rr = new PersonPronounRR(personSupplier, sessionSupplier);
                         }else {
-                            rr = new ObjectRR(() -> physicalEntitySupplier.get().stream().filter(o -> o.get("entity_type").get().equals(slotinfo.get("entity_type"))).collect(Collectors.toList()));
+                            rr = new ObjectRR(() -> physicalEntitySupplier.get().stream().filter(o -> o.attributes.get("entity_type").equals(slotinfo.get("entity_type"))).collect(Collectors.toList()));
                             if(slotinfo.containsKey("personal_pronoun")) {
                                 ((ObjectRR) rr).setPronoun((String)slotinfo.get("personal_pronoun"));
                             }
                             if(slotinfo.containsKey("attributes")) {
-                                Map<String, Object> attrMap = new HashMap<>();
+                                Map<Attribute, AttributeValue> attrMap = new HashMap<>();
                                 List<Map<String, Object>> attributes = (List) slotinfo.get("attributes");
                                 for(Map<String, Object> attr: attributes) {
-                                    String attrKey = (String) attr.get("attribute_type");
-                                    Object attrValue =  attr.get("attribute_value");
-                                    attrMap.put(attrKey, attrValue);
+                                    Attribute a = new Attribute((String)attr.get("attribute_type"));
+                                    String aValue = (String) attr.get("attribute_value");
+                                    attrMap.put(a, new AttributeValue(aValue, aValue, a));
                                 }
                                 ((ObjectRR) rr).setAttrMap(attrMap);
 

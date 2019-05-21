@@ -1,10 +1,12 @@
-package de.dfki.step.resolution;
+package de.dfki.step.resolution_entity;
 
 import de.dfki.step.kb.Entity;
 import de.dfki.step.kb.Ontology;
+
 import de.dfki.step.util.Vector3;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;

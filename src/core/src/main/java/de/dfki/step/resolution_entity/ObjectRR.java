@@ -1,11 +1,8 @@
-package de.dfki.step.resolution;
+package de.dfki.step.resolution_entity;
 
 import de.dfki.step.kb.*;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Supplier;
 
 /* resolves references to object -> weighted distribution is used, for example given attributes and pronouns are considered */
@@ -13,19 +10,19 @@ public class ObjectRR implements ReferenceResolver {
 
 
     private String speakerId = "";
-    private Collection<DataEntry> candidateObjects;
-    private Map<String, Object> attrMap = new HashMap<>();
+    private Collection<Entity> candidateObjects;
+    private Map<Attribute, AttributeValue> attrMap = new HashMap<>();
     private String pronoun;
-    private Supplier<Collection<DataEntry>> personSupplier;
-    private Supplier<Collection<DataEntry>> objectSupplier;
-    private Supplier<Collection<DataEntry>> sessionSupplier;
+    private Supplier<Collection<Entity>> personSupplier;
+    private Supplier<Collection<Entity>> objectSupplier;
+    private Supplier<Collection<Entity>> sessionSupplier;
 
-    public ObjectRR(Supplier<Collection<DataEntry>> objectSupplier) {
+    public ObjectRR(Supplier<Collection<Entity>> objectSupplier) {
         this.objectSupplier = objectSupplier;
         this.candidateObjects = objectSupplier.get();
     }
 
-    public void setAttrMap(Map<String, Object> attrMap) {
+    public void setAttrMap(Map<Attribute, AttributeValue> attrMap) {
         this.attrMap = attrMap;
     }
 
@@ -38,11 +35,11 @@ public class ObjectRR implements ReferenceResolver {
         this.pronoun = pronoun;
     }
 
-    public void setPersonSupplier(Supplier<Collection<DataEntry>> personSupplier) {
+    public void setPersonSupplier(Supplier<Collection<Entity>> personSupplier) {
         this.personSupplier = personSupplier;
     }
 
-    public void setSessionSupplier(Supplier<Collection<DataEntry>> sessionSupplier) {
+    public void setSessionSupplier(Supplier<Collection<Entity>> sessionSupplier) {
         this.sessionSupplier = sessionSupplier;
     }
 
@@ -57,7 +54,7 @@ public class ObjectRR implements ReferenceResolver {
             referenceWeightMap.put(attrRR, 3.0);
         }
 
-      /*  if(personSupplier != null && sessionSupplier != null && pronoun != null) {
+        if(personSupplier != null && sessionSupplier != null && pronoun != null) {
             PossessiveRR possRR = new PossessiveRR(objectSupplier);
 
             PersonPronounRR personRR = new PersonPronounRR(personSupplier, sessionSupplier);
@@ -67,7 +64,7 @@ public class ObjectRR implements ReferenceResolver {
 
             referenceWeightMap.put(possRR, 2.0);
 
-        }*/
+        }
 
 
          //VisualFocus, DiscourseFocus, Closeness, ... could be added here as well
@@ -75,8 +72,8 @@ public class ObjectRR implements ReferenceResolver {
 
        if(referenceWeightMap.isEmpty()) {
            ReferenceDistribution distribution = new ReferenceDistribution();
-           for(DataEntry e: candidateObjects) {
-               distribution.getConfidences().put(e.getId(), 1.0/candidateObjects.size());
+           for(Entity e: candidateObjects) {
+               distribution.getConfidences().put(e.get(Ontology.id).get(), 1.0/candidateObjects.size());
            }
            return distribution;
 

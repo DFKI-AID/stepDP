@@ -123,7 +123,7 @@ public class MyDialog extends Dialog {
         GrammarManager gm = MyGrammar.create();
         Grammar grammar = gm.createGrammar();
         SpeechRecognitionClient src = new SpeechRecognitionClient(app, "localhost", 9696, (token) -> {
-            // TODO use resolution on token
+            // TODO use resolution_entity on token
             Optional<Map> semantic = token.get(Map.class, "semantic");
             if (!semantic.isPresent()) {
                 return;
