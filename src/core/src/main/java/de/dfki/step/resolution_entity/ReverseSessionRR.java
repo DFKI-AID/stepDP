@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.function.Supplier;
 
 /* confidence is given to sessions not including the speaker */
-public class ReverseSessionRR implements ReferenceResolver {
+public class ReverseSessionRR implements de.dfki.step.resolution_entity.ReferenceResolver {
 
 
     private String speakerId = "";
@@ -24,8 +24,8 @@ public class ReverseSessionRR implements ReferenceResolver {
     }
 
     @Override
-    public ReferenceDistribution getReferences() {
-        ReferenceDistribution distribution = new ReferenceDistribution();
+    public de.dfki.step.resolution_entity.ReferenceDistribution getReferences() {
+        de.dfki.step.resolution_entity.ReferenceDistribution distribution = new de.dfki.step.resolution_entity.ReferenceDistribution();
 
         Collection<Entity> othersessions = new ArrayList<Entity>();
         for(Entity s: sessions) {

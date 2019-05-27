@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 /* confidence is given to the session including the speaker */
-public class SessionRR implements ReferenceResolver {
+public class SessionRR implements de.dfki.step.resolution_entity.ReferenceResolver {
 
 
     private String speakerId = "";
@@ -25,8 +25,8 @@ public class SessionRR implements ReferenceResolver {
     }
 
     @Override
-    public ReferenceDistribution getReferences() {
-        ReferenceDistribution distribution = new ReferenceDistribution();
+    public de.dfki.step.resolution_entity.ReferenceDistribution getReferences() {
+        de.dfki.step.resolution_entity.ReferenceDistribution distribution = new de.dfki.step.resolution_entity.ReferenceDistribution();
 
         Entity speakerSession = new Entity();
         List<Entity> otherSessions = new ArrayList<>();

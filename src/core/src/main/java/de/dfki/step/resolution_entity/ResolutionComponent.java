@@ -21,7 +21,7 @@ public class ResolutionComponent implements Component {
     private Supplier<Collection<Entity>> personSupplier;
     private Supplier<Collection<Entity>> physicalEntitySupplier;
     private Supplier<Collection<Entity>> sessionSupplier;
-    private PSequence<ReferenceDistribution> distributions = TreePVector.empty();
+    private PSequence<de.dfki.step.resolution_entity.ReferenceDistribution> distributions = TreePVector.empty();
     private final double RESOLUTION_CONFIDENCE = 0.1;
 
 
@@ -47,7 +47,7 @@ public class ResolutionComponent implements Component {
 
     }
 
-    public PSequence<ReferenceDistribution> getReferenceDistribution() {
+    public PSequence<de.dfki.step.resolution_entity.ReferenceDistribution> getReferenceDistribution() {
         return distributions;
     }
 
@@ -62,7 +62,7 @@ public class ResolutionComponent implements Component {
 
     public void doResolution(Token token) {
         System.out.println("in doResolution");
-        ReferenceResolver rr = null;
+        de.dfki.step.resolution_entity.ReferenceResolver rr = null;
 
         if(token.has("slots")) {
             List<Map<String,Object>> slots = (List<Map<String, Object>>) token.get("slots").get();
@@ -73,17 +73,17 @@ public class ResolutionComponent implements Component {
                         continue;
                     }
                 }
-                ReferenceDistribution distribution;
+                de.dfki.step.resolution_entity.ReferenceDistribution distribution;
                 if(slotinfo.containsKey("slot_type")) {
                     if(slotinfo.get("slot_type").equals("entity")) {
                         if(slotinfo.get("entity_type").equals("person")) {
-                            rr = new PersonRR(personSupplier);
+                            rr = new de.dfki.step.resolution_entity.PersonRR(personSupplier);
                         }else if(slotinfo.get("entity_type").equals("personal_pronoun")) {
-                            rr = new PersonPronounRR(personSupplier, sessionSupplier);
+                            rr = new de.dfki.step.resolution_entity.PersonPronounRR(personSupplier, sessionSupplier);
                         }else {
-                            rr = new ObjectRR(() -> physicalEntitySupplier.get().stream().filter(o -> o.attributes.get("entity_type").equals(slotinfo.get("entity_type"))).collect(Collectors.toList()));
+                            rr = new de.dfki.step.resolution_entity.ObjectRR(() -> physicalEntitySupplier.get().stream().filter(o -> o.attributes.get("entity_type").equals(slotinfo.get("entity_type"))).collect(Collectors.toList()));
                             if(slotinfo.containsKey("personal_pronoun")) {
-                                ((ObjectRR) rr).setPronoun((String)slotinfo.get("personal_pronoun"));
+                                ((de.dfki.step.resolution_entity.ObjectRR) rr).setPronoun((String)slotinfo.get("personal_pronoun"));
                             }
                             if(slotinfo.containsKey("attributes")) {
                                 Map<Attribute, AttributeValue> attrMap = new HashMap<>();
@@ -93,7 +93,7 @@ public class ResolutionComponent implements Component {
                                     String aValue = (String) attr.get("attribute_value");
                                     attrMap.put(a, new AttributeValue(aValue, aValue, a));
                                 }
-                                ((ObjectRR) rr).setAttrMap(attrMap);
+                                ((de.dfki.step.resolution_entity.ObjectRR) rr).setAttrMap(attrMap);
 
                             }
                         }

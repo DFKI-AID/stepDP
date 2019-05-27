@@ -10,7 +10,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 
-public class VisualFocusRR implements ReferenceResolver {
+public class VisualFocusRR implements de.dfki.step.resolution_entity.ReferenceResolver {
 
 
     private long focusTimeout = 5000L;
@@ -32,8 +32,8 @@ public class VisualFocusRR implements ReferenceResolver {
 
 
     @Override
-    public ReferenceDistribution getReferences() {
-        ReferenceDistribution focusDistribution = new ReferenceDistribution();
+    public de.dfki.step.resolution_entity.ReferenceDistribution getReferences() {
+        de.dfki.step.resolution_entity.ReferenceDistribution focusDistribution = new de.dfki.step.resolution_entity.ReferenceDistribution();
 
         List<Entity> focusList = foci.stream().filter(e -> e.get(Ontology.visualSource).orElse("").equals(id)).collect(Collectors.toList());
         long now = System.currentTimeMillis();

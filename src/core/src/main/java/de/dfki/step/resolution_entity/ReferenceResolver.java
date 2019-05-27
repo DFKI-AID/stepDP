@@ -1,6 +1,6 @@
 package de.dfki.step.resolution_entity;
 
-import de.dfki.step.resolution.ReferenceDistribution;
+import de.dfki.step.resolution_entity.ReferenceDistribution;
 
 /**
  */

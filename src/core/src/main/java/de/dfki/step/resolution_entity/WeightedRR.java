@@ -6,19 +6,19 @@ import java.util.List;
 
 /**
  */
-public class WeightedRR implements ReferenceResolver {
+public class WeightedRR implements de.dfki.step.resolution_entity.ReferenceResolver {
     private List<Pair> resolvers = new ArrayList<>();
 
-    public void addResolver(ReferenceResolver rr, double weight) {
+    public void addResolver(de.dfki.step.resolution_entity.ReferenceResolver rr, double weight) {
         this.resolvers.add(new Pair(rr, weight));
     }
 
     @Override
-    public ReferenceDistribution getReferences() {
-        ReferenceDistribution result = ReferenceDistribution.Empty;
+    public de.dfki.step.resolution_entity.ReferenceDistribution getReferences() {
+        de.dfki.step.resolution_entity.ReferenceDistribution result = de.dfki.step.resolution_entity.ReferenceDistribution.Empty;
         for (Pair resolver : resolvers) {
             double weight = resolver.weight;
-            ReferenceDistribution rd = resolver.rr.getReferences();
+            de.dfki.step.resolution_entity.ReferenceDistribution rd = resolver.rr.getReferences();
             System.out.println(resolver.rr.toString() + ": " + rd.toString());
             rd = rd.mul(weight);
             result = result.add(rd);
@@ -31,10 +31,10 @@ public class WeightedRR implements ReferenceResolver {
     //TODO assert functions for weight
 
     private static class Pair {
-        public final ReferenceResolver rr;
+        public final de.dfki.step.resolution_entity.ReferenceResolver rr;
         public final double weight;
 
-        private Pair(ReferenceResolver rr, double weight) {
+        private Pair(de.dfki.step.resolution_entity.ReferenceResolver rr, double weight) {
             this.rr = rr;
             this.weight = weight;
         }

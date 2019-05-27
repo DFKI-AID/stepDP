@@ -1,6 +1,7 @@
 package de.dfki.step.fusion;
 
 import de.dfki.step.core.*;
+import de.dfki.step.resolution.ResolutionComponent;
 import org.pcollections.HashTreePMap;
 import org.pcollections.PMap;
 import org.pcollections.PSet;
@@ -21,11 +22,15 @@ public class FusionComponent implements Component {
     private PMap<String, BooleanSupplier> activeSuppliers = HashTreePMap.empty();
     private ComponentManager cm;
     private InputComponent ic;
+    private ResolutionComponent resc = null;
 
     @Override
     public void init(ComponentManager cm) {
         this.cm = cm;
         this.ic = cm.retrieveComponent(InputComponent.class);
+        if(cm.getComponent(ResolutionComponent.class).isPresent()) {
+            this.resc = cm.getComponent(ResolutionComponent.class).get();
+        }
     }
 
     @Override
@@ -41,8 +46,15 @@ public class FusionComponent implements Component {
                     .forEach(id -> removeFusionNode(id));
         }
 
+        //check if resolution component is present -> get tokens from it otherwise directly use token from the input component
+        PSet<Token> tokens;
+        if(resc != null) {
+            tokens = resc.getTokens();
 
-        PSet<Token> tokens = ic.getTokens();
+
+        }else {
+            tokens = ic.getTokens();
+        }
         var fusedTokens = fuse(tokens);
         cm.retrieveComponent(TokenComponent.class).addTokens(fusedTokens);
     }

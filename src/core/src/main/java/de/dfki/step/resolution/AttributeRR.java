@@ -4,6 +4,7 @@ import de.dfki.step.kb.*;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -44,6 +45,8 @@ public class AttributeRR implements ReferenceResolver {
             for(String attribute: attributes.keySet()) {
                 if(object.get(attribute).isPresent()) {
                     if(attributes.get(attribute).equals(object.get(attribute).get())) {
+                        matchedCount += 1.0;
+                    }else if(object.get(attribute).get() instanceof Collection && ((Collection) object.get(attribute).get()).contains(attributes.get(attribute))) {
                         matchedCount += 1.0;
                     }
                 }

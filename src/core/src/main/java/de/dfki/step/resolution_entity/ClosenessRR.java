@@ -12,7 +12,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /* entities closer to the speaker receive higher confidence*/
-public class ClosenessRR implements ReferenceResolver {
+public class ClosenessRR implements de.dfki.step.resolution_entity.ReferenceResolver {
 
 
     private Entity speaker;
@@ -29,9 +29,9 @@ public class ClosenessRR implements ReferenceResolver {
 
 
     @Override
-    public ReferenceDistribution getReferences() {
+    public de.dfki.step.resolution_entity.ReferenceDistribution getReferences() {
 
-        ReferenceDistribution distribution = new ReferenceDistribution();
+        de.dfki.step.resolution_entity.ReferenceDistribution distribution = new de.dfki.step.resolution_entity.ReferenceDistribution();
 
 
         Vector3 speakerPosition = speaker.get(Ontology.position).get();

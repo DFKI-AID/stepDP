@@ -10,7 +10,7 @@ import java.util.function.Supplier;
 
 /* if candidate entities (given by refSupplier) have certain positional relation (e.g. next to/above) to another object of a specific type (given by baseSupplier)
  * they receive a higher confidence */
-public class LocationRR implements ReferenceResolver {
+public class LocationRR implements de.dfki.step.resolution_entity.ReferenceResolver {
 
 
     private String locationRelation;
@@ -30,8 +30,8 @@ public class LocationRR implements ReferenceResolver {
 
 
     @Override
-    public ReferenceDistribution getReferences() {
-        ReferenceDistribution locationDist = new ReferenceDistribution();
+    public de.dfki.step.resolution_entity.ReferenceDistribution getReferences() {
+        de.dfki.step.resolution_entity.ReferenceDistribution locationDist = new de.dfki.step.resolution_entity.ReferenceDistribution();
 
         for(Entity candidate: refCandidates) {
             if(candidate.get(Ontology.position).isPresent()) {

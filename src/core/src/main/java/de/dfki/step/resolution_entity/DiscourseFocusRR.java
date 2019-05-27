@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 /*candidate entities get higher confidence if they have been mentioned recently in the discourse */
-public class DiscourseFocusRR implements ReferenceResolver{
+public class DiscourseFocusRR implements de.dfki.step.resolution_entity.ReferenceResolver {
 
 
     private long discourseTimeout = 5000L;
@@ -23,9 +23,9 @@ public class DiscourseFocusRR implements ReferenceResolver{
 
 
     @Override
-    public ReferenceDistribution getReferences() {
+    public de.dfki.step.resolution_entity.ReferenceDistribution getReferences() {
 
-        ReferenceDistribution discourseDistribution = new ReferenceDistribution();
+        de.dfki.step.resolution_entity.ReferenceDistribution discourseDistribution = new de.dfki.step.resolution_entity.ReferenceDistribution();
         long now = System.currentTimeMillis();
 
         for (Entity entity : candidateEntities) {

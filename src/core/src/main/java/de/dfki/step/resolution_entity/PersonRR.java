@@ -8,7 +8,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /* person with correct name get higher confidence */
-public class PersonRR implements ReferenceResolver {
+public class PersonRR implements de.dfki.step.resolution_entity.ReferenceResolver {
 
     private Collection<Entity> persons;
     private String personName = "";
@@ -23,8 +23,8 @@ public class PersonRR implements ReferenceResolver {
 
 
     @Override
-    public ReferenceDistribution getReferences() {
-        ReferenceDistribution distribution = new ReferenceDistribution();
+    public de.dfki.step.resolution_entity.ReferenceDistribution getReferences() {
+        de.dfki.step.resolution_entity.ReferenceDistribution distribution = new de.dfki.step.resolution_entity.ReferenceDistribution();
         List<Entity> candidates = persons.stream().filter(p -> p.get(Ontology.name).get().equals(personName)).collect(Collectors.toList());
 
         for(Entity person: candidates) {

@@ -9,7 +9,7 @@ import java.util.function.Supplier;
 
 
 /* candidate entities get higher confidence the more requested attributes they have */
-public class AttributeRR implements ReferenceResolver {
+public class AttributeRR implements de.dfki.step.resolution_entity.ReferenceResolver {
 
 
     private Map<Attribute, AttributeValue> attributes = new HashMap<>();
@@ -27,9 +27,9 @@ public class AttributeRR implements ReferenceResolver {
 
 
     @Override
-    public ReferenceDistribution getReferences() {
+    public de.dfki.step.resolution_entity.ReferenceDistribution getReferences() {
 
-        ReferenceDistribution objectDistribution = new ReferenceDistribution();
+        de.dfki.step.resolution_entity.ReferenceDistribution objectDistribution = new de.dfki.step.resolution_entity.ReferenceDistribution();
 
         if(attributes.isEmpty()) {
             for(Entity e: candidates) {

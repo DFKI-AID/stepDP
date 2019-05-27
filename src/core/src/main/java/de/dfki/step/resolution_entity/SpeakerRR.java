@@ -9,7 +9,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /* the speaker is resolved */
-public class SpeakerRR implements ReferenceResolver {
+public class SpeakerRR implements de.dfki.step.resolution_entity.ReferenceResolver {
 
 
     private String speakerId = "";
@@ -25,8 +25,8 @@ public class SpeakerRR implements ReferenceResolver {
     }
 
     @Override
-    public ReferenceDistribution getReferences() {
-        ReferenceDistribution distribution = new ReferenceDistribution();
+    public de.dfki.step.resolution_entity.ReferenceDistribution getReferences() {
+        de.dfki.step.resolution_entity.ReferenceDistribution distribution = new de.dfki.step.resolution_entity.ReferenceDistribution();
 
         Collection<Entity> speakers = persons.stream()
                 .filter(e -> e.get(Ontology.id).get().equals(speakerId))

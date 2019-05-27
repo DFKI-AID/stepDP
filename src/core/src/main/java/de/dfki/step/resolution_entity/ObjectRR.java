@@ -6,7 +6,7 @@ import java.util.*;
 import java.util.function.Supplier;
 
 /* resolves references to object -> weighted distribution is used, for example given attributes and pronouns are considered */
-public class ObjectRR implements ReferenceResolver {
+public class ObjectRR implements de.dfki.step.resolution_entity.ReferenceResolver {
 
 
     private String speakerId = "";
@@ -45,19 +45,19 @@ public class ObjectRR implements ReferenceResolver {
 
 
     @Override
-    public ReferenceDistribution getReferences() {
-        Map<ReferenceResolver, Double> referenceWeightMap = new HashMap<>();
+    public de.dfki.step.resolution_entity.ReferenceDistribution getReferences() {
+        Map<de.dfki.step.resolution_entity.ReferenceResolver, Double> referenceWeightMap = new HashMap<>();
 
         if(!attrMap.isEmpty()) {
-            AttributeRR attrRR = new AttributeRR(objectSupplier);
+            de.dfki.step.resolution_entity.AttributeRR attrRR = new de.dfki.step.resolution_entity.AttributeRR(objectSupplier);
             attrRR.setAttributes(attrMap);
             referenceWeightMap.put(attrRR, 3.0);
         }
 
         if(personSupplier != null && sessionSupplier != null && pronoun != null) {
-            PossessiveRR possRR = new PossessiveRR(objectSupplier);
+            de.dfki.step.resolution_entity.PossessiveRR possRR = new de.dfki.step.resolution_entity.PossessiveRR(objectSupplier);
 
-            PersonPronounRR personRR = new PersonPronounRR(personSupplier, sessionSupplier);
+            de.dfki.step.resolution_entity.PersonPronounRR personRR = new de.dfki.step.resolution_entity.PersonPronounRR(personSupplier, sessionSupplier);
             personRR.setSpeakerId(speakerId);
             personRR.setPronoun(pronoun);
             possRR.setPossessivePronounResolver(personRR);
@@ -71,7 +71,7 @@ public class ObjectRR implements ReferenceResolver {
 
 
        if(referenceWeightMap.isEmpty()) {
-           ReferenceDistribution distribution = new ReferenceDistribution();
+           de.dfki.step.resolution_entity.ReferenceDistribution distribution = new de.dfki.step.resolution_entity.ReferenceDistribution();
            for(Entity e: candidateObjects) {
                distribution.getConfidences().put(e.get(Ontology.id).get(), 1.0/candidateObjects.size());
            }
@@ -79,10 +79,10 @@ public class ObjectRR implements ReferenceResolver {
 
        }
 
-        WeightedRR weightedObjectRR = new WeightedRR();
+        de.dfki.step.resolution_entity.WeightedRR weightedObjectRR = new de.dfki.step.resolution_entity.WeightedRR();
         Optional<Double> count = referenceWeightMap.values().stream().reduce((d1, d2) -> d1 + d2);
         if(count.isPresent()) {
-            for(ReferenceResolver resolver: referenceWeightMap.keySet()) {
+            for(de.dfki.step.resolution_entity.ReferenceResolver resolver: referenceWeightMap.keySet()) {
                 weightedObjectRR.addResolver(resolver, referenceWeightMap.get(resolver)/count.get());
             }
         }

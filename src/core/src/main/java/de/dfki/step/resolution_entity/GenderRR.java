@@ -8,7 +8,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /* persons of the requested gender receive confidence */
-public class GenderRR implements ReferenceResolver {
+public class GenderRR implements de.dfki.step.resolution_entity.ReferenceResolver {
 
 
     private String gender = "";
@@ -26,8 +26,8 @@ public class GenderRR implements ReferenceResolver {
     }
 
     @Override
-    public ReferenceDistribution getReferences() {
-        ReferenceDistribution distribution = new ReferenceDistribution();
+    public de.dfki.step.resolution_entity.ReferenceDistribution getReferences() {
+        de.dfki.step.resolution_entity.ReferenceDistribution distribution = new de.dfki.step.resolution_entity.ReferenceDistribution();
 
         //return equal distribution for all person when the gender is not set
         if(gender.equals("")) {

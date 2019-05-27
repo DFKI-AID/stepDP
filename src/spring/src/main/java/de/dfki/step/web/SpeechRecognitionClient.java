@@ -54,8 +54,8 @@ public class SpeechRecognitionClient {
                     String speechRecog = m.getPayloadAsText(StandardCharsets.UTF_8);
                     try {
                         Token t = Token.fromJson(speechRecog);
-                        if(!t.payloadEquals("de/dfki/step/app", app)) {
-                            // speech recognition from another de.dfki.step.app
+                        if(!t.payloadEquals("app", app)) {
+                            // speech recognition from another app
                             return;
                         }
                         callback.accept(t);

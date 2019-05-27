@@ -8,6 +8,7 @@ import de.dfki.step.kb.Attribute;
 import de.dfki.step.kb.AttributeValue;
 import de.dfki.step.kb.DataEntry;
 import de.dfki.step.kb.Entity;
+import org.pcollections.HashTreePSet;
 import org.pcollections.PSequence;
 import org.pcollections.PSet;
 import org.pcollections.TreePVector;
@@ -27,6 +28,7 @@ public class ResolutionComponent implements Component {
     private Supplier<Collection<DataEntry>> sessionSupplier;
     private PSequence<ReferenceDistribution> distributions = TreePVector.empty();
     private final double RESOLUTION_CONFIDENCE = 0.1;
+    private PSet<Token> currentTokens = HashTreePSet.empty();
 
 
     public void setPersonSupplier(Supplier<Collection<DataEntry>> personSupplier) {
@@ -55,26 +57,38 @@ public class ResolutionComponent implements Component {
         return distributions;
     }
 
+    public PSet<Token> getTokens() {
+        return currentTokens;
+    }
+
     @Override
     public void update() {
-        PSet<Token> tokens = cm.retrieveComponent(InputComponent.class).getTokens();
-        for(Token token: tokens) {
-            doResolution(token);
+        currentTokens = cm.retrieveComponent(InputComponent.class).getTokens();
+        PSet<Token> modifiedTokens = HashTreePSet.empty();
+        for(Token token: currentTokens) {
+            modifiedTokens = modifiedTokens.plus(doResolution(token));
+        }
+
+        synchronized (this) {
+            currentTokens = modifiedTokens;
         }
     }
 
 
-    public void doResolution(Token token) {
-        System.out.println("in doResolution");
+    public Token doResolution(Token token) {
         ReferenceResolver rr = null;
 
         if(token.has("slots")) {
-            List<Map<String,Object>> slots = (List<Map<String, Object>>) token.get("slots").get();
-            for(Map<String, Object> slotinfo: slots) {
+            //currently only one slot is supported, how to add list in grammar?
+            //TODO: support more than one slot
+            Map<String,Object> slotinfo = (Map<String, Object>) token.get("slots").get();
+            Map<String,Object> slotCopy = new HashMap();
+            slotCopy.putAll(slotinfo);
+            // for(Map<String, Object> slotinfo: slots) {
                 //check if slot has already been resolved in previous iteration
                 if(slotinfo.containsKey("resolved")) {
                     if((Boolean) slotinfo.get("resolved")) {
-                        continue;
+                        return token;
                     }
                 }
                 ReferenceDistribution distribution;
@@ -91,12 +105,12 @@ public class ResolutionComponent implements Component {
                             }
                             if(slotinfo.containsKey("attributes")) {
                                 Map<String, Object> attrMap = new HashMap<>();
-                                List<Map<String, Object>> attributes = (List) slotinfo.get("attributes");
-                                for(Map<String, Object> attr: attributes) {
-                                    String attrKey = (String) attr.get("attribute_type");
-                                    Object attrValue =  attr.get("attribute_value");
+                                Map<String, Object> attributes = (Map<String, Object>) slotinfo.get("attributes");
+                                //for(Map<String, Object> attr: attributes) {
+                                    String attrKey = (String) attributes.get("attribute_type");
+                                    Object attrValue =  attributes.get("attribute_value");
                                     attrMap.put(attrKey, attrValue);
-                                }
+                               // }
                                 ((ObjectRR) rr).setAttrMap(attrMap);
 
                             }
@@ -109,7 +123,7 @@ public class ResolutionComponent implements Component {
                     distribution = rr.getReferences();
                     if(distribution != null) {
                         Map<String, Double> dCandidates = distribution.getConfidences();
-                        slotinfo.put("resolved", true);
+                        slotCopy.put("resolved", true);
                         List<Map<String, Object>> candidates = new ArrayList<>();
                         for(Map.Entry entry: dCandidates.entrySet()) {
                             //only add candidated if probability is above threshold (e.g. 0.1)
@@ -120,18 +134,19 @@ public class ResolutionComponent implements Component {
                                 candidates.add(map);
                             }
                         }
-                        slotinfo.put("resolved_candidates", candidates);
+                        slotCopy.put("resolved_candidates", candidates);
                     }else {
-                        slotinfo.put("resolved", false);
+                        slotCopy.put("resolved", false);
                     }
                 }else {
-                    slotinfo.put("resolved", false);
+                    slotCopy.put("resolved", false);
                 }
-            }
-
-            System.out.println("Token in Resolution: " + token.toString());
+            //}
+            token = token.add("slots", slotCopy);
         }
 
+        System.out.println("modified token: " + token.toString());
+        return token;
     }
 
     @Override

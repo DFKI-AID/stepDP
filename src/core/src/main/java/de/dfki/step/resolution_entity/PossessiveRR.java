@@ -8,10 +8,10 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /* personal pronouns are resolved and tested if candidate persons have object of correct type (given by objectSupplier) */
-public class PossessiveRR implements ReferenceResolver {
+public class PossessiveRR implements de.dfki.step.resolution_entity.ReferenceResolver {
 
 
-    private ReferenceResolver possessivePronounResolver = new WeightedRR();
+    private de.dfki.step.resolution_entity.ReferenceResolver possessivePronounResolver = new de.dfki.step.resolution_entity.WeightedRR();
     private Collection<Entity> objects;
 
 
@@ -19,7 +19,7 @@ public class PossessiveRR implements ReferenceResolver {
         this.objects = objectSupplier.get();
     }
 
-    public void setPossessivePronounResolver(ReferenceResolver possessivePronounResolver) {
+    public void setPossessivePronounResolver(de.dfki.step.resolution_entity.ReferenceResolver possessivePronounResolver) {
         this.possessivePronounResolver = possessivePronounResolver;
     }
 
@@ -27,11 +27,11 @@ public class PossessiveRR implements ReferenceResolver {
 
 
     @Override
-    public ReferenceDistribution getReferences() {
+    public de.dfki.step.resolution_entity.ReferenceDistribution getReferences() {
 
-        ReferenceDistribution objectDistribution = new ReferenceDistribution();
+        de.dfki.step.resolution_entity.ReferenceDistribution objectDistribution = new de.dfki.step.resolution_entity.ReferenceDistribution();
 
-        ReferenceDistribution personDistribution = possessivePronounResolver.getReferences();
+        de.dfki.step.resolution_entity.ReferenceDistribution personDistribution = possessivePronounResolver.getReferences();
 
         for(String personId: personDistribution.getConfidences().keySet()) {
             Collection<Entity> ownedObjects = objects.stream().filter(o -> o.get(Ontology.owner).orElse(new Reference("", "")).id.equals(personId)).collect(Collectors.toList());

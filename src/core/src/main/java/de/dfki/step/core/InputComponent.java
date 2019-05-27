@@ -61,6 +61,7 @@ public class InputComponent implements Component {
         tokens = tokens.minusAll(tokens.stream()
                 .filter(t -> t.get("timestamp", Long.class).get() + timeout > now)
                 .collect(Collectors.toList()));
+
     }
 
     @Override
