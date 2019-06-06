@@ -55,15 +55,15 @@ public class FusionComponent implements Component {
             tokens = ic.getTokens();
         }
 
-        //check if nodes for fusion are actually provided
-        if(fusionNodes.isEmpty()) {
-            //check if an intent was already provided in the input token -> if so: can still be forwarded to the dialog
-            Collection<Token> intentTokens = tokens.stream().filter(t -> t.has("intent")).collect(Collectors.toList());
-            cm.retrieveComponent(TokenComponent.class).addTokens(intentTokens);
-        }else {
-            var fusedTokens = fuse(tokens);
-            cm.retrieveComponent(TokenComponent.class).addTokens(fusedTokens);
-        }
+
+        //check if an intent was already provided in the input token -> if so: can already be forwarded to the dialog
+        Collection<Token> intentTokens = tokens.stream().filter(t -> t.has("intent")).collect(Collectors.toList());
+        cm.retrieveComponent(TokenComponent.class).addTokens(intentTokens);
+
+        //do fusion
+        var fusedTokens = fuse(tokens);
+        cm.retrieveComponent(TokenComponent.class).addTokens(fusedTokens);
+
     }
 
     /**
