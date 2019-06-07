@@ -1,7 +1,9 @@
 package de.dfki.step.resolution;
 
+import de.dfki.step.kb.DataEntry;
 import de.dfki.step.kb.Entity;
 import de.dfki.step.kb.Ontology;
+import de.dfki.step.util.Vector3;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -13,11 +15,11 @@ public class LocationRR implements ReferenceResolver {
 
 
     private String locationRelation;
-    private Collection<Entity> refCandidates;
-    private Collection<Entity> baseObjects;
+    private Collection<DataEntry> refCandidates;
+    private Collection<DataEntry> baseObjects;
     private final double DISTANCE = 2.0;
 
-    public LocationRR(Supplier<Collection<Entity>> refSupplier, Supplier<Collection<Entity>> baseSupplier) {
+    public LocationRR(Supplier<Collection<DataEntry>> refSupplier, Supplier<Collection<DataEntry>> baseSupplier) {
         refCandidates = refSupplier.get();
         baseObjects = baseSupplier.get();
     }
@@ -32,59 +34,59 @@ public class LocationRR implements ReferenceResolver {
     public ReferenceDistribution getReferences() {
         ReferenceDistribution locationDist = new ReferenceDistribution();
 
-        for(Entity candidate: refCandidates) {
-            if(candidate.get(Ontology.position).isPresent()) {
-                Optional<Entity> nextBase = Optional.empty();
+        for(DataEntry candidate: refCandidates) {
+            if(candidate.get("position", Vector3.class).isPresent()) {
+                Optional<DataEntry> nextBase = Optional.empty();
                 if(locationRelation.equals("next_to")) {
                     nextBase = baseObjects.stream()
-                            .filter(baseE -> baseE.get(Ontology.position).isPresent())
-                            .filter(baseE -> baseE.get(Ontology.position).get().getDistance(candidate.get(Ontology.position).get()) <= DISTANCE)
+                            .filter(baseE -> baseE.get("position", Vector3.class).isPresent())
+                            .filter(baseE -> baseE.get("position", Vector3.class).get().getDistance(candidate.get("position", Vector3.class).get()) <= DISTANCE)
                             .findAny();
                 } else if(locationRelation.equals("above") ) {
                     nextBase = baseObjects.stream()
-                            .filter(baseE -> baseE.get(Ontology.position).isPresent())
-                            .filter(baseE -> candidate.get(Ontology.position).get().z - baseE.get(Ontology.position).get().z <= DISTANCE
-                                    && candidate.get(Ontology.position).get().z - baseE.get(Ontology.position).get().z > 0.0)
+                            .filter(baseE -> baseE.get("position", Vector3.class).isPresent())
+                            .filter(baseE -> candidate.get("position", Vector3.class).get().z - baseE.get("position", Vector3.class).get().z <= DISTANCE
+                                    && candidate.get("position", Vector3.class).get().z - baseE.get("position", Vector3.class).get().z > 0.0)
                             .findAny();
                 } else if(locationRelation.equals("below")) {
                     nextBase = baseObjects.stream()
-                            .filter(baseE -> baseE.get(Ontology.position).isPresent())
-                            .filter(baseE -> baseE.get(Ontology.position).get().z - candidate.get(Ontology.position).get().z <= DISTANCE
-                                    && baseE.get(Ontology.position).get().z - candidate.get(Ontology.position).get().z > 0.0)
+                            .filter(baseE -> baseE.get("position", Vector3.class).isPresent())
+                            .filter(baseE -> baseE.get("position", Vector3.class).get().z - candidate.get("position", Vector3.class).get().z <= DISTANCE
+                                    && baseE.get("position", Vector3.class).get().z - candidate.get("position", Vector3.class).get().z > 0.0)
                             .findAny();
 
                 } else if(locationRelation.equals("right")) {
                     nextBase = baseObjects.stream()
-                            .filter(baseE -> baseE.get(Ontology.position).isPresent())
-                            .filter(baseE -> candidate.get(Ontology.position).get().x - baseE.get(Ontology.position).get().x <= DISTANCE
-                                    && candidate.get(Ontology.position).get().x - baseE.get(Ontology.position).get().x > 0.0)
+                            .filter(baseE -> baseE.get("position", Vector3.class).isPresent())
+                            .filter(baseE -> candidate.get("position", Vector3.class).get().x - baseE.get("position", Vector3.class).get().x <= DISTANCE
+                                    && candidate.get("position", Vector3.class).get().x - baseE.get("position", Vector3.class).get().x > 0.0)
                             .findAny();
 
                 } else if(locationRelation.equals("left")) {
                     nextBase = baseObjects.stream()
-                            .filter(baseE -> baseE.get(Ontology.position).isPresent())
-                            .filter(baseE -> baseE.get(Ontology.position).get().x - candidate.get(Ontology.position).get().x <= DISTANCE
-                                    && baseE.get(Ontology.position).get().x - candidate.get(Ontology.position).get().x > 0.0)
+                            .filter(baseE -> baseE.get("position", Vector3.class).isPresent())
+                            .filter(baseE -> baseE.get("position", Vector3.class).get().x - candidate.get("position", Vector3.class).get().x <= DISTANCE
+                                    && baseE.get("position", Vector3.class).get().x - candidate.get("position", Vector3.class).get().x > 0.0)
                             .findAny();
 
                 } else if(locationRelation.equals("in_front")) {
                     nextBase = baseObjects.stream()
-                            .filter(baseE -> baseE.get(Ontology.position).isPresent())
-                            .filter(baseE -> baseE.get(Ontology.position).get().y - candidate.get(Ontology.position).get().y <= DISTANCE
-                                    && baseE.get(Ontology.position).get().y - candidate.get(Ontology.position).get().y > 0.0)
+                            .filter(baseE -> baseE.get("position", Vector3.class).isPresent())
+                            .filter(baseE -> baseE.get("position", Vector3.class).get().y - candidate.get("position", Vector3.class).get().y <= DISTANCE
+                                    && baseE.get("position", Vector3.class).get().y - candidate.get("position", Vector3.class).get().y > 0.0)
                             .findAny();
                 } else if(locationRelation.equals("behind")) {
                     nextBase = baseObjects.stream()
-                            .filter(baseE -> baseE.get(Ontology.position).isPresent())
-                            .filter(baseE -> candidate.get(Ontology.position).get().y - baseE.get(Ontology.position).get().y <= DISTANCE
-                                    && candidate.get(Ontology.position).get().y - baseE.get(Ontology.position).get().y > 0.0)
+                            .filter(baseE -> baseE.get("position", Vector3.class).isPresent())
+                            .filter(baseE -> candidate.get("position", Vector3.class).get().y - baseE.get("position", Vector3.class).get().y <= DISTANCE
+                                    && candidate.get("position", Vector3.class).get().y - baseE.get("position", Vector3.class).get().y > 0.0)
                             .findAny();
                 }
 
                 if(nextBase.isPresent()) {
-                    locationDist.getConfidences().put(candidate.get(Ontology.id).get(), 1.0);
+                    locationDist.getConfidences().put(candidate.getId(), 1.0);
                 }else {
-                    locationDist.getConfidences().put(candidate.get(Ontology.id).get(), 0.0);
+                    locationDist.getConfidences().put(candidate.getId(), 0.0);
                 }
 
             }

@@ -17,13 +17,13 @@ import java.lang.reflect.InvocationTargetException;
  *
  */
 //@Component
-//@ConfigurationProperties("dialog")
+//@ConfigurationProperties("de.dfki.step.dialog")
 @Configuration
 public class AppConfig {
     private static final Logger log = LoggerFactory.getLogger(AppConfig.class);
     public static Dialog dialog;
 
-    @Value("${dialog.name}")
+    @Value("${de.dfki.step.dialog.name}")
     public String name;
 
     @Autowired
@@ -48,7 +48,7 @@ public class AppConfig {
         try {
             initDialog();
         } catch (Exception e) {
-            log.error("Could not load dialog class with name '{}'. Cause: {}", name, e.getMessage(), e);
+            log.error("Could not load de.dfki.step.dialog class with name '{}'. Cause: {}", name, e.getMessage(), e);
             int ec = SpringApplication.exit(appContext, () -> 1);
             System.exit(ec);
         }

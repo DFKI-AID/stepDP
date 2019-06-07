@@ -1,5 +1,6 @@
 package de.dfki.step.resolution;
 
+import de.dfki.step.kb.DataEntry;
 import de.dfki.step.kb.Entity;
 import de.dfki.step.kb.Ontology;
 
@@ -15,9 +16,9 @@ public class VisualFocusRR implements ReferenceResolver {
     private long focusTimeout = 5000L;
     //person id for whom focus should be retrieved
     private String id;
-    private Collection<Entity> foci;
+    private Collection<DataEntry> foci;
 
-    public VisualFocusRR(Supplier<Collection<Entity>> focusSupplier) {
+    public VisualFocusRR(Supplier<Collection<DataEntry>> focusSupplier) {
         foci = focusSupplier.get();
     }
 
@@ -34,7 +35,7 @@ public class VisualFocusRR implements ReferenceResolver {
     public ReferenceDistribution getReferences() {
         ReferenceDistribution focusDistribution = new ReferenceDistribution();
 
-        List<Entity> focusList = foci.stream().filter(e -> e.get(Ontology.visualSource).orElse("").equals(id)).collect(Collectors.toList());
+        List<DataEntry> focusList = foci.stream().filter(e -> e.get("visualSource").orElse("").equals(id)).collect(Collectors.toList());
         long now = System.currentTimeMillis();
 
        /* Optional<Entity> latestFocus = focusList.stream().min( Comparator.comparing(e -> now - e.get(Ontology.timestamp).get()));
@@ -42,10 +43,10 @@ public class VisualFocusRR implements ReferenceResolver {
             focusDistribution.getConfidences().put(latestFocus.get().get(Ontology.visualTarget).get(), latestFocus.get().get(Ontology.visualConfidence).get());
         }*/
 
-       List<Entity> latestFoci = focusList.stream().filter(ent -> ent.get(Ontology.timestamp).orElse(0l) + focusTimeout >= now).collect(Collectors.toList());
+       List<DataEntry> latestFoci = focusList.stream().filter(ent -> ent.get("timestamp", Long.class).orElse(0l) + focusTimeout >= now).collect(Collectors.toList());
 
-        for(Entity e: latestFoci) {
-            focusDistribution.getConfidences().put(e.get(Ontology.visualTarget).get(), e.get(Ontology.visualConfidence).get());
+        for(DataEntry e: latestFoci) {
+            focusDistribution.getConfidences().put(e.get("visualTarget", String.class).get(), e.get("visualConfidence", Double.class).get());
         }
 
         return focusDistribution.rescaleDistribution();

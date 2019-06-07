@@ -1,5 +1,6 @@
 package de.dfki.step.resolution;
 
+import de.dfki.step.kb.DataEntry;
 import de.dfki.step.kb.Entity;
 import de.dfki.step.kb.Ontology;
 
@@ -11,10 +12,10 @@ import java.util.stream.Collectors;
 /* person with correct name get higher confidence */
 public class PersonRR implements ReferenceResolver {
 
-    private Collection<Entity> persons;
+    private Collection<DataEntry> persons;
     private String personName = "";
 
-    public PersonRR(Supplier<Collection<Entity>> personSupplier) {
+    public PersonRR(Supplier<Collection<DataEntry>> personSupplier) {
         this.persons = personSupplier.get();
     }
 
@@ -26,10 +27,10 @@ public class PersonRR implements ReferenceResolver {
     @Override
     public ReferenceDistribution getReferences() {
         ReferenceDistribution distribution = new ReferenceDistribution();
-        List<Entity> candidates = persons.stream().filter(p -> p.get(Ontology.name).get().equals(personName)).collect(Collectors.toList());
+        List<DataEntry> candidates = persons.stream().filter(p -> p.get("name").get().equals(personName)).collect(Collectors.toList());
 
-        for(Entity person: candidates) {
-            distribution.getConfidences().put(person.get(Ontology.id).get(), 1.0/candidates.size());
+        for(DataEntry person: candidates) {
+            distribution.getConfidences().put(person.getId(), 1.0/candidates.size());
         }
 
         return distribution;

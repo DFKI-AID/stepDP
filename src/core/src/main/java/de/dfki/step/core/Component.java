@@ -3,8 +3,8 @@ package de.dfki.step.core;
 import de.dfki.step.dialog.Dialog;
 
 /**
- * As part of the dialog application, a component can be anything that has to initialize,
- * regularly update or manages data that depends on the dialog state.
+ * As part of the de.dfki.step.dialog application, a component can be anything that has to initialize,
+ * regularly update or manages data that depends on the de.dfki.step.dialog state.
  *
  */
 public interface Component {

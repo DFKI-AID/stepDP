@@ -1,5 +1,6 @@
 package de.dfki.step.resolution;
 
+import de.dfki.step.kb.DataEntry;
 import de.dfki.step.kb.Entity;
 import de.dfki.step.kb.Ontology;
 import de.dfki.step.util.Vector3;
@@ -13,12 +14,12 @@ import java.util.stream.Collectors;
 public class ClosenessRR implements ReferenceResolver {
 
 
-    private Entity speaker;
-    private Collection<Entity> entities;
+    private DataEntry speaker;
+    private Collection<DataEntry> entities;
 
 
 
-    public ClosenessRR(Supplier<Collection<Entity>> entitiesSupplier, Entity speaker) {
+    public ClosenessRR(Supplier<Collection<DataEntry>> entitiesSupplier, DataEntry speaker) {
         this.entities = entitiesSupplier.get();
         this.speaker = speaker;
     }
@@ -32,28 +33,28 @@ public class ClosenessRR implements ReferenceResolver {
         ReferenceDistribution distribution = new ReferenceDistribution();
 
 
-        Vector3 speakerPosition = speaker.get(Ontology.position).get();
+        Vector3 speakerPosition = speaker.get("position", Vector3.class).get();
 
-        Collection<Entity> objectwithPositions = entities.stream()
-                .filter(e -> e.get(Ontology.position).isPresent())
+        Collection<DataEntry> objectwithPositions = entities.stream()
+                .filter(e -> e.get("position").isPresent())
                 .collect(Collectors.toList());
 
 
-        Collection<Entity> sortedObjects = objectwithPositions.stream()
-                .sorted((e1, e2) -> ((Double) e1.get(Ontology.position).get().getDistance(speakerPosition))
-                        .compareTo(((Double) e2.get(Ontology.position).get().getDistance(speakerPosition))))
+        Collection<DataEntry> sortedObjects = objectwithPositions.stream()
+                .sorted((e1, e2) -> ((Double) e1.get("position", Vector3.class).get().getDistance(speakerPosition))
+                        .compareTo(((Double) e2.get("position", Vector3.class).get().getDistance(speakerPosition))))
                 .collect(Collectors.toList());
 
 
         double counter = 0.0;
         for(int i = sortedObjects.size()-1; i>=0; i--) {
-            distribution.getConfidences().put(((List<Entity>) sortedObjects).get(i).get(Ontology.id).get(), counter);
+            distribution.getConfidences().put(((List<DataEntry>) sortedObjects).get(i).getId(), counter);
             counter += 1.0;
         }
 
         if(distribution.getConfidences().isEmpty()) {
-            for(Entity e: entities) {
-                distribution.getConfidences().put(e.get(Ontology.id).get(), 1.0/entities.size());
+            for(DataEntry e: entities) {
+                distribution.getConfidences().put(e.getId(), 1.0/entities.size());
             }
         }
 

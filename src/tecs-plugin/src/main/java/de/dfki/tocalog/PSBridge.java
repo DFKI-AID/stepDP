@@ -51,7 +51,7 @@ public class PSBridge  {
 
 
     public static class Builder {
-        private String uri = "tecs://dialog@localhost:9000/ps";
+        private String uri = "tecs://de.dfki.step.dialog@localhost:9000/ps";
         private Set<String> subscriptions = new HashSet<>();
         private Object monitor;
         private final Callback callback;

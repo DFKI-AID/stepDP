@@ -95,9 +95,9 @@ public class ResolutionComponent implements Component {
                 if(slotinfo.containsKey("slot_type")) {
                     if(slotinfo.get("slot_type").equals("entity")) {
                         if(slotinfo.get("entity_type").equals("person")) {
-                         //   rr = new PersonRR(personSupplier);
+                            rr = new PersonRR(personSupplier);
                         }else if(slotinfo.get("entity_type").equals("personal_pronoun")) {
-                          //  rr = new PersonPronounRR(personSupplier, sessionSupplier);
+                            rr = new PersonPronounRR(personSupplier, sessionSupplier);
                         }else {
                             rr = new ObjectRR(() -> physicalEntitySupplier.get().stream().filter(o -> o.get("entity_type").get().equals(slotinfo.get("entity_type"))).collect(Collectors.toList()));
                             if(slotinfo.containsKey("personal_pronoun")) {

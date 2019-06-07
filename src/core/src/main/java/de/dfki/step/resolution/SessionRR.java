@@ -1,5 +1,6 @@
 package de.dfki.step.resolution;
 
+import de.dfki.step.kb.DataEntry;
 import de.dfki.step.kb.Entity;
 import de.dfki.step.kb.Ontology;
 
@@ -13,9 +14,9 @@ public class SessionRR implements ReferenceResolver {
 
 
     private String speakerId = "";
-    private Collection<Entity> sessions;
+    private Collection<DataEntry> sessions;
 
-    public SessionRR(Supplier<Collection<Entity>> sessionSupplier) {
+    public SessionRR(Supplier<Collection<DataEntry>> sessionSupplier) {
         sessions = sessionSupplier.get();
     }
 
@@ -27,12 +28,12 @@ public class SessionRR implements ReferenceResolver {
     public ReferenceDistribution getReferences() {
         ReferenceDistribution distribution = new ReferenceDistribution();
 
-        Entity speakerSession = new Entity();
-        List<Entity> otherSessions = new ArrayList<>();
+        DataEntry speakerSession = null;
+        List<DataEntry> otherSessions = new ArrayList<>();
 
-        for(Entity s: sessions) {
-            if(s.get(Ontology.agents).isPresent()) {
-                if (s.get(Ontology.agents).get().contains(speakerId)) {
+        for(DataEntry s: sessions) {
+            if(s.get("agents", Collection.class).isPresent()) {
+                if (s.get("agents", Collection.class).get().contains(speakerId)) {
                     speakerSession = s;
                 }else {
                     otherSessions.add(s);
@@ -40,16 +41,18 @@ public class SessionRR implements ReferenceResolver {
             }
         }
 
-        if(speakerSession.get(Ontology.agents).isPresent()) {
-            // better: take confidence that agent is in session
-            for (String a : speakerSession.get(Ontology.agents).get()) {
-                distribution.getConfidences().put(a, 1.0 / speakerSession.get(Ontology.agents).get().size());
+        if(speakerSession != null) {
+            if (speakerSession.get("agents", Collection.class).isPresent()) {
+                // better: take confidence that agent is in session
+                for (String a : (Collection<String>) speakerSession.get("agents", Collection.class).get()) {
+                    distribution.getConfidences().put(a, 1.0 / speakerSession.get("agents", Collection.class).get().size());
+                }
             }
         }
 
-        for(Entity s: otherSessions) {
-            if(s.get(Ontology.agents).isPresent()) {
-                for (String a : s.get(Ontology.agents).get()) {
+        for(DataEntry s: otherSessions) {
+            if(s.get("agents", Collection.class).isPresent()) {
+                for (String a : (Collection<String>) s.get("agents", Collection.class).get()) {
                     distribution.getConfidences().put(a, 0.0);
                 }
             }

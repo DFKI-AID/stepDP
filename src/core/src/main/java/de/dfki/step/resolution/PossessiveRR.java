@@ -1,5 +1,6 @@
 package de.dfki.step.resolution;
 
+import de.dfki.step.kb.DataEntry;
 import de.dfki.step.kb.Entity;
 import de.dfki.step.kb.Ontology;
 import de.dfki.step.kb.Reference;
@@ -13,10 +14,10 @@ public class PossessiveRR implements ReferenceResolver {
 
 
     private ReferenceResolver possessivePronounResolver = new WeightedRR();
-    private Collection<Entity> objects;
+    private Collection<DataEntry> objects;
 
 
-    public PossessiveRR(Supplier<Collection<Entity>> objectSupplier) {
+    public PossessiveRR(Supplier<Collection<DataEntry>> objectSupplier) {
         this.objects = objectSupplier.get();
     }
 
@@ -35,16 +36,16 @@ public class PossessiveRR implements ReferenceResolver {
         ReferenceDistribution personDistribution = possessivePronounResolver.getReferences();
 
         for(String personId: personDistribution.getConfidences().keySet()) {
-            Collection<Entity> ownedObjects = objects.stream().filter(o -> o.get(Ontology.owner).orElse(new Reference("", "")).id.equals(personId)).collect(Collectors.toList());
-            for(Entity obj: ownedObjects) {
-                objectDistribution.getConfidences().put(obj.get(Ontology.id).get(), personDistribution.getConfidences().get(personId));
+            Collection<DataEntry> ownedObjects = objects.stream().filter(o -> o.get("owner").orElse("").equals(personId)).collect(Collectors.toList());
+            for(DataEntry obj: ownedObjects) {
+                objectDistribution.getConfidences().put(obj.getId(), personDistribution.getConfidences().get(personId));
             }
         }
 
         //no person with device
         if(objectDistribution.getConfidences().isEmpty()) {
-            for(Entity obj: objects) {
-                objectDistribution.getConfidences().put(obj.get(Ontology.id).get(), 1.0/objects.size());
+            for(DataEntry obj: objects) {
+                objectDistribution.getConfidences().put(obj.getId(), 1.0/objects.size());
             }
         }
 

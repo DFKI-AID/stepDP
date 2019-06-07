@@ -1,5 +1,6 @@
 package de.dfki.step.resolution;
 
+import de.dfki.step.kb.DataEntry;
 import de.dfki.step.kb.Entity;
 import de.dfki.step.kb.Ontology;
 
@@ -12,11 +13,11 @@ public class DiscourseFocusRR implements ReferenceResolver {
 
 
     private long discourseTimeout = 5000L;
-    private Collection<Entity> discourseFoci;
-    private Collection<Entity> candidateEntities;
+    private Collection<DataEntry> discourseFoci;
+    private Collection<DataEntry> candidateEntities;
 
 
-    public DiscourseFocusRR(Supplier<Collection<Entity>> discourseSupplier, Supplier<Collection<Entity>> candidateEntitiesSupplier) {
+    public DiscourseFocusRR(Supplier<Collection<DataEntry>> discourseSupplier, Supplier<Collection<DataEntry>> candidateEntitiesSupplier) {
         this.discourseFoci = discourseSupplier.get();
         this.candidateEntities = candidateEntitiesSupplier.get();
     }
@@ -29,13 +30,13 @@ public class DiscourseFocusRR implements ReferenceResolver {
         ReferenceDistribution discourseDistribution = new ReferenceDistribution();
         long now = System.currentTimeMillis();
 
-        for (Entity entity : candidateEntities) {
-            Optional<Entity> discourseEntity = discourseFoci.stream()
-                    .filter(e -> e.get(Ontology.discourseTarget).get().equals(entity.get(Ontology.id).get())).findFirst();
-            if(discourseEntity.isPresent() && discourseEntity.get().get(Ontology.timestamp).orElse(0L) + discourseTimeout >= now) {
-                discourseDistribution.getConfidences().put(entity.get(Ontology.id).get(), discourseEntity.get().get(Ontology.discourseConfidence).get());
+        for (DataEntry entity : candidateEntities) {
+            Optional<DataEntry> discourseEntity = discourseFoci.stream()
+                    .filter(e -> e.get("discourseTarget").get().equals(entity.getId())).findFirst();
+            if(discourseEntity.isPresent() && discourseEntity.get().get("timestamp", Long.class).orElse(0L) + discourseTimeout >= now) {
+                discourseDistribution.getConfidences().put(entity.getId(), discourseEntity.get().get("confidence", Double.class).get());
             }else {
-                discourseDistribution.getConfidences().put(entity.get(Ontology.id).get(), 0.0);
+                discourseDistribution.getConfidences().put(entity.getId(), 0.0);
             }
 
         }

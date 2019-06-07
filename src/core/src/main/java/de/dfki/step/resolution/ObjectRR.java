@@ -57,7 +57,7 @@ public class ObjectRR implements ReferenceResolver {
             referenceWeightMap.put(attrRR, 3.0);
         }
 
-      /*  if(personSupplier != null && sessionSupplier != null && pronoun != null) {
+        if(personSupplier != null && sessionSupplier != null && pronoun != null) {
             PossessiveRR possRR = new PossessiveRR(objectSupplier);
 
             PersonPronounRR personRR = new PersonPronounRR(personSupplier, sessionSupplier);
@@ -67,7 +67,7 @@ public class ObjectRR implements ReferenceResolver {
 
             referenceWeightMap.put(possRR, 2.0);
 
-        }*/
+        }
 
 
          //VisualFocus, DiscourseFocus, Closeness, ... could be added here as well

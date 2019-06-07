@@ -1,4 +1,4 @@
 logging.level.root: INFO
 server.port: 50000
 dialog:
-  name: de.dfki.step.dialog.de.dfki.step.dialog.MyDialog
+  name: de.dfki.step.de.dfki.step.dialog.de.dfki.step.de.dfki.step.dialog.MyDialog

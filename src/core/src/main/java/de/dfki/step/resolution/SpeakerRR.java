@@ -1,5 +1,6 @@
 package de.dfki.step.resolution;
 
+import de.dfki.step.kb.DataEntry;
 import de.dfki.step.kb.Entity;
 import de.dfki.step.kb.Ontology;
 
@@ -12,10 +13,10 @@ public class SpeakerRR implements ReferenceResolver {
 
 
     private String speakerId = "";
-    private Collection<Entity> persons;
+    private Collection<DataEntry> persons;
 
 
-    public SpeakerRR(Supplier<Collection<Entity>> personSupplier) {
+    public SpeakerRR(Supplier<Collection<DataEntry>> personSupplier) {
         persons = personSupplier.get();
     }
 
@@ -27,24 +28,21 @@ public class SpeakerRR implements ReferenceResolver {
     public ReferenceDistribution getReferences() {
         ReferenceDistribution distribution = new ReferenceDistribution();
 
-        Collection<Entity> speakers = persons.stream()
-                .filter(e -> e.get(Ontology.id).get().equals(speakerId))
+        Collection<DataEntry> speakers = persons.stream()
+                .filter(e -> e.getId().equals(speakerId))
                 .collect(Collectors.toList());
 
-        Collection<Entity> nonspeakers = persons.stream()
-                .filter(e -> !e.get(Ontology.id).get().equals(speakerId))
+        Collection<DataEntry> nonspeakers = persons.stream()
+                .filter(e -> !e.getId().equals(speakerId))
                 .collect(Collectors.toList());
 
         // 1.0/0.0 could be replaced with speaker confidence and rest
-        for(Entity s: speakers) {
-            if(s.get(Ontology.id).isPresent()) {
-                distribution.getConfidences().put(s.get(Ontology.id).get(), 1.0);
-            }
+        for(DataEntry s: speakers) {
+            distribution.getConfidences().put(s.getId(), 1.0);
         }
-        for(Entity s: nonspeakers) {
-            if(s.get(Ontology.id).isPresent()) {
-                distribution.getConfidences().put(s.get(Ontology.id).get(), 0.0);
-            }
+        for(DataEntry s: nonspeakers) {
+            distribution.getConfidences().put(s.getId(), 0.0);
+
         }
         return distribution;
 

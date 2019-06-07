@@ -1,6 +1,7 @@
 package de.dfki.step.resolution;
 
-import de.dfki.step.kb.Entity;
+import de.dfki.step.kb.DataEntry;
+
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -14,12 +15,12 @@ public class PersonPronounRR implements ReferenceResolver {
     private String pronoun = "";
     private SpeakerRR speakerRR;
     private SessionRR sessionRR;
-    private Supplier<Collection<Entity>> personSupplier;
-    private Supplier<Collection<Entity>> sessionSupplier;
+    private Supplier<Collection<DataEntry>> personSupplier;
+    private Supplier<Collection<DataEntry>> sessionSupplier;
 
 
 
-    public PersonPronounRR(Supplier<Collection<Entity>> personSupplier, Supplier<Collection<Entity>> sessionSupplier) {
+    public PersonPronounRR(Supplier<Collection<DataEntry>> personSupplier, Supplier<Collection<DataEntry>> sessionSupplier) {
         this.personSupplier = personSupplier;
         this.sessionSupplier = sessionSupplier;
     }
