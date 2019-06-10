@@ -56,7 +56,7 @@ public class FusionComponent implements Component {
         }
 
 
-        //check if an intent was already provided in the input token -> if so: can already be forwarded to the de.dfki.step.dialog
+        //check if an intent was already provided in the input token -> if so: can already be forwarded to the dialog
         Collection<Token> intentTokens = tokens.stream().filter(t -> t.has("intent")).collect(Collectors.toList());
         cm.retrieveComponent(TokenComponent.class).addTokens(intentTokens);
 

@@ -18,7 +18,7 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 /**
- * Helper class for creatin rules and fusion nodes for recurring de.dfki.step.dialog patterns
+ * Helper class for creatin rules and fusion nodes for recurring dialog patterns
  */
 public class MetaFactory {
     private static final Logger log = LoggerFactory.getLogger(MetaFactory.class);
@@ -121,7 +121,7 @@ public class MetaFactory {
     }
 
     /**
-     * Creates a rule that allows the user to snapshot the current de.dfki.step.dialog state.
+     * Creates a rule that allows the user to snapshot the current dialog state.
      * use case: worker wants to store the current state to show it to another colleague.
      * use case: worker wants to store the current such that he can continue later (takes break; other urgent task)
      * <p>
@@ -189,8 +189,8 @@ public class MetaFactory {
     }
 
     /**
-     * Creates the rule 'undo' that allow the user to jump back in the de.dfki.step.dialog history.
-     * Valid jump points should be created on meaningful points of the de.dfki.step.dialog.
+     * Creates the rule 'undo' that allow the user to jump back in the dialog history.
+     * Valid jump points should be created on meaningful points of the dialog.
      * See {@link #createSnapshot}
      *
      * @param lastInteraction

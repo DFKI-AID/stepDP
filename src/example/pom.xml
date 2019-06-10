@@ -31,7 +31,7 @@
                             <goal>repackage</goal>
                         </goals>
                         <configuration>
-                            <mainClass>de.dfki.de.dfki.step.de.dfki.step.app.MyApp</mainClass>
+                            <mainClass>de.dfki.step.app.MyApp</mainClass>
                             <finalName>mydialog</finalName>
                         </configuration>
                     </execution>

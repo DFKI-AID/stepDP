@@ -39,7 +39,7 @@ public class BlockSystem {
 
     public void disable(Rule rule, long iteration) {
         //TODO maybe replace duration with iterations: in the sense of translating them
-        // this would help to 'go back' in the de.dfki.step.dialog; or use a custom clock
+        // this would help to 'go back' in the dialog; or use a custom clock
         log.info("Disabling: {}", rule);
         blockRules = blockRules.plus(rule, new BooleanSupplier() {
             long until = clock.getIteration() + iteration;
