@@ -39,13 +39,13 @@ public class SchemaTest {
 
         Token human1 = Token.builder()
                 .add("id", "m1")
-                .add("age", 20)
+                .add("age", 21)
                 .add("birthday", LocalDate.of(1999, 1, 1))
                 .build();
         Assert.assertTrue(schema.matches(human1));
 
 
-        var human2 = human1.add("age", 21);
+        var human2 = human1.add("age", 22);
         Assert.assertFalse(schema.matches(human2));
 
         var human3 = human1.remove("id");
