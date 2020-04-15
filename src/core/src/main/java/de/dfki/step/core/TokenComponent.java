@@ -7,6 +7,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Objects;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * Forward tokens into the dialog core. In general, each token should represent an intent of a user.
@@ -21,9 +23,11 @@ public class TokenComponent implements Component {
     private PSet<Token> tokens = HashTreePSet.empty();
     //tokens that are used for the next iteration
     private PSet<Token> waitingTokens = HashTreePSet.empty();
+    private ClockComponent cc;
 
     @Override
     public void init(ComponentManager cm) {
+        cc = cm.retrieveComponent(ClockComponent.class);
     }
 
     @Override
@@ -69,7 +73,24 @@ public class TokenComponent implements Component {
      * @param token
      */
     public synchronized void addToken(Token token) {
+        token = addTimestamp(token);
+        token = ensureOrigin(token);
         log.debug("Adding token {}", token);
         waitingTokens = waitingTokens.plus(token);
     }
+
+    public Token addTimestamp(Token token) {
+        if (!token.has("timestamp")) {
+            long iteration = cc.getIteration();
+            token = token.add("timestamp", iteration);
+        }
+
+        return token;
+    }
+
+    public static Token ensureOrigin(Token token) {
+        if (!token.has("origin")) {
+            token = token.add("origin", List.of(UUID.randomUUID().toString()));
+        }
+        return token;
 }
