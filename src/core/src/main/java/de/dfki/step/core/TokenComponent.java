@@ -80,11 +80,8 @@ public class TokenComponent implements Component {
     }
 
     public Token addTimestamp(Token token) {
-        if (!token.has("timestamp")) {
-            long iteration = cc.getIteration();
-            token = token.add("timestamp", iteration);
-        }
-
+        long iteration = cc.getIteration();
+        token = token.add("timestamp", iteration);
         return token;
     }
 
@@ -93,4 +90,6 @@ public class TokenComponent implements Component {
             token = token.add("origin", List.of(UUID.randomUUID().toString()));
         }
         return token;
+    }
+
 }
