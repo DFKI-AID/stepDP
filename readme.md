@@ -2,7 +2,7 @@
 
 [TOC]
 
-![alt text](../doc/rengine.png  "Overview")
+![alt text](https://github.com/DFKI-AID/step-dp/raw/master/doc/rengine.png)
 
 STEP-DP is a dialog platform written in Java that facilitates the creation of multimodal cognitive assistants based on multiple patterns like state charts, slot filling or custom behavior. 
 Multiple plugins provide functionality for network communication, sensor fusion, knowledge representation, intent resolution and intelligent multimedia presentation planning.
