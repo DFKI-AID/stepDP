@@ -9,7 +9,8 @@
     <groupId>de.dfki.step</groupId>
     <artifactId>parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.0-SNAPSHOT</version>
+	<name>stepDP-Core</name>
+    <version>0.1.0-SNAPSHOT</version>
 
 
     <properties>
@@ -18,33 +19,6 @@
         <!--<step-dp.version>1.0.0-SNAPSHOT</step-dp.version>-->
     </properties>
 
-
-    <developers>
-        <developer>
-            <id>yako02</id>
-            <name>Yannick Körber</name>
-            <email>Yannick.Koerber@DFKI.de</email>
-            <url>http://www.dfki.de/web/kontakt/mitarbeiter/base_view?uid=yako02</url>
-            <organization>DFKI GmbH</organization>
-            <organizationUrl>http://www.dfki.de/</organizationUrl>
-            <timezone>+1</timezone>
-            <roles>
-                <role>Researcher</role>
-            </roles>
-        </developer>
-        <developer>
-            <id>maka04</id>
-            <name>Magdalena Kaiser</name>
-            <email>Magdalena.Kaiser@DFKI.de</email>
-            <url>http://www.dfki.de/web/kontakt/mitarbeiter/base_view?uid=maka04</url>
-            <organization>DFKI GmbH</organization>
-            <organizationUrl>http://www.dfki.de/</organizationUrl>
-            <timezone>+1</timezone>
-            <roles>
-                <role>Researcher</role>
-            </roles>
-        </developer>
-    </developers>
 
     <build>
         <plugins>
@@ -70,7 +44,48 @@
                     </execution>
                 </executions>
             </plugin>
+			
+			<!--
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>wagon-maven-plugin</artifactId>
+				<version>2.0.0</version>
+
+				<configuration>
+					<skip>true</skip>
+				</configuration>
+				
+				<executions>
+					<execution>
+						<id>upload</id>
+						<phase>deploy</phase>
+						<goals>
+							<goal>upload</goal>
+						</goals>
+					   <configuration>
+							<serverId>stepdp-dfki-ftp</serverId>
+							<url>ftps://webhosting-intern.dfki.de</url>
+							<fromDir>${project.build.directory}</fromDir>
+							<toDir></toDir>							
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			-->
+			
+					 
+
+			
         </plugins>
+		
+		<extensions>
+      <!-- Enabling the use of FTP -->
+      <extension>
+        <groupId>org.apache.maven.wagon</groupId>
+         <artifactId>wagon-ftp</artifactId>
+         <version>3.4.1</version>
+      </extension>
+    </extensions>
     </build>
 
 
@@ -136,4 +151,15 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+	
+	
+    <distributionManagement>
+      <repository>
+        <id>stepdp-dfki-ftp</id>
+		<name>stepDB DFKI Hosting</name>
+        <url>ftps://webhosting-intern.dfki.de</url>
+		<layout>default</layout>
+      </repository>
+    </distributionManagement>
+	
 </project>
