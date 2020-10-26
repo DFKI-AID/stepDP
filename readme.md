@@ -2,8 +2,9 @@
 
 [TOC]
 
-![alt text](../doc/rengine.png  "Overview")
-![alt text](../doc/architecture2.png  "Overview2")
+
+![alt text](https://github.com/DFKI-AID/step-dp/raw/master/doc/rengine.png)
+
 
 STEP-DP is a dialog platform written in Java that facilitates the creation of multimodal cognitive assistants based on multiple patterns like state charts, slot filling or custom behavior. 
 Multiple plugins provide functionality for network communication, sensor fusion, knowledge representation, intent resolution and intelligent multimedia presentation planning.
@@ -233,3 +234,5 @@ Description:
 The Tomcat connector configured to listen on port 50000 failed to start. The port may already be in use or the connector may be misconfigured.
 ```
 The port is already in use. Close the other application that blocks the port, or change the port by changing applicatin.yml or by adding '-Dserver.port=50001' before "-jar mydialog.jar"
+=======
+  
