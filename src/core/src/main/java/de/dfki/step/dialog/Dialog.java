@@ -1,157 +1,94 @@
 package de.dfki.step.dialog;
 
-import de.dfki.step.rengine.Clock;
-import de.dfki.step.rengine.RuleCoordinator;
+import de.dfki.step.core.*;
+import de.dfki.step.fusion.FusionComponent;
+import de.dfki.step.output.PresentationComponent;
+import de.dfki.step.core.CoordinationComponent;
+import de.dfki.step.rengine.RuleComponent;
+import de.dfki.step.core.Clock;
 import de.dfki.step.rengine.RuleSystem;
-import de.dfki.step.rengine.Token;
-import de.dfki.step.srgs.GrammarManager;
-import org.pcollections.HashTreePSet;
-import org.pcollections.PSequence;
+import de.dfki.step.core.Token;
+import de.dfki.step.core.ClockComponent;
+import de.dfki.step.util.Tuple;
 import org.pcollections.PSet;
-import org.pcollections.TreePVector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 /**
  *
  */
-public abstract class Dialog implements Runnable {
+public abstract class Dialog implements Runnable, ComponentManager {
     private static final Logger log = LoggerFactory.getLogger(Dialog.class);
+    private int defaultPriority = 150;
 
     private AtomicBoolean started = new AtomicBoolean(false);
-    protected final Clock clock = new Clock(100);
-    protected final RuleSystem rs = new RuleSystem(clock);
-    protected final TagSystem<String> tagSystem = new TagSystem();
-    protected final GrammarManager grammarManager = new GrammarManager();
-    protected final Map<String, Behavior> behaviors = new HashMap<>();
-    protected final Map<Behavior, Map<Long, Object>> behaviorSnapshots = new HashMap<>();
-    protected final RuleCoordinator ruleCoordinator = new RuleCoordinator();
-    private PSet<Token> tokens = HashTreePSet.empty();
-    //tokens that are used for the next iteration
-    private PSet<Token> waitingTokens = HashTreePSet.empty();
 
+    protected final Map<String, Component> components = new HashMap<>();
+    protected final Map<String, Integer> priorityMap = new HashMap<>();
 
-    protected final AtomicLong snapshotTarget = new AtomicLong(-1);
-    private Map<Long, RuleSystem.Snapshot> snapshots = new HashMap<>();
+    public Dialog() {
+        Clock clock = new Clock(200);
+        addComponent(new TagSystemComponent());
 
-    //for testing
-    public PSequence outputHistory = TreePVector.empty();
+        var defaultComponents = List.of(
+                new Tuple<>(new SnapshotComponent(), 100),
+                new Tuple<>(new InputComponent(), 200),
+                new Tuple<>(new FusionComponent(), 300),
+                new Tuple<>(new TokenComponent(), 400),
+                new Tuple<>(new RuleComponent(clock), 500),
+                new Tuple<>(new CoordinationComponent(), 600),
+                new Tuple<>(new PresentationComponent(), 700),
+                new Tuple<>(new ClockComponent(clock), 800)
+        );
 
-
-    public RuleSystem getRuleSystem() {
-        return rs;
+        for (var tup : defaultComponents) {
+            addComponent(tup.x);
+            setPriority(tup.x.getId(), tup.y);
+        }
     }
 
-    public TagSystem<String> getTagSystem() {
-        return tagSystem;
-    }
-
-    public GrammarManager getGrammarManager() {
-        return grammarManager;
-    }
 
     public void init() {
-        if(started.getAndSet(true)) {
+        if (started.getAndSet(true)) {
             throw new RuntimeException("already started");
         }
-        behaviors.values().forEach(b -> b.init(this));
-    }
-
-    public void update() {
-        ruleCoordinator.reset();
-        //removing all tokens that were used last round
-        waitingTokens = waitingTokens.minusAll(tokens);
-        tokens = waitingTokens;
-        applySnapshot();
-        updateGrammar(rs);
-        rs.update();
-        ruleCoordinator.update();
-        createSnapshot(clock.getIteration());
-        clock.inc();
-    }
-
-    public void deinit() {
-        behaviors.values().forEach(b -> b.deinit());
+        components.values().forEach(b -> b.init(this));
     }
 
     /**
-     * Updates the global srgs.jsgf based on the functions that are currently active
-     *
-     * @param rs
+     * Updates all components in the order defined by the priority
      */
-    public void updateGrammar(RuleSystem rs) {
-        synchronized (grammarManager) {
-            //TODO: better builder and then swap srgs.jsgf manager instance
-            grammarManager.deactivateAll();
-            rs.getRules()
-                    .forEach(rule -> {
-                        Optional<String> name = rs.getName(rule);
-                        if (!name.isPresent()) {
-                            return;
-                        }
-                        grammarManager.setActive(name.get(), rs.isEnabled(rule));
-                    });
-        }
+    public void update() {
+        // sort components after priority and update them
+        List<Component> sortedComps = components.entrySet().stream()
+                .sorted(Comparator.comparing(x -> priorityMap.get(x.getKey())))
+                .map(e -> e.getValue())
+                .collect(Collectors.toList());
+        sortedComps.forEach(c -> c.beforeUpdate());
+        sortedComps.forEach(c -> c.update());
+        sortedComps.forEach(c -> c.afterUpdate());
     }
 
-    public void present(PresentationRequest presentationReq) {
-        String output = presentationReq.getContent().toString();
-
-//        String utterance = t.get("utterance").toString();
-        System.out.println("System: " + output);
-        rs.removeRule("request_repeat_tts");
-        MetaFactory.createRepeatRule(this, "request_repeat_tts", output);
-
-        MetaFactory.createSnapshot(this);
-        outputHistory = outputHistory.plus(output);
+    public void deinit() {
+        components.values().forEach(b -> b.deinit());
     }
 
-    protected void applySnapshot() {
-        long targetSnapshot = snapshotTarget.getAndSet(-1);
-        if (targetSnapshot < 0) {
-            return;
-        }
-        clock.setIteration(targetSnapshot);
-        RuleSystem.Snapshot rsSnapshot = snapshots.get(targetSnapshot);
-        rs.applySnapshot(rsSnapshot);
-
-        for (Behavior behavior : behaviors.values()) {
-            var behaviorSnapshot = behaviorSnapshots.get(behavior).get(targetSnapshot);
-            behavior.loadSnapshot(behaviorSnapshot);
-        }
-    }
-
-    protected void createSnapshot(long iteration) {
-        snapshots.put(iteration, rs.createSnapshot());
-        for (Behavior behavior : behaviors.values()) {
-            Object snapshot = behavior.createSnapshot();
-            if (!behaviorSnapshots.containsKey(behavior)) {
-                behaviorSnapshots.put(behavior, new HashMap<>());
-            }
-            behaviorSnapshots.get(behavior).put(iteration, snapshot);
-        }
-    }
-
-    public void rewind(long iteration) {
-        this.snapshotTarget.set(iteration);
-    }
 
     public long getIteration() {
-        return clock.getIteration();
+        return getComponents(ClockComponent.class).get(0).getIteration();
     }
 
     @Override
     public void run() {
         init();
-        createSnapshot(0);
         while (!Thread.currentThread().isInterrupted()) {
             try {
                 update();
-                Thread.sleep((long) clock.getRate()); //TODO not precise, but sufficient to start with
+                Thread.sleep((long) getClock().getRate()); //TODO not precise, but sufficient to start with
             } catch (InterruptedException e) {
                 log.warn("Dialog update interrupted. Quitting.");
                 log.debug("Dialog update interrupted. Quitting.", e);
@@ -161,34 +98,99 @@ public abstract class Dialog implements Runnable {
         deinit();
     }
 
-    public void addBehavior(String id, Behavior behavior) {
-        behaviors.put(id, behavior);
+    public void addComponent(Component comp) {
+        String id = comp.getId();
+        if (started.get()) {
+            throw new IllegalArgumentException("add components after starting is not supported atm");
+        }
+        components.put(id, comp);
+        priorityMap.put(id, defaultPriority);
     }
 
-    public Optional<Behavior> getBehavior(String id) {
-        return Optional.ofNullable(behaviors.get(id));
+    public Optional<Component> getComponent(String id) {
+        return Optional.ofNullable(components.get(id));
     }
 
-    public RuleCoordinator getRuleCoordinator() {
-        return ruleCoordinator;
+    public <T extends Component> Optional<T> getComponent(String id, Class<T> clazz) {
+        return Optional.ofNullable(components.get(id))
+                .filter(c -> clazz.isAssignableFrom(c.getClass()))
+                .map(c -> (T) c);
+    }
+
+    public <T extends Component> Optional<T> getComponent(Class<T> clazz) {
+        //TODO throw exception if multiple components are found?
+        return components.values().stream()
+                .filter(c -> clazz.isAssignableFrom(c.getClass()))
+                .map(c -> (T) c)
+                .findAny();
+    }
+
+    public <T extends Component> T retrieveComponent(Class<T> clazz, String errMsg) {
+        var comp = components.values().stream()
+                .filter(c -> clazz.isAssignableFrom(c.getClass()))
+                .map(c -> (T) c)
+                .findAny();
+
+        if (!comp.isPresent()) {
+            throw new IllegalArgumentException(String.format(
+                    "Component %s not available. %s", clazz, errMsg)
+            );
+        }
+        return comp.get();
+    }
+
+
+    public CoordinationComponent getRuleCoordinator() {
+        return retrieveComponent(CoordinationComponent.class);
+    }
+
+    public SnapshotComponent getSnapshotComp() {
+        return retrieveComponent(SnapshotComponent.class);
+    }
+
+    public TagSystem<String> getTagSystem() {
+        return retrieveComponent(TagSystemComponent.class);
     }
 
     public PSet<Token> getTokens() {
-        return tokens;
+        return retrieveComponent(TokenComponent.class).getTokens();
     }
 
-    public void addTokens(Collection<Token> tokens) {
-        // TODO origin = list of e.g. inputs or random strings
-        log.debug("Adding token {}", tokens);
-        waitingTokens = waitingTokens.plusAll(tokens);
-    }
-
-    public void addToken(Token token) {
-        log.debug("Adding token {}", token);
-        waitingTokens = waitingTokens.plus(token);
+    public RuleSystem getRuleSystem() {
+        return getComponents(RuleComponent.class).get(0).getRuleSystem();
     }
 
     public Clock getClock() {
-        return clock;
+        return getComponents(ClockComponent.class).get(0).getClock();
+    }
+
+    @Override
+    public synchronized <T extends Component> List<T> getComponents(Class<T> clazz) {
+        return components.values().stream()
+                .filter(c -> clazz.isAssignableFrom(c.getClass()))
+                .map(c -> (T) c)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public synchronized void setPriority(String id, int priority) {
+        priorityMap.put(id, priority);
+    }
+
+    @Override
+    public synchronized int getPriority(String id) {
+        if (!priorityMap.containsKey(id)) {
+            return defaultPriority;
+        }
+        return priorityMap.get(id);
+    }
+
+    @Override
+    public <T extends Component> Map<String, T> getComponentsMap(Class<T> clazz) {
+        Map<String, T> map = components.entrySet().stream()
+                .filter(e -> clazz.isAssignableFrom(e.getValue().getClass()))
+                .map(e -> (Map.Entry<String, T>) e)
+                .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
+        return map;
     }
 }

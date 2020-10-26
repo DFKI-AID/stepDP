@@ -4,11 +4,20 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+
+
     <groupId>de.dfki.step</groupId>
     <artifactId>parent</artifactId>
     <packaging>pom</packaging>
 	<name>stepDP-Core</name>
     <version>0.1.0-SNAPSHOT</version>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <!--<step-dp.version>1.0.0-SNAPSHOT</step-dp.version>-->
+    </properties>
+
 
     <build>
         <plugins>
@@ -37,29 +46,31 @@
 			
 			<!--
 			<plugin>
-    <groupId>org.codehaus.mojo</groupId>
-    <artifactId>wagon-maven-plugin</artifactId>
-    <version>2.0.0</version>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>wagon-maven-plugin</artifactId>
+				<version>2.0.0</version>
 
-    <executions>
-        <execution>
-            <id>upload</id>
-            <phase>deploy</phase>
-            <goals>
-                <goal>upload</goal>
-            </goals>
-		   <configuration>
-				<serverId>stepdp-dfki-ftp</serverId>
-				<url>ftps://webhosting-intern.dfki.de:21</url>
-				<fromDir>${project.build.directory}</fromDir>
-				<toDir>.</toDir>
-
-			</configuration>
-        </execution>
-    </executions>
-</plugin>
--->
-
+				<configuration>
+					<skip>true</skip>
+				</configuration>
+				
+				<executions>
+					<execution>
+						<id>upload</id>
+						<phase>deploy</phase>
+						<goals>
+							<goal>upload</goal>
+						</goals>
+					   <configuration>
+							<serverId>stepdp-dfki-ftp</serverId>
+							<url>ftps://webhosting-intern.dfki.de</url>
+							<fromDir>${project.build.directory}</fromDir>
+							<toDir></toDir>							
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			-->
 			
 					 
 
@@ -76,19 +87,15 @@
     </extensions>
     </build>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    </properties>
+
     
     <modules>
         <module>core</module>
-        <!--<module>tecs-plugin</module>-->
         <!--<module>sandbox</module>-->
         <module>spring</module>
-        <module>a3s</module>
         <module>rasa</module>
         <module>example</module>
+        <!--<module>tecs-plugin</module>-->
     </modules>
 
     <!--define versions for dependencies such that sub modules don't have to specify explicitly-->
@@ -132,6 +139,11 @@
                 <scope>import</scope>
             </dependency>
             <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>2.9.7</version>
+            </dependency>
+            <dependency>
                 <groupId>de.dfki.tecs</groupId>
                 <artifactId>libtecs</artifactId>
                 <version>3.0.0</version>
@@ -144,7 +156,7 @@
       <repository>
         <id>stepdp-dfki-ftp</id>
 		<name>stepDB DFKI Hosting</name>
-        <url>ftps://webhosting-intern.dfki.de:21</url>
+        <url>ftps://webhosting-intern.dfki.de</url>
 		<layout>default</layout>
       </repository>
     </distributionManagement>

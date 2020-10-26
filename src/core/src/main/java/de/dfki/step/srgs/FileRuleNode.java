@@ -6,7 +6,10 @@ import java.nio.file.Paths;
 import java.util.List;
 
 /**
- * TODO move into Rule and create real parser
+ * Reads de.dfki.step.srgs rules from a file.
+ *
+ * TODO atm only supported if the de.dfki.step.srgs is missing
+ * TODO move into Rule and of real parser
  */
 public class FileRuleNode extends Rule {
     private final String content;

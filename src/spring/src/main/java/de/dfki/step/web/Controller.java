@@ -1,11 +1,12 @@
 package de.dfki.step.web;
 
 import com.google.gson.Gson;
-import de.dfki.step.dialog.Behavior;
+import de.dfki.step.core.*;
 import de.dfki.step.dialog.Dialog;
-import de.dfki.step.dialog.StateBehavior;
-import de.dfki.step.rengine.Token;
+import de.dfki.step.output.PresentationComponent;
+import de.dfki.step.sc.StateBehavior;
 import de.dfki.step.sc.StateChart;
+import de.dfki.step.srgs.GrammarManagerComponent;
 import org.pcollections.PSequence;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -32,7 +33,6 @@ public class Controller {
     @PostConstruct
     protected void init() {
         dialog = appConfig.getDialog(); //context.getBean(Dialog.class);
-
     }
 
     @GetMapping(value = "/rules")
@@ -64,8 +64,13 @@ public class Controller {
     }
 
     @PostMapping(value = "/rewind/{iteration}")
-    public void rewind(@PathVariable("iteration") int iteration) {
-        dialog.rewind(iteration);
+    public ResponseEntity rewind(@PathVariable("iteration") int iteration) {
+        Optional<SnapshotComponent> snapshotComp = dialog.getComponent(SnapshotComponent.class);
+        if(!snapshotComp.isPresent()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("SnapshotComponent not available");
+        }
+        snapshotComp.get().rewind(iteration);
+        return ResponseEntity.ok("ok");
     }
 
 
@@ -79,22 +84,44 @@ public class Controller {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing intent");
         }
 
+        Optional<TokenComponent> tc = dialog.getComponent(TokenComponent.class);
+        if(!tc.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("TokenComponent not available");
+        }
+
 
         Token intentToken = new Token().addAll(body);
-        dialog.addToken(intentToken);
+        tc.get().addToken(intentToken);
+        return ResponseEntity.ok("ok");
+    }
+
+    @PostMapping(value = "/input", consumes = "application/json")
+    public ResponseEntity<String> postInput(@RequestBody Map<String, Object> body) {
+
+        Optional<InputComponent> ic = dialog.getComponent(InputComponent.class);
+        if(!ic.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("InputComponent not available");
+        }
+
+        Token token = new Token().addAll(body);
+        ic.get().addToken(token);
         return ResponseEntity.ok("ok");
     }
 
     @GetMapping(value = "/grammar", produces = "application/xml")
     public String getGrammar() {
-        String grammar = dialog.getGrammarManager().createGrammar().toString();
+        var grammarManager = dialog.getComponents(GrammarManagerComponent.class).stream().findFirst();
+        if(!grammarManager.isPresent()) {
+            return "";
+        }
+        String grammar = grammarManager.get().createGrammar().toString();
         return grammar;
     }
 
 
     @GetMapping(value = "/behavior/{id}", produces = "application/json")
     public ResponseEntity<String> getBehavior(@PathVariable("id") String id) {
-        Optional<Behavior> behavior = dialog.getBehavior(id);
+        Optional<Component> behavior = dialog.getComponent(id);
         if(!behavior.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
@@ -109,9 +136,18 @@ public class Controller {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("not impl");
     }
 
+    @GetMapping(value = "/behaviors", produces = "application/json")
+    public ResponseEntity<Object> getBehaviors() {
+        Map<String, StateBehavior> scs = dialog.getComponentsMap(StateBehavior.class);
+        Map<String, StateChart> body = scs.entrySet().stream()
+                .map(e -> new AbstractMap.SimpleEntry<>(e.getKey(), e.getValue().getStateHandler().getEngine().getStateChart()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        return ResponseEntity.status(HttpStatus.OK).body(body);
+    }
+
     @GetMapping(value = "/behavior/{id}/state", produces = "application/json")
     public ResponseEntity<String> getBehaviorState(@PathVariable("id") String id) {
-        Optional<Behavior> behavior = dialog.getBehavior(id);
+        Optional<Component> behavior = dialog.getComponent(id);
         if(!behavior.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
@@ -127,7 +163,11 @@ public class Controller {
 
     @GetMapping(value = "/output/history", produces = "application/json")
     public ResponseEntity<List<String>> getOutputHistory() {
-        PSequence payload = dialog.outputHistory;
+        Optional<PresentationComponent> pc = dialog.getComponent(PresentationComponent.class);
+        if(!pc.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.EMPTY_LIST);
+        }
+        PSequence payload = pc.get().getOutputHistory();
         return ResponseEntity.status(HttpStatus.OK).body(payload);
     }
 

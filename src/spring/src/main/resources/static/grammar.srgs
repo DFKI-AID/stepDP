@@ -1,31 +1,98 @@
-<grammar version="1.0" xmlns="http://www.w3.org/2001/06/grammar"
-         xml:lang="en-US" tag-format="semantics/1.0" root="answer">
-    <rule id="answer" scope="public">
+<!DOCTYPE grammar PUBLIC "-//W3C//DTD GRAMMAR 1.0//EN" "http://www.w3.org/TR/speech-grammar/grammar.dtd">
 
-        <one-of>
-            <item><ruleref uri="#yes"/></item>
-            <item><ruleref uri="#no"/></item>
-        </one-of>
-    </rule>
+<grammar xmlns="http://www.w3.org/2001/06/grammar" xml:lang="en"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.w3.org/2001/06/grammar
+ http://www.w3.org/TR/speech-grammar/grammar.xsd"
+ version="1.0" mode="voice" root="root_rule" tag-format="semantics/1.0">
 
-    <rule id="yes">
-        <one-of>
-            <item>yes</item>
-            <item>yeah<tag>out="yes";</tag></item>
+  <rule id="root_rule" scope="public">
+    <one-of>
+      <item><ruleref uri="#task_choice"/></item>
+      <item><ruleref uri="#got_it"/></item>
+    </one-of>
+    <tag>out = rules.latest()</tag>
+  </rule>
+  <rule id="got_it" scope="public">
+    <example>okay, I got it</example>
 
-            <item><token>you bet</token><tag>out="yes";</tag></item>
-            <item xml:lang="fr-CA">oui<tag>out="yes";</tag></item>
+    <item repeat="0-1" weight="1">
+      okay
+    </item>
+    <item repeat="0-1" weight="1">
+      I
+    </item>
+    <item repeat="1-1" weight="1">
+      got it
+    </item>
+  </rule>
+  <rule id="task_choice" scope="private">
+    <item repeat="1-1" weight="1">
+      the
+    </item>
+    <ruleref uri="#select_number"/>
+    <tag>out.task = meta.select_number.text</tag>
+    <item repeat="1-1" weight="1">
+      task
+    </item>
+  </rule>
+  <rule id="select_number" scope="private">
+    <one-of>
+      <item repeat="1-1" weight="1">
+        first
+      </item>
+      <item repeat="1-1" weight="1">
+        second
+      </item>
+      <item repeat="1-1" weight="1">
+        third
+      </item>
+      <item repeat="1-1" weight="1">
+        forth
+      </item>
+      <item repeat="1-1" weight="1">
+        fifth
+      </item>
+    </one-of>
+  </rule>
+  <rule id="task_info" scope="public">
+    <item repeat="0-1" weight="1">
+      can you
+    </item>
+    <item repeat="1-1" weight="1">
+      give me more information
+    </item>
+    <ruleref uri="#task_choice"/>
+  </rule>
+  <rule id="confirm" scope="public">
+    <one-of>
+      <item repeat="1-1" weight="1">
+        yeah<tag>out.intent = "accept"</tag>
+      </item>
+      <item repeat="1-1" weight="1">
+        yes<tag>out.intent = "accept"</tag>
+      </item>
+      <item repeat="1-1" weight="1">
+        no<tag>out.intent = "reject"</tag>
+      </item>
+    </one-of>
+  </rule>
+  <rule id="greetings" scope="public">
+    <one-of>
+      <item repeat="1-1" weight="1">
+        Hey
+      </item>
+      <item repeat="1-1" weight="1">
+        Hello
+      </item>
+      <item repeat="1-1" weight="1">
+        Hi
+      </item>
+      <item repeat="1-1" weight="1">
+        Greetings
+      </item>
+    </one-of>
+    <tag>out.intent = "greetings"</tag>
+  </rule>
 
-        </one-of>
-    </rule>
-    <rule id="no">
-        <one-of>
-            <item>no</item>
-
-            <item>nope</item>
-            <item>no way</item>
-        </one-of>
-        <tag>out="no";</tag>
-
-    </rule>
 </grammar>

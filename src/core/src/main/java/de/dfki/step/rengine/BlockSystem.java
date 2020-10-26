@@ -1,16 +1,19 @@
 package de.dfki.step.rengine;
 
+import de.dfki.step.core.Clock;
 import org.pcollections.HashTreePMap;
 import org.pcollections.PMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.function.BooleanSupplier;
 
 /**
  */
 public class BlockSystem {
     private static final Logger log = LoggerFactory.getLogger(BlockSystem.class);
     private final Clock clock;
-    private PMap<Rule, RuleBlocker> blockRules = HashTreePMap.empty();
+    private PMap<Rule, BooleanSupplier> blockRules = HashTreePMap.empty();
 
     public BlockSystem(Clock clock) {
         this.clock = clock;
@@ -25,7 +28,7 @@ public class BlockSystem {
             return false;
         }
 
-        boolean disabled = blockRules.get(rule).isBlocked();
+        boolean disabled = blockRules.get(rule).getAsBoolean();
         if (!disabled) {
             //unblocking rule
             log.info("Re-enabling: {}", rule);
@@ -38,11 +41,11 @@ public class BlockSystem {
         //TODO maybe replace duration with iterations: in the sense of translating them
         // this would help to 'go back' in the dialog; or use a custom clock
         log.info("Disabling: {}", rule);
-        blockRules = blockRules.plus(rule, new RuleBlocker() {
+        blockRules = blockRules.plus(rule, new BooleanSupplier() {
             long until = clock.getIteration() + iteration;
 
             @Override
-            public boolean isBlocked() {
+            public boolean getAsBoolean() {
                 return clock.getIteration() < until;
             }
         });

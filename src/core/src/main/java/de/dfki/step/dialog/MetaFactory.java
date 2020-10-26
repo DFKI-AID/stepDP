@@ -1,26 +1,49 @@
 package de.dfki.step.dialog;
 
+import de.dfki.step.core.*;
+import de.dfki.step.fusion.FusionComponent;
+import de.dfki.step.fusion.FusionNode;
+import de.dfki.step.fusion.InputNode;
+import de.dfki.step.output.PresentationComponent;
+import de.dfki.step.core.CoordinationComponent;
+import de.dfki.step.rengine.RuleComponent;
 import de.dfki.step.rengine.RuleSystem;
-import de.dfki.step.rengine.Token;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 /**
- *
+ * Helper class for creatin rules and fusion nodes for recurring dialog patterns
  */
 public class MetaFactory {
     private static final Logger log = LoggerFactory.getLogger(MetaFactory.class);
     private static final double minConfidence = 0.3;
-    private static final String consumes = "consumes";
+    private final RuleComponent rs;
+    private final TokenComponent tc;
+    private final CoordinationComponent rc;
+    private final PresentationComponent pc;
+    private final ClockComponent cc;
+    private final TagSystemComponent tsc;
+    private final SnapshotComponent sc;
+    private final FusionComponent fc;
 
-    public static void createGreetingsRule(Dialog dialog) {
-        var rs = dialog.getRuleSystem();
-        var tagSystem = dialog.getTagSystem();
+    public MetaFactory(ComponentManager cm) {
+        rs = cm.retrieveComponent(RuleComponent.class);
+        tc = cm.retrieveComponent(TokenComponent.class);
+        rc = cm.retrieveComponent(CoordinationComponent.class);
+        pc = cm.retrieveComponent(PresentationComponent.class);
+        cc = cm.retrieveComponent(ClockComponent.class);
+        tsc = cm.retrieveComponent(TagSystemComponent.class);
+        sc = cm.retrieveComponent(SnapshotComponent.class);
+        fc = cm.retrieveComponent(FusionComponent.class);
+    }
+
+    public void createGreetingsRule() {
 
         var utterances = List.of("Hello!", "Greetings.", "Hey");
         var rdm = new Random();
@@ -28,7 +51,7 @@ public class MetaFactory {
         //add new rule with the name 'greetings'
         rs.addRule("greetings", () -> {
             // check for one token with the intent 'greetings'
-            dialog.getTokens().stream()
+            tc.getTokens().stream()
                     .filter(t -> t.payloadEquals("intent", "greetings"))
                     .findFirst()
                     .ifPresent(t -> {
@@ -36,25 +59,24 @@ public class MetaFactory {
                         // This depends on the implementation of the rule coordinator
                         // The .attach call defines that rule wants to consume the given token
                         // If another rules wants to consume the same token, only one rule may be fired.
-                        dialog.getRuleCoordinator().add(() -> {
+                        rc.add(() -> {
                             String utteranace = utterances.get(rdm.nextInt(utterances.size()));
                             // request tts output via token
-                            dialog.present(new PresentationRequest(utteranace));
+                            tts(utteranace);
                             // disable this rule for four seconds
-                            dialog.getRuleSystem().disable("greetings", Duration.ofSeconds(4));
-                        }).attach("consumes", t);
+                            rs.disable("greetings", Duration.ofSeconds(4));
+                        }).attachOrigin(t);
 
                     });
         });
         // set the priority of the greetings rule.
         // associate the greetings rule with the meta tag
-        tagSystem.addTag("greetings", "meta");
+        tsc.addTag("greetings", "meta");
     }
 
-    public static void createInformAnswer(Dialog dialog, String ruleName, Runnable yes, Runnable no) {
-        RuleSystem rs = dialog.getRuleSystem();
-        dialog.getRuleSystem().addRule(ruleName, () -> {
-            dialog.getTokens().stream()
+    public void createInformAnswer(String ruleName, Runnable yes, Runnable no) {
+        rs.addRule(ruleName, () -> {
+            tc.getTokens().stream()
                     .filter(t -> t.payloadEquals("intent", "answer"))
                     .forEach(t -> {
 
@@ -74,10 +96,10 @@ public class MetaFactory {
                             return;
                         }
 
-                        dialog.getRuleCoordinator().add(() -> {
+                        rc.add(() -> {
                             fnc.run();
                             rs.removeRule(ruleName);
-                        }).attach(consumes, t);
+                        }).attachOrigin(t);
                     });
         });
         rs.setVolatile(ruleName, true);
@@ -89,7 +111,7 @@ public class MetaFactory {
 
     /**
      * Helps the user to understand the current context and what can be done.
-     * E.g. show example sentences from the SRGS srgs.jsgf, or generate them from the srgs.jsgf
+     * E.g. show example sentences from the SRGS de.dfki.step.srgs.jsgf, or generate them from the de.dfki.step.srgs.jsgf
      *
      * @param rs
      */
@@ -103,13 +125,12 @@ public class MetaFactory {
      * use case: worker wants to store the current state to show it to another colleague.
      * use case: worker wants to store the current such that he can continue later (takes break; other urgent task)
      * <p>
-     * TODO if no name is specified, create a clarify rule / selection
+     * TODO if no name is specified, of a clarify rule / selection
      *
-     * @param dialog
      */
-    public static void snapshotRule(Dialog dialog) {
-        dialog.getRuleSystem().addRule("create_snapshot", () -> {
-            Optional<Token> intent = dialog.getTokens().stream()
+    public void snapshotRule() {
+        rs.addRule("create_snapshot", () -> {
+            Optional<Token> intent = tc.getTokens().stream()
                     .filter(t -> t.payloadEquals("intent", "create_snapshot"))
                     .findFirst();
 
@@ -126,22 +147,21 @@ public class MetaFactory {
                 return;
             }
 
-            dialog.getRuleCoordinator().add(() -> {
-               rewindRule(dialog, tokenName, dialog.getIteration());
+            rc.add(() -> {
+               rewindRule(tokenName, cc.getIteration());
             });
         });
-        dialog.getTagSystem().addTag("create_snapshot", "meta");
+        tsc.addTag("create_snapshot", "meta");
     }
 
     /**
      * TODO If feature is heavly used, there will be a lot of rewind_x rules. The functionality could also be put into one rule
      *
-     * @param dialog
      */
-    public static void rewindRule(Dialog dialog, String name, long iteration) {
+    public void rewindRule(String name, long iteration) {
         String ruleName = "rewind_" + name;
-        dialog.getRuleSystem().addRule(ruleName, () -> {
-            Optional<Token> rewindIntent = dialog.getTokens().stream()
+        rs.addRule(ruleName, () -> {
+            Optional<Token> rewindIntent = tc.getTokens().stream()
                     .filter(t -> t.payloadEquals("intent", "rewind"))
                     .findFirst();
             if (!rewindIntent.isPresent()) {
@@ -161,11 +181,11 @@ public class MetaFactory {
                 return;
             }
 
-            dialog.getRuleCoordinator().add(() -> {
-                dialog.rewind(iteration);
-            }).attach(consumes, rewindIntent.get());
+            rc.add(() -> {
+                sc.rewind(iteration);
+            }).attachOrigin(rewindIntent.get());
         });
-        dialog.getTagSystem().addTag(ruleName, "meta");
+        tsc.addTag(ruleName, "meta");
     }
 
     /**
@@ -173,62 +193,60 @@ public class MetaFactory {
      * Valid jump points should be created on meaningful points of the dialog.
      * See {@link #createSnapshot}
      *
-     * @param dialog
      * @param lastInteraction
      */
-    public static void createUndoRule(Dialog dialog, long lastInteraction) {
-        var rs = dialog.getRuleSystem();
+    public void createUndoRule(long lastInteraction) {
         rs.removeRule("undo");
         rs.addRule("undo", () -> {
-            dialog.getTokens().stream()
+            tc.getTokens().stream()
                     .filter(t -> t.payloadEquals("intent", "undo"))
                     .findFirst()
                     .ifPresent(t -> {
 
-                        dialog.getRuleCoordinator().add(() -> {
+                        rc.add(() -> {
                             //jump one iteration behind the interaction
                             //this jumps to state before the last interaction was done
                             //~ undo last action
-                            dialog.rewind(Math.max(0, lastInteraction - 1));
-                        }).attach(consumes, t);
+                            sc.rewind(Math.max(0, lastInteraction - 1));
+                        }).attachOrigin(t);
                     });
         });
-        dialog.getTagSystem().addTag("undo", "meta");
+        tsc.addTag("undo", "meta");
     }
 
-    public static void createSnapshot(Dialog dialog) {
-        long iteration = dialog.getIteration();
+    public void createSnapshot() {
+        long iteration = cc.getIteration();
         log.info("Creating undo-jump point on iteration={}", iteration);
-        createUndoRule(dialog, iteration);
+        createUndoRule(iteration);
     }
 
-    public static void createUndoRule(Dialog dialog) {
-        createUndoRule(dialog, 0);
+    public void createUndoRule() {
+        createUndoRule( 0);
     }
 
-    public static void createRepeatRule(Dialog dialog, String ruleName, String lastTts) {
+    public void createRepeatRule(String ruleName, String lastTts) {
         String prefix = "I said ";
-        RuleSystem rs = dialog.getRuleSystem();
         //the user can request a repeat up to 10 seconds
-        long until = rs.getClock().convert(Duration.ofSeconds(25)) + rs.getIteration();
+
+        long until = cc.convert(Duration.ofSeconds(25)) + rs.getIteration();
         rs.addRule(ruleName, () -> {
 //            final Pattern pattern = Pattern.compile("[can ]?[you ]?repeat that[ please]?");
-            dialog.getTokens().stream()
+            tc.getTokens().stream()
                     .filter(t -> t.payloadEquals("intent", "repeat"))
                     .findFirst()
                     .ifPresent(t -> {
 
-                        dialog.getRuleCoordinator().add(() -> {
+                        rc.add(() -> {
                             rs.removeRule(ruleName);
                             if (rs.getIteration() >= until) {
-                                dialog.present(new PresentationRequest("I did not say anything"));
+                                tts("I did not say anything");
                             } else {
-                                dialog.present(new PresentationRequest(prefix + lastTts));
+                                tts(prefix + lastTts);
                             }
-                        }).attach(consumes, t);
+                        }).attachOrigin(t);
                     });
         });
-        dialog.getTagSystem().addTag(ruleName, "meta");
+        tsc.addTag(ruleName, "meta");
     }
 
     public static Stream<Token> filterIntent(String intent, Stream<Token> tokenStream) {
@@ -236,11 +254,13 @@ public class MetaFactory {
                 .filter(t -> t.payloadEquals("intent", intent));
     }
 
-    public static void selectRule(Dialog dialog, String ruleName, List<String> choices, Consumer<String> callback) {
-        RuleSystem rs = dialog.getRuleSystem();
-        //TODO use 'choices' to update srgs
+    public void selectRule(String ruleName, List<String> choices, Consumer<String> callback) {
+        //TODO use 'choices' to update de.dfki.step.srgs
+
+
+
         rs.addRule(ruleName, () -> {
-            Optional<Token> selectToken = dialog.getTokens().stream()
+            Optional<Token> selectToken = tc.getTokens().stream()
                     .filter(t -> t.payloadEquals("intent", "select"))
                     .findFirst();
 
@@ -248,57 +268,77 @@ public class MetaFactory {
                 return;
             }
 
-            Optional<String> selection = selectToken.get().get("selection")
-                    .filter(s -> s instanceof String)
-                    .map(s -> (String) s);
+            Optional<String> selection = selectToken.get().get("selection", String.class);
 
-
-            Optional<Double> confidence = selectToken.get().get("confidence")
-                    .filter(c -> c instanceof Double)
-                    .map(c -> (Double) c);
+            Double confidence = selectToken.get().get("confidence", Double.class)
+                    .orElse(1.0);
 
             if (!selection.isPresent()) {
-                dialog.getRuleCoordinator().add(() -> {
+                rc.add(() -> {
                     //TODO nlg for question
-                    dialog.present(new PresentationRequest("Which TODO do you mean?"));
-                    specifyRule(dialog, "specify_" + ruleName, callback);
-                }).attach(consumes, selectToken.get());
+                    tts("Which TODO do you mean?");
+                    specifyRule("specify_" + ruleName, callback);
+                    //specifyFusion("specify_" + ruleName, choices);
+
+                }).attachOrigin(selectToken.get());
                 return;
             }
 
-            if (confidence.isPresent() && confidence.get() < minConfidence) {
-                dialog.getRuleCoordinator().add(() -> {
-                    PresentationRequest pr = new PresentationRequest("Please confirm your selection for " + selection.get());
-                    dialog.present(pr);
+            if (confidence < minConfidence) {
+                rc.add(() -> {
+                    String utterance = "Please confirm your selection for " + selection.get();
+                    tts(utterance);
 
-                    MetaFactory.createInformAnswer(dialog, "confirm_" + ruleName,
+                    createInformAnswer( "confirm_" + ruleName,
                             () -> callback.accept(selection.get()),
                             () -> {
                             }
                     );
-                }).attach(consumes, selectToken.get());
+                }).attachOrigin(selectToken.get());
 
 
             } else {
-                dialog.getRuleCoordinator().add(() -> {
+                rc.add(() -> {
                     callback.accept(selection.get());
-                }).attach(consumes, selectToken.get());
+                    //rs.removeRule(ruleName);
+                }).attachOrigin(selectToken.get());
             }
 
         });
     }
 
+    protected void tts(String utterance) {
+        pc.present(PresentationComponent.simpleTTS(utterance));
+    }
+
+    public void specifyFusion(String name, List<String> choices) {
+        Schema speechFocus = Schema.builder()
+                .equalsOneOf(Schema.Key.of("speech_focus"), choices)
+                .build();
+        FusionNode fusionNode = new InputNode(speechFocus);
+        fc.addFusionNode(name, fusionNode, match -> {
+            var intent = FusionComponent.defaultIntent(match, "specify");
+            List<String> speechFocusList = Token.mergeFields("speech_focus", String.class, match.getTokens());
+            if(speechFocusList.size() != 1) {
+                throw new IllegalArgumentException("found speech_focus in multiple focus. todo: impl resolve which one to take");
+            }
+
+            intent = intent.add("selection", speechFocusList.get(0));
+            return intent;
+        });
+
+        //TODO "this one" + focus
+    }
 
     /**
      * If the system can't derive the intended task referred by the user, the user
-     * may specify his request by "the first task"
+     * may specify his request by an incomplete utterance like "the second task"
      * <p>
      * TODO return whole token in callback
      */
-    public static void specifyRule(Dialog dialog, String rule, Consumer<String> callback) {
-        var rs = dialog.getRuleSystem();
-        rs.addRule(rule, () -> {
-            dialog.getTokens().stream()
+    public void specifyRule(String ruleName, Consumer<String> callback) {
+        rs.addRule(ruleName, () -> {
+            tc.getTokens().stream()
                     .filter(t -> t.payloadEquals("intent", "specify"))
                     .findFirst()
                     .ifPresent(t -> {
@@ -310,11 +350,12 @@ public class MetaFactory {
                             return;
                         }
 
-                        dialog.getRuleCoordinator().add(() -> {
-                            rs.removeRule(rule);
+                        rc.add(() -> {
+                            rs.removeRule(ruleName);
                             String specificationStr = (String) specification.get();
                             callback.accept(specificationStr);
-                        }).attach(consumes, t);
+                            fc.removeFusionNode(ruleName);
+                        }).attachOrigin(t);
                     });
         });
     }
@@ -323,22 +364,21 @@ public class MetaFactory {
     /**
      * e.g. user interupts the system via gesture or speech input
      *
-     * @param dialog
      * @param ruleName
      * @param callback consumer that the intent specifying the turn_grab
      */
-    public static void turnGrabRule(Dialog dialog, String ruleName, Consumer<Token> callback) {
-        dialog.getRuleSystem().addRule(ruleName, () -> {
-            dialog.getTokens().stream()
+    public void turnGrabRule(String ruleName, Consumer<Token> callback) {
+        rs.addRule(ruleName, () -> {
+            tc.getTokens().stream()
                     .filter(t -> t.payloadEquals("intent", "turn_grab"))
                     .findFirst()
                     .ifPresent(t -> {
-                        dialog.getRuleCoordinator().add(() -> {
+                        rc.add(() -> {
                             callback.accept(t);
-                        }).attach(consumes, t);
+                        }).attachOrigin(t);
                     });
         });
-        dialog.getTagSystem().addTag(ruleName, "meta");
+        tsc.addTag(ruleName, "meta");
     }
 
     public static Optional<Double> getConfidence(Token token) {
@@ -350,21 +390,25 @@ public class MetaFactory {
     /**
      * Creates a rule that triggers the given callback after some time elapsed
      *
-     * @param dialog
+     * @param cm
      * @param name
      * @param callback
      */
-    public static void timeoutRule(Dialog dialog, String name, Duration duration, Runnable callback) {
-        long currentIteration = dialog.getIteration();
-        long untilIteration = currentIteration + dialog.getClock().convert(duration);
+    public static void timeoutRule(ComponentManager cm, String name, Duration duration, Runnable callback) {
+        var rs = cm.retrieveComponent(RuleComponent.class);
+        var cc = cm.retrieveComponent(ClockComponent.class);
+        var rc = cm.retrieveComponent(CoordinationComponent.class);
 
-        dialog.getRuleSystem().addRule(name, () -> {
-            if (dialog.getIteration() < untilIteration) {
+        long currentIteration = cc.getIteration();
+        long untilIteration = currentIteration + cc.convert(duration);
+
+        rs.addRule(name, () -> {
+            if (cc.getIteration() < untilIteration) {
                 return;
             }
 
-            dialog.getRuleCoordinator().add(() -> {
-                dialog.getRuleSystem().removeRule(name);
+            rc.add(() -> {
+                rs.removeRule(name);
                 callback.run();
             });
         });
@@ -376,5 +420,17 @@ public class MetaFactory {
         }
 
         return (T) obj;
+    }
+
+    /**
+     * e.g. MADMACS demo: following the visual focus: user looks on the car, then on the billboard
+     * @param dialog
+     * @param name
+     * @param supp
+     * @param values
+     * @param <T>
+     */
+    public static <T> void cascadeRule(Dialog dialog, String name, Supplier<T> supp, List<T> values) {
+        throw new UnsupportedOperationException("not impl");
     }
 }

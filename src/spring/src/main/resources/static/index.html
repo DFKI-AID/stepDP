@@ -66,8 +66,20 @@
             </select>
             <button v-on:click="sendIntent">sendIntent</button>
         </div>
+        <div>
+            <textarea v-model="inputContent" id="inputTextArea" cols=40 rows=10></textarea>
+        </div>
+        <div>
+            <select v-model="inputSelection">
+                <option v-for="(value, key) in inputs">{{key}}</option>
+            </select>
+            <button v-on:click="sendInput">sendInput</button>
+        </div>
     </div>
     <div class="tab-pane" id="behavior" role="tabpanel" aria-labelledby="behavior-tab">
+        <select v-model="behavior">
+            <option v-for="(behavior, key) in behaviors">{{key}}</option>
+        </select>
         <div ref="graphContainer"
              style="position:relative;overflow:hidden;width:5000px;height:5000px;background-color: #FDFFFC;cursor:default;">
         </div>

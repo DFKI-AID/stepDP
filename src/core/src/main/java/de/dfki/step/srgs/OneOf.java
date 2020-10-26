@@ -4,12 +4,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ *
  */
 public class OneOf implements Node {
     private List<Node> children = new ArrayList<>();
 
-    public OneOf add(Node node) {
-        this.children.add(node);
+    public OneOf add(Item item) {
+        this.children.add(item);
+        return this;
+    }
+
+    public OneOf add(RuleRef ruleRef) {
+        //rule ref has to be below item.
+        Node node  = nw -> {
+            nw.write("<item>");
+            ruleRef.write(nw);
+            nw.write("</item>");
+        };
+        children.add(node);
         return this;
     }
 

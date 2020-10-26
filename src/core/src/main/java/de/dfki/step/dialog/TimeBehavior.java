@@ -1,39 +1,63 @@
 package de.dfki.step.dialog;
 
+import de.dfki.step.core.Component;
+import de.dfki.step.core.ComponentManager;
+import de.dfki.step.core.TagSystemComponent;
+import de.dfki.step.core.TokenComponent;
+import de.dfki.step.output.PresentationComponent;
+import de.dfki.step.core.CoordinationComponent;
+import de.dfki.step.rengine.RuleComponent;
+
 import java.time.Duration;
 import java.time.LocalDateTime;
 
 /**
- *
+ * Simple behavior that outputs the time on time_request intents
  */
-public class TimeBehavior implements Behavior {
+public class TimeBehavior implements Component {
     private long timeout = 3000L;
-    private Dialog dialog;
+    private ComponentManager cm;
 
     @Override
-    public void init(Dialog dialog) {
-        this.dialog = dialog;
-        dialog.getRuleSystem().addRule("request_time", () -> {
-            dialog.getTokens().stream()
+    public void init(ComponentManager cm) {
+        this.cm = cm;
+        var rsc = cm.retrieveComponent(RuleComponent.class);
+        var rcc = cm.retrieveComponent(CoordinationComponent.class);
+        var tc = cm.retrieveComponent(TokenComponent.class);
+        var pc = cm.retrieveComponent(PresentationComponent.class);
+
+        rsc.getRuleSystem().addRule("request_time", () -> {
+            tc.getTokens().stream()
                     .filter(t -> t.payloadEquals("intent", "time_request"))
                     .findFirst()
                     .ifPresent(t -> {
 
-                        dialog.getRuleCoordinator().add(() -> {
+                        rcc.add(() -> {
                             //output time via tts and disable the rule x seconds
                             var now = LocalDateTime.now();
                             var tts = "The time is " + now.getHour() + ":" + now.getMinute(); //TODO improve
-                            dialog.present(new PresentationRequest(tts));
-                            dialog.getRuleSystem().disable("request_time", Duration.ofMillis(timeout));
-                        }).attach("consumes", t);
+                            pc.present(PresentationComponent.simpleTTS(tts));
+                            rsc.getRuleSystem().disable("request_time", Duration.ofMillis(timeout));
+                        }).attach("origin", t);
                     });
         });
-        dialog.getTagSystem().addTag("request_time", "meta");
+
+        cm.getComponent(TagSystemComponent.class).ifPresent(tsc -> {
+            tsc.addTag("request_time", "meta");
+        });
     }
+
+
 
     @Override
     public void deinit() {
-        dialog.getRuleSystem().removeRule("request_time");
+        cm.getComponent(RuleComponent.class).ifPresent(rs -> {
+            rs.getRuleSystem().removeRule("request_time");
+        });
+    }
+
+    @Override
+    public void update() {
     }
 
     @Override

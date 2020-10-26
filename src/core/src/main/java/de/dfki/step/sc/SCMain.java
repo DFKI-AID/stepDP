@@ -8,7 +8,7 @@ import java.net.URL;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- *
+ * TODO move into unit test
  */
 public class SCMain {
     public static void main(String[] args) throws IOException, URISyntaxException {

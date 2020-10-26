@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" binding="early" name="selftransition" qt:editorversion="4.8.2" xmlns:qt="http://www.qt.io/2015/02/scxml-ext" initial="State_1">
+    <qt:editorinfo initialGeometry="85.26;99.81;-20;-20;40;40"/>
+    <state id="State_1">
+        <qt:editorinfo geometry="138.28;272.40;-145;-50;205;100" scenegeometry="138.28;272.40;-6.72;222.40;205;100"/>
+        <transition type="internal" event="event1" cond="cond">
+            <script src="onFire"/>
+        </transition>
+        <onentry>
+            <script src="onEnter"/>
+        </onentry>
+        <onexit>
+            <script src="onExit"/>
+        </onexit>
+        <transition type="external" event="event2" target="State_3">
+            <qt:editorinfo localGeometry="152.71;20.79"/>
+        </transition>
+    </state>
+    <state id="State_3">
+        <qt:editorinfo geometry="398.21;310.87;-60;-50;120;100" scenegeometry="398.21;310.87;338.21;260.87;120;100"/>
+    </state>
+</scxml>

@@ -1,6 +1,7 @@
 package de.dfki.step.kb;
 
 import org.pcollections.HashPMap;
+import org.pcollections.HashTreePMap;
 import org.pcollections.IntTreePMap;
 import org.pcollections.PMap;
 import org.slf4j.Logger;
@@ -18,8 +19,7 @@ import java.util.stream.Stream;
  */
 public class KnowledgeMap {
     private static final Logger log = LoggerFactory.getLogger(KnowledgeMap.class);
-    private PMap<String, Entity> entities = HashPMap.empty(IntTreePMap.empty());
-    private KMHistory history = new KMHistory(1000); //TODO count
+    protected PMap<String, Entity> entities = HashPMap.empty(IntTreePMap.empty());
 
     /**
      * Adds an entity to the knowledge map and overwrites any existing entity with the same id (see Ontology::id).
@@ -52,9 +52,9 @@ public class KnowledgeMap {
         this.entities = this.entities.plus(id.get(), entity);
 
         if(updating) {
-            history.updateEntry(entity);
+            onUpdate(this.entities.get(id.get()), entity);
         } else {
-            history.addEntry(entity);
+            onAdd(entity);
         }
         return id.get();
     }
@@ -65,7 +65,7 @@ public class KnowledgeMap {
      * This method can be used to updates certain attributes of an entity without overwriting
      * changes from other components.
      * <p>
-     * TODO should not create an enitity? ... semantic has to be similar to other add functions. maybe additional merge function...
+     * TODO should not of an enitity? ... semantic has to be similar to other add functions. maybe additional merge function...
      *
      * @param entity
      * @param attributes
@@ -96,9 +96,11 @@ public class KnowledgeMap {
                 .reduce("", (x, y) -> x + " " + y));
 
         this.entities = this.entities.plus(id, kbEnt);
-        history.addEntry(kbEnt);
+        onAdd(kbEnt);
         return id;
     }
+
+
 
     public Collection<Entity> getAll() {
         return this.entities.values();
@@ -129,9 +131,9 @@ public class KnowledgeMap {
         }
         log.info("updating {} {}={}", id, attr, value);
         Entity entity = this.entities.get(id);
-        entity = entity.set(attr, value);
-        this.entities = this.entities.plus(id, entity);
-        history.updateEntry(entity);
+        Entity newEntity = entity.set(attr, value);
+        this.entities = this.entities.plus(id, newEntity);
+        onUpdate(entity, newEntity);
         return true;
     }
 
@@ -144,7 +146,7 @@ public class KnowledgeMap {
             }
             log.info("updating {}", entity);
             this.entities = this.entities.plus(entry.getKey(), entity);
-            history.updateEntry(entity);
+            onUpdate(entry.getValue(), entity);
         }
     }
 
@@ -199,7 +201,7 @@ public class KnowledgeMap {
             if (predicate.test(entry.getValue())) {
                 log.info("removing {}", entry.getKey());
                 newEntities = newEntities.minus(entry.getKey());
-                history.removeEntry(entry.getValue());
+                onRemove(entry.getValue());
             }
         }
         this.entities = newEntities;
@@ -260,12 +262,25 @@ public class KnowledgeMap {
         Iterator<Entity> iter = ordered.iterator();
         while (entities.size() > maxCount) {
             Entity entity = iter.next();
-            this.entities.minus(entity);
-            history.removeEntry(entity);
+            entities = entities.minus(entity);
+            onRemove(entity);
         }
     }
 
-    public KMHistory getHistory() {
-        return history;
+    protected void onRemove(Entity entity) {
     }
+
+    protected void onUpdate(Entity oldEntity, Entity entity) {
+    }
+
+    protected void onAdd(Entity kbEnt) {
+    }
+
+    /**
+     * Remove all entries.
+     */
+    public void clear() {
+        this.entities = HashTreePMap.empty();
+    }
+
 }

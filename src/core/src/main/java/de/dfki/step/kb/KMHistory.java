@@ -28,7 +28,7 @@ public class KMHistory {
         REMOVE
     }
 
-    public static class Entry {
+    public static class Entry { //TODO old value?
         public final EntryType type;
         public final Entity entity;
 
