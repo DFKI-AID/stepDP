@@ -3,7 +3,6 @@ package de.dfki.step.web;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.dfki.step.deprecated.kb.*;
-import de.dfki.step.kb.*;
 import de.dfki.step.output.OutputComponent;
 import de.dfki.step.output.OutputFactory;
 import de.dfki.step.output.imp.AllocationState;
