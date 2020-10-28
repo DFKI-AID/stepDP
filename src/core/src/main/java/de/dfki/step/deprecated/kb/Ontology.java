@@ -1,4 +1,4 @@
-package de.dfki.step.kb;
+package de.dfki.step.deprecated.kb;
 
 import de.dfki.step.core.Mode;
 import de.dfki.step.util.Vector2;
@@ -17,6 +17,7 @@ import java.util.function.Predicate;
  * TODO static / singleton class is ugly. however, accessing the attributes would be annoying otherwise...
  * TODO rename tocalog => toc for higher readability
  */
+@Deprecated
 public class Ontology {
 
 

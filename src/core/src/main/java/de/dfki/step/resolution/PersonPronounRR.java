@@ -1,6 +1,6 @@
 package de.dfki.step.resolution;
 
-import de.dfki.step.kb.DataEntry;
+import de.dfki.step.deprecated.kb.DataEntry;
 
 
 import java.util.Collection;

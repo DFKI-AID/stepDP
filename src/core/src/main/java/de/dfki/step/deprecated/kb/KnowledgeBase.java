@@ -1,10 +1,11 @@
-package de.dfki.step.kb;
+package de.dfki.step.deprecated.kb;
 
 
 import java.util.*;
 
 /**
  */
+@Deprecated
 public class KnowledgeBase {
     private static final String DEFAULT_ID = "default";
     private Map<String, KnowledgeMap> kmaps = new HashMap<>();

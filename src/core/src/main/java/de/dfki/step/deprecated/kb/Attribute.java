@@ -1,4 +1,4 @@
-package de.dfki.step.kb;
+package de.dfki.step.deprecated.kb;
 
 import org.pcollections.PMap;
 
@@ -9,6 +9,7 @@ import java.util.function.Predicate;
 /**
  * TODO short name for pretty printing
  */
+@Deprecated
 public class Attribute<T> {
     public final String name;
 

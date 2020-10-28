@@ -1,6 +1,6 @@
 package de.dfki.step.resolution_entity;
 
-import de.dfki.step.kb.Entity;
+import de.dfki.step.deprecated.kb.Entity;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;

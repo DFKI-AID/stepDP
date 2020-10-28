@@ -1,10 +1,10 @@
 package de.dfki.step.resolution;
 
+import de.dfki.step.deprecated.kb.DataEntry;
 import de.dfki.step.kb.*;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 

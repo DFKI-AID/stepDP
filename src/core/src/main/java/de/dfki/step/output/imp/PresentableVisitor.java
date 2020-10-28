@@ -1,6 +1,6 @@
 package de.dfki.step.output.imp;
 
-import de.dfki.step.kb.Entity;
+import de.dfki.step.deprecated.kb.Entity;
 
 import java.util.*;
 import java.util.function.Consumer;

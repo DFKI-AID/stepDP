@@ -1,9 +1,10 @@
-package de.dfki.step.kb;
+package de.dfki.step.deprecated.kb;
 
 import de.dfki.step.core.Component;
 import de.dfki.step.core.ComponentManager;
 import org.pcollections.PMap;
 
+@Deprecated
 public class KnowledgeMapComp  extends KnowledgeMap implements Component {
     @Override
     public void init(ComponentManager cm) {

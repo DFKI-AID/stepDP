@@ -1,7 +1,7 @@
 package de.dfki.step.output.imp;
 
-import de.dfki.step.kb.Entity;
-import de.dfki.step.kb.Ontology;
+import de.dfki.step.deprecated.kb.Entity;
+import de.dfki.step.deprecated.kb.Ontology;
 
 import java.util.Collections;
 import java.util.Set;

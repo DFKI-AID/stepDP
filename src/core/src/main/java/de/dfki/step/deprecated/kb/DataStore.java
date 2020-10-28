@@ -1,4 +1,4 @@
-package de.dfki.step.kb;
+package de.dfki.step.deprecated.kb;
 
 import org.pcollections.HashPMap;
 import org.pcollections.HashTreePMap;
@@ -31,6 +31,7 @@ import java.util.stream.Stream;
  * (3) Only one class {@link DataEntry} has to managed.
  *
  */
+@Deprecated
 public class DataStore<T> {
     private static final Logger log = LoggerFactory.getLogger(DataStore.class);
     private boolean checkMutability = false;

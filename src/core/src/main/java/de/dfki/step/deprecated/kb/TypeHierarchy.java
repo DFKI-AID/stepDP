@@ -1,4 +1,4 @@
-package de.dfki.step.kb;
+package de.dfki.step.deprecated.kb;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,6 +9,7 @@ import java.util.function.Function;
 /**
  * TODO: performance: cache
  */
+@Deprecated
 public class TypeHierarchy {
     private static final Logger log = LoggerFactory.getLogger(TypeHierarchy.class);
     private final Map<Type, Node> nodes;

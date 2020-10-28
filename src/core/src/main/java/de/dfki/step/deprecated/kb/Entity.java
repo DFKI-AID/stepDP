@@ -1,4 +1,4 @@
-package de.dfki.step.kb;
+package de.dfki.step.deprecated.kb;
 
 import org.pcollections.HashTreePMap;
 import org.pcollections.PMap;
@@ -11,6 +11,7 @@ import java.util.function.Predicate;
  * TODO rename Base
  * TODO hash and equals
  */
+@Deprecated
 public class Entity {
     public final PMap<String, AttributeValue> attributes;
 

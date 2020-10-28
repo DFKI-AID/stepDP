@@ -1,4 +1,4 @@
-package de.dfki.step.kb;
+package de.dfki.step.deprecated.kb;
 
 import org.pcollections.*;
 
@@ -6,6 +6,7 @@ import org.pcollections.*;
  * TODO rename: RecordHistory?
  * Keeps a history of changes done in a {@link KnowledgeMap}
  */
+@Deprecated
 public class KMHistory {
     private final long maxEntryCount;
     private PQueue<Entry> history = AmortizedPQueue.empty();

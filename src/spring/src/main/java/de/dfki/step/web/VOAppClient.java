@@ -2,10 +2,10 @@ package de.dfki.step.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.dfki.step.kb.Entity;
-import de.dfki.step.kb.KnowledgeBase;
-import de.dfki.step.kb.KnowledgeMap;
-import de.dfki.step.kb.Ontology;
+import de.dfki.step.deprecated.kb.Entity;
+import de.dfki.step.deprecated.kb.KnowledgeBase;
+import de.dfki.step.deprecated.kb.KnowledgeMap;
+import de.dfki.step.deprecated.kb.Ontology;
 import de.dfki.step.output.OutputComponent;
 import de.dfki.step.output.OutputFactory;
 import de.dfki.step.output.imp.AllocationState;

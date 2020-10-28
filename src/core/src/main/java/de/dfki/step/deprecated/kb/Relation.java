@@ -1,8 +1,9 @@
-package de.dfki.step.kb;
+package de.dfki.step.deprecated.kb;
 
 /**
  * Can be used to of n-to-m relations between objects.
  */
+@Deprecated
 public final class Relation {
     private Relation() {
 

@@ -1,4 +1,4 @@
-package de.dfki.step.kb;
+package de.dfki.step.deprecated.kb;
 
 import org.pcollections.*;
 
@@ -11,6 +11,7 @@ import java.util.stream.Stream;
 
 /**
  */
+@Deprecated
 public class KnowledgeList {
     private PVector<Entity> entities = TreePVector.empty();
 

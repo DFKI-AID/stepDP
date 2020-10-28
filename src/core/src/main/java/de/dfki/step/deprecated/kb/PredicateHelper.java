@@ -1,4 +1,4 @@
-package de.dfki.step.kb;
+package de.dfki.step.deprecated.kb;
 
 import java.util.Collection;
 import java.util.Set;
@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 /**
  */
+@Deprecated
 public class PredicateHelper {
     protected KnowledgeBase kb;
 

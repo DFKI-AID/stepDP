@@ -1,8 +1,8 @@
 package de.dfki.step.fusion;
 
-import de.dfki.step.kb.Entity;
-import de.dfki.step.kb.Ontology;
-import de.dfki.step.kb.KnowledgeMap;
+import de.dfki.step.deprecated.kb.Entity;
+import de.dfki.step.deprecated.kb.Ontology;
+import de.dfki.step.deprecated.kb.KnowledgeMap;
 
 import java.util.*;
 

@@ -1,4 +1,4 @@
-package de.dfki.step.kb;
+package de.dfki.step.deprecated.kb;
 
 import org.pcollections.HashPMap;
 import org.pcollections.HashTreePMap;
@@ -17,6 +17,7 @@ import java.util.stream.Stream;
 /**
  * TODO maybe: associate Type with map -> throw exception on illegal type && add type if not present
  */
+@Deprecated
 public class KnowledgeMap {
     private static final Logger log = LoggerFactory.getLogger(KnowledgeMap.class);
     protected PMap<String, Entity> entities = HashPMap.empty(IntTreePMap.empty());

@@ -1,4 +1,4 @@
-package de.dfki.step.kb;
+package de.dfki.step.deprecated.kb;
 
 import java.util.*;
 import java.util.function.Function;
@@ -7,6 +7,7 @@ import java.util.function.Predicate;
 /**
  * Encapsulates multiple {@link KnowledgeMap} for read and write access.
  */
+@Deprecated
 public class KMView {
     private List<KnowledgeMap> kmaps = new ArrayList<>();
 

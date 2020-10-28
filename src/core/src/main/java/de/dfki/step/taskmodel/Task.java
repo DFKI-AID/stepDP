@@ -1,7 +1,7 @@
 package de.dfki.step.taskmodel;
 
 
-import de.dfki.step.kb.Entity;
+import de.dfki.step.deprecated.kb.Entity;
 
 public abstract class Task extends Entity {
 

@@ -1,10 +1,9 @@
-package de.dfki.step.kb;
+package de.dfki.step.deprecated.kb;
 
 import org.pcollections.PMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.crypto.Data;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -12,6 +11,7 @@ import java.util.Optional;
 /**
  *
  */
+@Deprecated
 public class DataView {
     private static final Logger log = LoggerFactory.getLogger(DataView.class);
     private final DataStore<Object> dataStore;

@@ -1,9 +1,10 @@
-package de.dfki.step.kb;
+package de.dfki.step.deprecated.kb;
 
 import java.util.Objects;
 
 /**
  */
+@Deprecated
 public class Type {
     public final String name;
 

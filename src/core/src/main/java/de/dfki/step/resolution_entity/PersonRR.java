@@ -1,7 +1,7 @@
 package de.dfki.step.resolution_entity;
 
-import de.dfki.step.kb.Entity;
-import de.dfki.step.kb.Ontology;
+import de.dfki.step.deprecated.kb.Entity;
+import de.dfki.step.deprecated.kb.Ontology;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Supplier;

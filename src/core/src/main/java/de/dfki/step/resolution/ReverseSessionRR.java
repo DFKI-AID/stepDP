@@ -1,12 +1,9 @@
 package de.dfki.step.resolution;
 
-import de.dfki.step.kb.DataEntry;
-import de.dfki.step.kb.Entity;
-import de.dfki.step.kb.Ontology;
+import de.dfki.step.deprecated.kb.DataEntry;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.function.Supplier;
 
 /* confidence is given to sessions not including the speaker */

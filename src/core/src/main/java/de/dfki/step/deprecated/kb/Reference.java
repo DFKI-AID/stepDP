@@ -1,8 +1,9 @@
-package de.dfki.step.kb;
+package de.dfki.step.deprecated.kb;
 
 /**
  * TODO maybe change type to Type class
  */
+@Deprecated
 public class Reference {
     public final String id;
     public final String type;

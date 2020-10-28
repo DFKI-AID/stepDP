@@ -1,10 +1,7 @@
 package de.dfki.step.resolution;
 
-import de.dfki.step.kb.DataEntry;
-import de.dfki.step.kb.Entity;
-import de.dfki.step.kb.Ontology;
+import de.dfki.step.deprecated.kb.DataEntry;
 
-import java.sql.DatabaseMetaData;
 import java.util.Collection;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;

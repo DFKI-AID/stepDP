@@ -1,9 +1,9 @@
 package de.dfki.step.resolution_entity;
 
 import de.dfki.step.core.*;
-import de.dfki.step.kb.Attribute;
-import de.dfki.step.kb.AttributeValue;
-import de.dfki.step.kb.Entity;
+import de.dfki.step.deprecated.kb.Attribute;
+import de.dfki.step.deprecated.kb.AttributeValue;
+import de.dfki.step.deprecated.kb.Entity;
 import org.pcollections.PSequence;
 import org.pcollections.PSet;
 import org.pcollections.TreePVector;

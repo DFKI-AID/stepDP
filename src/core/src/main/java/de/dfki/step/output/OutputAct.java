@@ -1,7 +1,7 @@
 package de.dfki.step.output;
 
 
-import de.dfki.step.kb.Entity;
+import de.dfki.step.deprecated.kb.Entity;
 
 /**
  */

@@ -1,8 +1,8 @@
 package de.dfki.step.output;
 
 import de.dfki.step.core.Mode;
-import de.dfki.step.kb.Entity;
-import de.dfki.step.kb.Ontology;
+import de.dfki.step.deprecated.kb.Entity;
+import de.dfki.step.deprecated.kb.Ontology;
 
 import java.net.URI;
 import java.util.UUID;

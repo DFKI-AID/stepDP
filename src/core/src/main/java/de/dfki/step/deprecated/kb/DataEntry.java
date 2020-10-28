@@ -1,12 +1,8 @@
-package de.dfki.step.kb;
+package de.dfki.step.deprecated.kb;
 
-import org.pcollections.PMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -14,6 +10,7 @@ import java.util.Optional;
  * You may extend this class to add specific getter for your use case.
  * See the unit test (DataStoreTest) for usage.
  */
+@Deprecated
 public class DataEntry {
     private static final Logger log = LoggerFactory.getLogger(DataEntry.class);
     private final DataView dataView;
