@@ -3,7 +3,5 @@
 target
 *.iml
 *.versionsBackup
-
 coverage-error.log
 settings.xml
-
