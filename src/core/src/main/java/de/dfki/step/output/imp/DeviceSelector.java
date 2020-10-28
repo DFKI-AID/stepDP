@@ -1,7 +1,6 @@
 package de.dfki.step.output.imp;
 
 import de.dfki.step.deprecated.kb.*;
-import de.dfki.step.kb.*;
 import de.dfki.step.output.Imp;
 
 import java.util.Comparator;
