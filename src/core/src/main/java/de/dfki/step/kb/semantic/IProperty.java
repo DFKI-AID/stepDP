@@ -1,8 +1,10 @@
 package de.dfki.step.kb.semantic;
 
+import de.dfki.step.kb.IUUID;
+
 import java.util.Comparator;
 
-public interface IProperty extends Comparator<IProperty>, Cloneable
+public interface IProperty extends Comparator<IProperty>, Cloneable, IUUID
 {
     String getName();
     void setName(String name);

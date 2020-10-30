@@ -1,12 +1,14 @@
 package de.dfki.step.kb.semantic;
 
 import java.util.Objects;
+import java.util.UUID;
 
 public class PropString implements IProperty{
 
     private String _name;
     private String _value = null;
     private Boolean _mustBePresent = false;
+    private UUID _uuid = UUID.randomUUID();
 
     public void setValue(String val)
     {
@@ -45,7 +47,7 @@ public class PropString implements IProperty{
 
     @Override
     public boolean hasValue() {
-        return _value == null;
+        return _value != null;
     }
 
     @Override
@@ -64,6 +66,11 @@ public class PropString implements IProperty{
     @Override
     public void deserialize(String data) {
 
+    }
+
+    @Override
+    public UUID getUUID() {
+        return this._uuid;
     }
 
     @Override

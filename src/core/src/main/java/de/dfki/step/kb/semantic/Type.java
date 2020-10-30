@@ -1,14 +1,18 @@
 package de.dfki.step.kb.semantic;
 
+import de.dfki.step.kb.IUUID;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
-public class Type{
-
+public class Type implements IUUID
+{
     private String _name;
     private List<IProperty> _properties = new LinkedList<>();
     private List<Type> _inherit = new LinkedList<>();
+    private UUID _uuid = UUID.randomUUID();
 
     public Type(String name) throws Exception
     {
@@ -58,7 +62,12 @@ public class Type{
 
     public boolean isInheritanceFrom(Type inheritFrom)
     {
-        return this._inherit.contains(inheritFrom);
+
+        if(this._inherit.contains(inheritFrom))
+            return true;
+
+        // TODO: still check if some inherit type inheritance from, so step up the tree!
+        return false;
     }
 
 
@@ -75,5 +84,10 @@ public class Type{
     @Override
     public int hashCode() {
         return _name.hashCode();
+    }
+
+    @Override
+    public UUID getUUID() {
+        return null;
     }
 }

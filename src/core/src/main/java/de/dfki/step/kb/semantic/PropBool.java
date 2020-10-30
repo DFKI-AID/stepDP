@@ -1,12 +1,14 @@
 package de.dfki.step.kb.semantic;
 
 import java.util.Objects;
+import java.util.UUID;
 
 public class PropBool implements IProperty{
     private String _name;
     private Boolean _value = null;
     private Boolean _valueSet = false;
     private Boolean _mustBePresent = false;
+    private UUID _uuid = UUID.randomUUID();
 
     public void setValue(Boolean val)
     {
@@ -97,5 +99,10 @@ public class PropBool implements IProperty{
     public Object clone() throws CloneNotSupportedException
     {
         return null;
+    }
+
+    @Override
+    public UUID getUUID() {
+        return this._uuid;
     }
 }
