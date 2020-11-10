@@ -155,7 +155,7 @@
     <distributionManagement>
       <repository>
         <id>stepdp-dfki-ftp</id>
-		<name>stepDB DFKI Hosting</name>
+		<name>stepDP DFKI Hosting</name>
         <url>ftps://webhosting-intern.dfki.de</url>
 		<layout>default</layout>
       </repository>
