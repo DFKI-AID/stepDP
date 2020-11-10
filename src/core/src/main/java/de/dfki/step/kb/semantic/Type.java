@@ -1,6 +1,7 @@
 package de.dfki.step.kb.semantic;
 
 import de.dfki.step.kb.IUUID;
+import de.dfki.step.kb.KnowledgeBase;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -10,15 +11,23 @@ import java.util.UUID;
 public class Type implements IUUID
 {
     private String _name;
+    private boolean _systemType;
     private List<IProperty> _properties = new LinkedList<>();
     private List<Type> _inherit = new LinkedList<>();
     private UUID _uuid = UUID.randomUUID();
+    private KnowledgeBase _parent;
 
-    public Type(String name) throws Exception
+    public Type(String name, KnowledgeBase parent, boolean systemType) throws Exception
     {
         if(name == null)
             throw new Exception("invalid name");
+
+        if(parent == null)
+            throw new Exception("invalid parent (KnowledgeBase)");
+
+        this._parent = parent;
         this._name = name;
+        this._systemType = systemType;
     }
 
     public String getName()
@@ -62,12 +71,21 @@ public class Type implements IUUID
 
     public boolean isInheritanceFrom(Type inheritFrom)
     {
+        for(Type var : this._inherit)
+        {
+            if(var.equals(inheritFrom))
+                return true;
 
-        if(this._inherit.contains(inheritFrom))
-            return true;
+            if(var.isInheritanceFrom(inheritFrom))
+                return true;
+        }
 
-        // TODO: still check if some inherit type inheritance from, so step up the tree!
         return false;
+    }
+
+    public boolean isSystemType()
+    {
+        return this._systemType;
     }
 
 

@@ -1,16 +1,35 @@
 package de.dfki.step.kb.semantic;
 
+import de.dfki.step.kb.KnowledgeBase;
+
 import java.util.Objects;
 import java.util.UUID;
 
 public class PropInt implements IProperty{
     private String _name;
+    private boolean _isConstant = false;
     private Integer _value = null;
-    private Boolean _mustBePresent = false;
+    private boolean _mustBePresent = false;
     private UUID _uuid = UUID.randomUUID();
+    private KnowledgeBase _parent;
 
-    public void setValue(Integer val)
+    public PropInt(String name, KnowledgeBase parent) throws Exception
     {
+        if(name == null)
+            throw new Exception("no valid name for a type");
+        if(parent == null)
+            throw new Exception("no valid Knowledge Base for reference");
+
+        this._name = name;
+        this._parent = parent;
+
+        // Register at the global UUID Storage
+        this._parent.addUUIDtoList(this);
+    }
+
+    public void setValue(Integer val)throws Exception {
+        if(this.isConstant())
+            throw new Exception("Property is Constant and cannot be changed!");
         this._value = val;
     }
 
@@ -42,6 +61,23 @@ public class PropInt implements IProperty{
     @Override
     public void setMustBePresent(boolean val) {
         this._mustBePresent = val;
+    }
+
+    @Override
+    public boolean isConstant() {
+        return this._isConstant;
+    }
+
+    @Override
+    public void setConstant(boolean val) {
+        this._isConstant = val;
+    }
+
+    @Override
+    public void clearValue() throws Exception {
+        if(this.isConstant())
+            throw new Exception("Property is Constant and cannot be changed!");
+        this._value = null;
     }
 
     @Override
@@ -89,14 +125,14 @@ public class PropInt implements IProperty{
 
         if (!Objects.equals(_name, propInt._name)) return false;
         if (!Objects.equals(_value, propInt._value)) return false;
-        return _mustBePresent.equals(propInt._mustBePresent);
+        return _mustBePresent == propInt._mustBePresent;
     }
 
     @Override
     public int hashCode() {
         int result = _name != null ? _name.hashCode() : 0;
         result = 31 * result + (_value != null ? _value.hashCode() : 0);
-        result = 31 * result + _mustBePresent.hashCode();
+        result = 31 * result + (_mustBePresent ? 1 : 0);
         return result;
     }
 

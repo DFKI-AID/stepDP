@@ -12,6 +12,11 @@ public interface IProperty extends Comparator<IProperty>, Cloneable, IUUID
     boolean mustBePresent();
     void setMustBePresent(boolean val);
 
+    boolean isConstant();
+    void setConstant(boolean val);
+
+    void clearValue() throws Exception;
+
     boolean hasValue();
     boolean canCompare(IProperty otherProp);
 

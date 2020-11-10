@@ -1,13 +1,31 @@
 package de.dfki.step.kb.semantic;
 
+import de.dfki.step.kb.KnowledgeBase;
+
 import java.util.UUID;
 
 public class PropReference implements IProperty {
 
     private String _name;
-    private Boolean _mustBePresent = false;
+    private boolean _isConstant = false;
+    private boolean _mustBePresent = false;
     private UUID _uuid = UUID.randomUUID();
     private UUID _reference = null;
+    private KnowledgeBase _parent;
+
+    public PropReference(String name, KnowledgeBase parent) throws Exception
+    {
+        if(name == null)
+            throw new Exception("no valid name for a type");
+        if(parent == null)
+            throw new Exception("no valid Knowledge Base for reference");
+
+        this._name = name;
+        this._parent = parent;
+
+        // Register at the global UUID Storage
+        this._parent.addUUIDtoList(this);
+    }
 
     public void setReference(UUID ref)
     {
@@ -37,6 +55,23 @@ public class PropReference implements IProperty {
     @Override
     public void setMustBePresent(boolean val) {
         this._mustBePresent = val;
+    }
+
+    @Override
+    public boolean isConstant() {
+        return this._isConstant;
+    }
+
+    @Override
+    public void setConstant(boolean val) {
+        this._isConstant = val;
+    }
+
+    @Override
+    public void clearValue() throws Exception {
+        if(this.isConstant())
+            throw new Exception("Property is Constant and cannot be changed!");
+        this._reference = null;
     }
 
     @Override

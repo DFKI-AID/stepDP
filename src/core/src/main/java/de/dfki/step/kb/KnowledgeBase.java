@@ -10,6 +10,17 @@ import java.util.Optional;
 public class KnowledgeBase {
 
     public List<Type> _types = new LinkedList<>();
+    public List<IUUID> _objects = new LinkedList<>();
+
+    public KnowledgeBase()
+    {
+        // TODO Add System Types here
+    }
+
+    public void addUUIDtoList(IUUID object)
+    {
+        _objects.add(object);
+    }
 
     public Type getType(String name)
     {
@@ -37,6 +48,7 @@ public class KnowledgeBase {
             throw new Exception("Type is already part of the KB!");
         }
 
+        this._objects.add(type);
         this._types.add(type);
     }
 
