@@ -59,7 +59,7 @@ public class InputComponent implements Component {
         long now = cc.getIteration();
         long timeout = cc.convert(tokenTimeout);
         tokens = tokens.minusAll(tokens.stream()
-                .filter(t -> t.get("timestamp", Long.class).get() + timeout > now)
+                .filter(t -> t.get("timestamp", Long.class).get() + timeout <= now)
                 .collect(Collectors.toList()));
 
     }
