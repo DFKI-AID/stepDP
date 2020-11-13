@@ -71,6 +71,9 @@ public class Type implements IUUID
 
     public boolean isInheritanceFrom(Type inheritFrom)
     {
+        if(this == inheritFrom)
+            return true;
+
         for(Type var : this._inherit)
         {
             if(var.equals(inheritFrom))
