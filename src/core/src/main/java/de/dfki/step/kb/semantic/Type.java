@@ -17,6 +17,11 @@ public class Type implements IUUID
     private UUID _uuid = UUID.randomUUID();
     private KnowledgeBase _parent;
 
+    public Type(String name, KnowledgeBase parent) throws Exception
+    {
+        this(name, parent, false);
+    }
+
     public Type(String name, KnowledgeBase parent, boolean systemType) throws Exception
     {
         if(name == null)

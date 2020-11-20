@@ -20,6 +20,7 @@ import java.util.stream.Stream;
 /**
  * Helper class for creatin rules and fusion nodes for recurring dialog patterns
  */
+@Deprecated
 public class MetaFactory {
     private static final Logger log = LoggerFactory.getLogger(MetaFactory.class);
     private static final double minConfidence = 0.3;

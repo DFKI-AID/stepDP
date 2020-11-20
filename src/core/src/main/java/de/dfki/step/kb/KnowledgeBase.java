@@ -14,7 +14,16 @@ public class KnowledgeBase {
 
     public KnowledgeBase()
     {
-        // TODO Add System Types here
+        try {
+            Type object = new Type("Object", this, true);
+            this.addType(object);
+
+            Type token = new Type("Token", this, true);
+            token.addInheritance(object);
+            this.addType(token);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void addUUIDtoList(IUUID object)

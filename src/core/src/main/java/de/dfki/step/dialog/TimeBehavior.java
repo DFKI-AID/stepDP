@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 /**
  * Simple behavior that outputs the time on time_request intents
  */
+@Deprecated
 public class TimeBehavior implements Component {
     private long timeout = 3000L;
     private ComponentManager cm;

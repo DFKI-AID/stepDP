@@ -1,7 +1,9 @@
 package de.dfki.step.dialog;
 
+import de.dfki.step.blackboard.Board;
 import de.dfki.step.core.*;
 import de.dfki.step.fusion.FusionComponent;
+import de.dfki.step.kb.KnowledgeBase;
 import de.dfki.step.output.PresentationComponent;
 import de.dfki.step.core.CoordinationComponent;
 import de.dfki.step.rengine.RuleComponent;
@@ -30,6 +32,9 @@ public abstract class Dialog implements Runnable, ComponentManager {
     protected final Map<String, Component> components = new HashMap<>();
     protected final Map<String, Integer> priorityMap = new HashMap<>();
 
+    private final Board blackboard = new Board();
+    private final KnowledgeBase kb = new KnowledgeBase();
+
     public Dialog() {
         Clock clock = new Clock(200);
         addComponent(new TagSystemComponent());
@@ -51,6 +56,9 @@ public abstract class Dialog implements Runnable, ComponentManager {
         }
     }
 
+    public Board getBlackboard() {
+        return blackboard;
+    }
 
     public void init() {
         if (started.getAndSet(true)) {
@@ -71,6 +79,14 @@ public abstract class Dialog implements Runnable, ComponentManager {
         sortedComps.forEach(c -> c.beforeUpdate());
         sortedComps.forEach(c -> c.update());
         sortedComps.forEach(c -> c.afterUpdate());
+
+        // Update Blackboard
+        this.blackboard.update();
+    }
+
+    public KnowledgeBase getKB()
+    {
+        return this.kb;
     }
 
     public void deinit() {

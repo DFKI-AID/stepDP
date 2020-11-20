@@ -35,6 +35,31 @@ public class Controller {
         dialog = appConfig.getDialog(); //context.getBean(Dialog.class);
     }
 
+    @GetMapping(value = "/blackboard/active")
+    public List<de.dfki.step.blackboard.Token> getActiveTokens() {
+        var tokens = dialog.getBlackboard().getActiveTokens();
+        return tokens;
+    }
+
+    @GetMapping(value = "/blackboard/archived")
+    public List<de.dfki.step.blackboard.Token> getArchivedTokens() {
+        var tokens = dialog.getBlackboard().getArchivedTokens();
+        return tokens;
+    }
+
+    @PostMapping(value = "/blackboard/addToken", consumes = "application/json")
+    public ResponseEntity<String> addTokenToBlackboard(@RequestBody Map<String, Object> body) {
+
+        // TODO type matching
+        // TODO check if all required values are there
+
+        de.dfki.step.blackboard.Token newT = new de.dfki.step.blackboard.Token();
+        newT.addAll(body);
+        dialog.getBlackboard().addToken(newT);
+
+        return ResponseEntity.ok("ok");
+    }
+
     @GetMapping(value = "/rules")
     public List<Rule> getRules() {
         var rs = dialog.getRuleSystem();
