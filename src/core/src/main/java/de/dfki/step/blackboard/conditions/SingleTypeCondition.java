@@ -23,7 +23,7 @@ public class SingleTypeCondition extends Condition {
     }
 
     @Override
-    public List<Token[]> generatePossibilities(List<Token> tokens, String[] ignoreTags, UUID ignoreUUID) {
+    public List<Token[]> generateMatches(List<Token> tokens, String[] ignoreTags, UUID ignoreUUID) {
         LinkedList<Token[]> result = new LinkedList<>();
 
         for(Token tok : tokens)

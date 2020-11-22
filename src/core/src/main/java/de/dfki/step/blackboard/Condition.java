@@ -27,5 +27,5 @@ public abstract class Condition {
         this._numberOfTokens = numberOfTokens;
     }
 
-    public abstract List<Token[]> generatePossibilities(List<Token> tokens, String[] ignoreTags, UUID ignoreUUID);
+    public abstract List<Token[]> generateMatches(List<Token> tokens, String[] ignoreTags, UUID ignoreUUID);
 }

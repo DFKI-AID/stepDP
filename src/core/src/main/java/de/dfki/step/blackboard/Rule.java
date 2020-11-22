@@ -12,7 +12,7 @@ public abstract class Rule {
 
     private Condition _condition;
     private boolean _active;
-    private int _priority;
+    private int _priority = 1000;
     private String _tags[];
     private final UUID _uuid = UUID.randomUUID();
     private String _name;

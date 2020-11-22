@@ -71,7 +71,7 @@ public class Board {
             Condition cond = r.getCondition();
             if(cond == null)
                 continue;
-            List<Token[]> possibleTokens = cond.generatePossibilities(this._activeTokens, r.getTags(), r.getUUID());
+            List<Token[]> possibleTokens = cond.generateMatches(this._activeTokens, r.getTags(), r.getUUID());
 
             // if some tokens are found, process them
             if(possibleTokens != null && possibleTokens.size() > 0)
