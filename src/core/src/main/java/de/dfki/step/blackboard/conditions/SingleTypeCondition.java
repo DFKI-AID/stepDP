@@ -6,10 +6,8 @@ import de.dfki.step.kb.semantic.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Stream;
 
 public class SingleTypeCondition extends Condition {
     private static final Logger log = LoggerFactory.getLogger(SingleTypeCondition.class);
@@ -23,23 +21,21 @@ public class SingleTypeCondition extends Condition {
     }
 
     @Override
-    public List<Token[]> generateMatches(List<Token> tokens, String[] ignoreTags, UUID ignoreUUID) {
+    public List<Token[]> generateMatches(Stream<Token> tokens, String[] ignoreTags, UUID ignoreUUID) {
         LinkedList<Token[]> result = new LinkedList<>();
 
-        for(Token tok : tokens)
+        for (Iterator<Token> it = tokens.iterator(); it.hasNext(); )
         {
-            // check if token is not usable because of ignore tags
-            if(tok.getIgnoreRuleTags() != null &&
-                    Arrays.stream(tok.getIgnoreRuleTags()).anyMatch(s -> Arrays.asList(ignoreTags).contains(s)))
-                continue;
-
-            // check if the token was already consumed by this rule
-            if(tok.getUsedBy().contains(ignoreUUID))
-                continue;
+            Token tok = it.next();
 
             // check if token is of the given type or inherit from the type
-            if(tok.getType().isInheritanceFrom(this._type))
-                result.add(new Token[]{tok});
+            if(tok.getType().isInheritanceFrom(this._type)) {
+                if(result.size() < this.getMaxMatches())
+                    result.add(new Token[]{tok});
+                else
+                    // max Matches generated
+                    break;
+            }
         }
 
         return result;

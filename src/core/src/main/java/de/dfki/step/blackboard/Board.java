@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 public class Board {
     private static final Logger log = LoggerFactory.getLogger(Board.class);
@@ -17,6 +18,7 @@ public class Board {
     private final LinkedList<Rule> _rules = new LinkedList<>();
 
     // tokens that are active and used for matching rules (not older than 5 minutes)
+    // newest token is at first position
     private final LinkedList<Token> _activeTokens = new LinkedList<>();
 
     // tokens that are not used any longer for matching (older than 5 minutes)
@@ -71,7 +73,15 @@ public class Board {
             Condition cond = r.getCondition();
             if(cond == null)
                 continue;
-            List<Token[]> possibleTokens = cond.generateMatches(this._activeTokens, r.getTags(), r.getUUID());
+
+            // generate Token stream
+            Stream<Token> stream = this._activeTokens.stream();
+
+            // check if token is not usable because of checked, used or ignore tags
+            stream = stream.filter(c -> !(c.isCheckedBy(r.getUUID()) || c.isUsedBy(r.getUUID()) || c.isIgnoredBy(r.getTags())));
+
+            // generate Matches
+            List<Token[]> possibleTokens = cond.generateMatches(stream, r.getTags(), r.getUUID());
 
             // if some tokens are found, process them
             if(possibleTokens != null && possibleTokens.size() > 0)
@@ -82,7 +92,7 @@ public class Board {
 
     public synchronized void addToken(Token token)
     {
-        this._activeTokens.add(token);
+        this._activeTokens.addFirst(token);
     }
 
     public synchronized void addRule(Rule rule)

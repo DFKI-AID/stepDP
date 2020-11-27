@@ -17,8 +17,9 @@ public class Token {
     private boolean _active;
     private Integer _deleteTime = null;
     private Integer _ignoreTime = null;
-    private String _ignoreRuleTags[];
+    private LinkedList<String> _ignoreRuleTags = new LinkedList<>();
     private final List<UUID> _usedBy = new LinkedList<>();
+    private final List<UUID> _checkedBy = new LinkedList<>();
     private PMap<String, Object> _payload = HashTreePMap.empty();
 
     public Token()
@@ -90,12 +91,22 @@ public class Token {
      * Rules containing one of the tags will not be matched
      * @return
      */
-    public String[] getIgnoreRuleTags() {
+    public LinkedList<String> getIgnoreRuleTags() {
         return _ignoreRuleTags;
     }
 
-    public void setIgnoreRuleTags(String[] _ignoreRuleTags) {
+    public void setIgnoreRuleTags(LinkedList<String> _ignoreRuleTags) {
         this._ignoreRuleTags = _ignoreRuleTags;
+    }
+
+    public boolean isIgnoredBy(String[] tags)
+    {
+        for(String s : tags)
+        {
+            if(this._ignoreRuleTags.contains(s))
+                return true;
+        }
+        return false;
     }
 
     /**
@@ -115,6 +126,16 @@ public class Token {
     public void usedBy(UUID uuid)
     {
         this._usedBy.add(uuid);
+    }
+
+    public boolean isCheckedBy(UUID uuid)
+    {
+        return this._checkedBy.contains(uuid);
+    }
+
+    public void checkedBy(UUID uuid)
+    {
+        this._checkedBy.add(uuid);
     }
 
     public Optional<Object> get(String key)
