@@ -3,6 +3,7 @@ package de.dfki.step.web;
 import com.google.gson.Gson;
 import de.dfki.step.core.*;
 import de.dfki.step.dialog.Dialog;
+import de.dfki.step.kb.semantic.Type;
 import de.dfki.step.output.PresentationComponent;
 import de.dfki.step.sc.StateBehavior;
 import de.dfki.step.sc.StateChart;
@@ -47,13 +48,30 @@ public class Controller {
         return tokens;
     }
 
+    @GetMapping(value = "/blackboard/rules")
+    public List<de.dfki.step.blackboard.Rule> getBlackboardRules() {
+        var rules = dialog.getBlackboard().getRules();
+        return rules;
+    }
+
     @PostMapping(value = "/blackboard/addToken", consumes = "application/json")
     public ResponseEntity<String> addTokenToBlackboard(@RequestBody Map<String, Object> body) {
 
         // TODO type matching
         // TODO check if all required values are there
+        if (!body.containsKey("type")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing type");
+        }
+
+        Type type = dialog.getKB().getType((String)body.get("type"));
+
+        if(type == null)
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("type not found");
+        }
 
         de.dfki.step.blackboard.Token newT = new de.dfki.step.blackboard.Token();
+        newT.setType(type);
         newT.addAll(body);
         dialog.getBlackboard().addToken(newT);
 

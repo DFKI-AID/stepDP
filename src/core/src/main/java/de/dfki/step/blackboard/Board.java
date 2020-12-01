@@ -109,6 +109,11 @@ public class Board {
         });
     }
 
+    public synchronized List<Rule> getRules()
+    {
+        return this._rules;
+    }
+
     public synchronized List<Token> getActiveTokens()
     {
         return this._activeTokens;

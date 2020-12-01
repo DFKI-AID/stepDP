@@ -14,7 +14,7 @@ public class Token {
     private long _timestamp;
     private final UUID _uuid = UUID.randomUUID();
     private Type _type;
-    private boolean _active;
+    private boolean _active = true;
     private Integer _deleteTime = null;
     private Integer _ignoreTime = null;
     private LinkedList<String> _ignoreRuleTags = new LinkedList<>();
@@ -101,6 +101,9 @@ public class Token {
 
     public boolean isIgnoredBy(String[] tags)
     {
+        if(tags == null)
+            return false;
+
         for(String s : tags)
         {
             if(this._ignoreRuleTags.contains(s))

@@ -11,12 +11,13 @@ public abstract class Rule {
     private static final Logger log = LoggerFactory.getLogger(Rule.class);
 
     private Condition _condition;
-    private boolean _active;
+    private boolean active = true;
     private int _priority = 1000;
     private String _tags[];
     private final UUID _uuid = UUID.randomUUID();
-    private String _name;
     private final List<RuleManager> _manager = new LinkedList<>();
+    public String name = "Rule";
+
 
     public UUID getUUID()
     {
@@ -30,7 +31,7 @@ public abstract class Rule {
     public abstract void onMatch(List<Token[]> tokens);
 
     public boolean isActive() {
-        return _active;
+        return active;
     }
 
     /**
@@ -38,7 +39,7 @@ public abstract class Rule {
      * @param active
      */
     public void setActive(boolean active) {
-        this._active = active;
+        this.active = active;
     }
 
     public int getPriority() {
@@ -78,11 +79,11 @@ public abstract class Rule {
      * @return
      */
     public String getName() {
-        return _name;
+        return name;
     }
 
     public void setName(String name) {
-        this._name = name;
+        this.name = name;
     }
 
     public List<RuleManager> getRuleManager()

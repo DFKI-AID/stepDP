@@ -25,6 +25,18 @@
         <a class="nav-link active" id="rules-tab" data-toggle="tab" href="#rules" role="tab" aria-controls="home"
            aria-selected="true">Rules</a>
     </li>
+	<li class="nav-item">
+        <a class="nav-link" id="blackboard-view-tab" data-toggle="tab" href="#blackboard-view" role="tab" aria-controls="blackboard-view"
+           aria-selected="false">Blackboard Overview</a>
+    </li>
+	<li class="nav-item">
+        <a class="nav-link" id="blackboard-rules-tab" data-toggle="tab" href="#blackboard-rules" role="tab" aria-controls="blackboard-rules"
+           aria-selected="false">Blackboard Rules</a>
+    </li>
+	<li class="nav-item">
+        <a class="nav-link" id="blackboard-input-tab" data-toggle="tab" href="#blackboard-input" role="tab" aria-controls="blackboard-input"
+           aria-selected="false">Blackboard Input</a>
+    </li>
     <li class="nav-item">
         <a class="nav-link" id="input-tab" data-toggle="tab" href="#input" role="tab" aria-controls="input"
            aria-selected="false">Input</a>
@@ -39,7 +51,8 @@
     </li>
 </ul>
 <div class="tab-content" id="myTabContent">
-    <div class="tab-pane show active" id="rules" role="tabpanel" aria-labelledby="rules-tab">
+    
+	<div class="tab-pane show active" id="rules" role="tabpanel" aria-labelledby="rules-tab">
         <h2>iteration={{iteration}}</h2>
 
         <table>
@@ -56,6 +69,68 @@
             </tr>
         </table>
     </div>
+	
+	
+	<div class="tab-pane" id="blackboard-view" role="tabpanel" aria-labelledby="blackboard-view">
+        <h2>Blackboard Overview</h2>
+		<h3>Tokens</h3>
+		
+		<table>
+            <tr>
+                <th>type</th>
+                <th>uuid</th>
+                <th>timestamp</th>
+            </tr>
+			<tr v-bind:class="{ inactiveRule: !token.active }" v-for="token in tokens">
+				<td>{{token.type.name}}</td>
+				<td>{{token.uuid}}</td>
+				<td>{{token.timestamp}}</td>
+				<!--<td>{{item.active}}</td>
+				<td><span style="background-color:#00FF00" class="badge badge-secondary tag"
+						  v-color v-for="(item, index) in item._uuid">{{item}}</span></td>-->
+			</tr>
+		</table>
+    </div>
+	
+	
+	<div class="tab-pane" id="blackboard-rules" role="tabpanel" aria-labelledby="blackboard-rules">
+        <h2>Blackboard Overview</h2>
+		<h3>Rules</h3>
+		
+		<table>
+            <tr>
+                <th>name</th>
+                <!--<th>uuid</th>
+                <th>timestamp</th>-->
+            </tr>
+			<tr v-bind:class="{ inactiveRule: !rule.active }" v-for="rule in rules">
+				<td>{{rule.name}}</td>
+				<!--<td>{{token.uuid}}</td>
+				<td>{{token.timestamp}}</td>
+				<td>{{item.active}}</td>
+				<td><span style="background-color:#00FF00" class="badge badge-secondary tag"
+						  v-color v-for="(item, index) in item._uuid">{{item}}</span></td>-->
+			</tr>
+		</table>
+    </div>
+	
+	<div class="tab-pane" id="blackboard-input" role="tabpanel" aria-labelledby="blackboard-input">
+        <h2>Blackboard Overview</h2>
+		<h3>Input</h3>
+		
+		<div>
+            <textarea v-model="tokenContent" id="tokenContentTextArea" cols=40 rows=10></textarea>
+        </div>
+        <div>
+            <select v-model="tokenContentSelection">
+                <option v-for="(value, key) in examples">{{key}}</option>
+            </select>
+            <button v-on:click="sendToken">Send Token to Blackboard</button>
+        </div>
+		
+    </div>
+	
+	
     <div class="tab-pane" id="input" role="tabpanel" aria-labelledby="input-tab">
         <div>
             <textarea v-model="intentContent" id="intentTextArea" cols=40 rows=10></textarea>
@@ -127,6 +202,7 @@
 <script src="external/mxgraph/js/mxClient.js"></script>
 <script src="behavior.js"></script>
 <script src="rules.js"></script>
+<script src="blackboard.js"></script>
 <script src="input.js"></script>
 <script src="tts.js"></script>
 

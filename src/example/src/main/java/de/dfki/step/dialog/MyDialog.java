@@ -1,12 +1,17 @@
 package de.dfki.step.dialog;
 
 
+import de.dfki.step.blackboard.Condition;
+import de.dfki.step.blackboard.Rule;
+import de.dfki.step.blackboard.conditions.SingleTypeCondition;
+import de.dfki.step.blackboard.rules.SimpleRule;
 import de.dfki.step.core.InputComponent;
 import de.dfki.step.core.Schema;
 import de.dfki.step.fusion.FusionComponent;
 import de.dfki.step.fusion.InputNode;
 import de.dfki.step.fusion.ParallelNode;
 import de.dfki.step.core.Token;
+import de.dfki.step.kb.semantic.Type;
 import de.dfki.step.srgs.Grammar;
 import de.dfki.step.srgs.GrammarManager;
 import de.dfki.step.srgs.MyGrammar;
@@ -56,6 +61,34 @@ public class MyDialog extends Dialog {
 
         initFusionComponent();
         createGrammarComponent();
+
+
+        try {
+            Type GreetingIntent = new Type("GreetingIntent", this.getKB());
+            Type GreetingSpecificIntent = new Type("GreetingSpecificIntent", this.getKB());
+            GreetingSpecificIntent.addInheritance(GreetingIntent);
+            Type HelloIntent = new Type("HelloIntent", this.getKB());
+
+            this.getKB().addType(GreetingIntent);
+            this.getKB().addType(GreetingSpecificIntent);
+            this.getKB().addType(HelloIntent);
+
+            de.dfki.step.blackboard.Token test = new de.dfki.step.blackboard.Token();
+            test.setType(GreetingIntent);
+            this.getBlackboard().addToken(test);
+
+            Rule GreetingRule = new SimpleRule(tokens -> {
+                System.out.println("Greeting found! Say hello");
+
+                de.dfki.step.blackboard.Token HelloToken = new de.dfki.step.blackboard.Token();
+                HelloToken.setType(HelloIntent);
+                this.getBlackboard().addToken(HelloToken);
+            }, "GreetingRule");
+            GreetingRule.setCondition(new SingleTypeCondition(GreetingIntent));
+            this.getBlackboard().addRule(GreetingRule);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 

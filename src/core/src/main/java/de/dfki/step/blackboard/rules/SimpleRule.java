@@ -9,6 +9,7 @@ import java.util.function.Consumer;
 public class SimpleRule extends Rule {
 
     protected SimpleRuleInterface _function;
+    protected String _name;
 
     /**
      * If suitable tokens are found, the first best combination is called
@@ -16,7 +17,13 @@ public class SimpleRule extends Rule {
      */
     public SimpleRule(SimpleRuleInterface function)
     {
+        this(function, "SimpleRule");
+    }
+
+    public SimpleRule(SimpleRuleInterface function, String name)
+    {
         this._function = function;
+        this.setName(name);
     }
 
     @Override
