@@ -18,9 +18,9 @@ public class KnowledgeBase {
             Type object = new Type("Object", this, true);
             this.addType(object);
 
-            Type token = new Type("Token", this, true);
+            /*Type token = new Type("Token", this, true);
             token.addInheritance(object);
-            this.addType(token);
+            this.addType(token);*/
         } catch (Exception e) {
             e.printStackTrace();
         }

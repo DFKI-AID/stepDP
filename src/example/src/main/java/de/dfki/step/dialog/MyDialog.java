@@ -65,9 +65,11 @@ public class MyDialog extends Dialog {
 
         try {
             Type GreetingIntent = new Type("GreetingIntent", this.getKB());
+            GreetingIntent.addInheritance(this.getKB().getType("Token"));
             Type GreetingSpecificIntent = new Type("GreetingSpecificIntent", this.getKB());
             GreetingSpecificIntent.addInheritance(GreetingIntent);
             Type HelloIntent = new Type("HelloIntent", this.getKB());
+            HelloIntent.addInheritance(this.getKB().getType("Token"));
 
             this.getKB().addType(GreetingIntent);
             this.getKB().addType(GreetingSpecificIntent);
@@ -86,6 +88,7 @@ public class MyDialog extends Dialog {
             }, "GreetingRule");
             GreetingRule.setCondition(new SingleTypeCondition(GreetingIntent));
             this.getBlackboard().addRule(GreetingRule);
+
         } catch (Exception e) {
             e.printStackTrace();
         }

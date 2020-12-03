@@ -73,7 +73,7 @@ public class Board {
             Condition cond = r.getCondition();
             if(cond == null)
                 continue;
-
+            
             // generate Token stream
             Stream<Token> stream = this._activeTokens.stream();
 
