@@ -8,7 +8,6 @@ import java.util.UUID;
 public interface IKBObject extends IUUID {
 
     String getName();
-    void setName(String newName);
 
     boolean hasProperty(String propertyName);
     IProperty getProperty(String propertyName);

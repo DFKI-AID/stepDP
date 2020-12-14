@@ -6,6 +6,7 @@ import de.dfki.step.kb.semantic.Type;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public class KnowledgeBase {
 
@@ -39,6 +40,14 @@ public class KnowledgeBase {
             return result.get();
         else
             return null;
+    }
+    
+    public IKBObject getInstance(UUID uuid) {
+    	return null;
+    }
+    
+    public IKBObject getInstance(String name) {
+    	return null;
     }
 
     public boolean existType(String name)
