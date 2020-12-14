@@ -76,6 +76,9 @@ public class Type implements IUUID
 
     public boolean isInheritanceFrom(Type inheritFrom)
     {
+        if(inheritFrom == null)
+            return false;
+
         if(this == inheritFrom)
             return true;
 
