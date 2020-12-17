@@ -9,19 +9,23 @@ public class PropReference implements IProperty {
     private String _name;
     private boolean _isConstant = false;
     private boolean _mustBePresent = false;
+    private Type _type;
     private UUID _uuid = UUID.randomUUID();
     private UUID _reference = null;
     private KnowledgeBase _parent;
 
-    public PropReference(String name, KnowledgeBase parent) throws Exception
+    public PropReference(String name, KnowledgeBase parent, Type type) throws Exception
     {
         if(name == null)
             throw new Exception("no valid name for a type");
         if(parent == null)
             throw new Exception("no valid Knowledge Base for reference");
+        if(type == null)
+        	throw new Exception("reference properties must specify a type for the referenced object");
 
         this._name = name;
         this._parent = parent;
+        this._type = type;
 
         // Register at the global UUID Storage
         this._parent.addUUIDtoList(this);
@@ -35,6 +39,10 @@ public class PropReference implements IProperty {
     public UUID getReference()
     {
         return this._reference;
+    }
+
+    public Type getType() {
+    	return this._type;
     }
 
     @Override
