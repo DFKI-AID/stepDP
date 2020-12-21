@@ -93,7 +93,7 @@
         <module>core</module>
         <!--<module>sandbox</module>-->
         <module>spring</module>
-        <module>rasa</module>
+        <!--<module>rasa</module>-->
         <module>example</module>
         <!--<module>tecs-plugin</module>-->
     </modules>
