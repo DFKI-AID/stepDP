@@ -33,7 +33,7 @@ public abstract class Dialog implements Runnable, ComponentManager {
     protected final Map<String, Integer> priorityMap = new HashMap<>();
 
     private final Board blackboard = new Board();
-    private final KnowledgeBase kb = new KnowledgeBase();
+    private final KnowledgeBase kb = new KnowledgeBase(this.blackboard);
 
     public Dialog() {
         Clock clock = new Clock(200);

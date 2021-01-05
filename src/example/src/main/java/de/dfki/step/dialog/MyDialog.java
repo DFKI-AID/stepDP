@@ -59,8 +59,8 @@ public class MyDialog extends Dialog {
         mf.snapshotRule();
 
 
-        initFusionComponent();
-        createGrammarComponent();
+        //initFusionComponent();
+        //createGrammarComponent();
 
 
         try {

@@ -1,6 +1,7 @@
 package de.dfki.step.kb;
 
-import de.dfki.step.kb.semantic.IProperty;
+import de.dfki.step.blackboard.Board;
+import de.dfki.step.blackboard.Token;
 import de.dfki.step.kb.semantic.Type;
 
 import java.util.LinkedList;
@@ -11,10 +12,14 @@ import java.util.UUID;
 public class KnowledgeBase {
 
     public List<Type> _types = new LinkedList<>();
+    public List<IKBObject> _instances = new LinkedList<>();
     public List<IUUID> _objects = new LinkedList<>();
 
-    public KnowledgeBase()
+    private Board _blackboard;
+
+    public KnowledgeBase(Board blackboard)
     {
+        this._blackboard = blackboard;
         try {
             Type object = new Type("Object", this, true);
             this.addType(object);
@@ -41,13 +46,70 @@ public class KnowledgeBase {
         else
             return null;
     }
+
+    public IKBObject addInstance(String name, Type type)
+    {
+        KBObject newObj = new KBObject(name, type, this);
+        this.addUUIDtoList(newObj);
+        this._instances.add(newObj);
+        return newObj;
+    }
     
-    public IKBObject getInstance(UUID uuid) {
-    	return null;
+    public IKBObject getInstance(UUID uuid)
+    {
+        Optional<IUUID> obj = _objects.stream().filter(p->p.getUUID().equals(uuid)).findFirst();
+
+        if(obj.isPresent() && (obj.get() instanceof IKBObject))
+        {
+            return (IKBObject) obj.get();
+        }
+        else
+        {
+            Optional<Token> tok = this._blackboard.getActiveTokens().stream().filter(p->p.getUUID().equals(uuid)).findFirst();
+
+            // TODO: sollen auch archivierte Tokens berücksichtigt werden?
+            if(!tok.isPresent())
+                tok = this._blackboard.getArchivedTokens().stream().filter(p->p.getUUID().equals(uuid)).findFirst();
+
+            if(!tok.isPresent())
+                return null;
+            else
+                return tok.get();
+        }
     }
     
     public IKBObject getInstance(String name) {
-    	return null;
+        Optional<IKBObject> obj = _instances.stream().filter(p->p.getName().equals(name)).findFirst();
+
+        if(obj.isPresent() && (obj.get() instanceof IKBObject))
+        {
+            return (IKBObject) obj.get();
+        }
+        else
+            return null;
+    }
+
+    public IKBObjectWriteable getInstanceWriteable(UUID uuid)
+    {
+        Optional<IUUID> obj = _objects.stream().filter(p->p.getUUID().equals(uuid)).findFirst();
+
+        if(obj.isPresent() && (obj.get() instanceof IKBObjectWriteable))
+        {
+            return (IKBObjectWriteable) obj.get();
+        }
+        else
+            return null;
+    }
+
+    public IKBObjectWriteable getInstanceWriteable(String name) {
+        Optional<IKBObject> obj = _instances.stream().filter(p->p.getName().equals(name)).findFirst();
+
+        if(obj.isPresent() && (obj.get() instanceof IKBObjectWriteable))
+        {
+            return (IKBObjectWriteable) obj.get();
+        }
+        else
+            return null;
     }
 
     public boolean existType(String name)

@@ -1,89 +1,87 @@
 package de.dfki.step.blackboard;
 
+import java.util.Map;
 import java.util.UUID;
 
 import de.dfki.step.kb.IKBObject;
 import de.dfki.step.kb.semantic.IProperty;
 import de.dfki.step.kb.semantic.Type;
+import org.pcollections.PMap;
 
 public class TokenObject implements IKBObject {
 
-/*
-    public TokenObject(Token _parent, String SubDaten)
+	private Token _parent;
+	private Map<String, Object> _payload;
 
-        _parent.getPayload()......
-*/
+    public TokenObject(Token _parent, Map<String, Object> _payload)
+	{
+		this._parent = _parent;
+		this._payload = _payload;
+	}
 
 	@Override
 	public UUID getUUID() {
-		// TODO Auto-generated method stub
-		return null;
+		return this._parent.getUUID();
 	}
 
 	@Override
 	public String getName() {
-		// TODO Auto-generated method stub
-		return null;
+		return this._parent.getName();
 	}
 
 	@Override
 	public boolean hasProperty(String propertyName) {
-		// TODO Auto-generated method stub
-		return false;
+		return this._parent.getType().hasProperty(propertyName);
 	}
 
 	@Override
 	public IProperty getProperty(String propertyName) {
-		// TODO Auto-generated method stub
-		return null;
+		return this._parent.getType().getProperty(propertyName);
 	}
 
 	@Override
 	public boolean isSet(String propertyName) {
-		// TODO Auto-generated method stub
-		return false;
+		return this._parent.isSet(propertyName);
 	}
 
 	@Override
 	public Type getType() {
-		// TODO Auto-generated method stub
-		return null;
+		return this._parent.getType();
 	}
 
 	@Override
 	public String getString(String propertyName) {
-		// TODO Auto-generated method stub
-		return null;
+		return this._payload.get(propertyName).toString();
 	}
 
 	@Override
 	public Integer getInteger(String propertyName) {
-		// TODO Auto-generated method stub
-		return null;
+		return (Integer) this._payload.get(propertyName);
 	}
 
 	@Override
 	public Boolean getBoolean(String propertyName) {
-		// TODO Auto-generated method stub
-		return null;
+		return (Boolean) this._payload.get(propertyName);
 	}
 
 	@Override
 	public Float getFloat(String propertyName) {
-		// TODO Auto-generated method stub
-		return null;
+		return (Float) this._payload.get(propertyName);
 	}
 
 	@Override
 	public UUID getReference(String propertyName) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public IKBObject getResolvedReference(String propertyName) {
-		// TODO Auto-generated method stub
-		return null;
+		if (this.isSet(propertyName))
+		{
+			return new TokenObject(this._parent, (Map<String, Object>) this._payload.get(propertyName));
+		}
+		else
+			return null;
 	}
 
 }

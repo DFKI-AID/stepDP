@@ -23,6 +23,7 @@ public class Token implements IKBObject {
     private final List<UUID> _usedBy = new LinkedList<>();
     private final List<UUID> _checkedBy = new LinkedList<>();
     private PMap<String, Object> _payload = HashTreePMap.empty();
+    private TokenObject _rootTokenObject = new TokenObject(this, this._payload);
 
     public Token()
     {
@@ -239,62 +240,52 @@ public class Token implements IKBObject {
 
 	@Override
 	public String getName() {
-		// TODO Auto-generated method stub
-		return null;
+		return "TokenObject";
 	}
 
 	@Override
 	public boolean hasProperty(String propertyName) {
-		// TODO Auto-generated method stub
-		return false;
+		return _rootTokenObject.hasProperty(propertyName);
 	}
 
 	@Override
 	public IProperty getProperty(String propertyName) {
-		// TODO Auto-generated method stub
-		return null;
+		return _rootTokenObject.getProperty(propertyName);
 	}
 
 	@Override
 	public boolean isSet(String propertyName) {
-		// TODO Auto-generated method stub
-		return false;
+		return _rootTokenObject.isSet(propertyName);
 	}
 
 	@Override
 	public String getString(String propertyName) {
-		// TODO Auto-generated method stub
-		return null;
+		return _rootTokenObject.getString(propertyName);
 	}
 
 	@Override
 	public Integer getInteger(String propertyName) {
-		// TODO Auto-generated method stub
-		return null;
+		return _rootTokenObject.getInteger(propertyName);
 	}
 
 	@Override
 	public Boolean getBoolean(String propertyName) {
-		// TODO Auto-generated method stub
-		return null;
+		return _rootTokenObject.getBoolean(propertyName);
 	}
 
 	@Override
 	public Float getFloat(String propertyName) {
-		// TODO Auto-generated method stub
-		return null;
+		return _rootTokenObject.getFloat(propertyName);
 	}
 
 	@Override
 	public UUID getReference(String propertyName) {
-		// TODO Auto-generated method stub
-		return null;
+		return _rootTokenObject.getReference(propertyName);
 	}
 
 	@Override
 	public IKBObject getResolvedReference(String propertyName) {
-		// TODO Auto-generated method stub
-		return null;
+		return _rootTokenObject.getResolvedReference(propertyName);
 	}
 
 }

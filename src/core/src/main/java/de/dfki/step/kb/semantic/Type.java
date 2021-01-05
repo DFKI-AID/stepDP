@@ -84,6 +84,9 @@ public class Type implements IUUID
 
         for(Type var : this._inherit)
         {
+            if(var == null)
+                continue;
+
             if(var.equals(inheritFrom))
                 return true;
 
