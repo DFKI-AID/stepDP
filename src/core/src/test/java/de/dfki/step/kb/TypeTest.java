@@ -7,7 +7,7 @@ public class TypeTest {
     @Test
     public void BasicTest()
     {
-        KnowledgeBase kb = new KnowledgeBase();
+        KnowledgeBase kb = new KnowledgeBase(null);
     }
 
 }
