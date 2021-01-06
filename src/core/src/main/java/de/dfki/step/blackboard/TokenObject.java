@@ -41,11 +41,12 @@ public class TokenObject implements IKBObject {
 
 	@Override
 	public boolean isSet(String propertyName) {
-		return this._parent.isSet(propertyName);
+		return (this._payload.get(propertyName) != null); 
 	}
 
 	@Override
 	public Type getType() {
+		// TODO: should return type of the nested token object not the parent
 		return this._parent.getType();
 	}
 
@@ -78,6 +79,8 @@ public class TokenObject implements IKBObject {
 	public IKBObject getResolvedReference(String propertyName) {
 		if (this.isSet(propertyName))
 		{
+			// TODO resolve UUIDs and names (KB reference)
+			// write warning to log if name ambiguous; return first match
 			return new TokenObject(this._parent, (Map<String, Object>) this._payload.get(propertyName));
 		}
 		else

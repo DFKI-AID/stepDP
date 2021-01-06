@@ -22,7 +22,7 @@ public class Token implements IKBObject {
     private LinkedList<String> _ignoreRuleTags = new LinkedList<>();
     private final List<UUID> _usedBy = new LinkedList<>();
     private final List<UUID> _checkedBy = new LinkedList<>();
-    private PMap<String, Object> _payload = HashTreePMap.empty();
+    private Map<String, Object> _payload = new HashMap<String, Object>();
     private TokenObject _rootTokenObject = new TokenObject(this, this._payload);
 
     public Token()
@@ -229,7 +229,7 @@ public class Token implements IKBObject {
 
     public void addAll(Map<String, Object> values) {
         for (var entry : values.entrySet()) {
-            this._payload = this._payload.plus(entry.getKey(), entry.getValue());
+            this._payload.put(entry.getKey(), entry.getValue());
         }
     }
 
