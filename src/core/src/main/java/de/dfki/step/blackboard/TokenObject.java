@@ -132,22 +132,15 @@ public class TokenObject implements IKBObject {
 				} catch (IllegalArgumentException exception){
 				}
 
+				IKBObject ref;
 				if(uuid != null)
-				{
-					IKBObject ref = this._kb.getInstance(uuid);
-					if(ref != null)
-						return ref;
-					else
-						return null;
-				}
+					ref = this._kb.getInstance(uuid);
 				else
-				{
-					IKBObject ref = this._kb.getInstance(data.toString());
-					if(ref != null)
-						return ref;
-					else
-						return null;
-				}
+					ref = this._kb.getInstance(data.toString());
+				if(ref != null)
+					return ref;
+				else
+					return null;
 			}
 			else if(data instanceof Map)
 			{
