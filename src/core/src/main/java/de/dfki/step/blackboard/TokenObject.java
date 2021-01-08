@@ -4,7 +4,9 @@ import java.util.Map;
 import java.util.UUID;
 
 import de.dfki.step.kb.IKBObject;
+import de.dfki.step.kb.KnowledgeBase;
 import de.dfki.step.kb.semantic.IProperty;
+import de.dfki.step.kb.semantic.PropReference;
 import de.dfki.step.kb.semantic.Type;
 import org.pcollections.PMap;
 
@@ -12,11 +14,23 @@ public class TokenObject implements IKBObject {
 
 	private Token _parent;
 	private Map<String, Object> _payload;
+	private KnowledgeBase _kb;
+	private Type _type;
 
-    public TokenObject(Token _parent, Map<String, Object> _payload)
+    public TokenObject(Token parent, Map<String, Object> payload, KnowledgeBase kb)
 	{
-		this._parent = _parent;
-		this._payload = _payload;
+		this._parent = parent;
+		this._payload = payload;
+		this._kb = kb;
+		this._type = null;
+	}
+
+	public TokenObject(Token parent, Map<String, Object> payload, KnowledgeBase kb, Type type)
+	{
+		this._parent = parent;
+		this._payload = payload;
+		this._kb = kb;
+		this._type = type;
 	}
 
 	@Override
@@ -47,6 +61,21 @@ public class TokenObject implements IKBObject {
 	@Override
 	public Type getType() {
 		// TODO: should return type of the nested token object not the parent
+
+		// check if type is provided by the JSON payload
+		if(this._payload.containsKey("type"))
+		{
+			String type = this._payload.get("type").toString();
+			Type typeObj = this._kb.getType(type);
+
+			return typeObj;
+		}
+
+		// if not, check if type is provided on creating time of the Token Object
+		if(this._type != null)
+			return this._type;
+
+		// if not, give back the type of the parent
 		return this._parent.getType();
 	}
 
@@ -80,8 +109,55 @@ public class TokenObject implements IKBObject {
 		if (this.isSet(propertyName))
 		{
 			// TODO resolve UUIDs and names (KB reference)
-			// write warning to log if name ambiguous; return first match
-			return new TokenObject(this._parent, (Map<String, Object>) this._payload.get(propertyName));
+			// TODO write warning to log if name ambiguous; return first match (must be implemented in KnowledgeBase)
+
+			IProperty prop = this.getProperty(propertyName);
+			Type typeOfObject = null;
+			if(prop != null && prop instanceof PropReference)
+			{
+				typeOfObject = ((PropReference)prop).getType();
+			}
+			else
+			{
+				typeOfObject = this._kb.getRootType();
+			}
+
+			Object data = this._payload.get(propertyName);
+
+			if(data instanceof String)
+			{
+				UUID uuid = null;
+				try{
+					uuid = UUID.fromString(data.toString());
+				} catch (IllegalArgumentException exception){
+				}
+
+				if(uuid != null)
+				{
+					IKBObject ref = this._kb.getInstance(uuid);
+					if(ref != null)
+						return ref;
+					else
+						return null;
+				}
+				else
+				{
+					IKBObject ref = this._kb.getInstance(data.toString());
+					if(ref != null)
+						return ref;
+					else
+						return null;
+				}
+			}
+			else if(data instanceof Map)
+			{
+				return new TokenObject(this._parent, (Map<String, Object>) this._payload.get(propertyName), this._kb, typeOfObject);
+			}
+			else
+			{
+				// something bad happend?
+				return null;
+			}
 		}
 		else
 			return null;

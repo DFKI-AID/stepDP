@@ -71,7 +71,7 @@ public class Controller {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("type not found");
         }
 
-        de.dfki.step.blackboard.Token newT = new de.dfki.step.blackboard.Token();
+        de.dfki.step.blackboard.Token newT = new de.dfki.step.blackboard.Token(this.dialog.getKB());
         newT.setType(type);
         newT.addAll(body);
         dialog.getBlackboard().addToken(newT);

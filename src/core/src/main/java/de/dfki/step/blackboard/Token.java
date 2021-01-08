@@ -1,6 +1,7 @@
 package de.dfki.step.blackboard;
 
 import de.dfki.step.kb.IKBObject;
+import de.dfki.step.kb.KnowledgeBase;
 import de.dfki.step.kb.semantic.IProperty;
 import de.dfki.step.kb.semantic.Type;
 import org.pcollections.HashTreePMap;
@@ -22,11 +23,13 @@ public class Token implements IKBObject {
     private LinkedList<String> _ignoreRuleTags = new LinkedList<>();
     private final List<UUID> _usedBy = new LinkedList<>();
     private final List<UUID> _checkedBy = new LinkedList<>();
+    private KnowledgeBase _parentKB;
     private Map<String, Object> _payload = new HashMap<String, Object>();
-    private TokenObject _rootTokenObject = new TokenObject(this, this._payload);
+    private TokenObject _rootTokenObject = new TokenObject(this, this._payload, this._parentKB);
 
-    public Token()
+    public Token(KnowledgeBase kb)
     {
+        this._parentKB = kb;
         this._timestamp = new Date().getTime();
     }
 

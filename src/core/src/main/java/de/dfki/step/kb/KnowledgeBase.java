@@ -15,14 +15,15 @@ public class KnowledgeBase {
     public List<IKBObject> _instances = new LinkedList<>();
     public List<IUUID> _objects = new LinkedList<>();
 
+    private Type _root;
     private Board _blackboard;
 
     public KnowledgeBase(Board blackboard)
     {
         this._blackboard = blackboard;
         try {
-            Type object = new Type("Object", this, true);
-            this.addType(object);
+            this._root = new Type("Object", this, true);
+            this.addType(this._root);
 
             /*Type token = new Type("Token", this, true);
             token.addInheritance(object);
@@ -30,6 +31,11 @@ public class KnowledgeBase {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public Type getRootType()
+    {
+        return this._root;
     }
 
     public void addUUIDtoList(IUUID object)
