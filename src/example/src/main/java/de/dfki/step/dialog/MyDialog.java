@@ -1,9 +1,10 @@
 package de.dfki.step.dialog;
 
 
-import de.dfki.step.blackboard.Condition;
 import de.dfki.step.blackboard.Rule;
-import de.dfki.step.blackboard.conditions.SingleTypeCondition;
+import de.dfki.step.blackboard.conditions.PatternCondition;
+import de.dfki.step.blackboard.patterns.Pattern;
+import de.dfki.step.blackboard.patterns.PatternBuilder;
 import de.dfki.step.blackboard.rules.SimpleRule;
 import de.dfki.step.core.InputComponent;
 import de.dfki.step.core.Schema;
@@ -86,7 +87,8 @@ public class MyDialog extends Dialog {
                 HelloToken.setType(HelloIntent);
                 this.getBlackboard().addToken(HelloToken);
             }, "GreetingRule");
-            GreetingRule.setCondition(new SingleTypeCondition(GreetingIntent));
+            Pattern p = new PatternBuilder("GreetingIntent", this.getKB()).build();
+            GreetingRule.setCondition(new PatternCondition(p));
             this.getBlackboard().addRule(GreetingRule);
 
         } catch (Exception e) {
