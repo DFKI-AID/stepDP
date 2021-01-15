@@ -60,6 +60,7 @@ public class Controller {
         // TODO type matching
         // TODO check if all required values are there
     	// TODO check if types of nested objects are valid (e.g. inheritance from semantic tree definition)
+    	// should be possible to activate / deactivate these checks for performance reasons
         if (!body.containsKey("type")) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing type");
         }

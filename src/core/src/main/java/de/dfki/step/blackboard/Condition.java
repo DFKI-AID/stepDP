@@ -48,5 +48,5 @@ public abstract class Condition {
         this._numberOfTokens = numberOfTokens;
     }
 
-    public abstract List<Token[]> generateMatches(Stream<Token> tokens, String[] ignoreTags, UUID ignoreUUID);
+    public abstract List<Token[]> generateMatches(Stream<Token> tokens, List<String> ignoreTags, UUID ignoreUUID);
 }

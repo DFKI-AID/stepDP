@@ -3,6 +3,7 @@ package de.dfki.step.blackboard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -13,7 +14,7 @@ public abstract class Rule {
     private Condition _condition;
     private boolean active = true;
     private int _priority = 1000;
-    private String _tags[];
+    private List<String> _tags = new ArrayList<String>();
     private final UUID _uuid = UUID.randomUUID();
     private final List<RuleManager> _manager = new LinkedList<>();
     public String name = "Rule";
@@ -58,11 +59,11 @@ public abstract class Rule {
      * Get the Tags of the rule. Can be used for e.g. ignoring some tokens
      * @return
      */
-    public String[] getTags() {
+    public List<String> getTags() {
         return _tags;
     }
 
-    public void setTags(String[] tags) {
+    public void setTags(List<String> tags) {
         this._tags = tags;
     }
 

@@ -120,6 +120,6 @@ public class Type implements IUUID
 
     @Override
     public UUID getUUID() {
-        return null;
+        return _uuid;
     }
 }

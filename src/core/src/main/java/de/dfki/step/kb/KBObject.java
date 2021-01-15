@@ -17,6 +17,7 @@ public class KBObject implements IKBObjectWriteable
 
     protected KBObject(String name, Type type, KnowledgeBase parent)
     {
+    	this._name = name;
         this._type = type;
         this._parent = parent;
     }
@@ -38,7 +39,7 @@ public class KBObject implements IKBObjectWriteable
 
     @Override
     public boolean isSet(String propertyName) {
-        return this._data.containsKey(propertyName);
+    	return (this._data.get(propertyName) != null); 
     }
 
     @Override

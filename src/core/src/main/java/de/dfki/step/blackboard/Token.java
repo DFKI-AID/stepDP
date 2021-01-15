@@ -25,11 +25,12 @@ public class Token implements IKBObject {
     private final List<UUID> _checkedBy = new LinkedList<>();
     private KnowledgeBase _parentKB;
     private Map<String, Object> _payload = new HashMap<String, Object>();
-    private TokenObject _rootTokenObject = new TokenObject(this, this._payload, this._parentKB);
+    private TokenObject _rootTokenObject;
 
     public Token(KnowledgeBase kb)
     {
         this._parentKB = kb;
+        this._rootTokenObject = new TokenObject(this, this._payload, this._parentKB);
         this._timestamp = new Date().getTime();
     }
 
@@ -105,7 +106,7 @@ public class Token implements IKBObject {
         this._ignoreRuleTags = _ignoreRuleTags;
     }
 
-    public boolean isIgnoredBy(String[] tags)
+    public boolean isIgnoredBy(List<String> tags)
     {
         if(tags == null)
             return false;
