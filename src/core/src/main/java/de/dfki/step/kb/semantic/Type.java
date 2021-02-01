@@ -62,7 +62,15 @@ public class Type implements IUUID
         if(result.isPresent())
             return result.get();
         else
+        {
+            for (Type var : this._inherit)
+            {
+                IProperty tmp = var.getProperty(prop);
+                if(tmp != null)
+                    return tmp;
+            }
             return null;
+        }
     }
 
     public void addInheritance(Type inheritFrom) throws Exception {
