@@ -42,7 +42,19 @@ public class Type implements IUUID
 
     public boolean hasProperty(String prop)
     {
-        return _properties.stream().anyMatch(p->p.getName().equals(prop));
+    	boolean hasProp =  _properties.stream().anyMatch(p->p.getName().equals(prop));
+
+    	if(hasProp) {
+    		return true;
+    	}
+    	else {
+    		for (Type var : this._inherit)
+            {
+                if (var.hasProperty(prop))
+                	return true;
+            }
+    		return false;
+    	}    
     }
 
     public void addProperty(IProperty prop) throws Exception
