@@ -78,14 +78,14 @@ public class Board {
             Stream<Token> stream = this._activeTokens.stream();
 
             // check if token is not usable because of checked, used or ignore tags
-            stream = stream.filter(c -> !(c.isCheckedBy(r.getUUID()) || c.isUsedBy(r.getUUID()) || c.isIgnoredBy(r.getTags())));
+            stream = stream.filter(c -> !(c.isIgnoredBy(r.getTags())));
 
             // generate Matches
             List<Token[]> possibleTokens = cond.generateMatches(stream, r.getTags(), r.getUUID());
 
             // if some tokens are found, process them
             if(possibleTokens != null && possibleTokens.size() > 0)
-                r.onMatch(possibleTokens);
+                r.onMatch(possibleTokens, this);
         }
 
     }

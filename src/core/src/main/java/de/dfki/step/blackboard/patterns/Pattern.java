@@ -1,6 +1,7 @@
 package de.dfki.step.blackboard.patterns;
 
 import de.dfki.step.kb.IKBObject;
+import de.dfki.step.kb.semantic.Type;
 
 /**
  * A pattern implements the method {@link Pattern#matches(IKBObject)} that matches objects satisfying 
@@ -26,4 +27,8 @@ public abstract class Pattern {
 	public void setPriority(int priority) {
 		this._priority = priority;
 	}
+	
+	public abstract boolean hasType();
+	
+	public abstract Type getType();
 }

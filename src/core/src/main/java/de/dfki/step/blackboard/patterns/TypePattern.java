@@ -27,7 +27,13 @@ public class TypePattern extends Pattern {
 		return true;
 	}
 
+	@Override
 	public Type getType() {
 		return this._type;
+	}
+
+	@Override
+	public boolean hasType() {
+		return _type != null;
 	}
 }

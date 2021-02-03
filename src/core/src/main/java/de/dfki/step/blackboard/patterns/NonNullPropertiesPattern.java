@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.dfki.step.kb.IKBObject;
+import de.dfki.step.kb.semantic.Type;
 
 /**
  * Pattern that matches objects that have non-null values for the given properties.
@@ -33,5 +34,15 @@ public class NonNullPropertiesPattern extends Pattern {
 	 */
 	public List<String> getProperties(){
 		return new ArrayList<String>(_props);
+	}
+
+	@Override
+	public boolean hasType() {
+		return false;
+	}
+
+	@Override
+	public Type getType() {
+		return null;
 	}
 }

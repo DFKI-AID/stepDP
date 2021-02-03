@@ -84,6 +84,11 @@ public class Type implements IUUID
             return null;
         }
     }
+    
+    public List<IProperty> getProperties(){
+    	// TODO: change this if type should be immutable after being added to the kb
+    	return this._properties;
+    }
 
     public void addInheritance(Type inheritFrom) throws Exception {
         if(isInheritanceFrom(inheritFrom))

@@ -4,10 +4,13 @@ import de.dfki.step.kb.IKBObject;
 import de.dfki.step.kb.KnowledgeBase;
 import de.dfki.step.kb.semantic.IProperty;
 import de.dfki.step.kb.semantic.Type;
-import org.pcollections.HashTreePMap;
-import org.pcollections.PMap;
+import de.dfki.step.util.Tuple;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import java.util.*;
 
@@ -26,6 +29,12 @@ public class Token implements IKBObject {
     private KnowledgeBase _parentKB;
     private Map<String, Object> _payload = new HashMap<String, Object>();
     private TokenObject _rootTokenObject;
+    // tokens that were created out of this token (e.g. by fusion)
+    private List<Tuple<List<Token>, UUID>> _resultingTokens = new ArrayList<Tuple<List<Token>, UUID>>();
+    // tokens from which this token was created (e.g.by fusion)
+    private List<Token> _originTokens = new ArrayList<Token>();
+    // rule that created the token
+    private UUID _producer; 
 
     public Token(KnowledgeBase kb)
     {
@@ -56,6 +65,7 @@ public class Token implements IKBObject {
 
     public void setType(Type type) {
         this._type = type;
+        this.addAll(Map.of("type", type.getName()));
     }
 
     public boolean isActive() {
@@ -240,6 +250,51 @@ public class Token implements IKBObject {
     public Map<String, Object> getPayload()
     {
         return this._payload;
+    }
+
+    public void setOriginTokens(List<Token> originTokens) {
+    	this._originTokens = originTokens;
+    }
+
+    /**
+     * Returns the tokens that served as input for creating this token (e.g. during fusion).
+     */
+    // to avoid infinite recursion during serialization, only origin tokens are
+    // serialized (@JsonManagedReference) and resulting tokens not (@JsonBackReference)
+    @JsonManagedReference
+    // TODO: find a better solution for this problem, e.g. serialization by UUID?
+    public List<Token> getOriginTokens() {
+    	return this._originTokens;
+    }
+
+    public void setProducer(UUID producer) {
+    	this._producer = producer;
+    }
+
+    /**
+     * Returns the UUID of the rule that created this token or null if it was not created by a rule.
+     */
+    public UUID getProducer() {
+    	return this._producer;
+    }
+
+    public void addResultingTokens(List<Token> tokens, UUID uuid) {
+    	this._resultingTokens.add(new Tuple<List<Token>, UUID>(tokens, uuid));
+    }
+
+    /**
+     * Returns the tokens that were created from this token (e.g. through fusion).
+     */
+    // to avoid infinite recursion during serialization, only origin tokens are
+    // serialized (@JsonManagedReference) and resulting tokens not (@JsonBackReference)
+    // TODO: find a better solution for this problem, e.g. serialization by UUID?
+    @JsonBackReference
+    public List<Tuple<List<Token>, UUID>> getResultingTokens() {
+    	return this._resultingTokens;
+    }
+
+    public KnowledgeBase getKB() {
+    	return this._parentKB;
     }
 
 	@Override

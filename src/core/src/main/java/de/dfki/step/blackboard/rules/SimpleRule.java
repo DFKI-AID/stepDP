@@ -1,5 +1,6 @@
 package de.dfki.step.blackboard.rules;
 
+import de.dfki.step.blackboard.Board;
 import de.dfki.step.blackboard.Rule;
 import de.dfki.step.blackboard.Token;
 
@@ -10,6 +11,7 @@ public class SimpleRule extends Rule {
 
     protected SimpleRuleInterface _function;
     protected String _name;
+    protected final static int DEFAULT_PRIO = 10000;
 
     /**
      * If suitable tokens are found, the first best combination is called
@@ -22,12 +24,13 @@ public class SimpleRule extends Rule {
 
     public SimpleRule(SimpleRuleInterface function, String name)
     {
+    	this.setPriority(DEFAULT_PRIO);
         this._function = function;
         this.setName(name);
     }
 
     @Override
-    public void onMatch(List<Token[]> tokens)
+    public void onMatch(List<Token[]> tokens, Board board)
     {
         if(tokens == null || tokens.size() == 0)
             return;

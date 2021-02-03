@@ -30,7 +30,6 @@ const blackboardRuleApp = new Vue({
         updateData: function () {
             $.get('/blackboard/rules', function (response) {
                 this.rules = response;
-				console.log(this.tokens);
             }.bind(this));
         }
     },    

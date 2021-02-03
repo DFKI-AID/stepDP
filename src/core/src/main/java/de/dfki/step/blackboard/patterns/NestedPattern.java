@@ -5,8 +5,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import de.dfki.step.kb.IKBObject;
+import de.dfki.step.kb.semantic.Type;
 
 /**
  * Complex pattern that is composed of patterns defining constraints for the
@@ -16,6 +18,7 @@ import de.dfki.step.kb.IKBObject;
  * complex patterns.
  */
 public class NestedPattern extends Pattern {
+	private Type rootType;
 	private List<Pattern> _rootPatterns = new ArrayList<Pattern>();
 	private Map<String, Pattern> _refPropPatterns = new HashMap<String, Pattern>();
 
@@ -30,6 +33,9 @@ public class NestedPattern extends Pattern {
 			this._refPropPatterns.putAll(refPropPatterns);
 		// sort by priority such that higher prio patterns are checked first for more efficiency
 		Collections.sort(this._rootPatterns, (p1,p2)->Integer.compare(p1.getPriority(), p2.getPriority()));
+		Optional<Pattern> typePattern = rootPatterns.stream().filter(p -> (p instanceof TypePattern)).findFirst();
+		if (typePattern.isPresent())
+			this.rootType = ((TypePattern) typePattern.get()).getType();
 	}
 
 	@Override
@@ -46,5 +52,15 @@ public class NestedPattern extends Pattern {
 				return false;
 		}
 		return true;
+	}
+
+	@Override
+	public boolean hasType() {
+		return rootType != null;
+	}
+
+	@Override
+	public Type getType() {
+		return rootType;
 	}
 }

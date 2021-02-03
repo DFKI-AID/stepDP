@@ -25,6 +25,7 @@ public class PatternCondition extends Condition {
 	@Override
 	public List<Token[]> generateMatches(Stream<Token> tokens, List<String> ignoreTags, UUID ignoreUUID) {
         LinkedList<Token[]> result = new LinkedList<>();
+        tokens = tokens.filter(c -> !c.isCheckedBy(this.getUUID()) && !c.isUsedBy(ignoreUUID));
 		for (Iterator<Token> it = tokens.iterator(); it.hasNext(); )
         {
             Token tok = it.next();
@@ -36,6 +37,7 @@ public class PatternCondition extends Condition {
                     // max Matches generated
                     break;
             }
+            tok.checkedBy(this.getUUID());
         }
 
         return result;

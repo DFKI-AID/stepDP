@@ -12,6 +12,7 @@ public abstract class Condition {
 
     private int _numberOfTokens;
     private int _maxMatches = 10;
+    private final UUID _uuid = UUID.randomUUID();
 
     /**
      * Get the number of maximal Matches that get produced
@@ -46,6 +47,11 @@ public abstract class Condition {
      */
     public void setNumberOfTokens(int numberOfTokens) {
         this._numberOfTokens = numberOfTokens;
+    }
+    
+    public UUID getUUID()
+    {
+        return _uuid;
     }
 
     public abstract List<Token[]> generateMatches(Stream<Token> tokens, List<String> ignoreTags, UUID ignoreUUID);
