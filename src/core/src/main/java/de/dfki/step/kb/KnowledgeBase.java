@@ -85,6 +85,7 @@ public class KnowledgeBase {
     }
     
     public IKBObject getInstance(String name) {
+        // TODO print warning if there are multiple options (when some instances have the same name)
         Optional<IKBObject> obj = _instances.stream().filter(p->p.getName().equals(name)).findFirst();
 
         if(obj.isPresent() && (obj.get() instanceof IKBObject))
