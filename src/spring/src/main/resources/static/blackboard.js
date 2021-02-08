@@ -49,8 +49,32 @@ const blackboardInputApp = new Vue({
 		tokenContent: "",
 		tokenContentSelection: "",
         examples: {
-            "add greeting": {"type": "GreetingIntent"},
+            "add greeting": {"type": "GreetingIntent", "userName":"Alice"},
 			"add hello": {"type": "HelloIntent"},
+			"add bring intent with pizza": {
+				  "type": "BringIntent",
+				  "object": {
+								"type" : "Pizza",
+								"sort" : "Pizza Hawaii"
+							},
+				  "recipientName": "Alice"
+				},
+			"add bring intent with water": {
+				  "type": "BringIntent",
+				  "object": {
+								"type" : "Water",
+								"carbonated" : false
+							},
+				  "recipientName": "Alice"
+				},
+			"add bring intent": {
+				  "type": "BringIntent",
+				  "recipientName": "Alice"
+				},
+			"add pizza": {
+				"type" : "Pizza",
+				"sort" : "Hawaii"
+			},
         },
     },
     watch: {
