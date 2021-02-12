@@ -93,12 +93,6 @@ public class KBToken implements IToken {
 	}
 
 	@Override
-	public void setType(Type type) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public boolean isActive() {
 		// TODO Auto-generated method stub
 		return false;

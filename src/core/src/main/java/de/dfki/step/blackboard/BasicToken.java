@@ -58,7 +58,6 @@ public class BasicToken implements IToken {
         return _type;
     }
 
-    @Override
     public void setType(Type type) {
         this._type = type;
         this.addAll(Map.of("type", type.getName()));
