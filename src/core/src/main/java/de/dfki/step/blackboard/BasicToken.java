@@ -14,8 +14,8 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import java.util.*;
 
-public class Token implements IKBObject {
-    private static final Logger log = LoggerFactory.getLogger(Token.class);
+public class BasicToken implements IToken {
+    private static final Logger log = LoggerFactory.getLogger(BasicToken.class);
 
     private long _timestamp;
     private final UUID _uuid = UUID.randomUUID();
@@ -30,92 +30,81 @@ public class Token implements IKBObject {
     private Map<String, Object> _payload = new HashMap<String, Object>();
     private TokenObject _rootTokenObject;
     // tokens that were created out of this token (e.g. by fusion)
-    private List<Tuple<List<Token>, UUID>> _resultingTokens = new ArrayList<Tuple<List<Token>, UUID>>();
+    private List<Tuple<List<BasicToken>, UUID>> _resultingTokens = new ArrayList<Tuple<List<BasicToken>, UUID>>();
     // tokens from which this token was created (e.g.by fusion)
-    private List<Token> _originTokens = new ArrayList<Token>();
+    private List<BasicToken> _originTokens = new ArrayList<BasicToken>();
     // rule that created the token
     private UUID _producer; 
 
-    public Token(KnowledgeBase kb)
+    public BasicToken(KnowledgeBase kb)
     {
         this._parentKB = kb;
         this._rootTokenObject = new TokenObject(this, this._payload, this._parentKB);
         this._timestamp = new Date().getTime();
     }
 
-    /**
-     * get the timestamp of the creation time of the token in unixtime (milliseconds)
-     * @return
-     */
+    @Override
     public long getTimestamp() {
         return _timestamp;
     }
 
-    private void setTimestamp(long timestamp) {
-        this._timestamp = timestamp;
-    }
-
+    @Override
     public UUID getUUID() {
         return _uuid;
     }
 
+    @Override
     public Type getType() {
         return _type;
     }
 
+    @Override
     public void setType(Type type) {
         this._type = type;
         this.addAll(Map.of("type", type.getName()));
     }
 
+    @Override
     public boolean isActive() {
         return _active;
     }
 
-    /**
-     * Set the active state of the token. If a token is not active, it will not be matched with any rule
-     * @param active new value of the token state
-     */
+    @Override
     public void setActive(boolean active) {
         this._active = active;
     }
 
+    @Override
     public Integer getDeleteTime() {
         return _deleteTime;
     }
 
-    /**
-     * Overrides the default value of the delete time from the blackboard
-     * @param deleteTime new delete time or null for default
-     */
+    @Override
     public void setDeleteTime(Integer deleteTime) {
         this._deleteTime = deleteTime;
     }
 
+    @Override
     public Integer getIgnoreTime() {
         return _ignoreTime;
     }
 
-    /**
-     * Overrides the default value of the ignore time from the blackboard
-     * @param ignoreTime new ignore time or null for default
-     */
+    @Override
     public void setIgnoreTime(Integer ignoreTime) {
         this._ignoreTime = ignoreTime;
     }
 
-    /**
-     * Rules containing one of the tags will not be matched
-     * @return
-     */
+    @Override
     public LinkedList<String> getIgnoreRuleTags() {
         return _ignoreRuleTags;
     }
 
+    @Override
     public void setIgnoreRuleTags(LinkedList<String> _ignoreRuleTags) {
         this._ignoreRuleTags = _ignoreRuleTags;
     }
 
+    @Override
     public boolean isIgnoredBy(List<String> tags)
     {
         if(tags == null)
@@ -129,45 +118,49 @@ public class Token implements IKBObject {
         return false;
     }
 
-    /**
-     * UUID of the rules that already consumed this token
-     * @return
-     */
+    @Override
     public List<UUID> getUsedBy()
     {
         return _usedBy;
     }
 
+    @Override
     public boolean isUsedBy(UUID uuid)
     {
         return this._usedBy.contains(uuid);
     }
 
+    @Override
     public void usedBy(UUID uuid)
     {
         this._usedBy.add(uuid);
     }
 
+    @Override
     public boolean isCheckedBy(UUID uuid)
     {
         return this._checkedBy.contains(uuid);
     }
 
+    @Override
     public void checkedBy(UUID uuid)
     {
         this._checkedBy.add(uuid);
     }
 
+    @Override
     public Optional<Object> get(String key)
     {
         return Optional.ofNullable(this._payload.get(key));
     }
 
+    @Override
     public Optional<Object> get(String... keys)
     {
         return get(List.of(keys));
     }
 
+    @Override
     public Optional<Object> get(List<String> keys)
     {
         if (keys.isEmpty()) {
@@ -182,8 +175,8 @@ public class Token implements IKBObject {
         Object obj = firstObj.get();
 
         for (int i = 1; i < keys.size(); i++) {
-            if(obj instanceof Token) {
-                obj = ((Token) obj)._payload;
+            if(obj instanceof BasicToken) {
+                obj = ((BasicToken) obj)._payload;
             }
             if (!(obj instanceof Map)) {
                 return Optional.empty();
@@ -197,6 +190,7 @@ public class Token implements IKBObject {
         return Optional.of(obj);
     }
 
+    @Override
     public <T> Optional<T> get(Class<T> clazz, List<String> keys)
     {
         Optional<Object> obj = get(keys);
@@ -209,12 +203,13 @@ public class Token implements IKBObject {
         return Optional.of((T) obj.get());
     }
 
+    @Override
     public <T> Optional<T> get(Class<T> clazz, String... keys)
     {
         return get(clazz, List.of(keys));
     }
 
-
+    @Override
     public <T> Optional<T> get(String key, Class<T> clazz)
     {
         if (!has(key)) {
@@ -228,11 +223,13 @@ public class Token implements IKBObject {
         return Optional.of((T) obj);
     }
 
+    @Override
     public boolean has(String key)
     {
         return this._payload.get(key) != null;
     }
 
+    @Override
     public <T> boolean has(String key, Class<T> clazz)
     {
         if (this._payload.get(key) == null) {
@@ -241,58 +238,50 @@ public class Token implements IKBObject {
         return clazz.isAssignableFrom(this._payload.get(key).getClass());
     }
 
+    @Override
     public void addAll(Map<String, Object> values) {
         for (var entry : values.entrySet()) {
             this._payload.put(entry.getKey(), entry.getValue());
         }
     }
 
+    @Override
     public Map<String, Object> getPayload()
     {
         return this._payload;
     }
 
-    public void setOriginTokens(List<Token> originTokens) {
+    @Override
+    public void setOriginTokens(List<BasicToken> originTokens) {
     	this._originTokens = originTokens;
     }
 
-    /**
-     * Returns the tokens that served as input for creating this token (e.g. during fusion).
-     */
-    // to avoid infinite recursion during serialization, only origin tokens are
-    // serialized (@JsonManagedReference) and resulting tokens not (@JsonBackReference)
-    @JsonManagedReference
-    // TODO: find a better solution for this problem, e.g. serialization by UUID?
-    public List<Token> getOriginTokens() {
+    @Override
+    public List<BasicToken> getOriginTokens() {
     	return this._originTokens;
     }
 
+    @Override
     public void setProducer(UUID producer) {
     	this._producer = producer;
     }
 
-    /**
-     * Returns the UUID of the rule that created this token or null if it was not created by a rule.
-     */
+    @Override
     public UUID getProducer() {
     	return this._producer;
     }
 
-    public void addResultingTokens(List<Token> tokens, UUID uuid) {
-    	this._resultingTokens.add(new Tuple<List<Token>, UUID>(tokens, uuid));
+    @Override
+    public void addResultingTokens(List<BasicToken> tokens, UUID uuid) {
+    	this._resultingTokens.add(new Tuple<List<BasicToken>, UUID>(tokens, uuid));
     }
 
-    /**
-     * Returns the tokens that were created from this token (e.g. through fusion).
-     */
-    // to avoid infinite recursion during serialization, only origin tokens are
-    // serialized (@JsonManagedReference) and resulting tokens not (@JsonBackReference)
-    // TODO: find a better solution for this problem, e.g. serialization by UUID?
-    @JsonBackReference
-    public List<Tuple<List<Token>, UUID>> getResultingTokens() {
+    @Override
+    public List<Tuple<List<BasicToken>, UUID>> getResultingTokens() {
     	return this._resultingTokens;
     }
 
+    @Override
     public KnowledgeBase getKB() {
     	return this._parentKB;
     }

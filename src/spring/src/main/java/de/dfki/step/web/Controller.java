@@ -37,13 +37,13 @@ public class Controller {
     }
 
     @GetMapping(value = "/blackboard/active")
-    public List<de.dfki.step.blackboard.Token> getActiveTokens() {
+    public List<de.dfki.step.blackboard.BasicToken> getActiveTokens() {
         var tokens = dialog.getBlackboard().getActiveTokens();
         return tokens;
     }
 
     @GetMapping(value = "/blackboard/archived")
-    public List<de.dfki.step.blackboard.Token> getArchivedTokens() {
+    public List<de.dfki.step.blackboard.BasicToken> getArchivedTokens() {
         var tokens = dialog.getBlackboard().getArchivedTokens();
         return tokens;
     }
@@ -72,7 +72,7 @@ public class Controller {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("type not found");
         }
 
-        de.dfki.step.blackboard.Token newT = new de.dfki.step.blackboard.Token(this.dialog.getKB());
+        de.dfki.step.blackboard.BasicToken newT = new de.dfki.step.blackboard.BasicToken(this.dialog.getKB());
         newT.setType(type);
         newT.addAll(body);
         dialog.getBlackboard().addToken(newT);

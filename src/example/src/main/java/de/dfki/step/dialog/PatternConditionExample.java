@@ -2,7 +2,7 @@ package de.dfki.step.dialog;
 
 
 import de.dfki.step.blackboard.Rule;
-import de.dfki.step.blackboard.Token;
+import de.dfki.step.blackboard.BasicToken;
 import de.dfki.step.blackboard.conditions.PatternCondition;
 import de.dfki.step.blackboard.patterns.Pattern;
 import de.dfki.step.blackboard.patterns.PatternBuilder;
@@ -69,7 +69,7 @@ public class PatternConditionExample extends Dialog {
 		Pattern p = builder.build();
 		
 		Rule rule = new SimpleRule(tokens -> {
-			Token intent = tokens[0];
+			BasicToken intent = tokens[0];
 			// a token should only trigger one of the rules with the tag
 			// "BringRule", so we add the tag to the token's ignoreRuleTags
 			intent.getIgnoreRuleTags().add(tag);
@@ -95,7 +95,7 @@ public class PatternConditionExample extends Dialog {
 		p = builder.build();
 		
 		rule = new SimpleRule(tokens -> {
-			Token intent = tokens[0];
+			BasicToken intent = tokens[0];
 			String name = intent.getString("recipientName");
 			System.out.println("Here you go! Enjoy your drink, " + name);
 			intent.getIgnoreRuleTags().add(tag);
@@ -110,7 +110,7 @@ public class PatternConditionExample extends Dialog {
 		p = new PatternBuilder("BringIntent", kb).build();
 	
 		rule = new SimpleRule(tokens -> {
-			Token intent = tokens[0];
+			BasicToken intent = tokens[0];
 			intent.getIgnoreRuleTags().add(tag);
 			IKBObject object = intent.getResolvedReference("object");
 			if (object == null) {

@@ -7,7 +7,7 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 import de.dfki.step.blackboard.Condition;
-import de.dfki.step.blackboard.Token;
+import de.dfki.step.blackboard.BasicToken;
 import de.dfki.step.blackboard.patterns.Pattern;
 
 /**
@@ -23,16 +23,16 @@ public class PatternCondition extends Condition {
 	}
 	
 	@Override
-	public List<Token[]> generateMatches(Stream<Token> tokens, List<String> ignoreTags, UUID ignoreUUID) {
-        LinkedList<Token[]> result = new LinkedList<>();
+	public List<BasicToken[]> generateMatches(Stream<BasicToken> tokens, List<String> ignoreTags, UUID ignoreUUID) {
+        LinkedList<BasicToken[]> result = new LinkedList<>();
         tokens = tokens.filter(c -> !c.isCheckedBy(this.getUUID()) && !c.isUsedBy(ignoreUUID));
-		for (Iterator<Token> it = tokens.iterator(); it.hasNext(); )
+		for (Iterator<BasicToken> it = tokens.iterator(); it.hasNext(); )
         {
-            Token tok = it.next();
+            BasicToken tok = it.next();
 
             if(_pattern.matches(tok)) {
                 if(result.size() < this.getMaxMatches())
-                    result.add(new Token[]{tok});
+                    result.add(new BasicToken[]{tok});
                 else
                     // max Matches generated
                     break;

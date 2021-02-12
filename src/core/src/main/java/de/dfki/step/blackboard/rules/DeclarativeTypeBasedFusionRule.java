@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import de.dfki.step.blackboard.Board;
 import de.dfki.step.blackboard.Rule;
-import de.dfki.step.blackboard.Token;
+import de.dfki.step.blackboard.BasicToken;
 import de.dfki.step.blackboard.conditions.DeclarativeTypeBasedFusionCondition;
 import de.dfki.step.blackboard.patterns.Pattern;
 import de.dfki.step.kb.semantic.IProperty;
@@ -65,12 +65,12 @@ public class DeclarativeTypeBasedFusionRule extends Rule {
 	}
 
 	@Override
-	public void onMatch(List<Token[]> tokens, Board board) {
-		for (Token[] match : tokens) {
-			Token t1 = match[0];
-			Token t2 = match[1];
+	public void onMatch(List<BasicToken[]> tokens, Board board) {
+		for (BasicToken[] match : tokens) {
+			BasicToken t1 = match[0];
+			BasicToken t2 = match[1];
 			
-			Token fusionResult = new Token(t1.getKB());
+			BasicToken fusionResult = new BasicToken(t1.getKB());
 			fusionResult.setType(this._resultType);
 			// simply copy payload reference of origin tokens since tokens should not change anyway
 			fusionResult.addAll(Map.of(_prop1, t1.getPayload()));

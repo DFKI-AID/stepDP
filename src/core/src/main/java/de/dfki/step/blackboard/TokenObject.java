@@ -12,12 +12,12 @@ import org.pcollections.PMap;
 
 public class TokenObject implements IKBObject {
 
-	private Token _parent;
+	private BasicToken _parent;
 	private Map<String, Object> _payload;
 	private KnowledgeBase _kb;
 	private Type _type;
 
-    public TokenObject(Token parent, Map<String, Object> payload, KnowledgeBase kb)
+    public TokenObject(BasicToken parent, Map<String, Object> payload, KnowledgeBase kb)
 	{
 		this._parent = parent;
 		this._payload = payload;
@@ -25,7 +25,7 @@ public class TokenObject implements IKBObject {
 		this._type = null;
 	}
 
-	public TokenObject(Token parent, Map<String, Object> payload, KnowledgeBase kb, Type type)
+	public TokenObject(BasicToken parent, Map<String, Object> payload, KnowledgeBase kb, Type type)
 	{
 		this._parent = parent;
 		this._payload = payload;

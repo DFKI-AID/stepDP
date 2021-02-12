@@ -1,8 +1,8 @@
 package de.dfki.step.blackboard.rules;
 
-import de.dfki.step.blackboard.Token;
+import de.dfki.step.blackboard.BasicToken;
 
 public interface SimpleRuleInterface {
 
-    void onMatch(Token[] tokens);
+    void onMatch(BasicToken[] tokens);
 }

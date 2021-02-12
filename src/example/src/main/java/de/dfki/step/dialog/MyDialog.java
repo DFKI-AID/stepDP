@@ -76,14 +76,14 @@ public class MyDialog extends Dialog {
             this.getKB().addType(GreetingSpecificIntent);
             this.getKB().addType(HelloIntent);
 
-            de.dfki.step.blackboard.Token test = new de.dfki.step.blackboard.Token(this.getKB());
+            de.dfki.step.blackboard.BasicToken test = new de.dfki.step.blackboard.BasicToken(this.getKB());
             test.setType(GreetingIntent);
             this.getBlackboard().addToken(test);
 
             Rule GreetingRule = new SimpleRule(tokens -> {
                 System.out.println("Greeting found! Say hello");
 
-                de.dfki.step.blackboard.Token HelloToken = new de.dfki.step.blackboard.Token(this.getKB());
+                de.dfki.step.blackboard.BasicToken HelloToken = new de.dfki.step.blackboard.BasicToken(this.getKB());
                 HelloToken.setType(HelloIntent);
                 this.getBlackboard().addToken(HelloToken);
             }, "GreetingRule");

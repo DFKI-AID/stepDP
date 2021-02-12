@@ -102,15 +102,15 @@ public class PatternBuilderTest {
 		PatternBuilder builder = new PatternBuilder("GeneralBringIntent", kb);
 		Pattern p = builder.build();
 		
-		Token exactType = new Token(kb);
+		BasicToken exactType = new BasicToken(kb);
 		exactType.setType(kb.getType("GeneralBringIntent"));
-		Token subType = new Token(kb);
+		BasicToken subType = new BasicToken(kb);
 		subType.setType(kb.getType("ObjectBringIntent"));
-		Token superType = new Token(kb);
+		BasicToken superType = new BasicToken(kb);
 		superType.setType(kb.getType("Intent"));
-		Token otherType = new Token(kb);
+		BasicToken otherType = new BasicToken(kb);
 		otherType.setType(kb.getType("PhysicalObject"));
-		Token nullType = new Token(kb);
+		BasicToken nullType = new BasicToken(kb);
 		
 		Assert.assertTrue(p.matches(exactType));
 		Assert.assertTrue(p.matches(subType));
@@ -128,14 +128,14 @@ public class PatternBuilderTest {
 		builder.hasNonNullProperties("object", "recipientName");
 		Pattern p = builder.build();
 		
-		Token bothNull = new Token(kb);
-		Token objectNull = new Token(kb);
+		BasicToken bothNull = new BasicToken(kb);
+		BasicToken objectNull = new BasicToken(kb);
 		objectNull.setType(kb.getType("ObjectBringIntent"));
 		objectNull.addAll(Map.of("recipientName","Lara","urgent",false));
-		Token nameNull = new Token(kb);
+		BasicToken nameNull = new BasicToken(kb);
 		nameNull.setType(kb.getType("ObjectBringIntent"));
 	    nameNull.addAll(Map.of("object", Map.of("position", Map.of("x",1,"y",2,"z",3))));
-		Token bothNonNull = new Token(kb);
+		BasicToken bothNonNull = new BasicToken(kb);
 		bothNonNull.setType(kb.getType("ObjectBringIntent"));
 	    bothNonNull.addAll(Map.of("recipientName","Lara",
 	    		"object", Map.of("position",Map.of("x",1,"y",2,"z",3))));
@@ -162,7 +162,7 @@ public class PatternBuilderTest {
 			   	.endPropertyPattern();
 		Pattern p = builder.build();
 		
-		Token match1 = new Token(kb);
+		BasicToken match1 = new BasicToken(kb);
 		match1.setType(kb.getType("ObjectBringIntent"));
 		match1.addAll(Map.of("recipientName","Lara",
 							"object", Map.of("type","Pizza",
@@ -175,7 +175,7 @@ public class PatternBuilderTest {
 							)
 				   	);
 
-		Token match2 = new Token(kb);
+		BasicToken match2 = new BasicToken(kb);
 		match2.setType(kb.getType("ObjectBringIntent"));
 		match2.addAll(Map.of("recipientName","Lara",
 				"object", Map.of("type","Pizza",
@@ -187,7 +187,7 @@ public class PatternBuilderTest {
 				)
 	   	);
 		
-		Token sortNull = new Token(kb);
+		BasicToken sortNull = new BasicToken(kb);
 		sortNull.setType(kb.getType("ObjectBringIntent"));
 		sortNull.addAll(Map.of("recipientName","Lara",
 				"object", Map.of("type","Pizza",
@@ -199,7 +199,7 @@ public class PatternBuilderTest {
 				)
 	   	);
 		
-		Token toppingNull = new Token(kb);
+		BasicToken toppingNull = new BasicToken(kb);
 		toppingNull.setType(kb.getType("ObjectBringIntent"));
 		toppingNull.addAll(Map.of("recipientName","Lara",
 				"object", Map.of("type","Pizza",
@@ -208,7 +208,7 @@ public class PatternBuilderTest {
 				)
 	   	);
 		
-		Token wrongInnerType = new Token(kb);
+		BasicToken wrongInnerType = new BasicToken(kb);
 		wrongInnerType.setType(kb.getType("ObjectBringIntent"));
 		wrongInnerType.addAll(Map.of("recipientName","Lara",
 				"object", Map.of("type","Water",
@@ -252,7 +252,7 @@ public class PatternBuilderTest {
 						   .endPropertyPattern()
 						   .build();
 
-		Token token = new Token(kb);
+		BasicToken token = new BasicToken(kb);
 		token.setType(kb.getType("ObjectBringIntent"));
 		token.addAll(Map.of("object",kb.getInstance("pizza1").getUUID().toString()));
 		

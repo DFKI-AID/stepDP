@@ -8,7 +8,7 @@ import java.util.stream.Stream;
 
 import de.dfki.step.blackboard.Condition;
 import de.dfki.step.blackboard.rules.DeclarativeTypeBasedFusionRule;
-import de.dfki.step.blackboard.Token;
+import de.dfki.step.blackboard.BasicToken;
 import de.dfki.step.blackboard.patterns.Pattern;
 
 /**
@@ -30,17 +30,17 @@ public class DeclarativeTypeBasedFusionCondition extends Condition {
 	// In the future, an option (e.g. configured by an additional constructor parameter) could
 	// be added to generate more combinations. However, make sure to avoid duplicate combinations!
 	@Override
-	public List<Token[]> generateMatches(Stream<Token> tokens, List<String> ignoreTags, UUID ignoreUUID) {
-		Token[] match = new Token[2];
-		ArrayList<Token[]> result = new ArrayList<Token[]>();
+	public List<BasicToken[]> generateMatches(Stream<BasicToken> tokens, List<String> ignoreTags, UUID ignoreUUID) {
+		BasicToken[] match = new BasicToken[2];
+		ArrayList<BasicToken[]> result = new ArrayList<BasicToken[]>();
         boolean oneTokenFound = false;
         // fusion interval becomes only relevant when one matching token was found
         long intervalStart = -1;
 
         // the stream is ordered (newer tokens come first)
-		for (Iterator<Token> it = tokens.iterator(); it.hasNext(); )
+		for (Iterator<BasicToken> it = tokens.iterator(); it.hasNext(); )
         {
-            Token tok = it.next();
+            BasicToken tok = it.next();
             
             if (breakingConditionMet(oneTokenFound, intervalStart, tok, ignoreUUID))
             	break;
@@ -67,7 +67,7 @@ public class DeclarativeTypeBasedFusionCondition extends Condition {
         return result;
 	}
 	
-	private boolean breakingConditionMet(boolean oneTokenFound, long intervalStart, Token tok, UUID ruleUUID) {
+	private boolean breakingConditionMet(boolean oneTokenFound, long intervalStart, BasicToken tok, UUID ruleUUID) {
         // break if no new token found and current token already checked in last iteration
         if (!oneTokenFound) {
         	if (tok.isCheckedBy(this.getUUID())) 
