@@ -81,7 +81,10 @@ public class TokenObject implements IKBObject {
 
 	@Override
 	public String getString(String propertyName) {
-		return this._payload.get(propertyName).toString();
+		Object value = this._payload.get(propertyName);
+		if (value == null)
+			return null;
+		return value.toString();
 	}
 
 	@Override
