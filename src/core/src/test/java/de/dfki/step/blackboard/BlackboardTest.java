@@ -10,12 +10,12 @@ public class BlackboardTest {
     public void SimpleRuleTest()
     {
         // SimpleRule with Interface
-        SimpleRuleInterface TokenProcessing = (tokens) -> { System.out.println(tokens[0].get("Hallo").get()); };
+        SimpleRuleInterface TokenProcessing = (tokens) -> { System.out.println(((BasicToken) tokens[0]).get("Hallo").get()); };
         Rule rule = new SimpleRule(TokenProcessing);
 
         // SimpleRule with lambda expression
         Rule rule2 = new SimpleRule(tokens -> {
-            System.out.println(tokens[0].get("Hallo").get());
+            System.out.println(((BasicToken) tokens[0]).get("Hallo").get());
         });
     }
 

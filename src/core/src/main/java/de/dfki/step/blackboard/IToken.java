@@ -75,27 +75,9 @@ public interface IToken extends IKBObject{
 
     public void checkedBy(UUID uuid);
 
-    public Optional<Object> get(String key);
-
-    public Optional<Object> get(String... keys);
-
-    public Optional<Object> get(List<String> keys);
-
-    public <T> Optional<T> get(Class<T> clazz, List<String> keys);
-
-    public <T> Optional<T> get(Class<T> clazz, String... keys);
-
-    public <T> Optional<T> get(String key, Class<T> clazz);
-
-    public boolean has(String key);
-
-    public <T> boolean has(String key, Class<T> clazz);
-
-    public void addAll(Map<String, Object> values);
-
     public Map<String, Object> getPayload();
 
-    public void setOriginTokens(List<BasicToken> originTokens);
+    public void setOriginTokens(List<IToken> originTokens);
 
     /**
      * Returns the tokens that served as input for creating this token (e.g. during fusion).
@@ -104,7 +86,7 @@ public interface IToken extends IKBObject{
     // serialized (@JsonManagedReference) and resulting tokens not (@JsonBackReference)
     @JsonManagedReference
     // TODO: find a better solution for this problem, e.g. serialization by UUID?
-    public List<BasicToken> getOriginTokens();
+    public List<IToken> getOriginTokens();
 
     public void setProducer(UUID producer);
 
@@ -113,7 +95,7 @@ public interface IToken extends IKBObject{
      */
     public UUID getProducer();
 
-    public void addResultingTokens(List<BasicToken> tokens, UUID uuid);
+    public void addResultingTokens(List<IToken> tokens, UUID uuid);
 
     /**
      * Returns the tokens that were created from this token (e.g. through fusion).
@@ -122,7 +104,7 @@ public interface IToken extends IKBObject{
     // serialized (@JsonManagedReference) and resulting tokens not (@JsonBackReference)
     // TODO: find a better solution for this problem, e.g. serialization by UUID?
     @JsonBackReference
-    public List<Tuple<List<BasicToken>, UUID>> getResultingTokens();
+    public List<Tuple<List<IToken>, UUID>> getResultingTokens();
 
     public KnowledgeBase getKB();
 }

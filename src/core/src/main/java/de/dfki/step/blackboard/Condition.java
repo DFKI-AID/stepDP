@@ -54,5 +54,5 @@ public abstract class Condition {
         return _uuid;
     }
 
-    public abstract List<BasicToken[]> generateMatches(Stream<BasicToken> tokens, List<String> ignoreTags, UUID ignoreUUID);
+    public abstract List<IToken[]> generateMatches(Stream<IToken> tokens, List<String> ignoreTags, UUID ignoreUUID);
 }

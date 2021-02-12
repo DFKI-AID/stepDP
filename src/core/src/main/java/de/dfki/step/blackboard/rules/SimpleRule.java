@@ -1,6 +1,7 @@
 package de.dfki.step.blackboard.rules;
 
 import de.dfki.step.blackboard.Board;
+import de.dfki.step.blackboard.IToken;
 import de.dfki.step.blackboard.Rule;
 import de.dfki.step.blackboard.BasicToken;
 
@@ -30,13 +31,13 @@ public class SimpleRule extends Rule {
     }
 
     @Override
-    public void onMatch(List<BasicToken[]> tokens, Board board)
+    public void onMatch(List<IToken[]> tokens, Board board)
     {
         if(tokens == null || tokens.size() == 0)
             return;
 
         // take the first best combination...
-        BasicToken[] firstOne = tokens.get(0);
+        IToken[] firstOne = tokens.get(0);
 
         // .. and mark that this rule used it!
         for(int i = 0; i < firstOne.length; i++)

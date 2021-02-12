@@ -29,7 +29,7 @@ public abstract class Rule {
      * If there are tokens that meet the condition, this function is called to process these tokens
      * @param tokens A list of possible token combinations represented as an array. The "best fit" (regarding the Condition) is the first token array in the list
      */
-    public abstract void onMatch(List<BasicToken[]> tokens, Board board);
+    public abstract void onMatch(List<IToken[]> tokens, Board board);
 
     public boolean isActive() {
         return active;

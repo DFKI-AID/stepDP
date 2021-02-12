@@ -91,11 +91,11 @@ public class DeclarativeTypeBasedFusionTest {
 		t1.setType(kb.getType("BringIntent"));
 		BasicToken t2 = new BasicToken(kb);
 		t2.setType(kb.getType("PhysicalObject"));
-		List<BasicToken> tokens = List.of(t2, t1);
-		List<BasicToken[]> matches = r.getCondition().generateMatches(tokens.stream(), r.getTags(), r.getUUID());
+		List<IToken> tokens = List.of(t2, t1);
+		List<IToken[]> matches = r.getCondition().generateMatches(tokens.stream(), r.getTags(), r.getUUID());
 	
 		Assert.assertTrue(matches.size() == 1);
-		BasicToken[] match = matches.get(0);
+		IToken[] match = matches.get(0);
 		Assert.assertTrue(match[0] == t1);
 		Assert.assertTrue(match[1] == t2);
 	}
@@ -112,8 +112,8 @@ public class DeclarativeTypeBasedFusionTest {
 		Thread.sleep(Duration.ofSeconds(1).toMillis());
 		BasicToken t2 = new BasicToken(kb);
 		t2.setType(kb.getType("PhysicalObject"));
-		List<BasicToken> tokens = List.of(t2, t1);
-		List<BasicToken[]> matches = r.getCondition().generateMatches(tokens.stream(), r.getTags(), r.getUUID());
+		List<IToken> tokens = List.of(t2, t1);
+		List<IToken[]> matches = r.getCondition().generateMatches(tokens.stream(), r.getTags(), r.getUUID());
 	
 		Assert.assertTrue(matches.isEmpty());
 	}
@@ -131,11 +131,11 @@ public class DeclarativeTypeBasedFusionTest {
 		t2.setType(kb.getType("BringIntent"));
 		BasicToken t3 = new BasicToken(kb);
 		t3.setType(kb.getType("PhysicalObject"));
-		List<BasicToken> tokens = List.of(t3, t2, t1);
-		List<BasicToken[]> matches = r.getCondition().generateMatches(tokens.stream(), r.getTags(), r.getUUID());
+		List<IToken> tokens = List.of(t3, t2, t1);
+		List<IToken[]> matches = r.getCondition().generateMatches(tokens.stream(), r.getTags(), r.getUUID());
 	
 		Assert.assertTrue(matches.size() == 1);
-		BasicToken[] match = matches.get(0);
+		IToken[] match = matches.get(0);
 		Assert.assertTrue(match[0] == t2);
 		Assert.assertTrue(match[1] == t3);
 	}
@@ -151,10 +151,10 @@ public class DeclarativeTypeBasedFusionTest {
 		t1.setType(kb.getType("BringIntent"));
 		BasicToken t2 = new BasicToken(kb);
 		t2.setType(kb.getType("PhysicalObject"));
-		LinkedList<BasicToken> tokens = new LinkedList<BasicToken>(List.of(t2, t1));
+		LinkedList<IToken> tokens = new LinkedList<IToken>(List.of(t2, t1));
 
 		// before use, tokens are matched
-		List<BasicToken[]> matches = r.getCondition().generateMatches(tokens.stream(), r.getTags(), r.getUUID());
+		List<IToken[]> matches = r.getCondition().generateMatches(tokens.stream(), r.getTags(), r.getUUID());
 		Assert.assertTrue(matches.size() == 1);
 		// use tokens
 		r.onMatch(matches, board);
@@ -187,10 +187,10 @@ public class DeclarativeTypeBasedFusionTest {
 		
 		// first interaction: e.g. user says "bring this" and points at 2 objects
 		// our fusion algorithm assumes that the most recent object is the one that the user intended
-		LinkedList<BasicToken> tokens = new LinkedList<BasicToken>(List.of(t3, t2, t1));
-		List<BasicToken[]> matches = r.getCondition().generateMatches(tokens.stream(), r.getTags(), r.getUUID());
+		LinkedList<IToken> tokens = new LinkedList<IToken>(List.of(t3, t2, t1));
+		List<IToken[]> matches = r.getCondition().generateMatches(tokens.stream(), r.getTags(), r.getUUID());
 		Assert.assertTrue(matches.size() == 1);
-		BasicToken[] match = matches.get(0);
+		IToken[] match = matches.get(0);
 		Assert.assertTrue(match[0] == t1);
 		Assert.assertTrue(match[1] == t3);
 		// use tokens
@@ -224,13 +224,13 @@ public class DeclarativeTypeBasedFusionTest {
 		BasicToken t2 = new BasicToken(kb);
 		t2.setType(kb.getType("Pizza"));
 		t2.addAll(Map.of("sort", "Hawaii"));
-		List<BasicToken> tokens = List.of(t2, t1);
+		List<IToken> tokens = List.of(t2, t1);
 		
-		List<BasicToken[]> matches = r.getCondition().generateMatches(tokens.stream(), r.getTags(), r.getUUID());
+		List<IToken[]> matches = r.getCondition().generateMatches(tokens.stream(), r.getTags(), r.getUUID());
 		Assert.assertTrue(matches.size() == 1);
 		r.onMatch(matches, board);
 		Assert.assertTrue(board.getActiveTokens().size() == 1);
-		BasicToken result = board.getActiveTokens().get(0);
+		IToken result = board.getActiveTokens().get(0);
 		IKBObject intent = result.getResolvedReference("intent");
 		Assert.assertTrue(intent != null);
 		Assert.assertTrue(intent.getType().getName() == "BringIntent");
@@ -245,9 +245,9 @@ public class DeclarativeTypeBasedFusionTest {
 		Assert.assertTrue(result.getOriginTokens().contains(t2));
 		Assert.assertTrue(result.getProducer() == r.getUUID());
 		for (BasicToken t : List.of(t1, t2)) {
-			List<Tuple<List<BasicToken>, UUID>> resultingTokens = t.getResultingTokens();
+			List<Tuple<List<IToken>, UUID>> resultingTokens = t.getResultingTokens();
 			Assert.assertTrue(!resultingTokens.isEmpty());
-			List<BasicToken> results = resultingTokens.get(0).x;
+			List<IToken> results = resultingTokens.get(0).x;
 			Assert.assertTrue(results.get(0) == result);
 			UUID producer = resultingTokens.get(0).y;
 			Assert.assertTrue(producer == r.getUUID());
@@ -277,8 +277,8 @@ public class DeclarativeTypeBasedFusionTest {
 		noMatch.setType(kb.getType("Gesture"));
 
 		// only one token => no match yet
-		LinkedList<BasicToken> tokens = new LinkedList<BasicToken>(List.of(t1));
-		List<BasicToken[]> matches = r.getCondition().generateMatches(tokens.stream(), r.getTags(), r.getUUID());
+		LinkedList<IToken> tokens = new LinkedList<IToken>(List.of(t1));
+		List<IToken[]> matches = r.getCondition().generateMatches(tokens.stream(), r.getTags(), r.getUUID());
 		Assert.assertTrue(matches.isEmpty());
 
 		// add 2nd token => first matching pair
@@ -302,7 +302,7 @@ public class DeclarativeTypeBasedFusionTest {
 		tokens.addFirst(t4);
 		matches = r.getCondition().generateMatches(tokens.stream(), r.getTags(), r.getUUID());
 		Assert.assertTrue(matches.size() == 1);
-		BasicToken[] match = matches.get(0);
+		IToken[] match = matches.get(0);
 		Assert.assertTrue(match[0] == t3);
 		Assert.assertTrue(match[1] == t4);
 	}
@@ -322,13 +322,13 @@ public class DeclarativeTypeBasedFusionTest {
 		BasicToken t2 = new BasicToken(kb);
 		t2.setType(kb.getType("Gesture"));
 		t2.addAll(Map.of("targetObject", Map.of("UUID", kb.getInstance("pizza1").getUUID())));
-		List<BasicToken> tokens = List.of(t2, t1);
+		List<IToken> tokens = List.of(t2, t1);
 		
-		List<BasicToken[]> matches = r.getCondition().generateMatches(tokens.stream(), r.getTags(), r.getUUID());
+		List<IToken[]> matches = r.getCondition().generateMatches(tokens.stream(), r.getTags(), r.getUUID());
 		Assert.assertTrue(matches.size() == 1);
 		r.onMatch(matches, board);
 		Assert.assertTrue(board.getActiveTokens().size() == 1);
-		BasicToken result = board.getActiveTokens().get(0);
+		IToken result = board.getActiveTokens().get(0);
 		IKBObject intent = result.getResolvedReference("intent");
 		Assert.assertTrue(intent != null);
 		Assert.assertTrue(intent.getType().getName() == "BringIntent");

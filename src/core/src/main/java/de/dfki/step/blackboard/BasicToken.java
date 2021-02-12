@@ -30,9 +30,9 @@ public class BasicToken implements IToken {
     private Map<String, Object> _payload = new HashMap<String, Object>();
     private TokenObject _rootTokenObject;
     // tokens that were created out of this token (e.g. by fusion)
-    private List<Tuple<List<BasicToken>, UUID>> _resultingTokens = new ArrayList<Tuple<List<BasicToken>, UUID>>();
+    private List<Tuple<List<IToken>, UUID>> _resultingTokens = new ArrayList<Tuple<List<IToken>, UUID>>();
     // tokens from which this token was created (e.g.by fusion)
-    private List<BasicToken> _originTokens = new ArrayList<BasicToken>();
+    private List<IToken> _originTokens = new ArrayList<IToken>();
     // rule that created the token
     private UUID _producer; 
 
@@ -148,19 +148,16 @@ public class BasicToken implements IToken {
         this._checkedBy.add(uuid);
     }
 
-    @Override
     public Optional<Object> get(String key)
     {
         return Optional.ofNullable(this._payload.get(key));
     }
 
-    @Override
     public Optional<Object> get(String... keys)
     {
         return get(List.of(keys));
     }
 
-    @Override
     public Optional<Object> get(List<String> keys)
     {
         if (keys.isEmpty()) {
@@ -176,7 +173,7 @@ public class BasicToken implements IToken {
 
         for (int i = 1; i < keys.size(); i++) {
             if(obj instanceof BasicToken) {
-                obj = ((BasicToken) obj)._payload;
+                obj = ((BasicToken) obj).getPayload();
             }
             if (!(obj instanceof Map)) {
                 return Optional.empty();
@@ -190,7 +187,6 @@ public class BasicToken implements IToken {
         return Optional.of(obj);
     }
 
-    @Override
     public <T> Optional<T> get(Class<T> clazz, List<String> keys)
     {
         Optional<Object> obj = get(keys);
@@ -203,13 +199,11 @@ public class BasicToken implements IToken {
         return Optional.of((T) obj.get());
     }
 
-    @Override
     public <T> Optional<T> get(Class<T> clazz, String... keys)
     {
         return get(clazz, List.of(keys));
     }
 
-    @Override
     public <T> Optional<T> get(String key, Class<T> clazz)
     {
         if (!has(key)) {
@@ -223,13 +217,11 @@ public class BasicToken implements IToken {
         return Optional.of((T) obj);
     }
 
-    @Override
     public boolean has(String key)
     {
         return this._payload.get(key) != null;
     }
 
-    @Override
     public <T> boolean has(String key, Class<T> clazz)
     {
         if (this._payload.get(key) == null) {
@@ -238,7 +230,6 @@ public class BasicToken implements IToken {
         return clazz.isAssignableFrom(this._payload.get(key).getClass());
     }
 
-    @Override
     public void addAll(Map<String, Object> values) {
         for (var entry : values.entrySet()) {
             this._payload.put(entry.getKey(), entry.getValue());
@@ -252,12 +243,12 @@ public class BasicToken implements IToken {
     }
 
     @Override
-    public void setOriginTokens(List<BasicToken> originTokens) {
+    public void setOriginTokens(List<IToken> originTokens) {
     	this._originTokens = originTokens;
     }
 
     @Override
-    public List<BasicToken> getOriginTokens() {
+    public List<IToken> getOriginTokens() {
     	return this._originTokens;
     }
 
@@ -272,12 +263,12 @@ public class BasicToken implements IToken {
     }
 
     @Override
-    public void addResultingTokens(List<BasicToken> tokens, UUID uuid) {
-    	this._resultingTokens.add(new Tuple<List<BasicToken>, UUID>(tokens, uuid));
+    public void addResultingTokens(List<IToken> tokens, UUID uuid) {
+    	this._resultingTokens.add(new Tuple<List<IToken>, UUID>(tokens, uuid));
     }
 
     @Override
-    public List<Tuple<List<BasicToken>, UUID>> getResultingTokens() {
+    public List<Tuple<List<IToken>, UUID>> getResultingTokens() {
     	return this._resultingTokens;
     }
 

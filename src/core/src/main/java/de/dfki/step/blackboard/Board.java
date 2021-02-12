@@ -19,10 +19,10 @@ public class Board {
 
     // tokens that are active and used for matching rules (not older than 5 minutes)
     // newest token is at first position
-    private final LinkedList<BasicToken> _activeTokens = new LinkedList<>();
+    private final LinkedList<IToken> _activeTokens = new LinkedList<>();
 
     // tokens that are not used any longer for matching (older than 5 minutes)
-    private final LinkedList<BasicToken> _archivedTokens = new LinkedList<>();
+    private final LinkedList<IToken> _archivedTokens = new LinkedList<>();
 
 
     public synchronized void update()
@@ -31,10 +31,10 @@ public class Board {
         long timeMilli = new Date().getTime();
 
         // first put inactive tokens into the archive
-        BasicToken[] toArchive = _activeTokens.stream().filter(s ->
+        IToken[] toArchive = _activeTokens.stream().filter(s ->
                 (timeMilli - s.getTimestamp()) / 1000 >
                         ((s.getDeleteTime() == null) ? this.getIgnoreTime() : s.getIgnoreTime())
-        ).toArray(size -> new BasicToken[size]);
+        ).toArray(size -> new IToken[size]);
 
         if(toArchive.length > 0)
         {
@@ -75,13 +75,13 @@ public class Board {
                 continue;
             
             // generate Token stream
-            Stream<BasicToken> stream = this._activeTokens.stream();
+            Stream<IToken> stream = this._activeTokens.stream();
 
             // check if token is not usable because of checked, used or ignore tags
             stream = stream.filter(c -> !(c.isIgnoredBy(r.getTags())));
 
             // generate Matches
-            List<BasicToken[]> possibleTokens = cond.generateMatches(stream, r.getTags(), r.getUUID());
+            List<IToken[]> possibleTokens = cond.generateMatches(stream, r.getTags(), r.getUUID());
 
             // if some tokens are found, process them
             if(possibleTokens != null && possibleTokens.size() > 0)
@@ -90,7 +90,7 @@ public class Board {
 
     }
 
-    public synchronized void addToken(BasicToken token)
+    public synchronized void addToken(IToken token)
     {
         this._activeTokens.addFirst(token);
     }
@@ -114,12 +114,12 @@ public class Board {
         return this._rules;
     }
 
-    public synchronized List<BasicToken> getActiveTokens()
+    public synchronized List<IToken> getActiveTokens()
     {
         return this._activeTokens;
     }
 
-    public synchronized List<BasicToken> getArchivedTokens()
+    public synchronized List<IToken> getArchivedTokens()
     {
         return this._archivedTokens;
     }

@@ -3,12 +3,10 @@ package de.dfki.step.blackboard.rules;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import de.dfki.step.blackboard.Board;
-import de.dfki.step.blackboard.Rule;
 import de.dfki.step.blackboard.BasicToken;
+import de.dfki.step.blackboard.Board;
+import de.dfki.step.blackboard.IToken;
+import de.dfki.step.blackboard.Rule;
 import de.dfki.step.blackboard.conditions.DeclarativeTypeBasedFusionCondition;
 import de.dfki.step.blackboard.patterns.Pattern;
 import de.dfki.step.kb.semantic.IProperty;
@@ -65,10 +63,10 @@ public class DeclarativeTypeBasedFusionRule extends Rule {
 	}
 
 	@Override
-	public void onMatch(List<BasicToken[]> tokens, Board board) {
-		for (BasicToken[] match : tokens) {
-			BasicToken t1 = match[0];
-			BasicToken t2 = match[1];
+	public void onMatch(List<IToken[]> tokens, Board board) {
+		for (IToken[] match : tokens) {
+			IToken t1 = match[0];
+			IToken t2 = match[1];
 			
 			BasicToken fusionResult = new BasicToken(t1.getKB());
 			fusionResult.setType(this._resultType);

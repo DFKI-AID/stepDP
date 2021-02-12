@@ -183,73 +183,19 @@ public class KBToken implements IToken {
 	}
 
 	@Override
-	public Optional<Object> get(String key) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Optional<Object> get(String... keys) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Optional<Object> get(List<String> keys) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public <T> Optional<T> get(Class<T> clazz, List<String> keys) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public <T> Optional<T> get(Class<T> clazz, String... keys) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public <T> Optional<T> get(String key, Class<T> clazz) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public boolean has(String key) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public <T> boolean has(String key, Class<T> clazz) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public void addAll(Map<String, Object> values) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public Map<String, Object> getPayload() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public void setOriginTokens(List<BasicToken> originTokens) {
+	public void setOriginTokens(List<IToken> originTokens) {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public List<BasicToken> getOriginTokens() {
+	public List<IToken> getOriginTokens() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -267,13 +213,13 @@ public class KBToken implements IToken {
 	}
 
 	@Override
-	public void addResultingTokens(List<BasicToken> tokens, UUID uuid) {
+	public void addResultingTokens(List<IToken> tokens, UUID uuid) {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public List<Tuple<List<BasicToken>, UUID>> getResultingTokens() {
+	public List<Tuple<List<IToken>, UUID>> getResultingTokens() {
 		// TODO Auto-generated method stub
 		return null;
 	}

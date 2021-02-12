@@ -37,13 +37,13 @@ public class Controller {
     }
 
     @GetMapping(value = "/blackboard/active")
-    public List<de.dfki.step.blackboard.BasicToken> getActiveTokens() {
+    public List<de.dfki.step.blackboard.IToken> getActiveTokens() {
         var tokens = dialog.getBlackboard().getActiveTokens();
         return tokens;
     }
 
     @GetMapping(value = "/blackboard/archived")
-    public List<de.dfki.step.blackboard.BasicToken> getArchivedTokens() {
+    public List<de.dfki.step.blackboard.IToken> getArchivedTokens() {
         var tokens = dialog.getBlackboard().getArchivedTokens();
         return tokens;
     }

@@ -1,7 +1,7 @@
 package de.dfki.step.kb;
 
 import de.dfki.step.blackboard.Board;
-import de.dfki.step.blackboard.BasicToken;
+import de.dfki.step.blackboard.IToken;
 import de.dfki.step.kb.semantic.Type;
 
 import java.util.LinkedList;
@@ -71,7 +71,7 @@ public class KnowledgeBase {
         }
         else
         {
-            Optional<BasicToken> tok = this._blackboard.getActiveTokens().stream().filter(p->p.getUUID().equals(uuid)).findFirst();
+            Optional<IToken> tok = this._blackboard.getActiveTokens().stream().filter(p->p.getUUID().equals(uuid)).findFirst();
 
             // TODO: sollen auch archivierte Tokens berücksichtigt werden?
             if(!tok.isPresent())
