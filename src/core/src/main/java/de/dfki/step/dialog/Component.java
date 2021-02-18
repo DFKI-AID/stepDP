@@ -1,6 +1,4 @@
-package de.dfki.step.core;
-
-import de.dfki.step.dialog.Dialog;
+package de.dfki.step.dialog;
 
 /**
  * As part of the dialog application, a component can be anything that has to initialize,

@@ -1,4 +1,4 @@
-package de.dfki.step.core;
+package de.dfki.step.dialog;
 
 import java.time.Duration;
 

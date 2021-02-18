@@ -1,18 +1,8 @@
 package de.dfki.step.dialog;
 
 import de.dfki.step.blackboard.Board;
-import de.dfki.step.core.*;
-import de.dfki.step.fusion.FusionComponent;
 import de.dfki.step.kb.KnowledgeBase;
-import de.dfki.step.output.PresentationComponent;
-import de.dfki.step.core.CoordinationComponent;
-import de.dfki.step.rengine.RuleComponent;
-import de.dfki.step.core.Clock;
-import de.dfki.step.rengine.RuleSystem;
-import de.dfki.step.core.Token;
-import de.dfki.step.core.ClockComponent;
 import de.dfki.step.util.Tuple;
-import org.pcollections.PSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,16 +27,8 @@ public abstract class Dialog implements Runnable, ComponentManager {
 
     public Dialog() {
         Clock clock = new Clock(200);
-        addComponent(new TagSystemComponent());
 
         var defaultComponents = List.of(
-                new Tuple<>(new SnapshotComponent(), 100),
-                new Tuple<>(new InputComponent(), 200),
-                new Tuple<>(new FusionComponent(), 300),
-                new Tuple<>(new TokenComponent(), 400),
-                new Tuple<>(new RuleComponent(clock), 500),
-                new Tuple<>(new CoordinationComponent(), 600),
-                new Tuple<>(new PresentationComponent(), 700),
                 new Tuple<>(new ClockComponent(clock), 800)
         );
 
@@ -153,27 +135,6 @@ public abstract class Dialog implements Runnable, ComponentManager {
             );
         }
         return comp.get();
-    }
-
-
-    public CoordinationComponent getRuleCoordinator() {
-        return retrieveComponent(CoordinationComponent.class);
-    }
-
-    public SnapshotComponent getSnapshotComp() {
-        return retrieveComponent(SnapshotComponent.class);
-    }
-
-    public TagSystem<String> getTagSystem() {
-        return retrieveComponent(TagSystemComponent.class);
-    }
-
-    public PSet<Token> getTokens() {
-        return retrieveComponent(TokenComponent.class).getTokens();
-    }
-
-    public RuleSystem getRuleSystem() {
-        return getComponents(RuleComponent.class).get(0).getRuleSystem();
     }
 
     public Clock getClock() {

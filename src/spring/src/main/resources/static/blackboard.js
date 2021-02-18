@@ -2,10 +2,15 @@ const blackboardOverviewApp = new Vue({
     el: '#blackboard-view',
     data: {
         interval: null,
+        iteration: 0,
         tokens: []
     },
     methods: {
         updateData: function () {
+            $.get('/iteration', function (response) {
+                this.iteration = response.iteration;
+            }.bind(this));
+
             $.get('/blackboard/active', function (response) {
                 this.tokens = response;
             }.bind(this));

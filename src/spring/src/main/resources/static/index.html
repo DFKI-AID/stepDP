@@ -21,12 +21,8 @@
 <body>
 
 <ul class="nav nav-tabs" id="myTab" role="tablist">
-    <li class="nav-item">
-        <a class="nav-link active" id="rules-tab" data-toggle="tab" href="#rules" role="tab" aria-controls="home"
-           aria-selected="true">Rules</a>
-    </li>
 	<li class="nav-item">
-        <a class="nav-link" id="blackboard-view-tab" data-toggle="tab" href="#blackboard-view" role="tab" aria-controls="blackboard-view"
+        <a class="nav-link active" id="blackboard-view-tab" data-toggle="tab" href="#blackboard-view" role="tab" aria-controls="blackboard-view"
            aria-selected="false">Blackboard Overview</a>
     </li>
 	<li class="nav-item">
@@ -38,41 +34,14 @@
            aria-selected="false">Blackboard Input</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" id="input-tab" data-toggle="tab" href="#input" role="tab" aria-controls="input"
-           aria-selected="false">Input</a>
-    </li>
-    <li class="nav-item">
         <a class="nav-link" id="behavior-tab" data-toggle="tab" href="#behavior" role="tab" aria-controls="behavior"
            aria-selected="false">Behavior</a>
     </li>
-    <li class="nav-item">
-        <a class="nav-link" id="output-tab" data-toggle="tab" href="#output" role="tab" aria-controls="output"
-           aria-selected="false">Output</a>
-    </li>
 </ul>
 <div class="tab-content" id="myTabContent">
-    
-	<div class="tab-pane show active" id="rules" role="tabpanel" aria-labelledby="rules-tab">
-        <h2>iteration={{iteration}}</h2>
-
-        <table>
-            <tr>
-                <th>name</th>
-                <!--<th>active</th>-->
-                <th>tags</th>
-            </tr>
-            <tr v-bind:class="{ inactiveRule: !item.active }" v-for="item in rules">
-                <td>{{item.name}}</td>
-                <!--<td>{{item.active}}</td>-->
-                <td><span style="background-color:#00FF00" class="badge badge-secondary tag"
-                          v-color v-for="(item, index) in item.tags">{{item}}</span></td>
-            </tr>
-        </table>
-    </div>
-	
-	
-	<div class="tab-pane" id="blackboard-view" role="tabpanel" aria-labelledby="blackboard-view">
+	<div class="tab-pane show active" id="blackboard-view" role="tabpanel" aria-labelledby="blackboard-view">
         <h2>Blackboard Overview</h2>
+        <h2>iteration={{iteration}}</h2>
 		<h3>Tokens</h3>
 		
 		<table>
@@ -129,64 +98,13 @@
         </div>
 		
     </div>
-	
-	
-    <div class="tab-pane" id="input" role="tabpanel" aria-labelledby="input-tab">
-        <div>
-            <textarea v-model="intentContent" id="intentTextArea" cols=40 rows=10></textarea>
-        </div>
-        <div>
-            <select v-model="intentSelection">
-                <option v-for="(value, key) in intents">{{key}}</option>
-            </select>
-            <button v-on:click="sendIntent">sendIntent</button>
-        </div>
-        <div>
-            <textarea v-model="inputContent" id="inputTextArea" cols=40 rows=10></textarea>
-        </div>
-        <div>
-            <select v-model="inputSelection">
-                <option v-for="(value, key) in inputs">{{key}}</option>
-            </select>
-            <button v-on:click="sendInput">sendInput</button>
-        </div>
-    </div>
+
     <div class="tab-pane" id="behavior" role="tabpanel" aria-labelledby="behavior-tab">
         <select v-model="behavior">
             <option v-for="(behavior, key) in behaviors">{{key}}</option>
         </select>
         <div ref="graphContainer"
              style="position:relative;overflow:hidden;width:5000px;height:5000px;background-color: #FDFFFC;cursor:default;">
-        </div>
-    </div>
-    <div class="tab-pane" id="output" role="tabpanel" aria-labelledby="output-tab">
-        <div id="tts">
-            <h5>TTS Settings</h5>
-            <div>
-                <div>
-                    Enable TTS:
-                    <input type="checkbox" v-model="ttsEnabled"></input>
-                </div>
-                <label for="rate">Rate</label>
-                <input v-model="rate" type="range" min="0.5" max="2" step="0.1" id="rate">
-                <label for="pitch">Pitch</label>
-                <input v-model="pitch" type="range" min="0" max="2" step="0.1" id="pitch">
-
-                <select v-model="voiceStr">
-                    <option v-for="(voice, key) in voices">{{key}}</option>
-                </select>
-                <input type="text" v-model="manual_utterance" class="txt">
-                <button v-on:click="play" id="play" type="submit">Play</button>
-            </div>
-
-            <h5>Output History</h5>
-            <div>
-                <table>
-                    <tr v-for="item in outputHistory.slice().reverse()">
-                        <td>{{item}}</td>
-                    </tr>
-                </table>
-            </div>
         </div>
     </div>
 </div>
@@ -201,10 +119,7 @@
 </script>
 <script src="external/mxgraph/js/mxClient.js"></script>
 <script src="behavior.js"></script>
-<script src="rules.js"></script>
 <script src="blackboard.js"></script>
-<script src="input.js"></script>
-<script src="tts.js"></script>
 
 </body>
 </html>
