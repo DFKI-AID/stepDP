@@ -4,13 +4,11 @@ import de.dfki.step.kb.IKBObject;
 import de.dfki.step.kb.KnowledgeBase;
 import de.dfki.step.kb.semantic.IProperty;
 import de.dfki.step.kb.semantic.Type;
-import de.dfki.step.util.Tuple;
 
+import org.apache.commons.collections4.MultiValuedMap;
+import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import java.util.*;
 
@@ -29,8 +27,9 @@ public class BasicToken implements IToken {
     private KnowledgeBase _parentKB;
     private Map<String, Object> _payload = new HashMap<String, Object>();
     private TokenObject _rootTokenObject;
-    // tokens that were created out of this token (e.g. by fusion)
-    private List<Tuple<List<IToken>, UUID>> _resultingTokens = new ArrayList<Tuple<List<IToken>, UUID>>();
+    // tokens that were created out of this token (e.g. by fusion) associated with the corresponding
+    // rule UUID
+    private MultiValuedMap<UUID, IToken> _resultingTokens = new HashSetValuedHashMap<UUID, IToken>();
     // tokens from which this token was created (e.g.by fusion)
     private List<IToken> _originTokens = new ArrayList<IToken>();
     // rule that created the token
@@ -263,11 +262,11 @@ public class BasicToken implements IToken {
 
     @Override
     public void addResultingTokens(List<IToken> tokens, UUID uuid) {
-    	this._resultingTokens.add(new Tuple<List<IToken>, UUID>(tokens, uuid));
+        this._resultingTokens.putAll(uuid, tokens);
     }
 
     @Override
-    public List<Tuple<List<IToken>, UUID>> getResultingTokens() {
+    public MultiValuedMap<UUID, IToken> getResultingTokens() {
     	return this._resultingTokens;
     }
 

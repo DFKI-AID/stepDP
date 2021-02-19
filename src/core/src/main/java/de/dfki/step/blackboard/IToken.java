@@ -3,8 +3,9 @@ package de.dfki.step.blackboard;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
+
+import org.apache.commons.collections4.MultiValuedMap;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -12,7 +13,6 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import de.dfki.step.kb.IKBObject;
 import de.dfki.step.kb.KnowledgeBase;
 import de.dfki.step.kb.semantic.Type;
-import de.dfki.step.util.Tuple;
 
 public interface IToken extends IKBObject{
     /**
@@ -102,7 +102,7 @@ public interface IToken extends IKBObject{
     // serialized (@JsonManagedReference) and resulting tokens not (@JsonBackReference)
     // TODO: find a better solution for this problem, e.g. serialization by UUID?
     @JsonBackReference
-    public List<Tuple<List<IToken>, UUID>> getResultingTokens();
+    public MultiValuedMap<UUID, IToken> getResultingTokens();
 
     public KnowledgeBase getKB();
 }

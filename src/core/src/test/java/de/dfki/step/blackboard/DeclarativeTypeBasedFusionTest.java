@@ -1,11 +1,13 @@
 package de.dfki.step.blackboard;
 
 import java.time.Duration;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.apache.commons.collections4.MultiValuedMap;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -21,7 +23,6 @@ import de.dfki.step.kb.KnowledgeBase;
 import de.dfki.step.kb.semantic.PropReference;
 import de.dfki.step.kb.semantic.PropString;
 import de.dfki.step.kb.semantic.Type;
-import de.dfki.step.util.Tuple;
 
 public class DeclarativeTypeBasedFusionTest {
 	private Board board = new Board();
@@ -245,12 +246,10 @@ public class DeclarativeTypeBasedFusionTest {
 		Assert.assertTrue(result.getOriginTokens().contains(t2));
 		Assert.assertTrue(result.getProducer() == r.getUUID());
 		for (BasicToken t : List.of(t1, t2)) {
-			List<Tuple<List<IToken>, UUID>> resultingTokens = t.getResultingTokens();
-			Assert.assertTrue(!resultingTokens.isEmpty());
-			List<IToken> results = resultingTokens.get(0).x;
-			Assert.assertTrue(results.get(0) == result);
-			UUID producer = resultingTokens.get(0).y;
-			Assert.assertTrue(producer == r.getUUID());
+			MultiValuedMap<UUID, IToken> resultingTokens = t.getResultingTokens();
+			Collection<IToken> results = resultingTokens.get(r.getUUID());
+			Assert.assertTrue(results.size() == 1);
+			Assert.assertTrue(results.stream().findFirst().get() == result);
 		}
 	}
 

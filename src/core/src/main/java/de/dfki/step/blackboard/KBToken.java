@@ -3,14 +3,14 @@ package de.dfki.step.blackboard;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
+
+import org.apache.commons.collections4.MultiValuedMap;
 
 import de.dfki.step.kb.IKBObject;
 import de.dfki.step.kb.KnowledgeBase;
 import de.dfki.step.kb.semantic.IProperty;
 import de.dfki.step.kb.semantic.Type;
-import de.dfki.step.util.Tuple;
 
 public class KBToken implements IToken {
 
@@ -213,7 +213,7 @@ public class KBToken implements IToken {
 	}
 
 	@Override
-	public List<Tuple<List<IToken>, UUID>> getResultingTokens() {
+	public MultiValuedMap<UUID, IToken> getResultingTokens() {
 		// TODO Auto-generated method stub
 		return null;
 	}
