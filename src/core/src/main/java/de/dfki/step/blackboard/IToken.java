@@ -7,24 +7,41 @@ import java.util.UUID;
 
 import org.apache.commons.collections4.MultiValuedMap;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import de.dfki.step.kb.IKBObject;
 import de.dfki.step.kb.KnowledgeBase;
 import de.dfki.step.kb.semantic.Type;
 
+// don't detect any fields for (de)serialization automatically but
+// (de)serialize only the fields whose getter is annotated with @JsonProperty
+@JsonAutoDetect(
+        fieldVisibility = Visibility.NONE,
+        setterVisibility = Visibility.NONE,
+        getterVisibility = Visibility.NONE,
+        isGetterVisibility = Visibility.NONE,
+        creatorVisibility = Visibility.NONE
+    )
 public interface IToken extends IKBObject{
     /**
      * get the timestamp of the creation time of the token in unixtime (milliseconds)
      * @return
      */
+    @JsonProperty
     public long getTimestamp();
 
+    @JsonProperty
     public UUID getUUID();
 
+    @JsonProperty
     public Type getType();
 
+    @JsonProperty("active")
     public boolean isActive();
 
     /**
@@ -33,6 +50,7 @@ public interface IToken extends IKBObject{
      */
     public void setActive(boolean active);
 
+    @JsonProperty
     public Integer getDeleteTime();
 
     /**
@@ -41,6 +59,7 @@ public interface IToken extends IKBObject{
      */
     public void setDeleteTime(Integer deleteTime);
 
+    @JsonProperty
     public Integer getIgnoreTime();
 
     /**
@@ -53,6 +72,7 @@ public interface IToken extends IKBObject{
      * Rules containing one of the tags will not be matched
      * @return
      */
+    @JsonProperty
     public LinkedList<String> getIgnoreRuleTags();
 
     public void setIgnoreRuleTags(LinkedList<String> _ignoreRuleTags);
@@ -63,6 +83,7 @@ public interface IToken extends IKBObject{
      * UUID of the rules that already consumed this token
      * @return
      */
+    @JsonProperty
     public List<UUID> getUsedBy();
 
     public boolean isUsedBy(UUID uuid);
@@ -73,6 +94,7 @@ public interface IToken extends IKBObject{
 
     public void checkedBy(UUID uuid);
 
+    @JsonProperty
     public Map<String, Object> getPayload();
 
     public void setOriginTokens(List<IToken> originTokens);
@@ -80,10 +102,10 @@ public interface IToken extends IKBObject{
     /**
      * Returns the tokens that served as input for creating this token (e.g. during fusion).
      */
-    // to avoid infinite recursion during serialization, only origin tokens are
-    // serialized (@JsonManagedReference) and resulting tokens not (@JsonBackReference)
-    @JsonManagedReference
-    // TODO: find a better solution for this problem, e.g. serialization by UUID?
+    // serialize as id to avoid infinite recursion
+    @JsonProperty
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "uuid")
+    @JsonIdentityReference(alwaysAsId = true) 
     public List<IToken> getOriginTokens();
 
     public void setProducer(UUID producer);
@@ -91,6 +113,7 @@ public interface IToken extends IKBObject{
     /**
      * Returns the UUID of the rule that created this token or null if it was not created by a rule.
      */
+    @JsonProperty
     public UUID getProducer();
 
     public void addResultingTokens(List<IToken> tokens, UUID uuid);
@@ -98,10 +121,6 @@ public interface IToken extends IKBObject{
     /**
      * Returns the tokens that were created from this token (e.g. through fusion).
      */
-    // to avoid infinite recursion during serialization, only origin tokens are
-    // serialized (@JsonManagedReference) and resulting tokens not (@JsonBackReference)
-    // TODO: find a better solution for this problem, e.g. serialization by UUID?
-    @JsonBackReference
     public MultiValuedMap<UUID, IToken> getResultingTokens();
 
     public KnowledgeBase getKB();
