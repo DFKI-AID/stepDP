@@ -126,8 +126,16 @@ public class Board {
         });
     }
 
-    public void addStateChartManager(String name, URL stateChartPath) throws IOException, URISyntaxException {
-    	scManagers.put(name, new StateChartManager(stateChartPath));
+    /**
+     * Looks into the resources folder (src/main/resources/YOUR_PATH/YOUR_FILE) for your state chart file *.scxml. 
+     * @param resourceStr path of the state chart file relative to resource folder
+     */
+    public void addStateChartManager(String name, String resourceStr) throws IOException, URISyntaxException {
+        scManagers.put(name, new StateChartManager(resourceStr));
+    }
+
+    public void addStateChartManager(String name, URL resource) throws IOException, URISyntaxException {
+    	scManagers.put(name, new StateChartManager(resource));
     }
 
     public StateChartManager getStateChartManager(String name) {
