@@ -38,7 +38,10 @@ public interface IToken extends IKBObject{
     @JsonProperty
     public UUID getUUID();
 
+    // serialize only type name, not whole Type object
     @JsonProperty
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "name")
+    @JsonIdentityReference(alwaysAsId = true)
     public Type getType();
 
     @JsonProperty("active")
@@ -50,7 +53,6 @@ public interface IToken extends IKBObject{
      */
     public void setActive(boolean active);
 
-    @JsonProperty
     public Integer getDeleteTime();
 
     /**
@@ -59,7 +61,6 @@ public interface IToken extends IKBObject{
      */
     public void setDeleteTime(Integer deleteTime);
 
-    @JsonProperty
     public Integer getIgnoreTime();
 
     /**
@@ -72,7 +73,6 @@ public interface IToken extends IKBObject{
      * Rules containing one of the tags will not be matched
      * @return
      */
-    @JsonProperty
     public LinkedList<String> getIgnoreRuleTags();
 
     public void setIgnoreRuleTags(LinkedList<String> _ignoreRuleTags);
@@ -83,7 +83,6 @@ public interface IToken extends IKBObject{
      * UUID of the rules that already consumed this token
      * @return
      */
-    @JsonProperty
     public List<UUID> getUsedBy();
 
     public boolean isUsedBy(UUID uuid);
@@ -99,10 +98,6 @@ public interface IToken extends IKBObject{
     /**
      * Returns the tokens that served as input for creating this token (e.g. during fusion).
      */
-    // serialize as id to avoid infinite recursion
-    @JsonProperty
-    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "uuid")
-    @JsonIdentityReference(alwaysAsId = true) 
     public List<IToken> getOriginTokens();
 
     public void setProducer(UUID producer);
@@ -110,7 +105,6 @@ public interface IToken extends IKBObject{
     /**
      * Returns the UUID of the rule that created this token or null if it was not created by a rule.
      */
-    @JsonProperty
     public UUID getProducer();
 
     public void addResultingTokens(List<IToken> tokens, UUID uuid);

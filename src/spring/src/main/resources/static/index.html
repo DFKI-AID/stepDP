@@ -51,7 +51,7 @@
                 <th>timestamp</th>
             </tr>
 			<tr v-bind:class="{ inactiveRule: !token.active }" v-for="token in tokens">
-				<td>{{token.type.name}}</td>
+				<td>{{token.type}}</td>
 				<td>{{token.uuid}}</td>
 				<td>{{token.timestamp}}</td>
 				<!--<td>{{item.active}}</td>
