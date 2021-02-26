@@ -14,7 +14,7 @@ import de.dfki.step.kb.semantic.Type;
  * Complex pattern that is composed of patterns defining constraints for the
  * top level object and also for inner objects that are referenced by the top
  * level object.
- * It is highly recommended to use the @see de.dfki.step.blackboard.patterns.PatternBuilder to define such
+ * It is highly recommended to use the {@link de.dfki.step.blackboard.patterns.PatternBuilder} to define such
  * complex patterns.
  */
 public class NestedPattern extends Pattern {
@@ -23,7 +23,7 @@ public class NestedPattern extends Pattern {
 	private Map<String, Pattern> _refPropPatterns = new HashMap<String, Pattern>();
 
 	/**
-	 * It is strongly recommended to use @see de.dfki.step.blackboard.patterns.PatternBuilder instead of this constructor since
+	 * It is strongly recommended to use {@link de.dfki.step.blackboard.patterns.PatternBuilder} instead of this constructor since
 	 * it is more intuitive to use and it also performs some validity checks on the pattern.
 	 */
 	public NestedPattern(List<Pattern> rootPatterns, Map<String, Pattern> refPropPatterns) {
