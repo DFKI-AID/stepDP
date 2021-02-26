@@ -70,9 +70,9 @@ public class DeclarativeTypeBasedFusionRule extends Rule {
 			
 			BasicToken fusionResult = new BasicToken(t1.getKB());
 			fusionResult.setType(this._resultType);
-			// simply copy payload reference of origin tokens since tokens should not change anyway
-			fusionResult.addAll(Map.of(_prop1, t1.getPayload()));
-			fusionResult.addAll(Map.of(_prop2, t2.getPayload()));
+			// simply reference origin tokens since tokens should not change anyway
+			fusionResult.addAll(Map.of(_prop1, t1));
+			fusionResult.addAll(Map.of(_prop2, t2));
 			fusionResult.setOriginTokens(List.of(t1, t2));
 			fusionResult.setProducer(this.getUUID());
 

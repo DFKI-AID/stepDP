@@ -306,8 +306,6 @@ public class DeclarativeTypeBasedFusionTest {
 		Assert.assertTrue(match[1] == t4);
 	}
 
-	// TODO: enable this test when the TokenObject supports KB references
-	@Ignore
 	@Test
 	public void testFusionWithInnerKBObject() throws Exception {
 		Pattern p1 = new PatternBuilder("BringIntent", kb).build();
@@ -320,7 +318,7 @@ public class DeclarativeTypeBasedFusionTest {
 		t1.addAll(Map.of("recipientName","Alice"));
 		BasicToken t2 = new BasicToken(kb);
 		t2.setType(kb.getType("Gesture"));
-		t2.addAll(Map.of("targetObject", Map.of("UUID", kb.getInstance("pizza1").getUUID())));
+		t2.addAll(Map.of("targetObject", kb.getInstance("pizza1").getUUID().toString()));
 		List<IToken> tokens = List.of(t2, t1);
 		
 		List<IToken[]> matches = r.getCondition().generateMatches(tokens.stream(), r.getTags(), r.getUUID());

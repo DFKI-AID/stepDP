@@ -94,9 +94,6 @@ public interface IToken extends IKBObject{
 
     public void checkedBy(UUID uuid);
 
-    @JsonProperty
-    public Map<String, Object> getPayload();
-
     public void setOriginTokens(List<IToken> originTokens);
 
     /**

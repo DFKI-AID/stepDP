@@ -5,6 +5,8 @@ import de.dfki.step.kb.semantic.Type;
 import org.pcollections.HashTreePMap;
 import org.pcollections.PMap;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class KBObject implements IKBObjectWriteable
@@ -13,7 +15,7 @@ public class KBObject implements IKBObjectWriteable
     private Type _type;
     private KnowledgeBase _parent;
     private final UUID _uuid = UUID.randomUUID();
-    private PMap<String, Object> _data = HashTreePMap.empty();
+    private Map<String, Object> _data = new HashMap<String, Object>();
 
     protected KBObject(String name, Type type, KnowledgeBase parent)
     {
@@ -49,7 +51,10 @@ public class KBObject implements IKBObjectWriteable
 
     @Override
     public String getString(String propertyName) {
-        return this._data.get(propertyName).toString();
+        Object value = this._data.get(propertyName);
+        if (value == null)
+            return null;
+        return value.toString();
     }
 
     @Override
@@ -79,62 +84,27 @@ public class KBObject implements IKBObjectWriteable
 
     @Override
     public void setString(String value, String propertyName) {
-        if(this._data.containsKey(propertyName))
-        {
-            this._data.replace(propertyName, value);
-        }
-        else
-        {
-            this._data.plus(propertyName, value);
-        }
+        this._data.put(propertyName, value);
     }
 
     @Override
     public void setInteger(Integer value, String propertyName) {
-        if(this._data.containsKey(propertyName))
-        {
-            this._data.replace(propertyName, value);
-        }
-        else
-        {
-            this._data.plus(propertyName, value);
-        }
+        this._data.put(propertyName, value);
     }
 
     @Override
     public void setBoolean(Boolean value, String propertyName) {
-        if(this._data.containsKey(propertyName))
-        {
-            this._data.replace(propertyName, value);
-        }
-        else
-        {
-            this._data.plus(propertyName, value);
-        }
+        this._data.put(propertyName, value);
     }
 
     @Override
     public void setFloat(Float value, String propertyName) {
-        if(this._data.containsKey(propertyName))
-        {
-            this._data.replace(propertyName, value);
-        }
-        else
-        {
-            this._data.plus(propertyName, value);
-        }
+        this._data.put(propertyName, value);
     }
 
     @Override
     public void setReference(UUID value, String propertyName) {
-        if(this._data.containsKey(propertyName))
-        {
-            this._data.replace(propertyName, value);
-        }
-        else
-        {
-            this._data.plus(propertyName, value);
-        }
+        this._data.put(propertyName, value);
     }
 
     @Override

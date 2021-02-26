@@ -45,12 +45,12 @@ public class TokenObject implements IKBObject {
 
 	@Override
 	public boolean hasProperty(String propertyName) {
-		return this._parent.getType().hasProperty(propertyName);
+		return this.getType().hasProperty(propertyName);
 	}
 
 	@Override
 	public IProperty getProperty(String propertyName) {
-		return this._parent.getType().getProperty(propertyName);
+		return this.getType().getProperty(propertyName);
 	}
 
 	@Override
@@ -104,6 +104,17 @@ public class TokenObject implements IKBObject {
 
 	@Override
 	public UUID getReference(String propertyName) {
+	    if (this.isSet(propertyName)) {
+	        Object data = this._payload.get(propertyName);
+	        if(data instanceof String)
+            {
+                try{
+                    return UUID.fromString(data.toString());
+                } catch (IllegalArgumentException exception){
+                    return null;
+                }
+            }
+	    }
 		return null;
 	}
 
@@ -148,6 +159,10 @@ public class TokenObject implements IKBObject {
 			else if(data instanceof Map)
 			{
 				return new TokenObject(this._parent, (Map<String, Object>) this._payload.get(propertyName), this._kb, typeOfObject);
+			}
+			else if(data instanceof IToken)
+			{
+			    return (IToken) data;
 			}
 			else
 			{
