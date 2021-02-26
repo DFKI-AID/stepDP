@@ -65,8 +65,10 @@ public class Board {
         for (Rule r : this._rules) {
 
             // check if rule is active at all
-            if(!r.isActive())
+            if(!r.isActive()) {
+                r.setLastActiveState(false);
                 continue;
+            }
 
             // check if Rule Managers changing the behaviour of the rule
             boolean ruleActive = true;
@@ -80,6 +82,7 @@ public class Board {
                 	ruleActive = false;
                     break;
             }
+            r.setLastActiveState(ruleActive);
             if (!ruleActive)
             	continue;
 

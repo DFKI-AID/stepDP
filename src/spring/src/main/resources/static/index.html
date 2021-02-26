@@ -72,7 +72,7 @@
                 <!--<th>uuid</th>
                 <th>timestamp</th>-->
             </tr>
-			<tr v-bind:class="{ inactiveRule: !rule.active }" v-for="rule in rules">
+			<tr v-bind:class="{ inactiveRule: !rule.lastActiveState }" v-for="rule in rules">
 				<td>{{rule.name}}</td>
 				<!--<td>{{token.uuid}}</td>
 				<td>{{token.timestamp}}</td>

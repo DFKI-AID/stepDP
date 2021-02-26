@@ -12,7 +12,10 @@ public abstract class Rule {
     private static final Logger log = LoggerFactory.getLogger(Rule.class);
 
     private Condition _condition;
+    // manual setting
     private boolean active = true;
+    // considers manual (de)activation and rule managers
+    private boolean _lastActiveState = true;
     private int _priority = 1000;
     private List<String> _tags = new ArrayList<String>();
     private final UUID _uuid = UUID.randomUUID();
@@ -41,6 +44,14 @@ public abstract class Rule {
      */
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public boolean getLastActiveState() {
+        return this._lastActiveState;
+    }
+
+    public void setLastActiveState(boolean active) {
+        this._lastActiveState = active;
     }
 
     public int getPriority() {
