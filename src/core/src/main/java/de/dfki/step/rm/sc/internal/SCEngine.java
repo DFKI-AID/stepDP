@@ -187,7 +187,7 @@ public class SCEngine {
     }
 
     /**
-     * Looks via reflection for functions of the form void -> void.
+     * Looks via reflection for functions of the form void -{@literal >} void.
      * Those functions are registered as functions that can be triggered by transitions (on-entry / on-exit)
      *
      * @param provider
@@ -220,7 +220,7 @@ public class SCEngine {
     }
 
     /**
-     * Looks via reflection for functions of the form void -> bool.
+     * Looks via reflection for functions of the form void -{@literal >} bool.
      * Those functions are registered as functions that can be triggered by transitions to check conditions
      *
      * @param provider

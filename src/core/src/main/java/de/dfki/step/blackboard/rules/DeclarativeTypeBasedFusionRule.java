@@ -33,7 +33,7 @@ public class DeclarativeTypeBasedFusionRule extends Rule {
 	 * @param p1 pattern specifying first origin token
 	 * @param p2 pattern specifying second origin token
 	 * @param resultType type of the token resulting from the fusion
-	 * @param fusionInterval specifies the maximum time difference between the two origin tokens </br>
+	 * @param fusionInterval specifies the maximum time difference between the two origin tokens
 	 * Note: p1 and p2 need to specify at least a root type for the corresponding token.
 	 * resultType needs to have two properties that match the root types of the origin tokens.
 	 * @throws Exception if the conditions stated above are not satisfied

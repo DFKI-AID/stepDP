@@ -26,7 +26,6 @@ public abstract class Condition {
     /**
      * Set the maximal number of Matches that are generated
      * @param maxMatches
-     * @return
      */
     public void setMaxMatches(int maxMatches)
     {
