@@ -2,15 +2,18 @@ package de.dfki.step.web;
 
 import de.dfki.step.dialog.Dialog;
 import de.dfki.step.kb.semantic.Type;
+import de.dfki.step.rm.sc.StateChartManager;
 import de.dfki.step.rm.sc.internal.StateChart;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.google.gson.Gson;
+
 import javax.annotation.PostConstruct;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * REST controller that specifies the web api.
@@ -83,18 +86,34 @@ public class Controller {
 
     @GetMapping(value = "/behavior/{id}", produces = "application/json")
     public ResponseEntity<String> getBehavior(@PathVariable("id") String id) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("not impl");
+        StateChartManager behavior = dialog.getBlackboard().getStateChartManager(id);
+        if(behavior == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+
+        StateChart sc = behavior.getEngine().getStateChart();
+        Gson gson = new Gson();
+        return ResponseEntity.status(HttpStatus.OK).body(gson.toJson(sc));
     }
 
     @GetMapping(value = "/behaviors", produces = "application/json")
     public ResponseEntity<Object> getBehaviors() {
-        Map<String, StateChart> body = new HashMap<String, StateChart>();
+    	Map<String, StateChartManager> scMans = dialog.getBlackboard().getAllStateChartManagers();
+        Map<String, StateChart> body = scMans.entrySet().stream()
+                .map(e -> new AbstractMap.SimpleEntry<>(e.getKey(), e.getValue().getEngine().getStateChart()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         return ResponseEntity.status(HttpStatus.OK).body(body);
     }
 
     @GetMapping(value = "/behavior/{id}/state", produces = "application/json")
     public ResponseEntity<String> getBehaviorState(@PathVariable("id") String id) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("not impl");
+      StateChartManager behavior = dialog.getBlackboard().getStateChartManager(id);
+      if(behavior == null) {
+          return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+      }
+
+      String currentState = behavior.getCurrentState();
+      return ResponseEntity.status(HttpStatus.OK).body(String.format("{\"state\":\"%s\"}", currentState));
     }
 
 }

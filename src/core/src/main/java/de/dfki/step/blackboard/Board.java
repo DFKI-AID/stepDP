@@ -3,6 +3,11 @@ package de.dfki.step.blackboard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.dfki.step.rm.sc.StateChartManager;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -23,6 +28,8 @@ public class Board {
 
     // tokens that are not used any longer for matching (older than 5 minutes)
     private final LinkedList<IToken> _archivedTokens = new LinkedList<>();
+
+    private final Map<String, StateChartManager> scManagers = new HashMap<String, StateChartManager>();
 
 
     public synchronized void update()
@@ -62,12 +69,19 @@ public class Board {
                 continue;
 
             // check if Rule Managers changing the behaviour of the rule
+            boolean ruleActive = true;
             for(RuleManager rmanager : r.getRuleManager())
             {
                 rmanager.update();
+                // FIXME: not sure how to deal with contradicting rule managers? 
+                // should rule really be deactivated if one rule manager says so
+                // or would it be better to activate it if one says so?
                 if(!rmanager.isRuleActive())
-                    continue;
+                	ruleActive = false;
+                    break;
             }
+            if (!ruleActive)
+            	continue;
 
             // get the condition and find suitable tokens
             Condition cond = r.getCondition();
@@ -107,6 +121,18 @@ public class Board {
                 return Integer.compare(o1.getPriority(), o2.getPriority());
             }
         });
+    }
+
+    public void addStateChartManager(String name, URL stateChartPath) throws IOException, URISyntaxException {
+    	scManagers.put(name, new StateChartManager(stateChartPath));
+    }
+
+    public StateChartManager getStateChartManager(String name) {
+    	return scManagers.get(name);
+    }
+
+    public Map<String, StateChartManager> getAllStateChartManagers(){
+    	return this.scManagers;
     }
 
     public synchronized List<Rule> getRules()

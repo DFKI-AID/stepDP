@@ -3,13 +3,13 @@ import de.dfki.step.blackboard.RuleManager;
 
 import java.util.Arrays;
 
-public class StateChartRuleManager extends RuleManager{
+public class SCRuleManager extends RuleManager{
 
     StateChartManager parent;
     boolean defaultState;
     String[] specialStates;
 
-    public StateChartRuleManager(StateChartManager parent, boolean defaultState, String[] specialStates)
+    public SCRuleManager(StateChartManager parent, boolean defaultState, String[] specialStates)
     {
         this.parent = parent;
         this.defaultState = defaultState;

@@ -56,6 +56,7 @@ const blackboardInputApp = new Vue({
         examples: {
             "add greeting": {"type": "GreetingIntent", "userName":"Alice"},
 			"add hello": {"type": "HelloIntent"},
+            "add goodbye": {"type": "GoodbyeIntent"},
 			"add bring intent with pizza": {
 				  "type": "BringIntent",
 				  "object": {
