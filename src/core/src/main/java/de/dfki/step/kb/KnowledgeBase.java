@@ -53,7 +53,7 @@ public class KnowledgeBase {
             return null;
     }
 
-    public IKBObject addInstance(String name, Type type)
+    public IKBObjectWriteable addInstance(String name, Type type)
     {
         KBObject newObj = new KBObject(name, type, this);
         this.addUUIDtoList(newObj);
