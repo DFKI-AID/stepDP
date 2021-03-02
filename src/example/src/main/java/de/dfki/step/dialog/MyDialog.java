@@ -6,6 +6,8 @@ import de.dfki.step.blackboard.conditions.PatternCondition;
 import de.dfki.step.blackboard.patterns.Pattern;
 import de.dfki.step.blackboard.patterns.PatternBuilder;
 import de.dfki.step.blackboard.rules.SimpleRule;
+import de.dfki.step.kb.IKBObjectWriteable;
+import de.dfki.step.kb.semantic.PropString;
 import de.dfki.step.kb.semantic.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,16 +22,31 @@ public class MyDialog extends Dialog {
 
     public MyDialog() {
         try {
-            Type GreetingIntent = new Type("GreetingIntent", this.getKB());
-            GreetingIntent.addInheritance(this.getKB().getType("Token"));
-            Type GreetingSpecificIntent = new Type("GreetingSpecificIntent", this.getKB());
-            GreetingSpecificIntent.addInheritance(GreetingIntent);
-            Type HelloIntent = new Type("HelloIntent", this.getKB());
-            HelloIntent.addInheritance(this.getKB().getType("Token"));
+            Type UserIntent = new Type("UserIntent", this.getKB());
+            this.getKB().addType(UserIntent);
 
+            Type GreetingIntent = new Type("GreetingIntent", this.getKB());
+            GreetingIntent.addInheritance(UserIntent);
             this.getKB().addType(GreetingIntent);
-            this.getKB().addType(GreetingSpecificIntent);
-            this.getKB().addType(HelloIntent);
+
+            Type Bottle = new Type("Bottle", this.getKB());
+            Bottle.addProperty(new PropString("material", this.getKB()));
+            this.getKB().addType(Bottle);
+
+            Type GlasBottle = new Type("GlasBottle", this.getKB());
+            GlasBottle.addInheritance(Bottle);
+            this.getKB().addType(GlasBottle);
+
+            Type PlasticBottle = new Type("PlasticBottle", this.getKB());
+            PlasticBottle.addInheritance(Bottle);
+            this.getKB().addType(PlasticBottle);
+
+            IKBObjectWriteable Bottle42 = this.getKB().createInstance("Bottle42", GlasBottle);
+            Bottle42.setString("material", "glas");
+            Bottle42.setInteger( "size",500);
+            Bottle42.setString("color", "green");
+            Bottle42.setString("mfn", "Mfn1");
+            Bottle42.setString("location", "Storage3");
 
             de.dfki.step.blackboard.BasicToken test = new de.dfki.step.blackboard.BasicToken(this.getKB());
             test.setType(GreetingIntent);
@@ -37,10 +54,6 @@ public class MyDialog extends Dialog {
 
             Rule GreetingRule = new SimpleRule(tokens -> {
                 System.out.println("Greeting found! Say hello");
-
-                de.dfki.step.blackboard.BasicToken HelloToken = new de.dfki.step.blackboard.BasicToken(this.getKB());
-                HelloToken.setType(HelloIntent);
-                this.getBlackboard().addToken(HelloToken);
             }, "GreetingRule");
             Pattern p = new PatternBuilder("GreetingIntent", this.getKB()).build();
             GreetingRule.setCondition(new PatternCondition(p));
