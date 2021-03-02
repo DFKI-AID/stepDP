@@ -83,27 +83,27 @@ public class KBObject implements IKBObjectWriteable
     }
 
     @Override
-    public void setString(String value, String propertyName) {
+    public void setString(String propertyName, String value) {
         this._data.put(propertyName, value);
     }
 
     @Override
-    public void setInteger(Integer value, String propertyName) {
+    public void setInteger(String propertyName, Integer value) {
         this._data.put(propertyName, value);
     }
 
     @Override
-    public void setBoolean(Boolean value, String propertyName) {
+    public void setBoolean(String propertyName, Boolean value) {
         this._data.put(propertyName, value);
     }
 
     @Override
-    public void setFloat(Float value, String propertyName) {
+    public void setFloat(String propertyName, Float value) {
         this._data.put(propertyName, value);
     }
 
     @Override
-    public void setReference(UUID value, String propertyName) {
+    public void setReference(String propertyName, UUID value) {
         this._data.put(propertyName, value);
     }
 

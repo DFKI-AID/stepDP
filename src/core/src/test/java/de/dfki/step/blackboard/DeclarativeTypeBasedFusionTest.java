@@ -78,7 +78,7 @@ public class DeclarativeTypeBasedFusionTest {
 		kb.addType(bringPizza);
 		
 		// Instances
-		kb.addInstance("pizza1", kb.getType("Pizza"));
+		kb.createInstance("pizza1", kb.getType("Pizza"));
 	}
 
 	@Test

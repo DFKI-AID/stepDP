@@ -94,7 +94,7 @@ public class PatternBuilderTest {
 		kb.addType(bringIntent);
 		
 		// instances
-		kb.addInstance("pizza1", kb.getType("Pizza"));
+		kb.createInstance("pizza1", kb.getType("Pizza"));
 	}
 	
 	@Test
