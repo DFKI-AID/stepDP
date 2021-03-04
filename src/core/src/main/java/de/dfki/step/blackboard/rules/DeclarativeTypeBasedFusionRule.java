@@ -5,6 +5,7 @@ import java.util.Map;
 
 import de.dfki.step.blackboard.BasicToken;
 import de.dfki.step.blackboard.Board;
+import de.dfki.step.blackboard.Condition;
 import de.dfki.step.blackboard.IToken;
 import de.dfki.step.blackboard.Rule;
 import de.dfki.step.blackboard.conditions.DeclarativeTypeBasedFusionCondition;
@@ -33,12 +34,12 @@ public class DeclarativeTypeBasedFusionRule extends Rule {
 	 * @param p1 pattern specifying first origin token
 	 * @param p2 pattern specifying second origin token
 	 * @param resultType type of the token resulting from the fusion
-	 * @param fusionInterval specifies the maximum time difference between the two origin tokens
+	 * @param fusionInterval specifies the maximum time difference (in ms) between the two origin tokens
 	 * Note: p1 and p2 need to specify at least a root type for the corresponding token.
 	 * resultType needs to have two properties that match the root types of the origin tokens.
 	 * @throws Exception if the conditions stated above are not satisfied
 	 */
-	public DeclarativeTypeBasedFusionRule(Pattern p1, Pattern p2, Type resultType, long fusionInterval) throws Exception {
+	public DeclarativeTypeBasedFusionRule(Pattern p1, Pattern p2, Type resultType, long fusionInterval, long maxTokenAge) throws Exception {
 		this.setPriority(DEFAULT_PRIO);
 		if (resultType == null)
 			throw new Exception("resultType cannot be null.");
@@ -59,8 +60,13 @@ public class DeclarativeTypeBasedFusionRule extends Rule {
 
 		this._resultType = resultType;
 		this.setCondition(new DeclarativeTypeBasedFusionCondition(p1, p2, fusionInterval));
+		this.getCondition().setMaxTokenAge(maxTokenAge);
 		this.getTags().add(FUSION_TAG);
 	}
+
+	   public DeclarativeTypeBasedFusionRule(Pattern p1, Pattern p2, Type resultType, long fusionInterval) throws Exception {
+	       this(p1, p2, resultType, fusionInterval, Condition.DEFAULT_MAX_TOKEN_AGE);
+	   }
 
 	@Override
 	public void onMatch(List<IToken[]> tokens, Board board) {

@@ -1,5 +1,6 @@
 package de.dfki.step.blackboard.conditions;
 
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -25,7 +26,10 @@ public class PatternCondition extends Condition {
 	@Override
 	public List<IToken[]> generateMatches(Stream<IToken> tokens, List<String> ignoreTags, UUID ignoreUUID) {
         LinkedList<IToken[]> result = new LinkedList<>();
-        tokens = tokens.filter(c -> !c.isCheckedBy(this.getUUID()) && !c.isUsedBy(ignoreUUID));
+        long minTimestamp = new Date().getTime() - this.getMaxTokenAge();
+        tokens = tokens.filter(c -> !c.isCheckedBy(this.getUUID()) && 
+                                    !c.isUsedBy(ignoreUUID) && 
+                                    c.getTimestamp() >= minTimestamp);
 		for (Iterator<IToken> it = tokens.iterator(); it.hasNext(); )
         {
             IToken tok = it.next();

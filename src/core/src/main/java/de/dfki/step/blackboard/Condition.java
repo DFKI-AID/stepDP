@@ -3,6 +3,7 @@ package de.dfki.step.blackboard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -13,6 +14,9 @@ public abstract class Condition {
     private int _numberOfTokens;
     private int _maxMatches = 10;
     private final UUID _uuid = UUID.randomUUID();
+    private long _maxTokenAge = DEFAULT_MAX_TOKEN_AGE;
+
+    public final static long DEFAULT_MAX_TOKEN_AGE = Duration.ofHours(1).toMillis();
 
     /**
      * Get the number of maximal Matches that get produced
@@ -51,6 +55,14 @@ public abstract class Condition {
     public UUID getUUID()
     {
         return _uuid;
+    }
+
+    public long getMaxTokenAge() {
+        return this._maxTokenAge;
+    }
+
+    public void setMaxTokenAge(long maxTokenAge) {
+        this._maxTokenAge = maxTokenAge;
     }
 
     public abstract List<IToken[]> generateMatches(Stream<IToken> tokens, List<String> ignoreTags, UUID ignoreUUID);
