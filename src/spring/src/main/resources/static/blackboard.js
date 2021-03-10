@@ -83,10 +83,20 @@ const blackboardInputApp = new Vue({
 				"type" : "Pizza",
 				"sort" : "Hawaii"
 			},
+			"add tv order intent (uuid)": {
+				  "type": "OrderIntent",
+				  "tv": "insert-uuid-of-a-tv-instance-here"
+			},
+			"add tv order intent (name)": {
+				  "type": "OrderIntent",
+				  "tv": "tv1"
+			}
         },
         kbExamples:  {
             "reference by uuid": {"uuid": "abcd1234-a1b2-a1b2-a1b2-ab12cd34ef56"},
-            "reference by name": {"name": "bottle1"}
+            "reference by name": {"name": "bottle1"},
+            "add tv (uuid)": {"uuid": "insert-uuid-of-a-tv-instance-here"},
+            "add tv (name)": {"name": "tv1"}
         },
     },
     watch: {
