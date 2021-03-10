@@ -1,6 +1,8 @@
 package de.dfki.step.web;
 
+import de.dfki.step.blackboard.KBToken;
 import de.dfki.step.dialog.Dialog;
+import de.dfki.step.kb.IKBObject;
 import de.dfki.step.kb.semantic.Type;
 import de.dfki.step.rm.sc.StateChartManager;
 import de.dfki.step.rm.sc.internal.StateChart;
@@ -74,6 +76,30 @@ public class Controller {
         newT.addAll(body);
         dialog.getBlackboard().addToken(newT);
 
+        return ResponseEntity.ok("ok");
+    }
+
+    @PostMapping(value = "/blackboard/addKBToken", consumes = "application/json")
+    public ResponseEntity<String> addKBTokenToBlackboard(@RequestBody Map<String, Object> body) {
+        IKBObject obj = null;
+        if (body.get("uuid") != null) {
+            if (!(body.get("uuid") instanceof String))
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("uuid must be string");
+            try {
+                UUID uuid = UUID.fromString(body.get("uuid").toString());
+                obj = this.dialog.getKB().getInstance(uuid, false);
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("uuid is invalid");
+            }
+        } else if (body.get("name") != null) {
+            obj = this.dialog.getKB().getInstance(body.get("name").toString());
+        }
+
+        if (obj == null)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("kb object not found");
+
+        KBToken newT = new KBToken(this.dialog.getKB(), obj);
+        dialog.getBlackboard().addToken(newT);
         return ResponseEntity.ok("ok");
     }
 

@@ -52,7 +52,9 @@ const blackboardInputApp = new Vue({
     el: '#blackboard-input',
     data: {
 		tokenContent: "",
+		kbTokenContent: "",
 		tokenContentSelection: "",
+		kbTokenContentSelection: "",
         examples: {
             "add greeting": {"type": "GreetingIntent", "userName":"Alice"},
 			"add hello": {"type": "HelloIntent"},
@@ -82,11 +84,19 @@ const blackboardInputApp = new Vue({
 				"sort" : "Hawaii"
 			},
         },
+        kbExamples:  {
+            "reference by uuid": {"uuid": "abcd1234-a1b2-a1b2-a1b2-ab12cd34ef56"},
+            "reference by name": {"name": "bottle1"}
+        },
     },
     watch: {
         tokenContentSelection: function (val, oldVal) {
             let msg = this.examples[val];
             this.tokenContent = JSON.stringify(msg, null, 2);
+        },
+        kbTokenContentSelection: function (val, oldVal) {
+            let msg = this.kbExamples[val];
+            this.kbTokenContent = JSON.stringify(msg, null, 2);
         }
     },
     methods: {
@@ -94,6 +104,11 @@ const blackboardInputApp = new Vue({
             // var intent = JSON.loadStateChart(this.intentSelection);
             var intent = JSON.parse($("#tokenContentTextArea").val());
             this._send(intent, '/blackboard/addToken');
+        },
+        sendKBToken: function (event) {
+            // var intent = JSON.loadStateChart(this.intentSelection);
+            var intent = JSON.parse($("#kbTokenContentTextArea").val());
+            this._send(intent, '/blackboard/addKBToken');
         },
         _send: function (jsonPayload, path) {
             console.log("sending " + jsonPayload + " to " + path);

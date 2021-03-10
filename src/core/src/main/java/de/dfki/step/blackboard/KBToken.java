@@ -12,6 +12,8 @@ public class KBToken extends AbstractToken {
 
     public KBToken(KnowledgeBase kb, IKBObject kbObj) {
         super(kb);
+        if (kbObj instanceof IToken)
+            throw new RuntimeException("KBToken can only hold references to kb objects, not other tokens.");
         this._parent = kbObj;
     }
 

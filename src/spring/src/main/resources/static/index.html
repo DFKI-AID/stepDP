@@ -85,8 +85,8 @@
 	
 	<div class="tab-pane" id="blackboard-input" role="tabpanel" aria-labelledby="blackboard-input">
         <h2>Blackboard Overview</h2>
-		<h3>Input</h3>
-		
+
+		<h3>Input: Basic Token</h3>
 		<div>
             <textarea v-model="tokenContent" id="tokenContentTextArea" cols=40 rows=10></textarea>
         </div>
@@ -94,7 +94,18 @@
             <select v-model="tokenContentSelection">
                 <option v-for="(value, key) in examples">{{key}}</option>
             </select>
-            <button v-on:click="sendToken">Send Token to Blackboard</button>
+            <button v-on:click="sendToken">Send Basic Token to Blackboard</button>
+        </div>
+
+        <h3>Input: KB Token</h3>
+        <div>
+            <textarea v-model="kbTokenContent" id="kbTokenContentTextArea" cols=40 rows=10></textarea>
+        </div>
+        <div>
+            <select v-model="kbTokenContentSelection">
+                <option v-for="(value, key) in kbExamples">{{key}}</option>
+            </select>
+            <button v-on:click="sendKBToken">Send KB Token to Blackboard</button>
         </div>
 		
     </div>

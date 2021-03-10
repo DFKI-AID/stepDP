@@ -60,8 +60,8 @@ public class KnowledgeBase {
         this._instances.add(newObj);
         return newObj;
     }
-    
-    public IKBObject getInstance(UUID uuid)
+
+    public IKBObject getInstance(UUID uuid, boolean checkBoard)
     {
         Optional<IUUID> obj = _objects.stream().filter(p->p.getUUID().equals(uuid)).findFirst();
 
@@ -69,7 +69,7 @@ public class KnowledgeBase {
         {
             return (IKBObject) obj.get();
         }
-        else
+        else if (checkBoard)
         {
             Optional<IToken> tok = this._blackboard.getActiveTokens().stream().filter(p->p.getUUID().equals(uuid)).findFirst();
 
@@ -82,6 +82,14 @@ public class KnowledgeBase {
             else
                 return tok.get();
         }
+        else {
+            return null;
+        }
+    }
+
+    public IKBObject getInstance(UUID uuid)
+    {
+        return getInstance(uuid, true);
     }
     
     public IKBObject getInstance(String name) {
