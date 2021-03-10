@@ -94,7 +94,7 @@ public class KnowledgeBase {
     
     public IKBObject getInstance(String name) {
         // TODO print warning if there are multiple options (when some instances have the same name)
-        Optional<IKBObject> obj = _instances.stream().filter(p->p.getName().equals(name)).findFirst();
+        Optional<IKBObject> obj = _instances.stream().filter(p->p.getName().equalsIgnoreCase(name)).findFirst();
 
         if(obj.isPresent() && (obj.get() instanceof IKBObject))
         {
@@ -117,7 +117,7 @@ public class KnowledgeBase {
     }
 
     public IKBObjectWriteable getInstanceWriteable(String name) {
-        Optional<IKBObject> obj = _instances.stream().filter(p->p.getName().equals(name)).findFirst();
+        Optional<IKBObject> obj = _instances.stream().filter(p->p.getName().equalsIgnoreCase(name)).findFirst();
 
         if(obj.isPresent() && (obj.get() instanceof IKBObjectWriteable))
         {
@@ -142,6 +142,9 @@ public class KnowledgeBase {
         {
             throw new Exception("Type is already part of the KB!");
         }
+
+        if (!type.isInheritanceFrom(this.getRootType()))
+            type.addInheritance(this.getRootType());
 
         this._objects.add(type);
         this._types.add(type);
