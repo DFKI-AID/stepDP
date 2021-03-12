@@ -26,6 +26,7 @@ public class Controller {
 //    @Autowired
 //    private ApplicationContext context;
     private Dialog dialog;
+    private static List<String> outputHistory = new ArrayList<String>();
 
     @Autowired
     private AppConfig appConfig;
@@ -33,6 +34,10 @@ public class Controller {
     @PostConstruct
     protected void init() {
         dialog = appConfig.getDialog(); //context.getBean(Dialog.class);
+    }
+
+    public static void createSpeechUtterance(String text) {
+        outputHistory.add(text);
     }
 
     @GetMapping(value = "/blackboard/active")
@@ -142,4 +147,8 @@ public class Controller {
       return ResponseEntity.status(HttpStatus.OK).body(String.format("{\"state\":\"%s\"}", currentState));
     }
 
+    @GetMapping(value = "/output/history", produces = "application/json")
+    public ResponseEntity<List<String>> getOutputHistory() {
+        return ResponseEntity.status(HttpStatus.OK).body(outputHistory);
+    }
 }

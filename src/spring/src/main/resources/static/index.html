@@ -37,6 +37,10 @@
         <a class="nav-link" id="behavior-tab" data-toggle="tab" href="#behavior" role="tab" aria-controls="behavior"
            aria-selected="false">Behavior</a>
     </li>
+    <li class="nav-item">
+        <a class="nav-link" id="output-tab" data-toggle="tab" href="#output" role="tab" aria-controls="output"
+           aria-selected="false">Output</a>
+    </li>
 </ul>
 <div class="tab-content" id="myTabContent">
 	<div class="tab-pane show active" id="blackboard-view" role="tabpanel" aria-labelledby="blackboard-view">
@@ -118,6 +122,36 @@
              style="position:relative;overflow:hidden;width:5000px;height:5000px;background-color: #FDFFFC;cursor:default;">
         </div>
     </div>
+    <div class="tab-pane" id="output" role="tabpanel" aria-labelledby="output-tab">
+        <div id="tts">
+            <h5>TTS Settings</h5>
+            <div>
+                <div>
+                    Enable TTS:
+                    <input type="checkbox" v-model="ttsEnabled"></input>
+                </div>
+                <label for="rate">Rate</label>
+                <input v-model="rate" type="range" min="0.5" max="2" step="0.1" id="rate">
+                <label for="pitch">Pitch</label>
+                <input v-model="pitch" type="range" min="0" max="2" step="0.1" id="pitch">
+
+                <select v-model="voiceStr">
+                    <option v-for="(voice, key) in voices">{{key}}</option>
+                </select>
+                <input type="text" v-model="manual_utterance" class="txt">
+                <button v-on:click="play" id="play" type="submit">Play</button>
+            </div>
+
+            <h5>Output History</h5>
+            <div>
+                <table>
+                    <tr v-for="item in outputHistory.slice().reverse()">
+                        <td>{{item}}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 
 
@@ -131,6 +165,7 @@
 <script src="external/mxgraph/js/mxClient.js"></script>
 <script src="behavior.js"></script>
 <script src="blackboard.js"></script>
+<script src="tts.js"></script>
 
 </body>
 </html>
