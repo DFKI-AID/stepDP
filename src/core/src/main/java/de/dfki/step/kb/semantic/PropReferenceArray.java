@@ -2,40 +2,50 @@ package de.dfki.step.kb.semantic;
 
 import de.dfki.step.kb.KnowledgeBase;
 
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.UUID;
 
-public class PropFloat implements IProperty {
+public class PropReferenceArray implements IProperty {
+
     private String _name;
     private boolean _isConstant = false;
-    private Float _value = null;
     private boolean _mustBePresent = false;
+    private Type _type;
     private UUID _uuid = UUID.randomUUID();
+    private UUID _reference[] = null;
     private KnowledgeBase _parent;
 
-    public PropFloat(String name, KnowledgeBase parent) throws Exception
+    public PropReferenceArray(String name, KnowledgeBase parent, Type type) throws Exception
     {
         if(name == null)
             throw new Exception("no valid name for a type");
         if(parent == null)
             throw new Exception("no valid Knowledge Base for reference");
+        if(type == null)
+        	throw new Exception("reference properties must specify a type for the referenced object");
 
         this._name = name;
         this._parent = parent;
+        this._type = type;
 
         // Register at the global UUID Storage
         this._parent.addUUIDtoList(this);
     }
 
-    public void setConstantValue(Float val)throws Exception {
-        if(this.isConstant())
-            throw new Exception("Property is Constant and cannot be changed!");
-        this._value = val;
+
+    public void setConstantReference(UUID ref[])
+    {
+        this._reference = ref;
     }
 
-    public Float getConstantValue()
+    public UUID[] getConstantValue()
     {
-        return this._value;
+        return this._reference;
+    }
+
+    public Type getType() {
+    	return this._type;
     }
 
     @Override
@@ -72,22 +82,16 @@ public class PropFloat implements IProperty {
     public void clearConstantValue() throws Exception {
         if(this.isConstant())
             throw new Exception("Property is Constant and cannot be changed!");
-        this._value = null;
+        this._reference = null;
     }
 
     @Override
     public boolean hasValue() {
-        return _value != null;
+        return _reference != null;
     }
 
     @Override
     public boolean canCompare(IProperty otherProp) {
-        if(otherProp.getClass() == PropInt.class)
-            return true;
-
-        if(otherProp.getClass() == PropFloat.class)
-            return true;
-
         return false;
     }
 
@@ -97,9 +101,7 @@ public class PropFloat implements IProperty {
     }
 
     @Override
-    public void deserialize(String data) {
-
-    }
+    public void deserialize(String data) { }
 
     @Override
     public UUID getUUID() {
@@ -115,24 +117,20 @@ public class PropFloat implements IProperty {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
-        PropFloat propFloat = (PropFloat) o;
-
-        if (!Objects.equals(_name, propFloat._name)) return false;
-        if (!Objects.equals(_value, propFloat._value)) return false;
-        return _mustBePresent == propFloat._mustBePresent;
+        PropReferenceArray that = (PropReferenceArray) o;
+        return _isConstant == that._isConstant &&
+                _mustBePresent == that._mustBePresent &&
+                _name.equals(that._name) &&
+                _type.equals(that._type) &&
+                _uuid.equals(that._uuid) &&
+                Arrays.equals(_reference, that._reference) &&
+                Objects.equals(_parent, that._parent);
     }
 
     @Override
     public int hashCode() {
-        int result = _name != null ? _name.hashCode() : 0;
-        result = 31 * result + (_value != null ? _value.hashCode() : 0);
-        result = 31 * result + (_mustBePresent ? 1 : 0);
+        int result = Objects.hash(_name, _isConstant, _mustBePresent, _type, _uuid, _parent);
+        result = 31 * result + Arrays.hashCode(_reference);
         return result;
-    }
-
-    public Object clone() throws CloneNotSupportedException
-    {
-        return null;
     }
 }

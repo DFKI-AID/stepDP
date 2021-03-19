@@ -27,20 +27,15 @@ public class PropInt implements IProperty{
         this._parent.addUUIDtoList(this);
     }
 
-    public void setValue(Integer val)throws Exception {
+    public void setConstantValue(Integer val)throws Exception {
         if(this.isConstant())
             throw new Exception("Property is Constant and cannot be changed!");
         this._value = val;
     }
 
-    public Integer getValue()
+    public Integer getConstantValue()
     {
         return this._value;
-    }
-
-    public void deleteValue()
-    {
-        this._value = null;
     }
 
     @Override
@@ -74,7 +69,7 @@ public class PropInt implements IProperty{
     }
 
     @Override
-    public void clearValue() throws Exception {
+    public void clearConstantValue() throws Exception {
         if(this.isConstant())
             throw new Exception("Property is Constant and cannot be changed!");
         this._value = null;

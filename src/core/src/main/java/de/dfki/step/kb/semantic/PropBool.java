@@ -28,21 +28,17 @@ public class PropBool implements IProperty{
         this._parent.addUUIDtoList(this);
     }
 
-    public void setValue(Boolean val)
+    public void setConstantValue(Boolean val)
     {
         this._valueSet = true;
         this._value = val;
     }
 
-    public Boolean getValue()
+    public Boolean getConstantValue()
     {
         return this._value;
     }
 
-    public void deleteValue()
-    {
-        this._valueSet = false;
-    }
 
     @Override
     public String getName() {
@@ -75,7 +71,7 @@ public class PropBool implements IProperty{
     }
 
     @Override
-    public void clearValue() throws Exception {
+    public void clearConstantValue() throws Exception {
         if(this.isConstant())
             throw new Exception("Property is Constant and cannot be changed!");
 
@@ -139,9 +135,10 @@ public class PropBool implements IProperty{
         try {
             PropBool copy = new PropBool(this._name, this._parent);
 
+            copy.setConstant(false);
+            copy.setConstantValue(this.getConstantValue());
             copy.setConstant(this.isConstant());
             copy.setMustBePresent(this.mustBePresent());
-            copy.setValue(this.getValue());
 
             return copy;
         }

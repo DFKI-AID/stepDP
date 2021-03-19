@@ -2,18 +2,19 @@ package de.dfki.step.kb.semantic;
 
 import de.dfki.step.kb.KnowledgeBase;
 
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.UUID;
 
-public class PropFloat implements IProperty {
+public class PropIntArray implements IProperty{
     private String _name;
     private boolean _isConstant = false;
-    private Float _value = null;
+    private int _value[] = null;
     private boolean _mustBePresent = false;
     private UUID _uuid = UUID.randomUUID();
     private KnowledgeBase _parent;
 
-    public PropFloat(String name, KnowledgeBase parent) throws Exception
+    public PropIntArray(String name, KnowledgeBase parent) throws Exception
     {
         if(name == null)
             throw new Exception("no valid name for a type");
@@ -27,13 +28,13 @@ public class PropFloat implements IProperty {
         this._parent.addUUIDtoList(this);
     }
 
-    public void setConstantValue(Float val)throws Exception {
+    public void setConstantValue(int val[])throws Exception {
         if(this.isConstant())
             throw new Exception("Property is Constant and cannot be changed!");
         this._value = val;
     }
 
-    public Float getConstantValue()
+    public int[] getConstantValue()
     {
         return this._value;
     }
@@ -82,7 +83,7 @@ public class PropFloat implements IProperty {
 
     @Override
     public boolean canCompare(IProperty otherProp) {
-        if(otherProp.getClass() == PropInt.class)
+        if(otherProp.getClass() == PropIntArray.class)
             return true;
 
         if(otherProp.getClass() == PropFloat.class)
@@ -115,19 +116,19 @@ public class PropFloat implements IProperty {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
-        PropFloat propFloat = (PropFloat) o;
-
-        if (!Objects.equals(_name, propFloat._name)) return false;
-        if (!Objects.equals(_value, propFloat._value)) return false;
-        return _mustBePresent == propFloat._mustBePresent;
+        PropIntArray that = (PropIntArray) o;
+        return _isConstant == that._isConstant &&
+                _mustBePresent == that._mustBePresent &&
+                _name.equals(that._name) &&
+                Arrays.equals(_value, that._value) &&
+                _uuid.equals(that._uuid) &&
+                Objects.equals(_parent, that._parent);
     }
 
     @Override
     public int hashCode() {
-        int result = _name != null ? _name.hashCode() : 0;
-        result = 31 * result + (_value != null ? _value.hashCode() : 0);
-        result = 31 * result + (_mustBePresent ? 1 : 0);
+        int result = Objects.hash(_name, _isConstant, _mustBePresent, _uuid, _parent);
+        result = 31 * result + Arrays.hashCode(_value);
         return result;
     }
 

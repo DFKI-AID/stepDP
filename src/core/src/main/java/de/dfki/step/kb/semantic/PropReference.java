@@ -2,6 +2,7 @@ package de.dfki.step.kb.semantic;
 
 import de.dfki.step.kb.KnowledgeBase;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public class PropReference implements IProperty {
@@ -31,12 +32,13 @@ public class PropReference implements IProperty {
         this._parent.addUUIDtoList(this);
     }
 
-    public void setReference(UUID ref)
+
+    public void setConstantReference(UUID ref)
     {
         this._reference = ref;
     }
 
-    public UUID getReference()
+    public UUID getConstantValue()
     {
         return this._reference;
     }
@@ -76,7 +78,7 @@ public class PropReference implements IProperty {
     }
 
     @Override
-    public void clearValue() throws Exception {
+    public void clearConstantValue() throws Exception {
         if(this.isConstant())
             throw new Exception("Property is Constant and cannot be changed!");
         this._reference = null;
@@ -110,5 +112,24 @@ public class PropReference implements IProperty {
     @Override
     public int compare(IProperty o1, IProperty o2) {
         return 0;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PropReference that = (PropReference) o;
+        return _isConstant == that._isConstant &&
+                _mustBePresent == that._mustBePresent &&
+                _name.equals(that._name) &&
+                _type.equals(that._type) &&
+                _uuid.equals(that._uuid) &&
+                _reference.equals(that._reference) &&
+                Objects.equals(_parent, that._parent);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(_name, _isConstant, _mustBePresent, _type, _uuid, _reference, _parent);
     }
 }
