@@ -21,13 +21,17 @@
 <body>
 
 <ul class="nav nav-tabs" id="myTab" role="tablist">
-    <li class="nav-item">
-        <a class="nav-link active" id="rules-tab" data-toggle="tab" href="#rules" role="tab" aria-controls="home"
-           aria-selected="true">Rules</a>
+	<li class="nav-item">
+        <a class="nav-link active" id="blackboard-view-tab" data-toggle="tab" href="#blackboard-view" role="tab" aria-controls="blackboard-view"
+           aria-selected="false">Blackboard Overview</a>
     </li>
-    <li class="nav-item">
-        <a class="nav-link" id="input-tab" data-toggle="tab" href="#input" role="tab" aria-controls="input"
-           aria-selected="false">Input</a>
+	<li class="nav-item">
+        <a class="nav-link" id="blackboard-rules-tab" data-toggle="tab" href="#blackboard-rules" role="tab" aria-controls="blackboard-rules"
+           aria-selected="false">Blackboard Rules</a>
+    </li>
+	<li class="nav-item">
+        <a class="nav-link" id="blackboard-input-tab" data-toggle="tab" href="#blackboard-input" role="tab" aria-controls="blackboard-input"
+           aria-selected="false">Blackboard Input</a>
     </li>
     <li class="nav-item">
         <a class="nav-link" id="behavior-tab" data-toggle="tab" href="#behavior" role="tab" aria-controls="behavior"
@@ -39,43 +43,77 @@
     </li>
 </ul>
 <div class="tab-content" id="myTabContent">
-    <div class="tab-pane show active" id="rules" role="tabpanel" aria-labelledby="rules-tab">
+	<div class="tab-pane show active" id="blackboard-view" role="tabpanel" aria-labelledby="blackboard-view">
+        <h2>Blackboard Overview</h2>
         <h2>iteration={{iteration}}</h2>
-
-        <table>
+		<h3>Tokens</h3>
+		
+		<table>
+            <tr>
+                <th>type</th>
+                <th>uuid</th>
+                <th>timestamp</th>
+            </tr>
+			<tr v-bind:class="{ inactiveRule: !token.active }" v-for="token in tokens">
+				<td>{{token.type}}</td>
+				<td>{{token.uuid}}</td>
+				<td>{{token.timestamp}}</td>
+				<!--<td>{{item.active}}</td>
+				<td><span style="background-color:#00FF00" class="badge badge-secondary tag"
+						  v-color v-for="(item, index) in item._uuid">{{item}}</span></td>-->
+			</tr>
+		</table>
+    </div>
+	
+	
+	<div class="tab-pane" id="blackboard-rules" role="tabpanel" aria-labelledby="blackboard-rules">
+        <h2>Blackboard Overview</h2>
+		<h3>Rules</h3>
+		
+		<table>
             <tr>
                 <th>name</th>
-                <!--<th>active</th>-->
-                <th>tags</th>
+                <!--<th>uuid</th>
+                <th>timestamp</th>-->
             </tr>
-            <tr v-bind:class="{ inactiveRule: !item.active }" v-for="item in rules">
-                <td>{{item.name}}</td>
-                <!--<td>{{item.active}}</td>-->
-                <td><span style="background-color:#00FF00" class="badge badge-secondary tag"
-                          v-color v-for="(item, index) in item.tags">{{item}}</span></td>
-            </tr>
-        </table>
+			<tr v-bind:class="{ inactiveRule: !rule.lastActiveState }" v-for="rule in rules">
+				<td>{{rule.name}}</td>
+				<!--<td>{{token.uuid}}</td>
+				<td>{{token.timestamp}}</td>
+				<td>{{item.active}}</td>
+				<td><span style="background-color:#00FF00" class="badge badge-secondary tag"
+						  v-color v-for="(item, index) in item._uuid">{{item}}</span></td>-->
+			</tr>
+		</table>
     </div>
-    <div class="tab-pane" id="input" role="tabpanel" aria-labelledby="input-tab">
-        <div>
-            <textarea v-model="intentContent" id="intentTextArea" cols=40 rows=10></textarea>
+	
+	<div class="tab-pane" id="blackboard-input" role="tabpanel" aria-labelledby="blackboard-input">
+        <h2>Blackboard Overview</h2>
+
+		<h3>Input: Basic Token</h3>
+		<div>
+            <textarea v-model="tokenContent" id="tokenContentTextArea" cols=40 rows=10></textarea>
         </div>
         <div>
-            <select v-model="intentSelection">
-                <option v-for="(value, key) in intents">{{key}}</option>
+            <select v-model="tokenContentSelection">
+                <option v-for="(value, key) in examples">{{key}}</option>
             </select>
-            <button v-on:click="sendIntent">sendIntent</button>
+            <button v-on:click="sendToken">Send Basic Token to Blackboard</button>
+        </div>
+
+        <h3>Input: KB Token</h3>
+        <div>
+            <textarea v-model="kbTokenContent" id="kbTokenContentTextArea" cols=40 rows=10></textarea>
         </div>
         <div>
-            <textarea v-model="inputContent" id="inputTextArea" cols=40 rows=10></textarea>
-        </div>
-        <div>
-            <select v-model="inputSelection">
-                <option v-for="(value, key) in inputs">{{key}}</option>
+            <select v-model="kbTokenContentSelection">
+                <option v-for="(value, key) in kbExamples">{{key}}</option>
             </select>
-            <button v-on:click="sendInput">sendInput</button>
+            <button v-on:click="sendKBToken">Send KB Token to Blackboard</button>
         </div>
+		
     </div>
+
     <div class="tab-pane" id="behavior" role="tabpanel" aria-labelledby="behavior-tab">
         <select v-model="behavior">
             <option v-for="(behavior, key) in behaviors">{{key}}</option>
@@ -126,8 +164,7 @@
 </script>
 <script src="external/mxgraph/js/mxClient.js"></script>
 <script src="behavior.js"></script>
-<script src="rules.js"></script>
-<script src="input.js"></script>
+<script src="blackboard.js"></script>
 <script src="tts.js"></script>
 
 </body>

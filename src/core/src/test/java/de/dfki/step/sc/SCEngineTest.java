@@ -3,6 +3,10 @@ package de.dfki.step.sc;
 import org.junit.Assert;
 import org.junit.Test;
 
+import de.dfki.step.rm.sc.internal.Parser;
+import de.dfki.step.rm.sc.internal.SCEngine;
+import de.dfki.step.rm.sc.internal.StateChart;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;

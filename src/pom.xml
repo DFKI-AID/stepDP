@@ -4,20 +4,17 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-
-
     <groupId>de.dfki.step</groupId>
     <artifactId>parent</artifactId>
     <packaging>pom</packaging>
-	<name>stepDP-Core</name>
-    <version>0.1.1-SNAPSHOT</version>
+    <name>stepDP-Core</name>
+    <version>0.9.0-SNAPSHOT</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <!--<step-dp.version>1.0.0-SNAPSHOT</step-dp.version>-->
+        <step-dp.version>0.9.0-SNAPSHOT</step-dp.version>
     </properties>
-
 
     <build>
         <plugins>
@@ -43,41 +40,34 @@
                     </execution>
                 </executions>
             </plugin>
-			
-			<!--
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>wagon-maven-plugin</artifactId>
-				<version>2.0.0</version>
-
-				<configuration>
-					<skip>true</skip>
-				</configuration>
-				
-				<executions>
-					<execution>
-						<id>upload</id>
-						<phase>deploy</phase>
-						<goals>
-							<goal>upload</goal>
-						</goals>
-					   <configuration>
-							<serverId>stepdp-dfki-ftp</serverId>
-							<url>ftps://webhosting-intern.dfki.de</url>
-							<fromDir>${project.build.directory}</fromDir>
-							<toDir></toDir>							
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			-->
-			
-					 
-
-			
+            <plugin> 
+              <artifactId>maven-javadoc-plugin</artifactId>
+              <version>3.2.0</version>
+              <configuration>
+                  <detectJavaApiLink>false</detectJavaApiLink>
+              </configuration>
+              <executions> 
+                <execution> 
+                  <id>attach-javadocs</id>
+                  <phase>deploy</phase>
+                  <goals><goal>jar</goal></goals> 
+                </execution> 
+              </executions> 
+            </plugin>  
+            <plugin>
+            <!-- explicitly define maven-deploy-plugin after other to force exec order -->
+            <artifactId>maven-deploy-plugin</artifactId>
+            <version>3.0.0-M1</version>
+            <executions>
+              <execution>
+                <id>deploy</id>
+                <phase>deploy</phase>
+                <goals><goal>deploy</goal></goals>
+              </execution>
+            </executions>
+          </plugin>
         </plugins>
-		
-		<extensions>
+      <extensions>
       <!-- Enabling the use of FTP -->
       <extension>
         <groupId>org.apache.maven.wagon</groupId>
@@ -86,14 +76,12 @@
       </extension>
     </extensions>
     </build>
-
-
     
     <modules>
         <module>core</module>
         <!--<module>sandbox</module>-->
         <module>spring</module>
-        <module>rasa</module>
+        <!--<module>rasa</module>-->
         <module>example</module>
         <!--<module>tecs-plugin</module>-->
     </modules>
@@ -115,6 +103,11 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>3.7</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-collections4</artifactId>
+                <version>4.4</version>
             </dependency>
             <dependency>
                 <groupId>commons-io</groupId>
@@ -150,15 +143,14 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-	
-	
+
     <distributionManagement>
       <repository>
         <id>stepdp-dfki-ftp</id>
-		<name>stepDP DFKI Hosting</name>
+        <name>stepDP DFKI Hosting</name>
         <url>ftps://webhosting-intern.dfki.de</url>
-		<layout>default</layout>
+        <layout>default</layout>
       </repository>
     </distributionManagement>
-	
+
 </project>
