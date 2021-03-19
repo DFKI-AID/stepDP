@@ -42,24 +42,28 @@ public class Controller {
         outputHistory.add(text);
     }
 
+    @CrossOrigin
     @GetMapping(value = "/blackboard/active")
     public List<de.dfki.step.blackboard.IToken> getActiveTokens() {
         var tokens = dialog.getBlackboard().getActiveTokens();
         return tokens;
     }
 
+    @CrossOrigin
     @GetMapping(value = "/blackboard/archived")
     public List<de.dfki.step.blackboard.IToken> getArchivedTokens() {
         var tokens = dialog.getBlackboard().getArchivedTokens();
         return tokens;
     }
 
+    @CrossOrigin
     @GetMapping(value = "/blackboard/rules")
     public List<de.dfki.step.blackboard.Rule> getBlackboardRules() {
         var rules = dialog.getBlackboard().getRules();
         return rules;
     }
 
+    @CrossOrigin
     @PostMapping(value = "/blackboard/addToken", consumes = "application/json")
     public ResponseEntity<String> addTokenToBlackboard(@RequestBody Map<String, Object> body) {
 
@@ -86,6 +90,7 @@ public class Controller {
         return ResponseEntity.ok("ok");
     }
 
+    @CrossOrigin
     @PostMapping(value = "/blackboard/addKBToken", consumes = "application/json")
     public ResponseEntity<String> addKBTokenToBlackboard(@RequestBody Map<String, Object> body) {
         IKBObject obj = null;
@@ -110,6 +115,7 @@ public class Controller {
         return ResponseEntity.ok("ok");
     }
 
+    @CrossOrigin
     @GetMapping(value = "/kb/instances/mapping")
     public Map<String, String> getKBInstancesMapping() {
         Map<String, String> result = new HashMap<>();
@@ -126,6 +132,7 @@ public class Controller {
         return result;
     }
 
+    @CrossOrigin
     @GetMapping(value = "/kb/types/mapping")
     public Map<String, String> getKBTypesMapping() {
         Map<String, String> result = new HashMap<>();
@@ -142,6 +149,7 @@ public class Controller {
         return result;
     }
 
+    @CrossOrigin
     @GetMapping(value = "/iteration")
     public Map<Object, Object> getIteration() {
         var rsp = new HashMap<Object, Object>();
@@ -149,6 +157,7 @@ public class Controller {
         return rsp;
     }
 
+    @CrossOrigin
     @GetMapping(value = "/behavior/{id}", produces = "application/json")
     public ResponseEntity<String> getBehavior(@PathVariable("id") String id) {
         StateChartManager behavior = dialog.getBlackboard().getStateChartManager(id);
@@ -161,6 +170,7 @@ public class Controller {
         return ResponseEntity.status(HttpStatus.OK).body(gson.toJson(sc));
     }
 
+    @CrossOrigin
     @GetMapping(value = "/behaviors", produces = "application/json")
     public ResponseEntity<Object> getBehaviors() {
     	Map<String, StateChartManager> scMans = dialog.getBlackboard().getAllStateChartManagers();
@@ -170,6 +180,7 @@ public class Controller {
         return ResponseEntity.status(HttpStatus.OK).body(body);
     }
 
+    @CrossOrigin
     @GetMapping(value = "/behavior/{id}/state", produces = "application/json")
     public ResponseEntity<String> getBehaviorState(@PathVariable("id") String id) {
       StateChartManager behavior = dialog.getBlackboard().getStateChartManager(id);
@@ -181,6 +192,7 @@ public class Controller {
       return ResponseEntity.status(HttpStatus.OK).body(String.format("{\"state\":\"%s\"}", currentState));
     }
 
+    @CrossOrigin
     @GetMapping(value = "/output/history", produces = "application/json")
     public ResponseEntity<List<String>> getOutputHistory() {
         return ResponseEntity.status(HttpStatus.OK).body(outputHistory);
