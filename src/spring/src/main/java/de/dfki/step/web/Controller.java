@@ -3,6 +3,8 @@ package de.dfki.step.web;
 import de.dfki.step.blackboard.KBToken;
 import de.dfki.step.dialog.Dialog;
 import de.dfki.step.kb.IKBObject;
+import de.dfki.step.kb.IUUID;
+import de.dfki.step.kb.IKBObjectWriteable;
 import de.dfki.step.kb.semantic.Type;
 import de.dfki.step.rm.sc.StateChartManager;
 import de.dfki.step.rm.sc.internal.StateChart;
@@ -106,6 +108,38 @@ public class Controller {
         KBToken newT = new KBToken(this.dialog.getKB(), obj);
         dialog.getBlackboard().addToken(newT);
         return ResponseEntity.ok("ok");
+    }
+
+    @GetMapping(value = "/kb/instances/mapping")
+    public Map<String, String> getKBInstancesMapping() {
+        Map<String, String> result = new HashMap<>();
+
+        for(IUUID var : dialog.getKB().getUUIDMapping())
+        {
+            if(var instanceof IKBObject)
+            {
+                IKBObject var2 = (IKBObject)var;
+                result.put(var2.getUUID().toString(), var2.getName());
+            }
+        }
+
+        return result;
+    }
+
+    @GetMapping(value = "/kb/types/mapping")
+    public Map<String, String> getKBTypesMapping() {
+        Map<String, String> result = new HashMap<>();
+
+        for(IUUID var : dialog.getKB().getUUIDMapping())
+        {
+            if(var instanceof Type)
+            {
+                Type var2 = (Type)var;
+                result.put(var2.getUUID().toString(), var2.getName());
+            }
+        }
+
+        return result;
     }
 
     @GetMapping(value = "/iteration")

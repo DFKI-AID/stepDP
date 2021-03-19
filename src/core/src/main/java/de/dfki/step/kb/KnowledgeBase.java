@@ -43,6 +43,11 @@ public class KnowledgeBase {
         _objects.add(object);
     }
 
+    public List<IUUID> getUUIDMapping()
+    {
+        return this._objects;
+    }
+
     public Type getType(String name)
     {
         Optional<Type> result = _types.stream().filter(p->p.getName().equals(name)).findFirst();
