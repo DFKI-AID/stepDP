@@ -38,6 +38,14 @@ public class PropReference implements IProperty {
         this._reference = ref;
     }
 
+    @Override
+    public void setConstantValue(Object var) throws Exception {
+        if(var instanceof  UUID)
+            this.setConstantValue((UUID) var);
+        else
+            throw new Exception("incompatible Object");
+    }
+
     public UUID getConstantValue()
     {
         return this._reference;

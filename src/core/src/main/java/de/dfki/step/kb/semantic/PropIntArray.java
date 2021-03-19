@@ -34,6 +34,14 @@ public class PropIntArray implements IProperty{
         this._value = val;
     }
 
+    @Override
+    public void setConstantValue(Object var) throws Exception {
+        if(var instanceof  int[])
+            this.setConstantValue((int[]) var);
+        else
+            throw new Exception("incompatible Object");
+    }
+
     public int[] getConstantValue()
     {
         return this._value;

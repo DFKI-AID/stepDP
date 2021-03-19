@@ -17,6 +17,7 @@ public interface IProperty extends Comparator<IProperty>, Cloneable, IUUID
 
     void clearConstantValue() throws Exception;
     Object getConstantValue();
+    void setConstantValue(Object var) throws Exception;
 
     boolean hasValue();
     boolean canCompare(IProperty otherProp);

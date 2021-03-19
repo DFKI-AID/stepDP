@@ -33,6 +33,14 @@ public class PropFloat implements IProperty {
         this._value = val;
     }
 
+    @Override
+    public void setConstantValue(Object var) throws Exception {
+        if(var instanceof  Float)
+            this.setConstantValue((float) var);
+        else
+            throw new Exception("incompatible Object");
+    }
+
     public Float getConstantValue()
     {
         return this._value;

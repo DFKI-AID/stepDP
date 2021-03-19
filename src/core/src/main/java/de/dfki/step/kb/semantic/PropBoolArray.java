@@ -35,6 +35,14 @@ public class PropBoolArray implements IProperty{
         this._value = val;
     }
 
+    @Override
+    public void setConstantValue(Object var) throws Exception {
+        if(var instanceof  boolean[])
+            this.setConstantValue((boolean[]) var);
+        else
+            throw new Exception("incompatible Object");
+    }
+
     public boolean[] getConstantValue()
     {
         return this._value;

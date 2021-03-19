@@ -39,6 +39,13 @@ public class PropBool implements IProperty{
         return this._value;
     }
 
+    @Override
+    public void setConstantValue(Object var) throws Exception {
+        if(var instanceof  Boolean)
+            this.setConstantValue((boolean) var);
+        else
+            throw new Exception("incompatible Object");
+    }
 
     @Override
     public String getName() {

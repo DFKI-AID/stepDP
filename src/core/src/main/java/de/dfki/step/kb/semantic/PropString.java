@@ -34,6 +34,14 @@ public class PropString implements IProperty{
         this._value = val;
     }
 
+    @Override
+    public void setConstantValue(Object var) throws Exception {
+        if(var instanceof  String)
+            this.setConstantValue((String) var);
+        else
+            throw new Exception("incompatible Object");
+    }
+
     public String getConstantValue()
     {
         return this._value;

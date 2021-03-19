@@ -33,6 +33,14 @@ public class PropInt implements IProperty{
         this._value = val;
     }
 
+    @Override
+    public void setConstantValue(Object var) throws Exception {
+        if(var instanceof  Integer)
+            this.setConstantValue((int) var);
+        else
+            throw new Exception("incompatible Object");
+    }
+
     public Integer getConstantValue()
     {
         return this._value;

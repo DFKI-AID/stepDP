@@ -34,6 +34,14 @@ public class PropFloatArray implements IProperty {
         this._value = val;
     }
 
+    @Override
+    public void setConstantValue(Object var) throws Exception {
+        if(var instanceof  float[])
+            this.setConstantValue((float[]) var);
+        else
+            throw new Exception("incompatible Object");
+    }
+
     public float[] getConstantValue()
     {
         return this._value;
