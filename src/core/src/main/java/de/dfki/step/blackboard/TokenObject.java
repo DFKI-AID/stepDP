@@ -174,4 +174,54 @@ public class TokenObject implements IKBObject {
 			return null;
 	}
 
+	@Override
+	public String[] getStringArray(String propertyName) {
+		return (String[]) this._payload.get(propertyName);
+	}
+
+	@Override
+	public Integer[] getIntegerArray(String propertyName) {
+		return (Integer[]) this._payload.get(propertyName);
+	}
+
+	@Override
+	public Boolean[] getBooleanArray(String propertyName) {
+		return (Boolean[]) this._payload.get(propertyName);
+	}
+
+	@Override
+	public Float[] getFloatArray(String propertyName) {
+		return (Float[]) this._payload.get(propertyName);
+	}
+
+	@Override
+	public UUID[] getReferenceArray(String propertyName) {
+
+		if (this.isSet(propertyName)) {
+			Object data = this._payload.get(propertyName);
+			try{
+			if(data instanceof String[])
+			{
+				String[] raw = (String[]) data;
+				UUID[] result = new UUID[raw.length];
+				for(int i = 0; i < raw.length; i++)
+				{
+					result[i] = UUID.fromString(raw[i]);
+				}
+				return result;
+			}
+			} catch (IllegalArgumentException exception){
+				return null;
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public IKBObject[] getResolvedReferenceArray(String propertyName) {
+    	// TODO implement this function
+
+		return null;
+	}
+
 }

@@ -9,4 +9,10 @@ public interface IKBObjectWriteable extends IKBObject {
     void setBoolean(String propertyName, Boolean value);
     void setFloat(String propertyName, Float value);
     void setReference(String propertyName, UUID value);
+
+    void setStringArray(String propertyName, String[] value);
+    void setIntegerArray(String propertyName, Integer[] value);
+    void setBooleanArray(String propertyName, Boolean[] value);
+    void setFloatArray(String propertyName, Float[] value);
+    void setReferenceArray(String propertyName, UUID[] value);
 }

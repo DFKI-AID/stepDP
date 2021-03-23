@@ -177,4 +177,34 @@ public class BasicToken extends AbstractToken {
 		return _rootTokenObject.getResolvedReference(propertyName);
 	}
 
+    @Override
+    public String[] getStringArray(String propertyName) {
+        return _rootTokenObject.getStringArray(propertyName);
+    }
+
+    @Override
+    public Integer[] getIntegerArray(String propertyName) {
+        return _rootTokenObject.getIntegerArray(propertyName);
+    }
+
+    @Override
+    public Boolean[] getBooleanArray(String propertyName) {
+        return _rootTokenObject.getBooleanArray(propertyName);
+    }
+
+    @Override
+    public Float[] getFloatArray(String propertyName) {
+        return _rootTokenObject.getFloatArray(propertyName);
+    }
+
+    @Override
+    public UUID[] getReferenceArray(String propertyName) {
+        return _rootTokenObject.getReferenceArray(propertyName);
+    }
+
+    @Override
+    public IKBObject[] getResolvedReferenceArray(String propertyName) {
+        return _rootTokenObject.getResolvedReferenceArray(propertyName);
+    }
+
 }

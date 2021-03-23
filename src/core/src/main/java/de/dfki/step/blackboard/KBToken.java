@@ -72,4 +72,34 @@ public class KBToken extends AbstractToken {
         return _parent.getResolvedReference(propertyName);
     }
 
+    @Override
+    public String[] getStringArray(String propertyName) {
+        return _parent.getStringArray(propertyName);
+    }
+
+    @Override
+    public Integer[] getIntegerArray(String propertyName) {
+        return _parent.getIntegerArray(propertyName);
+    }
+
+    @Override
+    public Boolean[] getBooleanArray(String propertyName) {
+        return _parent.getBooleanArray(propertyName);
+    }
+
+    @Override
+    public Float[] getFloatArray(String propertyName) {
+        return _parent.getFloatArray(propertyName);
+    }
+
+    @Override
+    public UUID[] getReferenceArray(String propertyName) {
+        return _parent.getReferenceArray(propertyName);
+    }
+
+    @Override
+    public IKBObject[] getResolvedReferenceArray(String propertyName) {
+        return _parent.getResolvedReferenceArray(propertyName);
+    }
+
 }

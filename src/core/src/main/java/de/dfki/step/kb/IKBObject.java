@@ -21,4 +21,11 @@ public interface IKBObject extends IUUID {
     UUID getReference(String propertyName);
     IKBObject getResolvedReference(String propertyName);
 
+    String[] getStringArray(String propertyName);
+    Integer[] getIntegerArray(String propertyName);
+    Boolean[] getBooleanArray(String propertyName);
+    Float[] getFloatArray(String propertyName);
+    UUID[] getReferenceArray(String propertyName);
+    IKBObject[] getResolvedReferenceArray(String propertyName);
+
 }

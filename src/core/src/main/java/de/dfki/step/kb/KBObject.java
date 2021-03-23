@@ -83,6 +83,43 @@ public class KBObject implements IKBObjectWriteable
     }
 
     @Override
+    public String[] getStringArray(String propertyName) {
+        return (String[])this._data.get(propertyName);
+    }
+
+    @Override
+    public Integer[] getIntegerArray(String propertyName) {
+        return (Integer[])this._data.get(propertyName);
+    }
+
+    @Override
+    public Boolean[] getBooleanArray(String propertyName) {
+        return (Boolean[])this._data.get(propertyName);
+    }
+
+    @Override
+    public Float[] getFloatArray(String propertyName) {
+        return (Float[])this._data.get(propertyName);
+    }
+
+    @Override
+    public UUID[] getReferenceArray(String propertyName) {
+        return (UUID[])this._data.get(propertyName);
+    }
+
+    @Override
+    public IKBObject[] getResolvedReferenceArray(String propertyName) {
+        UUID[] uuids = getReferenceArray(propertyName);
+        IKBObject[] result = new IKBObject[uuids.length];
+
+        for(int i = 0; i < uuids.length; i++)
+        {
+            result[i] = this._parent.getInstance(uuids[i]);
+        }
+        return result;
+    }
+
+    @Override
     public void setString(String propertyName, String value) {
         this._data.put(propertyName, value);
     }
@@ -104,6 +141,31 @@ public class KBObject implements IKBObjectWriteable
 
     @Override
     public void setReference(String propertyName, UUID value) {
+        this._data.put(propertyName, value);
+    }
+
+    @Override
+    public void setStringArray(String propertyName, String[] value) {
+        this._data.put(propertyName, value);
+    }
+
+    @Override
+    public void setIntegerArray(String propertyName, Integer[] value) {
+        this._data.put(propertyName, value);
+    }
+
+    @Override
+    public void setBooleanArray(String propertyName, Boolean[] value) {
+        this._data.put(propertyName, value);
+    }
+
+    @Override
+    public void setFloatArray(String propertyName, Float[] value) {
+        this._data.put(propertyName, value);
+    }
+
+    @Override
+    public void setReferenceArray(String propertyName, UUID[] value) {
         this._data.put(propertyName, value);
     }
 
