@@ -1,5 +1,6 @@
 package de.dfki.step.blackboard;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.UUID;
 
@@ -7,6 +8,7 @@ import de.dfki.step.kb.IKBObject;
 import de.dfki.step.kb.KnowledgeBase;
 import de.dfki.step.kb.semantic.IProperty;
 import de.dfki.step.kb.semantic.PropReference;
+import de.dfki.step.kb.semantic.PropReferenceArray;
 import de.dfki.step.kb.semantic.Type;
 import org.pcollections.PMap;
 
@@ -176,52 +178,144 @@ public class TokenObject implements IKBObject {
 
 	@Override
 	public String[] getStringArray(String propertyName) {
-		return (String[]) this._payload.get(propertyName);
+		if (!this.isSet(propertyName))
+			return null;
+
+    	ArrayList<String> tmp = (ArrayList<String>) this._payload.get(propertyName);
+		return tmp.toArray(new String[tmp.size()]);
 	}
 
 	@Override
 	public Integer[] getIntegerArray(String propertyName) {
-		return (Integer[]) this._payload.get(propertyName);
+		if (!this.isSet(propertyName))
+			return null;
+
+		ArrayList<Integer> tmp = (ArrayList<Integer>) this._payload.get(propertyName);
+		return tmp.toArray(new Integer[tmp.size()]);
 	}
 
 	@Override
 	public Boolean[] getBooleanArray(String propertyName) {
-		return (Boolean[]) this._payload.get(propertyName);
+		if (!this.isSet(propertyName))
+			return null;
+
+		ArrayList<Boolean> tmp = (ArrayList<Boolean>) this._payload.get(propertyName);
+		return tmp.toArray(new Boolean[tmp.size()]);
 	}
 
 	@Override
 	public Float[] getFloatArray(String propertyName) {
-		return (Float[]) this._payload.get(propertyName);
+		if (!this.isSet(propertyName))
+			return null;
+
+		ArrayList<Object> tmp = (ArrayList<Object>) this._payload.get(propertyName);
+		Float[] result = new Float[tmp.size()];
+		for(int i = 0; i < tmp.size(); i++)
+		{
+			Object listEntry = tmp.get(i);
+
+			if(listEntry instanceof Integer)
+			{
+				result[i] = (float)((int)tmp.get(i));
+			}
+			else if(listEntry instanceof Double)
+			{
+				result[i] = (float)((double)tmp.get(i));
+			}
+			else if(listEntry instanceof Float)
+			{
+				result[i] = (float)(tmp.get(i));
+			}
+		}
+		return result;
 	}
 
 	@Override
 	public UUID[] getReferenceArray(String propertyName) {
+		if (!this.isSet(propertyName))
+			return null;
 
-		if (this.isSet(propertyName)) {
-			Object data = this._payload.get(propertyName);
-			try{
-			if(data instanceof String[])
+		try
+		{
+			ArrayList<Object> data = (ArrayList<Object>)this._payload.get(propertyName);
+			UUID[] results = new UUID[data.size()];
+
+			for(int i = 0; i < data.size(); i++)
 			{
-				String[] raw = (String[]) data;
-				UUID[] result = new UUID[raw.length];
-				for(int i = 0; i < raw.length; i++)
+				Object var = data.get(i);
+
+				if(var instanceof String)
 				{
-					result[i] = UUID.fromString(raw[i]);
+					results[i] = UUID.fromString((String)var);
 				}
-				return result;
 			}
-			} catch (IllegalArgumentException exception){
-				return null;
-			}
+
+			return results;
+		} catch (IllegalArgumentException exception){
+			return null;
 		}
-		return null;
 	}
 
 	@Override
 	public IKBObject[] getResolvedReferenceArray(String propertyName) {
-    	// TODO implement this function
+		if (!this.isSet(propertyName))
+			return null;
 
-		return null;
+		IProperty prop = this.getProperty(propertyName);
+		Type typeOfObject = null;
+		if(prop != null && prop instanceof PropReferenceArray)
+		{
+			typeOfObject = ((PropReferenceArray)prop).getType();
+		}
+		else
+		{
+			typeOfObject = this._kb.getRootType();
+		}
+
+		try
+		{
+			ArrayList<Object> data = (ArrayList<Object>)this._payload.get(propertyName);
+			IKBObject[] results = new IKBObject[data.size()];
+
+			for(int i = 0; i < data.size(); i++)
+			{
+				Object var = data.get(i);
+
+				if(var instanceof String)
+				{
+					UUID uuid = null;
+					try{
+						uuid = UUID.fromString(data.toString());
+					} catch (IllegalArgumentException exception){
+					}
+
+					IKBObject ref;
+					if(uuid != null)
+						ref = this._kb.getInstance(uuid);
+					else
+						ref = this._kb.getInstance(data.toString());
+
+					if(ref != null)
+						results[i] = ref;
+				}
+				else if(var instanceof Map)
+				{
+					results[i] = new TokenObject(this._parent, (Map<String, Object>) var, this._kb, typeOfObject);
+				}
+				else if(var instanceof IToken)
+				{
+					results[i] = (IToken) data;
+				}
+				else
+				{
+					// something bad happend?
+				}
+			}
+
+			return results;
+		} catch (IllegalArgumentException exception){
+			return null;
+		}
 	}
 
 }

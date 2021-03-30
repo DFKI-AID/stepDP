@@ -6,6 +6,7 @@ import de.dfki.step.blackboard.conditions.PatternCondition;
 import de.dfki.step.blackboard.patterns.Pattern;
 import de.dfki.step.blackboard.patterns.PatternBuilder;
 import de.dfki.step.blackboard.rules.SimpleRule;
+import de.dfki.step.kb.IKBObject;
 import de.dfki.step.kb.IKBObjectWriteable;
 import de.dfki.step.kb.semantic.PropString;
 import de.dfki.step.kb.semantic.Type;
@@ -58,6 +59,15 @@ public class MyDialog extends Dialog {
             Pattern p = new PatternBuilder("GreetingIntent", this.getKB()).build();
             GreetingRule.setCondition(new PatternCondition(p));
             this.getBlackboard().addRule(GreetingRule);
+
+
+            Rule TestRule = new SimpleRule(tokens -> {
+                IKBObject[] testArray = tokens[0].getResolvedReferenceArray("test");
+                System.out.println("Greeting found! Say hello");
+            }, "GreetingRule");
+            Pattern p2 = new PatternBuilder("PlasticBottle", this.getKB()).build();
+            TestRule.setCondition(new PatternCondition(p2));
+            this.getBlackboard().addRule(TestRule);
 
         } catch (Exception e) {
             e.printStackTrace();
