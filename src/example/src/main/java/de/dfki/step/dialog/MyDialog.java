@@ -10,6 +10,7 @@ import de.dfki.step.kb.IKBObject;
 import de.dfki.step.kb.IKBObjectWriteable;
 import de.dfki.step.kb.semantic.PropString;
 import de.dfki.step.kb.semantic.Type;
+import de.dfki.step.web.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,6 +69,8 @@ public class MyDialog extends Dialog {
             Pattern p2 = new PatternBuilder("PlasticBottle", this.getKB()).build();
             TestRule.setCondition(new PatternCondition(p2));
             this.getBlackboard().addRule(TestRule);
+
+            Controller.addExampleToken("add custom intent", "{\"type\": \"CustomIntent\", \"userName\":\"Alice\"}");
 
         } catch (Exception e) {
             e.printStackTrace();

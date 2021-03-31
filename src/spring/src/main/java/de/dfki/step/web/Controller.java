@@ -44,8 +44,6 @@ public class Controller {
         outputHistory.add(text);
     }
 
-    public static void clearExampleTokens(){exampleTokens.clear();}
-
     public static void addExampleToken(String name, String json){exampleTokens.put(name, json);}
 
     public Controller()
