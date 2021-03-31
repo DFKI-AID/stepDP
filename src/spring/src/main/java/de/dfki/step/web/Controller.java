@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import com.google.gson.Gson;
 
 import javax.annotation.PostConstruct;
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -29,6 +30,7 @@ public class Controller {
 //    private ApplicationContext context;
     private Dialog dialog;
     private static List<String> outputHistory = new ArrayList<String>();
+    private static Map<String, String> exampleTokens = new LinkedHashMap<>();
 
     @Autowired
     private AppConfig appConfig;
@@ -40,6 +42,24 @@ public class Controller {
 
     public static void createSpeechUtterance(String text) {
         outputHistory.add(text);
+    }
+
+    public static void clearExampleTokens(){exampleTokens.clear();}
+
+    public static void addExampleToken(String name, String json){exampleTokens.put(name, json);}
+
+    public Controller()
+    {
+        // add standard examples
+        addExampleToken("add greeting", "{\"type\": \"GreetingIntent\", \"userName\":\"Alice\"}");
+        addExampleToken("add hello", "{\"type\": \"HelloIntent\"}");
+        addExampleToken("add goodbye", "{\"type\": \"GoodbyeIntent\"}");
+        addExampleToken("add bring intent with pizza", "{\"type\":\"BringIntent\",\"object\":{\"type\":\"Pizza\",\"sort\":\"Pizza Hawaii\"},\"recipientName\":\"Alice\"}");
+        addExampleToken("add bring intent with water", "{\"type\":\"BringIntent\",\"object\":{\"type\":\"Water\",\"carbonated\":false},\"recipientName\":\"Alice\"}");
+        addExampleToken("add bring intent", "{\"type\":\"BringIntent\",\"recipientName\":\"Alice\"}");
+        addExampleToken("add pizza", "{\"type\":\"Pizza\",\"sort\":\"Hawaii\"}");
+        addExampleToken("add tv order intent (uuid)", "{\"type\":\"OrderIntent\",\"tv\":\"insert-uuid-of-a-tv-instance-here\"}");
+        addExampleToken("add tv order intent (name)", "{\"type\":\"OrderIntent\",\"tv\":\"tv1\"}");
     }
 
     @CrossOrigin
@@ -196,5 +216,11 @@ public class Controller {
     @GetMapping(value = "/output/history", produces = "application/json")
     public ResponseEntity<List<String>> getOutputHistory() {
         return ResponseEntity.status(HttpStatus.OK).body(outputHistory);
+    }
+
+    @CrossOrigin
+    @GetMapping(value = "/blackboard/exampleTokens", produces = "application/json")
+    public ResponseEntity<Map<String, String>> getExampleTokens() {
+        return ResponseEntity.status(HttpStatus.OK).body(exampleTokens);
     }
 }
