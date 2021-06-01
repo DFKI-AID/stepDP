@@ -94,6 +94,12 @@ public class Board {
             // generate Token stream
             Stream<IToken> stream = this._activeTokens.stream();
 
+            // check if token is too old or too young
+            long now = new Date().getTime();
+            long minTimestamp = now - cond.getMaxTokenAge();
+            long maxTimestamp = now - cond.getMinTokenAge();
+            stream = stream.filter(c -> c.getTimestamp() >= minTimestamp && c.getTimestamp() <= maxTimestamp);
+
             // check if token is not usable because of checked, used or ignore tags
             stream = stream.filter(c -> !c.isIgnoredBy(r.getTags()) && c.isActive());
 

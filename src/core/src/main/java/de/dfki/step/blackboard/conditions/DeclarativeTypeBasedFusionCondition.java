@@ -34,7 +34,6 @@ public class DeclarativeTypeBasedFusionCondition extends Condition {
 	public List<IToken[]> generateMatches(Stream<IToken> tokens, List<String> ignoreTags, UUID ignoreUUID) {
 		IToken[] match = new IToken[2];
 		ArrayList<IToken[]> result = new ArrayList<IToken[]>();
-		long minTimestamp = new Date().getTime() - this.getMaxTokenAge();
         boolean oneTokenFound = false;
         // fusion interval becomes only relevant when one matching token was found
         long intervalStart = -1;
@@ -44,7 +43,7 @@ public class DeclarativeTypeBasedFusionCondition extends Condition {
         {
             IToken tok = it.next();
             
-            if (breakingConditionMet(minTimestamp, oneTokenFound, intervalStart, tok, ignoreUUID))
+            if (breakingConditionMet(oneTokenFound, intervalStart, tok, ignoreUUID))
             	break;
 
 			tok.checkedBy(this.getUUID());
@@ -69,9 +68,7 @@ public class DeclarativeTypeBasedFusionCondition extends Condition {
         return result;
 	}
 	
-	private boolean breakingConditionMet(long minTimestamp, boolean oneTokenFound, long intervalStart, IToken tok, UUID ruleUUID) {
-	    if (tok.getTimestamp() < minTimestamp)
-	        return true;
+	private boolean breakingConditionMet(boolean oneTokenFound, long intervalStart, IToken tok, UUID ruleUUID) {
         // break if no new token found and current token already checked in last iteration
         if (!oneTokenFound) {
         	if (tok.isCheckedBy(this.getUUID())) 

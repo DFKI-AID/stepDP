@@ -15,8 +15,10 @@ public abstract class Condition {
     private int _maxMatches = 10;
     private final UUID _uuid = UUID.randomUUID();
     private long _maxTokenAge = DEFAULT_MAX_TOKEN_AGE;
+    private long _minTokenAge = DEFAULT_MIN_TOKEN_AGE;
 
     public final static long DEFAULT_MAX_TOKEN_AGE = Duration.ofHours(1).toMillis();
+    public final static long DEFAULT_MIN_TOKEN_AGE = 0;
 
     /**
      * Get the number of maximal Matches that get produced
@@ -63,6 +65,14 @@ public abstract class Condition {
 
     public void setMaxTokenAge(long maxTokenAge) {
         this._maxTokenAge = maxTokenAge;
+    }
+
+    public long getMinTokenAge() {
+        return this._minTokenAge;
+    }
+
+    public void setMinTokenAge(long minTokenAge) {
+        this._minTokenAge = minTokenAge;
     }
 
     public abstract List<IToken[]> generateMatches(Stream<IToken> tokens, List<String> ignoreTags, UUID ignoreUUID);
