@@ -25,6 +25,8 @@ public class KnowledgeBase {
             this._root = new Type("Object", this, true);
             this.addType(this._root);
 
+            RRTypes.addRRTypesToKB(this);
+ 
             /*Type token = new Type("Token", this, true);
             token.addInheritance(object);
             this.addType(token);*/
