@@ -25,6 +25,7 @@ public class PatternBuilder {
 	private KnowledgeBase _kb;
 	
 	private TypePattern _rootTypePattern;
+	private Type _innerType;
 	private NonNullPropertiesPattern _nonNullPropsPattern;
 	private Map<String, PatternBuilder> _refPropBuilders = new HashMap<String, PatternBuilder>();
 
@@ -62,6 +63,20 @@ public class PatternBuilder {
 		if (!newType.isInheritanceFrom(oldType))
 			throw new Exception("Type has to be a subtype of " + oldType.getName());
 		_rootTypePattern = new TypePattern(newType);
+		return this;
+	}
+
+	/**
+	 * Adds an inner type constraint to the pattern, i.e. only object that either are
+	 * of that type or have inner object of that type match.
+	 * Important Note: This constraint cannot be combined with any other constraints
+	 * except a type constraint. Any other constraints of this builder are ignored.
+	 * @param typeName the name of the type that the pattern should match
+	 * @return reference to this builder to allow method chaining
+	 * @throws Exception if type name is null or if the type does not exist in the semantic tree
+	 */
+	public PatternBuilder hasInnerType(String typeName) throws Exception {
+		this._innerType = getTypeFromSemanticTree(typeName);
 		return this;
 	}
 	
@@ -139,6 +154,10 @@ public class PatternBuilder {
 	 * @return the resulting pattern
 	 */
 	public Pattern build() {
+		if (_innerType != null) {
+			// other patterns are ignored
+			return new InnerTypePattern(_innerType, _rootTypePattern.getType());
+		}
 		List<Pattern> rootPatterns = new ArrayList<Pattern>();
 		if (_rootTypePattern != null)
 			rootPatterns.add(_rootTypePattern);

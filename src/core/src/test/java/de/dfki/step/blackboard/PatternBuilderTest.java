@@ -11,6 +11,7 @@ import org.junit.Rule;
 import de.dfki.step.blackboard.patterns.Pattern;
 import de.dfki.step.blackboard.patterns.PatternBuilder;
 import de.dfki.step.kb.KnowledgeBase;
+import de.dfki.step.kb.RRTypes;
 import de.dfki.step.kb.semantic.PropBool;
 import de.dfki.step.kb.semantic.PropFloat;
 import de.dfki.step.kb.semantic.PropReference;
@@ -37,6 +38,18 @@ public class PatternBuilderTest {
 		physObj.addProperty(new PropReference("position", kb, kb.getType("3DCoordinates")));
 		kb.addType(physObj);
 
+		// Location Type
+		Type loc = new Type("Location", kb);
+		loc.addProperty(new PropReference("relatum", kb, physObj));
+		loc.addProperty(new PropString("relation", kb));
+		loc.addProperty(new PropReference("container", kb, physObj));
+		kb.addType(loc);
+
+		// Human Type
+		Type human = new Type("Human", kb);
+		human.addProperty(new PropString("name", kb));
+		kb.addType(human);
+		
 		// Food Types
 		Type food = new Type("Food", kb);
 		food.addInheritance(kb.getType("PhysicalObject"));
@@ -92,6 +105,13 @@ public class PatternBuilderTest {
 		bringIntent.addInheritance(kb.getType("GeneralBringIntent"));
 		bringIntent.addProperty(new PropReference("object", kb, kb.getType("PhysicalObject")));
 		kb.addType(bringIntent);
+		Type pickUpIntent = new Type("PickUpIntent", kb);
+		pickUpIntent.addInheritance(kb.getType(RRTypes.USER_INTENT));
+		pickUpIntent.addProperty(new PropReference("object", kb, physObj));
+		pickUpIntent.addProperty(new PropBool("fragile", kb));
+		pickUpIntent.addProperty(new PropReference("bringTo", kb, human));
+		pickUpIntent.addProperty(new PropReference("placeAt", kb, loc));
+		kb.addType(pickUpIntent);
 		
 		// instances
 		kb.createInstance("pizza1", kb.getType("Pizza"));
@@ -257,5 +277,61 @@ public class PatternBuilderTest {
 		token.addAll(Map.of("object",kb.getInstance("pizza1").getUUID().toString()));
 		
 		Assert.assertTrue(p.matches(token));
+	}
+
+	@Test
+	public void testInnerTypePattern() throws Exception {
+		PatternBuilder builder = new PatternBuilder(RRTypes.USER_INTENT, kb);
+		Pattern p = builder.hasInnerType(RRTypes.SPAT_REF)
+						   .build();
+		
+		BasicToken noMatch = new BasicToken(kb);
+		noMatch.setType(kb.getType("ObjectBringIntent"));
+		noMatch.addAll(Map.of("recipientName","Lara",
+				"object", Map.of("type","Pizza",
+								 "sort", "Hawaii",
+								 "topping", Map.of("type","Cheese",
+										 		   "double",true
+										    	  )
+								)
+				)
+	   	);
+
+		BasicToken match1 = new BasicToken(kb);
+		match1.setType(kb.getType(RRTypes.SPAT_REF));
+
+		BasicToken match2 = new BasicToken(kb);
+		match2.setType(kb.getType("PickUpIntent"));
+		match2.addAll(Map.of(
+				"fragile", false,
+				"object", Map.of("type",RRTypes.SPAT_REF,
+								 "ambiguous", "false"
+								),
+				"bringTo", Map.of("type","Human",
+						 		  "name", "Harry"
+						)
+				)
+	   	);
+	
+		BasicToken match3 = new BasicToken(kb);
+		match3.setType(kb.getType("PickUpIntent"));
+		match3.addAll(Map.of(
+				"fragile", true,
+				"placeAt", Map.of(
+						  "type","Location",
+				 		  "relatum", Map.of(
+				 				  		"type", RRTypes.SPAT_REF,
+				 				  		"ambiguous", true
+				 				  ),
+				 		  "relation", "leftOf"
+				 		  )
+				 		  
+				)
+	   	);
+
+		Assert.assertFalse(p.matches(noMatch));
+		Assert.assertTrue(p.matches(match1));
+		Assert.assertTrue(p.matches(match2));
+		Assert.assertTrue(p.matches(match3));
 	}
 }
