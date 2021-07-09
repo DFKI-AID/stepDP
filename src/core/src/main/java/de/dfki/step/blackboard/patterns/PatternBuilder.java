@@ -25,7 +25,7 @@ public class PatternBuilder {
 	private KnowledgeBase _kb;
 	
 	private TypePattern _rootTypePattern;
-	private Type _innerType;
+	private Type _recursiveType;
 	private NonNullPropertiesPattern _nonNullPropsPattern;
 	private Map<String, PatternBuilder> _refPropBuilders = new HashMap<String, PatternBuilder>();
 
@@ -67,16 +67,18 @@ public class PatternBuilder {
 	}
 
 	/**
-	 * Adds an inner type constraint to the pattern, i.e. only object that either are
-	 * of that type or have inner object of that type match.
+	 * Adds a recursive type constraint to the pattern, i.e. only objects that either are
+	 * of the given type t1 or have inner object of type t1 match.
 	 * Important Note: This constraint cannot be combined with any other constraints
 	 * except a type constraint. Any other constraints of this builder are ignored.
+	 * In combination with a type constraint of type t2, the pattern matches objects (I) of type
+	 * t1 or (II) of type t2 with at least one inner object of type t1.
 	 * @param typeName the name of the type that the pattern should match
 	 * @return reference to this builder to allow method chaining
 	 * @throws Exception if type name is null or if the type does not exist in the semantic tree
 	 */
-	public PatternBuilder hasInnerType(String typeName) throws Exception {
-		this._innerType = getTypeFromSemanticTree(typeName);
+	public PatternBuilder hasRecursiveType(String typeName) throws Exception {
+		this._recursiveType = getTypeFromSemanticTree(typeName);
 		return this;
 	}
 	
@@ -154,9 +156,9 @@ public class PatternBuilder {
 	 * @return the resulting pattern
 	 */
 	public Pattern build() {
-		if (_innerType != null) {
+		if (_recursiveType != null) {
 			// other patterns are ignored
-			return new InnerTypePattern(_innerType, _rootTypePattern.getType());
+			return new RecursiveTypePattern(_recursiveType, _rootTypePattern.getType());
 		}
 		List<Pattern> rootPatterns = new ArrayList<Pattern>();
 		if (_rootTypePattern != null)

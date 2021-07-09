@@ -282,7 +282,7 @@ public class PatternBuilderTest {
 	@Test
 	public void testInnerTypePattern() throws Exception {
 		PatternBuilder builder = new PatternBuilder(RRTypes.USER_INTENT, kb);
-		Pattern p = builder.hasInnerType(RRTypes.SPAT_REF)
+		Pattern p = builder.hasRecursiveType(RRTypes.SPAT_REF)
 						   .build();
 		
 		BasicToken noMatch = new BasicToken(kb);
