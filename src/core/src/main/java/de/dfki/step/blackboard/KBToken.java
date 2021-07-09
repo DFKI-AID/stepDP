@@ -2,6 +2,8 @@ package de.dfki.step.blackboard;
 
 import java.util.UUID;
 
+import org.apache.commons.lang3.NotImplementedException;
+
 import de.dfki.step.kb.IKBObject;
 import de.dfki.step.kb.KnowledgeBase;
 import de.dfki.step.kb.semantic.IProperty;
@@ -101,5 +103,11 @@ public class KBToken extends AbstractToken {
     public IKBObject[] getResolvedReferenceArray(String propertyName) {
         return _parent.getResolvedReferenceArray(propertyName);
     }
+
+	@Override
+	public IToken getCopy() {
+		// TODO Auto-generated method stub
+		throw new NotImplementedException("not implemented");
+	}
 
 }

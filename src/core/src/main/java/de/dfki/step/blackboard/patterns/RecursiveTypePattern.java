@@ -31,10 +31,10 @@ public class RecursiveTypePattern extends Pattern {
 	public boolean matches(IKBObject root) {
 		if (!root.getType().isInheritanceFrom(this._rootType) && !root.getType().isInheritanceFrom(this._recursiveType))
 			return false;
-		return hasInnerType(root);
+		return hasRecursiveType(root);
 	}
 
-	private boolean hasInnerType(IKBObject obj) {
+	private boolean hasRecursiveType(IKBObject obj) {
 		if (obj.getType().isInheritanceFrom(this._recursiveType))
 			return true;
 
@@ -44,14 +44,17 @@ public class RecursiveTypePattern extends Pattern {
 			IKBObject innerObject = obj.getResolvedReference(prop.getName());
 			if (innerObject == null)
 				continue;
-			if (hasInnerType(innerObject))
+			if (hasRecursiveType(innerObject))
 				return true;
 		}
 
 		return false;
 	}
+
 	@Override
 	public boolean hasType() {
+		// this pattern matches objects of different types, 
+		// i.e. _rootType or _recursiveType
 		return false;
 	}
 

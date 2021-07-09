@@ -5,6 +5,7 @@ import de.dfki.step.kb.KnowledgeBase;
 import de.dfki.step.kb.semantic.IProperty;
 import de.dfki.step.kb.semantic.Type;
 
+import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -206,5 +207,11 @@ public class BasicToken extends AbstractToken {
     public IKBObject[] getResolvedReferenceArray(String propertyName) {
         return _rootTokenObject.getResolvedReferenceArray(propertyName);
     }
+
+	@Override
+	public IToken getCopy() {
+		// TODO: implement
+		throw new NotImplementedException("not implemented");
+	}
 
 }

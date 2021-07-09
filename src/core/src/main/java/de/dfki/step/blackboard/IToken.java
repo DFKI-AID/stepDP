@@ -115,4 +115,7 @@ public interface IToken extends IKBObject{
     public MultiValuedMap<UUID, IToken> getResultingTokens();
 
     public KnowledgeBase getKB();
+
+    public IToken getCopy();
+
 }
