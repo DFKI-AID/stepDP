@@ -149,8 +149,10 @@ public class TokenObject implements IKBObject {
 				}
 
 				IKBObject ref;
-				if(uuid != null)
+				if(uuid != null) {
 					ref = this._kb.getInstance(uuid);
+					ref = (ref == null) ? this._kb.getBlackboard().getTokenByID(uuid, true) : ref;
+				}
 				else
 					ref = this._kb.getInstance(data.toString());
 				if(ref != null)

@@ -40,7 +40,7 @@ public class SpatialReferenceResolutionRule extends Rule {
         for (IToken[] tArray : tokens) {
         	IToken t = tArray[0];
         	t.usedBy(this.getUUID());
-    		findAndResolveReferences(t.getCopy());
+    		findAndResolveReferences(t.createTokenWithSameContent());
         }
 	}
 

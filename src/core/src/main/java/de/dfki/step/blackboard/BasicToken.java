@@ -9,6 +9,10 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.IOException;
 import java.util.*;
 
 public class BasicToken extends AbstractToken {
@@ -208,10 +212,20 @@ public class BasicToken extends AbstractToken {
         return _rootTokenObject.getResolvedReferenceArray(propertyName);
     }
 
-	@Override
-	public IToken getCopy() {
-		// TODO: implement
-		throw new NotImplementedException("not implemented");
-	}
+    @Override
+    public IToken createTokenWithSameContent() {
+    	ObjectMapper mapper = new ObjectMapper();
+    	Map<String, Object> deepCopy;
+    	try {
+			deepCopy = mapper.readValue(mapper.writeValueAsString(_payload), new TypeReference<Map<String, Object>>() {});
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
+    	BasicToken newToken = new BasicToken(this.getKB());
+    	newToken.setType(this.getType());
+    	newToken.addAll(deepCopy);
+    	return newToken;
+    };
 
 }

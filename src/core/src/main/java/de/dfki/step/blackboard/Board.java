@@ -3,12 +3,14 @@ package de.dfki.step.blackboard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.dfki.step.kb.semantic.Type;
 import de.dfki.step.rm.sc.StateChartManager;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Board {
@@ -195,4 +197,24 @@ public class Board {
         return _ignoreTime;
     }
 
+    public IToken getTokenByID(UUID uuid, boolean searchArchive) {
+    	Optional<IToken> token = this._activeTokens.stream().filter(t -> t.getUUID().equals(uuid))
+    											   .findFirst();
+    	if (!token.isPresent() && searchArchive)
+    		token = this._archivedTokens.stream().filter(t -> t.getUUID().equals(uuid))
+    									.findFirst();
+    	if (!token.isPresent())
+    		return null;
+    	else
+    		return token.get();
+    }
+
+    public List<IToken> getTokensByType(Type type, boolean searchArchive) {
+    	List<IToken> tokens = this._activeTokens.stream().filter(t -> t.getType().equals(type))
+    											.collect(Collectors.toList());
+    	if (searchArchive)
+    		tokens.addAll(this._archivedTokens.stream().filter(t -> t.getType().equals(type))
+    												   .collect(Collectors.toList()));
+    	return tokens;
+    }
 }

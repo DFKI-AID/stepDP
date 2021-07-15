@@ -157,4 +157,7 @@ public class KnowledgeBase {
         this._types.add(type);
     }
 
+    public Board getBlackboard() {
+    	return this._blackboard;
+    }
 }

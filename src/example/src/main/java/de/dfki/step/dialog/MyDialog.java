@@ -24,11 +24,11 @@ public class MyDialog extends Dialog {
 
     public MyDialog() {
         try {
-            Type UserIntent = new Type("UserIntent", this.getKB());
-            this.getKB().addType(UserIntent);
+//            Type UserIntent = new Type("UserIntent", this.getKB());
+//            this.getKB().addType(UserIntent);
 
             Type GreetingIntent = new Type("GreetingIntent", this.getKB());
-            GreetingIntent.addInheritance(UserIntent);
+            GreetingIntent.addInheritance(this.getKB().getType("UserIntent"));
             this.getKB().addType(GreetingIntent);
 
             Type Bottle = new Type("Bottle", this.getKB());

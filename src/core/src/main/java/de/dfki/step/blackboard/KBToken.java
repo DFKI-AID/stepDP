@@ -1,8 +1,12 @@
 package de.dfki.step.blackboard;
 
+import java.io.IOException;
+import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.lang3.NotImplementedException;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.dfki.step.kb.IKBObject;
 import de.dfki.step.kb.KnowledgeBase;
@@ -104,10 +108,8 @@ public class KBToken extends AbstractToken {
         return _parent.getResolvedReferenceArray(propertyName);
     }
 
-	@Override
-	public IToken getCopy() {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException("not implemented");
-	}
-
+    @Override
+    public IToken createTokenWithSameContent() {
+    	return new KBToken(this.getKB(), _parent);
+    };
 }

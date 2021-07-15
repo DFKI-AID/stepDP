@@ -116,6 +116,6 @@ public interface IToken extends IKBObject{
 
     public KnowledgeBase getKB();
 
-    public IToken getCopy();
+    public  IToken createTokenWithSameContent();
 
 }

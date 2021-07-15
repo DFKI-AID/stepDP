@@ -219,6 +219,7 @@ public class DeclarativeTypeBasedFusionTest {
 		Type resultType = kb.getType("BringObject");
 		long fusionInterval = Duration.ofSeconds(10).toMillis();
 		Rule r = new DeclarativeTypeBasedFusionRule(p1, p2, resultType, fusionInterval);
+		board.addRule(r);
 		BasicToken t1 = new BasicToken(kb);
 		t1.setType(kb.getType("BringIntent"));
 		t1.addAll(Map.of("recipientName","Alice"));
@@ -227,11 +228,15 @@ public class DeclarativeTypeBasedFusionTest {
 		t2.addAll(Map.of("sort", "Hawaii"));
 		List<IToken> tokens = List.of(t2, t1);
 		
-		List<IToken[]> matches = r.getCondition().generateMatches(tokens.stream(), r.getTags(), r.getUUID());
-		Assert.assertTrue(matches.size() == 1);
-		r.onMatch(matches, board);
-		Assert.assertTrue(board.getActiveTokens().size() == 1);
-		IToken result = board.getActiveTokens().get(0);
+		// check fusion result
+		board.addToken(t1);
+		board.addToken(t2);
+		board.update();
+		Assert.assertTrue(board.getActiveTokens().size() == 3);
+		List<IToken> results = board.getTokensByType(resultType, false);
+		Assert.assertTrue(results.size() == 1);
+		IToken result = results.get(0);
+
 		IKBObject intent = result.getResolvedReference("intent");
 		Assert.assertTrue(intent != null);
 		Assert.assertTrue(intent.getType().getName() == "BringIntent");
@@ -247,9 +252,9 @@ public class DeclarativeTypeBasedFusionTest {
 		Assert.assertTrue(result.getProducer() == r.getUUID());
 		for (BasicToken t : List.of(t1, t2)) {
 			MultiValuedMap<UUID, IToken> resultingTokens = t.getResultingTokens();
-			Collection<IToken> results = resultingTokens.get(r.getUUID());
-			Assert.assertTrue(results.size() == 1);
-			Assert.assertTrue(results.stream().findFirst().get() == result);
+			Collection<IToken> resultTokens = resultingTokens.get(r.getUUID());
+			Assert.assertTrue(resultTokens.size() == 1);
+			Assert.assertTrue(resultTokens.stream().findFirst().get() == result);
 		}
 	}
 
@@ -313,6 +318,7 @@ public class DeclarativeTypeBasedFusionTest {
 		Type resultType = kb.getType("BringObject2");
 		long fusionInterval = Duration.ofSeconds(10).toMillis();
 		Rule r = new DeclarativeTypeBasedFusionRule(p1, p2, resultType, fusionInterval);
+		board.addRule(r);
 		BasicToken t1 = new BasicToken(kb);
 		t1.setType(kb.getType("BringIntent"));
 		t1.addAll(Map.of("recipientName","Alice"));
@@ -320,12 +326,16 @@ public class DeclarativeTypeBasedFusionTest {
 		t2.setType(kb.getType("Gesture"));
 		t2.addAll(Map.of("targetObject", kb.getInstance("pizza1").getUUID().toString()));
 		List<IToken> tokens = List.of(t2, t1);
-		
-		List<IToken[]> matches = r.getCondition().generateMatches(tokens.stream(), r.getTags(), r.getUUID());
-		Assert.assertTrue(matches.size() == 1);
-		r.onMatch(matches, board);
-		Assert.assertTrue(board.getActiveTokens().size() == 1);
-		IToken result = board.getActiveTokens().get(0);
+
+		// check result
+		board.addToken(t1);
+		board.addToken(t2);
+		board.update();
+		Assert.assertTrue(board.getActiveTokens().size() == 3);
+		List<IToken> results = board.getTokensByType(resultType, false);
+		Assert.assertTrue(results.size() == 1);
+		IToken result = results.get(0);
+
 		IKBObject intent = result.getResolvedReference("intent");
 		Assert.assertTrue(intent != null);
 		Assert.assertTrue(intent.getType().getName() == "BringIntent");
