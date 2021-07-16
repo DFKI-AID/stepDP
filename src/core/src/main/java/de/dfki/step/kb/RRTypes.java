@@ -20,6 +20,14 @@ public class RRTypes {
 		LEFT_OF, RIGHT_OF, IN_FRONT_OF, BEHIND_OF, ABOVE_OF, BELOW_OF, NEXT_TO, ON, INSIDE_OF
 	};
 
+	public static boolean isSpatialReference(IKBObject obj, KnowledgeBase kb) {
+		return obj.getType().isInheritanceFrom(kb.getType(RRTypes.SPAT_REF));
+	}
+
+	public static boolean isReference(IKBObject obj, KnowledgeBase kb) {
+		return obj.getType().isInheritanceFrom(kb.getType(RRTypes.REFERENCE));
+	}
+	
 	public static void addRRTypesToKB(KnowledgeBase kb) throws Exception{
 			Type intent = new Type(USER_INTENT, kb);
 			kb.addType(intent);

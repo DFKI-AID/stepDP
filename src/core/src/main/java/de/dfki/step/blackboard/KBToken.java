@@ -111,5 +111,11 @@ public class KBToken extends AbstractToken {
     @Override
     public IToken createTokenWithSameContent() {
     	return new KBToken(this.getKB(), _parent);
-    };
+    }
+
+	@Override
+	public IToken createCopyAndReplaceParts(ValueReplacement replace) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

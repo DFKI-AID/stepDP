@@ -1,5 +1,7 @@
 package de.dfki.step.rr.constraints;
 
+import java.util.List;
+
 import de.dfki.step.kb.IKBObject;
 
 public abstract class ConstraintScorer {
@@ -10,7 +12,7 @@ public abstract class ConstraintScorer {
 		
 	}
 
-	public abstract ObjectScores computeScores();
+	public abstract List<ObjectScore> computeScores();
 
 	public int getPriority() {
 		return this.priority;

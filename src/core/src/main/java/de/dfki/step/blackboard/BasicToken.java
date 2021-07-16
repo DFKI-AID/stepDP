@@ -226,6 +226,12 @@ public class BasicToken extends AbstractToken {
     	newToken.setType(this.getType());
     	newToken.addAll(deepCopy);
     	return newToken;
-    };
+    }
+
+	@Override
+	public IToken createCopyAndReplaceParts(ValueReplacement replace) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

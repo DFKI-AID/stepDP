@@ -15,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import de.dfki.step.kb.IKBObject;
+import de.dfki.step.kb.IKBObjectWriteable;
 import de.dfki.step.kb.KnowledgeBase;
 import de.dfki.step.kb.semantic.Type;
 
@@ -27,7 +28,7 @@ import de.dfki.step.kb.semantic.Type;
         isGetterVisibility = Visibility.NONE,
         creatorVisibility = Visibility.NONE
     )
-public interface IToken extends IKBObject{
+public interface IToken extends IKBObject {
     /**
      * get the timestamp of the creation time of the token in unixtime (milliseconds)
      * @return
@@ -118,4 +119,5 @@ public interface IToken extends IKBObject{
 
     public  IToken createTokenWithSameContent();
 
+    public  IToken createCopyAndReplaceParts(ValueReplacement replace);
 }
