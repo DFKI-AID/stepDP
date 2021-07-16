@@ -19,13 +19,13 @@ public interface IKBObject extends IUUID {
     Boolean getBoolean(String propertyName);
     Float getFloat(String propertyName);
     UUID getReference(String propertyName);
-    IKBObject getResolvedReference(String propertyName);
+    IKBObjectWriteable getResolvedReference(String propertyName);
 
     String[] getStringArray(String propertyName);
     Integer[] getIntegerArray(String propertyName);
     Boolean[] getBooleanArray(String propertyName);
     Float[] getFloatArray(String propertyName);
     UUID[] getReferenceArray(String propertyName);
-    IKBObject[] getResolvedReferenceArray(String propertyName);
+    IKBObjectWriteable[] getResolvedReferenceArray(String propertyName);
 
 }

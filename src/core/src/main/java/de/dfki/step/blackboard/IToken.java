@@ -28,7 +28,7 @@ import de.dfki.step.kb.semantic.Type;
         isGetterVisibility = Visibility.NONE,
         creatorVisibility = Visibility.NONE
     )
-public interface IToken extends IKBObject {
+public interface IToken extends IKBObjectWriteable {
     /**
      * get the timestamp of the creation time of the token in unixtime (milliseconds)
      * @return
@@ -118,6 +118,4 @@ public interface IToken extends IKBObject {
     public KnowledgeBase getKB();
 
     public  IToken createTokenWithSameContent();
-
-    public  IToken createCopyAndReplaceParts(ValueReplacement replace);
 }

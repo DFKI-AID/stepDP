@@ -78,8 +78,8 @@ public class KBObject implements IKBObjectWriteable
     }
 
     @Override
-    public IKBObject getResolvedReference(String propertyName) {
-        return this._parent.getInstance(this.getReference(propertyName));
+    public IKBObjectWriteable getResolvedReference(String propertyName) {
+        return this._parent.getInstanceWriteable(this.getReference(propertyName));
     }
 
     @Override
@@ -108,13 +108,13 @@ public class KBObject implements IKBObjectWriteable
     }
 
     @Override
-    public IKBObject[] getResolvedReferenceArray(String propertyName) {
+    public IKBObjectWriteable[] getResolvedReferenceArray(String propertyName) {
         UUID[] uuids = getReferenceArray(propertyName);
-        IKBObject[] result = new IKBObject[uuids.length];
+        IKBObjectWriteable[] result = new IKBObjectWriteable[uuids.length];
 
         for(int i = 0; i < uuids.length; i++)
         {
-            result[i] = this._parent.getInstance(uuids[i]);
+            result[i] = this._parent.getInstanceWriteable(uuids[i]);
         }
         return result;
     }
@@ -173,4 +173,9 @@ public class KBObject implements IKBObjectWriteable
     public UUID getUUID() {
         return this._uuid;
     }
+
+	@Override
+	public void setReference(String propertyName, Object value) {
+        this._data.put(propertyName, value);
+	}
 }

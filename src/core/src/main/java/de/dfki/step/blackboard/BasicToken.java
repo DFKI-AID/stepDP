@@ -1,6 +1,7 @@
 package de.dfki.step.blackboard;
 
 import de.dfki.step.kb.IKBObject;
+import de.dfki.step.kb.IKBObjectWriteable;
 import de.dfki.step.kb.KnowledgeBase;
 import de.dfki.step.kb.semantic.IProperty;
 import de.dfki.step.kb.semantic.Type;
@@ -123,8 +124,23 @@ public class BasicToken extends AbstractToken {
 
     public void addAll(Map<String, Object> values) {
         for (var entry : values.entrySet()) {
-            this._payload.put(entry.getKey(), entry.getValue());
+        	Object val = entry.getValue();
+        	if (val instanceof Map)
+        		val = createMutableCopy((Map<String, Object>) val);
+            this._payload.put(entry.getKey(), val);
         }
+    }
+
+    private Map<String, Object> createMutableCopy(Map<String, Object> map) {
+    	Map<String, Object> copy = new HashMap<String, Object>(map);
+    	for (var entry : map.entrySet()) {
+    		Object val = entry.getValue();
+    		if (val instanceof Map) {
+    			val = createMutableCopy((Map<String, Object>) val);
+    		}
+    		copy.put(entry.getKey(), val);
+    	}
+    	return copy;
     }
 
     public Map<String, Object> getPayload()
@@ -178,7 +194,7 @@ public class BasicToken extends AbstractToken {
 	}
 
 	@Override
-	public IKBObject getResolvedReference(String propertyName) {
+	public IKBObjectWriteable getResolvedReference(String propertyName) {
 		return _rootTokenObject.getResolvedReference(propertyName);
 	}
 
@@ -208,7 +224,7 @@ public class BasicToken extends AbstractToken {
     }
 
     @Override
-    public IKBObject[] getResolvedReferenceArray(String propertyName) {
+    public IKBObjectWriteable[] getResolvedReferenceArray(String propertyName) {
         return _rootTokenObject.getResolvedReferenceArray(propertyName);
     }
 
@@ -229,9 +245,59 @@ public class BasicToken extends AbstractToken {
     }
 
 	@Override
-	public IToken createCopyAndReplaceParts(ValueReplacement replace) {
-		// TODO Auto-generated method stub
-		return null;
+	public void setString(String propertyName, String value) {
+		this._payload.put(propertyName, value);
+		
+	}
+
+	@Override
+	public void setInteger(String propertyName, Integer value) {
+		this._payload.put(propertyName, value);
+	}
+
+	@Override
+	public void setBoolean(String propertyName, Boolean value) {
+		this._payload.put(propertyName, value);
+	}
+
+	@Override
+	public void setFloat(String propertyName, Float value) {
+		this._payload.put(propertyName, value);
+	}
+
+	@Override
+	public void setReference(String propertyName, UUID value) {
+		this._payload.put(propertyName, value);
+	}
+
+	@Override
+	public void setStringArray(String propertyName, String[] value) {
+		this._payload.put(propertyName, value);
+	}
+
+	@Override
+	public void setIntegerArray(String propertyName, Integer[] value) {
+		this._payload.put(propertyName, value);
+	}
+
+	@Override
+	public void setBooleanArray(String propertyName, Boolean[] value) {
+		this._payload.put(propertyName, value);
+	}
+
+	@Override
+	public void setFloatArray(String propertyName, Float[] value) {
+		this._payload.put(propertyName, value);
+	}
+
+	@Override
+	public void setReferenceArray(String propertyName, UUID[] value) {
+		this._payload.put(propertyName, value);
+	}
+
+	@Override
+	public void setReference(String propertyName, Object value) {
+        this._payload.put(propertyName, value);
 	}
 
 }

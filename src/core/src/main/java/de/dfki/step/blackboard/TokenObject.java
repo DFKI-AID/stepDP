@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import de.dfki.step.kb.IKBObject;
+import de.dfki.step.kb.IKBObjectWriteable;
 import de.dfki.step.kb.KnowledgeBase;
 import de.dfki.step.kb.semantic.IProperty;
 import de.dfki.step.kb.semantic.PropReference;
@@ -12,7 +13,7 @@ import de.dfki.step.kb.semantic.PropReferenceArray;
 import de.dfki.step.kb.semantic.Type;
 import org.pcollections.PMap;
 
-public class TokenObject implements IKBObject {
+public class TokenObject implements IKBObjectWriteable {
 
 	private BasicToken _parent;
 	private Map<String, Object> _payload;
@@ -121,7 +122,7 @@ public class TokenObject implements IKBObject {
 	}
 
 	@Override
-	public IKBObject getResolvedReference(String propertyName) {
+	public IKBObjectWriteable getResolvedReference(String propertyName) {
 		if (this.isSet(propertyName))
 		{
 			// TODO resolve UUIDs and names (KB reference)
@@ -148,13 +149,13 @@ public class TokenObject implements IKBObject {
 				} catch (IllegalArgumentException exception){
 				}
 
-				IKBObject ref;
+				IKBObjectWriteable ref;
 				if(uuid != null) {
-					ref = this._kb.getInstance(uuid);
+					ref = this._kb.getInstanceWriteable(uuid);
 					ref = (ref == null) ? this._kb.getBlackboard().getTokenByID(uuid, true) : ref;
 				}
 				else
-					ref = this._kb.getInstance(data.toString());
+					ref = this._kb.getInstanceWriteable(data.toString());
 				if(ref != null)
 					return ref;
 				else
@@ -259,7 +260,7 @@ public class TokenObject implements IKBObject {
 	}
 
 	@Override
-	public IKBObject[] getResolvedReferenceArray(String propertyName) {
+	public IKBObjectWriteable[] getResolvedReferenceArray(String propertyName) {
 		if (!this.isSet(propertyName))
 			return null;
 
@@ -277,7 +278,7 @@ public class TokenObject implements IKBObject {
 		try
 		{
 			ArrayList<Object> data = (ArrayList<Object>)this._payload.get(propertyName);
-			IKBObject[] results = new IKBObject[data.size()];
+			IKBObjectWriteable[] results = new IKBObjectWriteable[data.size()];
 
 			for(int i = 0; i < data.size(); i++)
 			{
@@ -291,11 +292,13 @@ public class TokenObject implements IKBObject {
 					} catch (IllegalArgumentException exception){
 					}
 
-					IKBObject ref;
-					if(uuid != null)
-						ref = this._kb.getInstance(uuid);
+					IKBObjectWriteable ref;
+					if(uuid != null) {
+						ref = this._kb.getInstanceWriteable(uuid);
+						ref = (ref == null) ? this._kb.getBlackboard().getTokenByID(uuid, true) : ref;
+					}
 					else
-						ref = this._kb.getInstance(data.toString());
+						ref = this._kb.getInstanceWriteable(data.toString());
 
 					if(ref != null)
 						results[i] = ref;
@@ -318,6 +321,61 @@ public class TokenObject implements IKBObject {
 		} catch (IllegalArgumentException exception){
 			return null;
 		}
+	}
+
+	@Override
+	public void setString(String propertyName, String value) {
+		this._payload.put(propertyName, value);
+	}
+
+	@Override
+	public void setInteger(String propertyName, Integer value) {
+		this._payload.put(propertyName, value);
+	}
+
+	@Override
+	public void setBoolean(String propertyName, Boolean value) {
+		this._payload.put(propertyName, value);
+	}
+
+	@Override
+	public void setFloat(String propertyName, Float value) {
+		this._payload.put(propertyName, value);
+	}
+
+	@Override
+	public void setReference(String propertyName, UUID value) {
+		this._payload.put(propertyName, value);
+	}
+
+	@Override
+	public void setStringArray(String propertyName, String[] value) {
+		this._payload.put(propertyName, value);
+	}
+
+	@Override
+	public void setIntegerArray(String propertyName, Integer[] value) {
+		this._payload.put(propertyName, value);
+	}
+
+	@Override
+	public void setBooleanArray(String propertyName, Boolean[] value) {
+		this._payload.put(propertyName, value);
+	}
+
+	@Override
+	public void setFloatArray(String propertyName, Float[] value) {
+		this._payload.put(propertyName, value);
+	}
+
+	@Override
+	public void setReferenceArray(String propertyName, UUID[] value) {
+		this._payload.put(propertyName, value);
+	}
+
+	@Override
+	public void setReference(String propertyName, Object value) {
+        this._payload.put(propertyName, value);
 	}
 
 }

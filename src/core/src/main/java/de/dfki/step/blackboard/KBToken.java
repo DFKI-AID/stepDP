@@ -9,18 +9,27 @@ import org.apache.commons.lang3.NotImplementedException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.dfki.step.kb.IKBObject;
+import de.dfki.step.kb.IKBObjectWriteable;
 import de.dfki.step.kb.KnowledgeBase;
 import de.dfki.step.kb.semantic.IProperty;
 import de.dfki.step.kb.semantic.Type;
 
 public class KBToken extends AbstractToken {
-    private IKBObject _parent;
+    private IKBObjectWriteable _parent;
 
     public KBToken(KnowledgeBase kb, IKBObject kbObj) {
         super(kb);
         if (kbObj instanceof IToken)
             throw new RuntimeException("KBToken can only hold references to kb objects, not other tokens.");
-        this._parent = kbObj;
+        
+        if (kbObj instanceof IKBObjectWriteable)
+        	this._parent = (IKBObjectWriteable) kbObj;
+        else {
+        	IKBObjectWriteable writeObj = kb.getInstanceWriteable(kbObj.getUUID());
+        	if (writeObj == null)
+        		throw new RuntimeException("Cannot instantiate KBToken with object that does not exist in kb.");
+        	this._parent = writeObj;
+        }
     }
 
     @Override
@@ -74,7 +83,7 @@ public class KBToken extends AbstractToken {
     }
 
     @Override
-    public IKBObject getResolvedReference(String propertyName) {
+    public IKBObjectWriteable getResolvedReference(String propertyName) {
         return _parent.getResolvedReference(propertyName);
     }
 
@@ -104,7 +113,7 @@ public class KBToken extends AbstractToken {
     }
 
     @Override
-    public IKBObject[] getResolvedReferenceArray(String propertyName) {
+    public IKBObjectWriteable[] getResolvedReferenceArray(String propertyName) {
         return _parent.getResolvedReferenceArray(propertyName);
     }
 
@@ -114,8 +123,57 @@ public class KBToken extends AbstractToken {
     }
 
 	@Override
-	public IToken createCopyAndReplaceParts(ValueReplacement replace) {
-		// TODO Auto-generated method stub
-		return null;
+	public void setString(String propertyName, String value) {
+		_parent.setString(propertyName, value);
+	}
+
+	@Override
+	public void setInteger(String propertyName, Integer value) {
+		_parent.setInteger(propertyName, value);
+	}
+
+	@Override
+	public void setBoolean(String propertyName, Boolean value) {
+		_parent.setBoolean(propertyName, value);
+	}
+
+	@Override
+	public void setFloat(String propertyName, Float value) {
+		_parent.setFloat(propertyName, value);
+	}
+
+	@Override
+	public void setReference(String propertyName, UUID value) {
+		_parent.setReference(propertyName, value);
+	}
+
+	@Override
+	public void setStringArray(String propertyName, String[] value) {
+		_parent.setStringArray(propertyName, value);
+	}
+
+	@Override
+	public void setIntegerArray(String propertyName, Integer[] value) {
+		_parent.setIntegerArray(propertyName, value);
+	}
+
+	@Override
+	public void setBooleanArray(String propertyName, Boolean[] value) {
+		_parent.setBooleanArray(propertyName, value);
+	}
+
+	@Override
+	public void setFloatArray(String propertyName, Float[] value) {
+		_parent.setFloatArray(propertyName, value);
+	}
+
+	@Override
+	public void setReferenceArray(String propertyName, UUID[] value) {
+		_parent.setReferenceArray(propertyName, value);
+	}
+
+	@Override
+	public void setReference(String propertyName, Object value) {
+        this._parent.setReference(propertyName, value);
 	}
 }

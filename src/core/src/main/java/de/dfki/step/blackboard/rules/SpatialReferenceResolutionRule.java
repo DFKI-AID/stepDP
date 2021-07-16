@@ -42,38 +42,37 @@ public class SpatialReferenceResolutionRule extends Rule {
         for (IToken[] tArray : tokens) {
         	IToken t = tArray[0];
         	t.usedBy(this.getUUID());
-        	ValueReplacement replace = new ValueReplacement();
-    		IKBObject resolved = findAndResolveReferences(t, replace);
-    		IToken newToken;
-    		if (resolved != null)
-    			newToken = new KBToken(kb, resolved);
-    		else
-    			newToken = t.createCopyAndReplaceParts(replace);
-    		this.kb.getBlackboard().addToken(newToken);
+        	IToken newToken = t.createTokenWithSameContent();
+    		IKBObjectWriteable resolved = findAndResolveReferences(newToken);
+    		this.kb.getBlackboard().addToken((IToken) resolved);
         }
 	}
 
 	// replaces spatial references with the most likely referent object
-	private IKBObject findAndResolveReferences(IKBObject obj, ValueReplacement replace) {
-		IKBObject referent = null;
+	private IKBObjectWriteable findAndResolveReferences(IKBObjectWriteable obj) {
 		if (RRTypes.isSpatialReference(obj, kb)) {
-			referent = resolveReference(obj);
+			IKBObject referent = resolveReference(obj);
+			return new KBToken(kb, referent);
 		}
 		for (IProperty prop : obj.getType().getProperties()) {
 			if (!(prop instanceof PropReference))
 				continue;
-			IKBObject innerObject = obj.getResolvedReference(prop.getName());
+			IKBObjectWriteable innerObject = obj.getResolvedReference(prop.getName());
 			if (innerObject == null)
 				continue;
-			ValueReplacement innerReplace = replace.getInnerReplacement(prop.getName());
-			IKBObject innerReferent = findAndResolveReferences(innerObject, innerReplace);
-			if (innerReferent != null)
-				replace.replaceValue(prop.getName(), innerReferent);
+			if (RRTypes.isSpatialReference(innerObject, kb)) {
+				IKBObject innerReferent = resolveReference(innerObject);
+				if (innerReferent != null)
+					obj.setReference(prop.getName(), innerReferent);
+			} else {
+				IKBObjectWriteable resolved = findAndResolveReferences(innerObject);
+				obj.setReference(prop.getName(), resolved);
+			}
 		}
-		return referent;
+		return obj;
 	}
 	
-	private IKBObject resolveReference(IKBObject obj) {
+	private IKBObject resolveReference(IKBObjectWriteable obj) {
 		ResolutionResult result = this.rr.resolveReference(obj);
 		List<UUID> referents = result.getMostLikelyReferents();
 		// TODO: handle empty referents, low confidence, ambiguity etc.

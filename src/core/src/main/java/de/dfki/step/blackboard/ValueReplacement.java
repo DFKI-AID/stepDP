@@ -26,4 +26,8 @@ public class ValueReplacement {
 	public void replaceValue(String propertyName, Object value) {
 		newValues.put(propertyName, value);
 	}
+
+	public Map<String, Object> getNewValues(){
+		return this.newValues;
+	}
 }
