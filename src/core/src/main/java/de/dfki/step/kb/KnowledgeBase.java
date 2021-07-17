@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class KnowledgeBase {
 
@@ -132,6 +133,10 @@ public class KnowledgeBase {
         }
         else
             return null;
+    }
+
+    public List<IKBObject> getInstancesOfType(Type type){
+        return _instances.stream().filter(i->i.getType().isInheritanceFrom(type)).collect(Collectors.toList());
     }
 
     public boolean existType(String name)

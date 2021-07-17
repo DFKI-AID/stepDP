@@ -122,6 +122,14 @@ public class Type implements IUUID
         return false;
     }
 
+    public boolean isInheritanceFrom(String typeName) {
+    	Type type = this._parent.getType(typeName);
+    	if (type == null)
+    		return false;
+    	else
+    		return isInheritanceFrom(type);
+    }
+
     public boolean isSystemType()
     {
         return this._systemType;

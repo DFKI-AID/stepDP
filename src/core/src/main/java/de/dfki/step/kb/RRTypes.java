@@ -15,9 +15,13 @@ public class RRTypes {
 	public static final String USER_INTENT = "UserIntent";
 	public static final String REFERENCE = "Reference";
 	public static final String SPAT_REF = "SpatialReference";
+	public static final String BIN_SPAT_C = "BinarySpatialRelationConstraint";
+	public static final String TYPE_C = "TypeConstraint";
+	public static final String SPAT_REF_TARGET = "PhysicalObject";
 
 	public enum BinaryRelation {
-		LEFT_OF, RIGHT_OF, IN_FRONT_OF, BEHIND_OF, ABOVE_OF, BELOW_OF, NEXT_TO, ON, INSIDE_OF
+		// TODO: add support for NEXT_TO etc.
+		LEFT_OF, RIGHT_OF, IN_FRONT_OF, BEHIND_OF, ABOVE_OF, BELOW_OF //, NEXT_TO, ON, INSIDE_OF
 	};
 
 	public static boolean isSpatialReference(IKBObject obj, KnowledgeBase kb) {
@@ -32,6 +36,9 @@ public class RRTypes {
 			Type intent = new Type(USER_INTENT, kb);
 			kb.addType(intent);
 
+			Type object = new Type(SPAT_REF_TARGET, kb);
+			kb.addType(object);
+
 			Type ref = new Type(REFERENCE, kb, true);
 			ref.addProperty(new PropString("text", kb));
 			kb.addType(ref);
@@ -39,19 +46,24 @@ public class RRTypes {
 			Type constraint = new Type("Constraint", kb, true);
 			constraint.addProperty(new PropInt("priority", kb));
 			kb.addType(constraint);
+
+			Type typeConst = new Type(TYPE_C, kb, true);
+			typeConst.addProperty(new PropString("refType", kb));
+			typeConst.addInheritance(constraint);
+			kb.addType(typeConst);
 	
 			Type spatRef = new Type(SPAT_REF, kb, true);
 			spatRef.addInheritance(kb.getType("Reference"));
-			spatRef.addProperty(new PropReferenceArray("constraints", kb, constraint));
+			spatRef.addProperty(new PropReferenceArray("constraints", kb, typeConst));
 			spatRef.addProperty(new PropBool("ambiguous", kb));
 			kb.addType(spatRef);
 
 			Type relConst = new Type("RelationConstraint", kb);
-			relConst.addInheritance(constraint);
+			relConst.addInheritance(typeConst);
 			relConst.addProperty(new PropString("relation", kb));
 			kb.addType(relConst);
 			
-			Type binSpatRelConst = new Type("BinarySpatialRelationConstraint", kb);
+			Type binSpatRelConst = new Type(BIN_SPAT_C, kb);
 			binSpatRelConst.addProperty(new PropReference("relatumReference", kb, spatRef));
 			binSpatRelConst.addInheritance(relConst);
 			kb.addType(binSpatRelConst);

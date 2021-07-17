@@ -11,15 +11,9 @@ public class RelationScorer extends ConstraintScorer {
 	}
 
 	@Override
-	public List<ObjectScore> computeScores() {
+	public List<ObjectScore> computeScores(List<IKBObject> objects) {
 		// TODO Auto-generated method stub
 		return null;
-	}
-
-	@Override
-	public int getPriority() {
-		// TODO Auto-generated method stub
-		return 0;
 	}
 
 }
