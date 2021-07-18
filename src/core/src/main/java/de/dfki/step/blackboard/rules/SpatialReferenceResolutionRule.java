@@ -50,6 +50,8 @@ public class SpatialReferenceResolutionRule extends Rule {
 
 	// replaces spatial references with the most likely referent object
 	private IKBObjectWriteable findAndResolveReferences(IKBObjectWriteable obj) {
+		if (obj.getType() == null)
+			return obj;
 		if (RRTypes.isSpatialReference(obj, kb)) {
 			IKBObject referent = resolveReference(obj);
 			return new KBToken(kb, referent);

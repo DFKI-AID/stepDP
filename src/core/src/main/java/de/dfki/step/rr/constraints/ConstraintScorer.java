@@ -25,6 +25,8 @@ public abstract class ConstraintScorer {
 	}
 
 	public static ConstraintScorer getConstraintScorer(IKBObject constraint, KnowledgeBase kb) {
+		if (constraint == null)
+			return null;
 		if (constraint.getType().isInheritanceFrom(RRTypes.BIN_SPAT_C)) 
 			return new BinarySpatialRelationScorer(constraint, kb);
 		if (constraint.getType().isInheritanceFrom(RRTypes.TYPE_C))

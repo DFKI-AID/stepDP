@@ -1,6 +1,8 @@
 package de.dfki.step.blackboard;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -277,7 +279,12 @@ public class TokenObject implements IKBObjectWriteable {
 
 		try
 		{
-			ArrayList<Object> data = (ArrayList<Object>)this._payload.get(propertyName);
+			Object refArray = this._payload.get(propertyName);
+			List<Object> data;
+			if (refArray instanceof Object[])
+				data = Arrays.asList(((Object[]) this._payload.get(propertyName)));
+			else
+				data = (List<Object>) this._payload.get(propertyName);
 			IKBObjectWriteable[] results = new IKBObjectWriteable[data.size()];
 
 			for(int i = 0; i < data.size(); i++)
@@ -288,7 +295,7 @@ public class TokenObject implements IKBObjectWriteable {
 				{
 					UUID uuid = null;
 					try{
-						uuid = UUID.fromString(data.toString());
+						uuid = UUID.fromString(var.toString());
 					} catch (IllegalArgumentException exception){
 					}
 

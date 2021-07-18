@@ -33,7 +33,7 @@ public class ObjectScore {
 
 	public static List<ObjectScore> initializeScores(List<IKBObject> potentialReferents) {
 		List<ObjectScore> scores = new ArrayList<ObjectScore>();
-		float individualScore = 1 / potentialReferents.size();
+		float individualScore = (float) (1.0 / potentialReferents.size());
 		for (IKBObject obj : potentialReferents) {
 			scores.add(new ObjectScore(obj.getUUID(), individualScore));
 		}
@@ -44,10 +44,14 @@ public class ObjectScore {
 		Map<UUID, ObjectScore> accumulateMap = accumulateList.stream().collect(Collectors.toMap(ObjectScore::getUUID, Function.identity()));
 		for (ObjectScore total : totalList) {
 			ObjectScore accumulate = accumulateMap.get(total.getUUID());
-			float oldS = total.getScore();
-			float accumulateS = accumulate.getScore();
-			float newS = (accumulateS == 0) ? 0 : (oldS * accumulateS);
-			total.setScore(newS);
+			if (accumulate == null)
+				total.setScore(0);
+			else {
+				float oldS = total.getScore();
+				float accumulateS = accumulate.getScore();
+				float newS = (accumulateS == 0) ? 0 : (oldS * accumulateS);
+				total.setScore(newS);
+			}
 		}
 		return totalList;
 	}

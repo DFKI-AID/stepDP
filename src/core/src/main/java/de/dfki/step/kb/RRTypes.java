@@ -21,11 +21,25 @@ public class RRTypes {
 
 	public enum BinaryRelation {
 		// TODO: add support for NEXT_TO etc.
-		LEFT_OF, RIGHT_OF, IN_FRONT_OF, BEHIND_OF, ABOVE_OF, BELOW_OF //, NEXT_TO, ON, INSIDE_OF
+		LEFT_OF(90), RIGHT_OF(270), IN_FRONT_OF(0), BEHIND_OF(180); //, ABOVE_OF, BELOW_OF //, NEXT_TO, ON, INSIDE_OF
+		
+		private double prototypeAngle;
+		
+		BinaryRelation(double prototypeAngle) {
+			this.prototypeAngle = prototypeAngle;
+		}
+
+		public double getPrototypeAngle() {
+			return this.prototypeAngle;
+		}
 	};
 
 	public static boolean isSpatialReference(IKBObject obj, KnowledgeBase kb) {
-		return obj.getType().isInheritanceFrom(kb.getType(RRTypes.SPAT_REF));
+		Type type = obj.getType();
+		if (type == null)
+				return false;
+		else
+			return type.isInheritanceFrom(kb.getType(RRTypes.SPAT_REF));
 	}
 
 	public static boolean isReference(IKBObject obj, KnowledgeBase kb) {
@@ -36,7 +50,31 @@ public class RRTypes {
 			Type intent = new Type(USER_INTENT, kb);
 			kb.addType(intent);
 
+			Type position = new Type("Position", kb);
+			position.addProperty(new PropInt("x", kb));
+			position.addProperty(new PropInt("y", kb));
+			position.addProperty(new PropInt("z", kb));
+			kb.addType(position);
+
+			Type rotation = new Type("Rotation", kb);
+			rotation.addProperty(new PropInt("x", kb));
+			rotation.addProperty(new PropInt("y", kb));
+			rotation.addProperty(new PropInt("z", kb));
+			kb.addType(rotation);
+
+			Type transform = new Type("Transform", kb);
+			transform.addProperty(new PropReference("position", kb, position));
+			transform.addProperty(new PropReference("rotation", kb, rotation));
+			kb.addType(transform);
+
+			Type extension = new Type("Extension", kb);
+			extension.addProperty(new PropInt("x", kb));
+			extension.addProperty(new PropInt("y", kb));
+			extension.addProperty(new PropInt("z", kb));
+
 			Type object = new Type(SPAT_REF_TARGET, kb);
+			object.addProperty(new PropReference("transform", kb, transform));
+			object.addProperty(new PropReference("extension", kb, extension));
 			kb.addType(object);
 
 			Type ref = new Type(REFERENCE, kb, true);

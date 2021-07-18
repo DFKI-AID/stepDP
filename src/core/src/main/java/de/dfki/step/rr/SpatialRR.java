@@ -1,8 +1,10 @@
 package de.dfki.step.rr;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -27,17 +29,29 @@ public class SpatialRR implements ReferenceResolver {
 		IKBObject[] constraintArray = reference.getResolvedReferenceArray("constraints");
 		if (constraintArray == null)
 			return new ResolutionResult(total);
-		List<IKBObject> constraints = List.of(constraintArray);
-		constraints.sort(new PrioComparator());
-		for (IKBObject c : constraints) {
-			ConstraintScorer scorer = ConstraintScorer.getConstraintScorer(c, kb);
+		List<IKBObject> constraints = new ArrayList<IKBObject>(Arrays.asList(constraintArray));
+		List<ConstraintScorer> scorers = constraints.stream()
+											.map(c -> ConstraintScorer.getConstraintScorer(c, kb))
+											.filter(c -> c!= null)
+											.collect(Collectors.toList());
+		scorers.sort(new PrioComparator());
+		for (ConstraintScorer scorer : scorers) {
 			List<ObjectScore> current = scorer.computeScores(potentialReferents);
 			total = ObjectScore.accumulateScores(total, current);
-			// TODO prune object with score 0
+			potentialReferents = pruneCandidates(potentialReferents, total);
 		}
 		ResolutionResult result = new ResolutionResult(total);
 		return result;
  	}
 
+	private List<IKBObject> pruneCandidates(List<IKBObject> candidates, List<ObjectScore> total) {
+		List<UUID> dropouts = total.stream()
+				.filter(s -> s.getScore() != 0)
+				.map(s -> s.getUUID())
+				.collect(Collectors.toList());
+		// TODO: make this more efficient?
+		candidates = candidates.stream().filter(r -> dropouts.contains(r.getUUID())).collect(Collectors.toList());
+		return candidates;
+	}
 
 }

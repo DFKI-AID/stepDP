@@ -3,6 +3,7 @@ package de.dfki.step.blackboard;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -11,6 +12,8 @@ import org.junit.Test;
 import de.dfki.step.blackboard.patterns.Pattern;
 import de.dfki.step.blackboard.patterns.PatternBuilder;
 import de.dfki.step.blackboard.rules.SpatialReferenceResolutionRule;
+import de.dfki.step.kb.IKBObject;
+import de.dfki.step.kb.IKBObjectWriteable;
 import de.dfki.step.kb.KnowledgeBase;
 import de.dfki.step.kb.RRTypes;
 import de.dfki.step.kb.semantic.PropBool;
@@ -27,7 +30,7 @@ public class ReferenceResolutionTest {
 		kb = new KnowledgeBase(new Board());
 
 		// Physical Object Type
-		Type physObj = kb.getType("PhysicalObject");
+		Type physObj = kb.getType(RRTypes.SPAT_REF_TARGET);
 
 		// Location Type
 		Type loc = new Type("Location", kb);
@@ -43,7 +46,7 @@ public class ReferenceResolutionTest {
 		
 		// Food Types
 		Type food = new Type("Food", kb);
-		food.addInheritance(kb.getType("PhysicalObject"));
+		food.addInheritance(physObj);
 		kb.addType(food);
 
 		Type pizza = new Type("Pizza", kb);
@@ -91,8 +94,62 @@ public class ReferenceResolutionTest {
 		kb.addType(pickUpIntent);
 		
 		// instances
-		kb.createInstance("beer1", kb.getType("Beer"));
+		IKBObjectWriteable beer1 = kb.createInstance("beer1", kb.getType("Beer"));
+		beer1 = this.setPosition(beer1, 5, 6, 7);
 		kb.createInstance("pizza1", kb.getType("Pizza"));
+		IKBObjectWriteable o2 = kb.createInstance("obj2", knife);
+		o2 = this.setPosition(o2, 6, 6, 7);
+		IKBObjectWriteable o3 = kb.createInstance("obj2", knife);
+		o3 = this.setPosition(o3, 4, 6, 7);
+	}
+
+	private IKBObjectWriteable setPosition(IKBObjectWriteable obj, float x, float y, float z) {
+		IKBObjectWriteable pos = kb.createInstance("pos1", kb.getType("Position"));
+		pos.setFloat("x", x);
+		pos.setFloat("y", y);
+		pos.setFloat("z", z);
+		IKBObjectWriteable transform = kb.createInstance("transform1", kb.getType("Transform"));
+		transform.setReference("position", pos.getUUID());
+		obj.setReference("transform", transform.getUUID());
+		return obj;
+	}
+
+	private Map<String, Object> buildBinarySpatialReference(Type ioType, RRTypes.BinaryRelation rel) {
+		Map<String, Object> m1 = Map.of(
+				"type", RRTypes.TYPE_C,
+				"refType", "Drink"
+			 );
+		BasicToken c1 = new BasicToken(this.kb);
+		c1.setType(kb.getType(RRTypes.TYPE_C));
+		c1.addAll(m1);
+		this.kb.getBlackboard().addToken(c1);
+		String[] cs = List.of(c1.getUUID().toString()).toArray(new String[] {});
+		Map<String, Object> constraintMap = Map.of(
+											"type", RRTypes.BIN_SPAT_C,
+											"relatumReference", Map.of(
+															"type", RRTypes.SPAT_REF,
+															"constraints", cs
+														),
+											"relation", rel.name()
+										 );
+		BasicToken constraint = new BasicToken(this.kb);
+		constraint.setType(kb.getType(RRTypes.BIN_SPAT_C));
+		constraint.addAll(constraintMap);
+		this.kb.getBlackboard().addToken(constraint);
+		Map<String, Object> typeConstraintMap = Map.of(
+				"type", RRTypes.TYPE_C,
+				"refType", ioType.getName()
+			 );
+        BasicToken typeConstraint = new BasicToken(this.kb);
+		typeConstraint.setType(kb.getType(RRTypes.TYPE_C));
+		typeConstraint.addAll(typeConstraintMap);
+		this.kb.getBlackboard().addToken(typeConstraint);
+		String[] constraints = List.of(constraint.getUUID().toString(), typeConstraint.getUUID().toString()).toArray(new String[] {});
+		Map<String, Object> ref = Map.of(
+									"type", RRTypes.SPAT_REF,
+									"constraints", constraints
+								  );
+		return ref;
 	}
 
 	@Test
@@ -105,14 +162,12 @@ public class ReferenceResolutionTest {
 		match1.setType(kb.getType(RRTypes.SPAT_REF));
 		match1.addAll(Map.of("refType", "Food"));
 
+		Map<String, Object> ref = this.buildBinarySpatialReference(kb.getType("Knife"), RRTypes.BinaryRelation.BEHIND_OF);
 		BasicToken match2 = new BasicToken(kb);
 		match2.setType(kb.getType("PickUpIntent"));
 		match2.addAll(Map.of(
 				"fragile", false,
-				"object", Map.of("type",RRTypes.SPAT_REF,
-								 "refType", "Food",
-								 "ambiguous", "false"
-								),
+				"object", ref,
 				"bringTo", Map.of("type","Human",
 						 		  "name", "Harry"
 						)
@@ -139,14 +194,14 @@ public class ReferenceResolutionTest {
 		de.dfki.step.blackboard.Rule r =  new SpatialReferenceResolutionRule(this.kb);
 		IToken[] tArray = List.of(match1).toArray(new IToken[] {});
 		List<IToken[]> tList = new ArrayList<IToken[]>();
-		tList.add(tArray);
+		//tList.add(tArray);
 		tArray = List.of(match2).toArray(new IToken[] {});
 		tList.add(tArray);
 		tArray = List.of(match3).toArray(new IToken[] {});
-		tList.add(tArray);
+		//tList.add(tArray);
 		r.onMatch(tList, this.kb.getBlackboard());
 		List<IToken> tokens = this.kb.getBlackboard().getActiveTokens();
-		Assert.assertTrue(tokens.size() == 3);
+		Assert.assertTrue(tokens.size() == 5);
 		IToken t = tokens.get(0);
 		System.out.print("Juuhuu");
 	}

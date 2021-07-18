@@ -26,6 +26,7 @@ public class BasicToken extends AbstractToken {
     public BasicToken(KnowledgeBase kb)
     {
         super(kb);
+        this._type = kb.getRootType();
         this._rootTokenObject = new TokenObject(this, this._payload, this.getKB());
         
     }

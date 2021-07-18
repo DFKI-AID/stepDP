@@ -29,23 +29,21 @@ public class BinarySpatialRelationScorer extends RelationScorer {
 	public List<ObjectScore> computeScores(List<IKBObject> objects) {
 		List<ObjectScore> scores = new ArrayList<ObjectScore>();
 		ReferenceResolver rr = new SpatialRR(kb);
+		if (relatumRef == null)
+			return scores;
 		List<UUID> potentialRelatums = rr.resolveReference(relatumRef).getMostLikelyReferents();
 		if (potentialRelatums == null || potentialRelatums.isEmpty())
 			return scores;
 		IKBObject relatum = this.kb.getInstance(potentialRelatums.get(0));
 		for (IKBObject obj : objects) {
-			float score = computeScore(obj, relatum);
+			BinSpatComputer comp = new BinSpatComputer(obj, relatum, this.rel);
+			double score = comp.computeScore();
 			// TODO: replace 0 with value range close to 0
 			if (score == 0)
 				continue;
-			scores.add(new ObjectScore(obj.getUUID(), score));
+			scores.add(new ObjectScore(obj.getUUID(), (float) score));
 		}
 		return scores;
-	}
-
-	private float computeScore(IKBObject io, IKBObject ro) {
-		// TODO: implement
-		return 1;
 	}
 
 }
