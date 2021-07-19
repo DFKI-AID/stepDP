@@ -297,8 +297,15 @@ public class BasicToken extends AbstractToken {
 	}
 
 	@Override
-	public void setReference(String propertyName, Object value) {
-        this._payload.put(propertyName, value);
+	public void setReference(String propertyName, IKBObject value) {
+		// TODO: make sure to consider all possible cases here (or find a better way to do this)
+		UUID uuid = value.getUUID();
+		if (this.getKB().getInstance(uuid) != null)
+			this._payload.put(propertyName, uuid.toString());
+		else if (value instanceof TokenObject) {
+			TokenObject obj = (TokenObject) value;
+			this._payload.put(propertyName, obj.getPayload());
+		}
 	}
 
 }

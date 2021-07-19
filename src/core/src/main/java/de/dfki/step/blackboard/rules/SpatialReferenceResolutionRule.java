@@ -43,8 +43,20 @@ public class SpatialReferenceResolutionRule extends Rule {
         	IToken t = tArray[0];
         	t.usedBy(this.getUUID());
         	IToken newToken = t.createTokenWithSameContent();
-    		IKBObjectWriteable resolved = findAndResolveReferences(newToken);
-    		this.kb.getBlackboard().addToken((IToken) resolved);
+    		IToken resolved = (IToken) findAndResolveReferences(newToken);
+    		resolved.getOriginTokens().add(t);
+    		t.addResultingTokens(List.of(resolved), this.getUUID());
+    		Pattern p;
+			try {
+				p = new PatternBuilder("Object", kb)
+								.hasRecursiveType(RRTypes.SPAT_REF)
+								.build();
+	    		// FIXME: what if t had two references and one was resolved?
+	    		if (!p.matches(resolved))
+	    			this.kb.getBlackboard().addToken(resolved);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
         }
 	}
 
@@ -65,10 +77,11 @@ public class SpatialReferenceResolutionRule extends Rule {
 			if (RRTypes.isSpatialReference(innerObject, kb)) {
 				IKBObject innerReferent = resolveReference(innerObject);
 				if (innerReferent != null)
-					obj.setReference(prop.getName(), innerReferent);
+					obj.setReference(prop.getName(), innerReferent.getUUID());
 			} else {
 				IKBObjectWriteable resolved = findAndResolveReferences(innerObject);
-				obj.setReference(prop.getName(), resolved);
+					obj.setReference(prop.getName(), resolved);
+				
 			}
 		}
 		return obj;

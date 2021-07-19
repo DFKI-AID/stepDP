@@ -39,6 +39,7 @@ public class SpatialRR implements ReferenceResolver {
 			List<ObjectScore> current = scorer.computeScores(potentialReferents);
 			total = ObjectScore.accumulateScores(total, current);
 			potentialReferents = pruneCandidates(potentialReferents, total);
+			total = total.stream().filter(s -> s.getScore() != 0).collect(Collectors.toList());
 		}
 		ResolutionResult result = new ResolutionResult(total);
 		return result;

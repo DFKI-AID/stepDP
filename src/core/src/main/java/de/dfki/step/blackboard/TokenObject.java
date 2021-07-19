@@ -143,13 +143,14 @@ public class TokenObject implements IKBObjectWriteable {
 
 			Object data = this._payload.get(propertyName);
 
-			if(data instanceof String)
+			if(data instanceof String || data instanceof UUID)
 			{
-				UUID uuid = null;
-				try{
-					uuid = UUID.fromString(data.toString());
-				} catch (IllegalArgumentException exception){
-				}
+				UUID uuid = (data instanceof UUID) ? (UUID) data : null;
+				if (uuid == null)
+					try{
+						uuid = UUID.fromString(data.toString());
+					} catch (IllegalArgumentException exception){
+					}
 
 				IKBObjectWriteable ref;
 				if(uuid != null) {
@@ -381,8 +382,19 @@ public class TokenObject implements IKBObjectWriteable {
 	}
 
 	@Override
-	public void setReference(String propertyName, Object value) {
-        this._payload.put(propertyName, value);
+	public void setReference(String propertyName, IKBObject value) {
+		// TODO: make sure to consider all possible cases here (or find a better way to do this)
+		UUID uuid = value.getUUID();
+		if (this._kb.getInstance(uuid) != null)
+			this._payload.put(propertyName, uuid.toString());
+		else if (value instanceof TokenObject) {
+			TokenObject obj = (TokenObject) value;
+			this._payload.put(propertyName, obj.getPayload());
+		}
+	}
+
+	public Map<String, Object> getPayload() {
+		return this._payload;
 	}
 
 }
