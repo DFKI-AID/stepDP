@@ -31,7 +31,7 @@ public class BinSpatComputer {
 		if (this.cp ==  null)
 			return 0;
 		else
-			return 1 / getCP();
+			return 2 * Math.PI - this.cp;
 	}
 
 	/**
@@ -45,11 +45,9 @@ public class BinSpatComputer {
 				return null;
 			Line speakerAxis = new Line(SPEAKER_POS_2D, roPos, 0);
 			Line objectAxis = new Line(roPos, ioPos, 0);
-			Line prototypeAxis = speakerAxis.copySelf();
-			// FIXME the angle should be relative to speakerAxis and not the abscissa
-			prototypeAxis.setAngle(this.rel.getPrototypeAngle());
-			// FIXME: find out if this is the right order
-			this.cp = Math.abs(prototypeAxis.getAngle() - objectAxis.getAngle());
+			double protoAngle = speakerAxis.getAngle() + this.rel.getPrototypeAngle();
+			Line prototypeAxis = new Line(roPos, protoAngle, 0);
+			this.cp = deviation(objectAxis, prototypeAxis);
 		}
 
 		return this.cp;
@@ -69,6 +67,11 @@ public class BinSpatComputer {
 	public double getPD() {
 		// TODO: implement
 		return 1;
+	}
+
+	private double deviation(Line x, Line y) {
+		double diff = Math.abs(x.getAngle() - y.getAngle());      // This is either the distance or 360 - distance
+       return diff > Math.PI ? 2 * Math.PI - diff : diff;
 	}
 
 }

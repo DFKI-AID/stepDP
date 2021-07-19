@@ -21,7 +21,7 @@ public class RRTypes {
 
 	public enum BinaryRelation {
 		// TODO: add support for NEXT_TO etc.
-		LEFT_OF(90), RIGHT_OF(270), IN_FRONT_OF(0), BEHIND_OF(180); //, ABOVE_OF, BELOW_OF //, NEXT_TO, ON, INSIDE_OF
+		LEFT_OF(90), RIGHT_OF(270), IN_FRONT_OF(180), BEHIND_OF(0); //, ABOVE_OF, BELOW_OF //, NEXT_TO, ON, INSIDE_OF
 		
 		private double prototypeAngle;
 		
@@ -29,8 +29,11 @@ public class RRTypes {
 			this.prototypeAngle = prototypeAngle;
 		}
 
+		/**
+		 * @return prototype angle in radians
+		 */
 		public double getPrototypeAngle() {
-			return this.prototypeAngle;
+			return Math.toRadians(this.prototypeAngle);
 		}
 	};
 

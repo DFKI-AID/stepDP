@@ -95,12 +95,12 @@ public class ReferenceResolutionTest {
 		
 		// instances
 		IKBObjectWriteable beer1 = kb.createInstance("beer1", kb.getType("Beer"));
-		beer1 = this.setPosition(beer1, 5, 6, 7);
-		kb.createInstance("pizza1", kb.getType("Pizza"));
+		beer1 = this.setPosition(beer1, 6, 3.5f, 7);
+		//kb.createInstance("pizza1", kb.getType("Pizza"));
 		IKBObjectWriteable o2 = kb.createInstance("obj2", knife);
-		o2 = this.setPosition(o2, 6, 6, 7);
-		IKBObjectWriteable o3 = kb.createInstance("obj2", knife);
-		o3 = this.setPosition(o3, 4, 6, 7);
+		o2 = this.setPosition(o2, 2.5f, 5, 7);
+		IKBObjectWriteable o3 = kb.createInstance("obj3", knife);
+		o3 = this.setPosition(o3, 9, 2, 7);
 	}
 
 	private IKBObjectWriteable setPosition(IKBObjectWriteable obj, float x, float y, float z) {
@@ -162,7 +162,7 @@ public class ReferenceResolutionTest {
 		match1.setType(kb.getType(RRTypes.SPAT_REF));
 		match1.addAll(Map.of("refType", "Food"));
 
-		Map<String, Object> ref = this.buildBinarySpatialReference(kb.getType("Knife"), RRTypes.BinaryRelation.BEHIND_OF);
+		Map<String, Object> ref = this.buildBinarySpatialReference(kb.getType("Knife"), RRTypes.BinaryRelation.IN_FRONT_OF);
 		BasicToken match2 = new BasicToken(kb);
 		match2.setType(kb.getType("PickUpIntent"));
 		match2.addAll(Map.of(
@@ -201,7 +201,6 @@ public class ReferenceResolutionTest {
 		//tList.add(tArray);
 		r.onMatch(tList, this.kb.getBlackboard());
 		List<IToken> tokens = this.kb.getBlackboard().getActiveTokens();
-		Assert.assertTrue(tokens.size() == 5);
 		IToken t = tokens.get(0);
 		System.out.print("Juuhuu");
 	}
