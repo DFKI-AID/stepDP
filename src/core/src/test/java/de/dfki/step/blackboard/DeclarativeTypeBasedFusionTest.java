@@ -20,6 +20,7 @@ import de.dfki.step.blackboard.patterns.PatternBuilder;
 import de.dfki.step.blackboard.rules.DeclarativeTypeBasedFusionRule;
 import de.dfki.step.kb.IKBObject;
 import de.dfki.step.kb.KnowledgeBase;
+import de.dfki.step.kb.RRTypes;
 import de.dfki.step.kb.semantic.PropReference;
 import de.dfki.step.kb.semantic.PropString;
 import de.dfki.step.kb.semantic.Type;
@@ -34,8 +35,7 @@ public class DeclarativeTypeBasedFusionTest {
 	@Before
 	public void setUp() throws Exception {
 		// Physical Object Type
-		Type physObj = new Type("PhysicalObject", kb);
-		kb.addType(physObj);
+		Type physObj = kb.getType("PhysicalObject");
 
 		// Food Types
 		Type food = new Type("Food", kb);

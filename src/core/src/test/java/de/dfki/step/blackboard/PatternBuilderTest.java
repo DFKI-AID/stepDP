@@ -34,9 +34,8 @@ public class PatternBuilderTest {
 		coord.addProperty(new PropFloat("y", kb));
 		coord.addProperty(new PropFloat("z", kb));
 		kb.addType(coord);
-		Type physObj = new Type("PhysicalObject", kb);
+		Type physObj = kb.getType("PhysicalObject");
 		physObj.addProperty(new PropReference("position", kb, kb.getType("3DCoordinates")));
-		kb.addType(physObj);
 
 		// Location Type
 		Type loc = new Type("Location", kb);
