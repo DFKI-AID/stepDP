@@ -173,7 +173,7 @@ public class KBToken extends AbstractToken {
 	}
 
 	@Override
-	public void setReference(String propertyName, IKBObject value) {
+	public void setReference(String propertyName, Object value) {
         this._parent.setReference(propertyName, value);
 	}
 }

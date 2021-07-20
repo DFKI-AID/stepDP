@@ -162,7 +162,7 @@ public class ReferenceResolutionTest {
 		match1.setType(kb.getType(RRTypes.SPAT_REF));
 		match1.addAll(Map.of("refType", "Food"));
 
-		Map<String, Object> ref = this.buildBinarySpatialReference(kb.getType("Knife"), RRTypes.BinaryRelation.IN_FRONT_OF);
+		Map<String, Object> ref = this.buildBinarySpatialReference(kb.getType("Knife"), RRTypes.BinaryRelation.inFrontOf);
 		BasicToken match2 = new BasicToken(kb);
 		match2.setType(kb.getType("PickUpIntent"));
 		match2.addAll(Map.of(

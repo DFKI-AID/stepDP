@@ -134,7 +134,7 @@ public class TokenObject implements IKBObjectWriteable {
 			Type typeOfObject = null;
 			if(prop != null && prop instanceof PropReference)
 			{
-				typeOfObject = ((PropReference)prop).getType();
+					typeOfObject = ((PropReference)prop).getType();
 			}
 			else
 			{
@@ -166,7 +166,13 @@ public class TokenObject implements IKBObjectWriteable {
 			}
 			else if(data instanceof Map)
 			{
-				return new TokenObject(this._parent, (Map<String, Object>) this._payload.get(propertyName), this._kb, typeOfObject);
+				Map<String, Object> inner = (Map<String, Object>) this._payload.get(propertyName);
+				if(inner.containsKey("type"))
+				{
+					String type = inner.get("type").toString();
+					typeOfObject = this._kb.getType(type);
+				}
+				return new TokenObject(this._parent, inner, this._kb, typeOfObject);
 			}
 			else if(data instanceof IToken)
 			{
@@ -382,14 +388,18 @@ public class TokenObject implements IKBObjectWriteable {
 	}
 
 	@Override
-	public void setReference(String propertyName, IKBObject value) {
+	public void setReference(String propertyName, Object value) {
 		// TODO: make sure to consider all possible cases here (or find a better way to do this)
-		UUID uuid = value.getUUID();
-		if (this._kb.getInstance(uuid) != null)
-			this._payload.put(propertyName, uuid.toString());
-		else if (value instanceof TokenObject) {
-			TokenObject obj = (TokenObject) value;
-			this._payload.put(propertyName, obj.getPayload());
+		if  (value instanceof IKBObject) {
+			UUID uuid = ((IKBObject) value).getUUID();
+			if (this._kb.getInstance(uuid) != null)
+				this._payload.put(propertyName, uuid.toString());
+			else if (value instanceof TokenObject) {
+				TokenObject obj = (TokenObject) value;
+				this._payload.put(propertyName, obj.getPayload());
+			}
+		} else if (value instanceof Map) {
+			this._payload.put(propertyName, value);
 		}
 	}
 

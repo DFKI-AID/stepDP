@@ -136,7 +136,9 @@ public class KnowledgeBase {
     }
 
     public List<IKBObject> getInstancesOfType(Type type){
-        return _instances.stream().filter(i->i.getType().isInheritanceFrom(type)).collect(Collectors.toList());
+        return _instances.stream()
+        		.filter(i -> (i.getType() == null) ? false : i.getType().isInheritanceFrom(type))
+        		.collect(Collectors.toList());
     }
 
     public boolean existType(String name)

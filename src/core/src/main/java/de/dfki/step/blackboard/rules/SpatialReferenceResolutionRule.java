@@ -21,10 +21,12 @@ import de.dfki.step.rr.ResolutionResult;
 import de.dfki.step.rr.SpatialRR;
 
 public class SpatialReferenceResolutionRule extends Rule {
+    private static final int DEFAULT_PRIO = 3000;
 	KnowledgeBase kb;
 	SpatialRR rr;
 
 	public SpatialReferenceResolutionRule(KnowledgeBase kb) throws Exception {
+		this.setPriority(DEFAULT_PRIO);
 		this.kb = kb;
 		this.rr = new SpatialRR(kb);
 

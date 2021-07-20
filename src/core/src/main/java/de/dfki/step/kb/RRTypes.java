@@ -15,13 +15,16 @@ public class RRTypes {
 	public static final String USER_INTENT = "UserIntent";
 	public static final String REFERENCE = "Reference";
 	public static final String SPAT_REF = "SpatialReference";
+	public static final String LM_SPAT_REF = "LMSpatialReference";
+	public static final String LM_SPAT_REF_INNER = "LMSpatialReferenceInner";
 	public static final String BIN_SPAT_C = "BinarySpatialRelationConstraint";
 	public static final String TYPE_C = "TypeConstraint";
 	public static final String SPAT_REF_TARGET = "PhysicalObject";
 
 	public enum BinaryRelation {
 		// TODO: add support for NEXT_TO etc.
-		LEFT_OF(90), RIGHT_OF(270), IN_FRONT_OF(180), BEHIND_OF(0); //, ABOVE_OF, BELOW_OF //, NEXT_TO, ON, INSIDE_OF
+		// rename (naming convention)
+		leftOf(90), rightOf(270), inFrontOf(180), behindOf(0); //, ABOVE_OF, BELOW_OF //, NEXT_TO, ON, INSIDE_OF
 		
 		private double prototypeAngle;
 		
@@ -99,13 +102,27 @@ public class RRTypes {
 			spatRef.addProperty(new PropBool("ambiguous", kb));
 			kb.addType(spatRef);
 
+			Type lmSpatRefInner = new Type(LM_SPAT_REF_INNER, kb, true);
+			// FIXME: should it inherit from "Reference"?
+			//lmSpatRef.addInheritance(kb.getType("Reference"));
+			lmSpatRefInner.addProperty(new PropString("type", kb));
+			kb.addType(lmSpatRefInner);
+
+			Type lmSpatRef = new Type(LM_SPAT_REF, kb, true);
+			// FIXME: should it inherit from "Reference"?
+			//lmSpatRef.addInheritance(kb.getType("Reference"));
+			lmSpatRef.addProperty(new PropReference("intendedObjectReference", kb, lmSpatRefInner));
+			lmSpatRef.addProperty(new PropReference("relatumObjectReference", kb, lmSpatRefInner));
+			lmSpatRef.addProperty(new PropString("binarySpatialRelation", kb));
+			kb.addType(lmSpatRef);
+
 			Type relConst = new Type("RelationConstraint", kb);
 			relConst.addInheritance(typeConst);
 			relConst.addProperty(new PropString("relation", kb));
 			kb.addType(relConst);
 			
 			Type binSpatRelConst = new Type(BIN_SPAT_C, kb);
-			binSpatRelConst.addProperty(new PropReference("relatumReference", kb, spatRef));
+			binSpatRelConst.addProperty(new PropReference("relatumReference", kb, lmSpatRef));
 			binSpatRelConst.addInheritance(relConst);
 			kb.addType(binSpatRelConst);
 	}

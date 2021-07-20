@@ -175,7 +175,7 @@ public class KBObject implements IKBObjectWriteable
     }
 
 	@Override
-	public void setReference(String propertyName, IKBObject value) {
+	public void setReference(String propertyName, Object value) {
         this._data.put(propertyName, value);
 	}
 }
