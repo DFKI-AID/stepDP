@@ -19,6 +19,7 @@ import de.dfki.step.kb.semantic.IProperty;
 import de.dfki.step.kb.semantic.PropReference;
 import de.dfki.step.rr.ResolutionResult;
 import de.dfki.step.rr.SpatialRR;
+import de.dfki.step.util.LogUtils;
 
 public class SpatialReferenceResolutionRule extends Rule {
     private static final int DEFAULT_PRIO = 3000;
@@ -56,7 +57,7 @@ public class SpatialReferenceResolutionRule extends Rule {
 	    		// FIXME: what if t had two references and one was resolved?
 	    		if (!p.matches(resolved)) {
 	    			this.kb.getBlackboard().addToken(resolved);
-	    			kb.getBlackboard().printDebugInfo("RESOLVED TOKEN", resolved);
+	    			LogUtils.printDebugInfo("RESOLVED TOKEN", resolved);
 	    		}
 			} catch (Exception e) {
 				e.printStackTrace();

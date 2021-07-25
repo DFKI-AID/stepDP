@@ -20,6 +20,7 @@ import de.dfki.step.kb.RRTypes;
 import de.dfki.step.kb.semantic.IProperty;
 import de.dfki.step.kb.semantic.PropReference;
 import de.dfki.step.rr.SpatialRR;
+import de.dfki.step.util.LogUtils;
 
 public class SpatialReferencePreprocessingRule extends Rule {
 	// FIXME: what is the right prio for a preprocessing rule?
@@ -55,7 +56,7 @@ public class SpatialReferencePreprocessingRule extends Rule {
 								.build();
 	    		// FIXME: what if t had two references and one was resolved?
 	    		if (!p.matches(newToken)) {
-	    			kb.getBlackboard().printDebugInfo("TOKEN AFTER PREPROCESSING", newToken);
+	    			LogUtils.printDebugInfo("TOKEN AFTER PREPROCESSING", newToken);
 	    			this.kb.getBlackboard().addToken(newToken);
 	    		}
 
