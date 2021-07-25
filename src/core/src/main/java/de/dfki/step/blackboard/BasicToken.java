@@ -10,6 +10,7 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -144,6 +145,7 @@ public class BasicToken extends AbstractToken {
     	return copy;
     }
 
+    @JsonProperty
     public Map<String, Object> getPayload()
     {
         return this._payload;

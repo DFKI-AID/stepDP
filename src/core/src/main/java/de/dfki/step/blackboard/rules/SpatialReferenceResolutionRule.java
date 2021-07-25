@@ -54,8 +54,10 @@ public class SpatialReferenceResolutionRule extends Rule {
 								.hasRecursiveType(RRTypes.SPAT_REF)
 								.build();
 	    		// FIXME: what if t had two references and one was resolved?
-	    		if (!p.matches(resolved))
+	    		if (!p.matches(resolved)) {
 	    			this.kb.getBlackboard().addToken(resolved);
+	    			kb.getBlackboard().printDebugInfo("RESOLVED TOKEN", resolved);
+	    		}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

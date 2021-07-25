@@ -1,12 +1,11 @@
 package de.dfki.step.blackboard;
 
-import java.io.IOException;
-import java.util.Map;
 import java.util.UUID;
 
-import org.apache.commons.lang3.NotImplementedException;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import de.dfki.step.kb.IKBObject;
 import de.dfki.step.kb.IKBObjectWriteable;
@@ -15,6 +14,9 @@ import de.dfki.step.kb.semantic.IProperty;
 import de.dfki.step.kb.semantic.Type;
 
 public class KBToken extends AbstractToken {
+    @JsonProperty
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "name")
+    @JsonIdentityReference(alwaysAsId = true)
     private IKBObjectWriteable _parent;
 
     public KBToken(KnowledgeBase kb, IKBObject kbObj) {

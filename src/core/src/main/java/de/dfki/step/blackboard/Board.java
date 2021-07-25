@@ -3,6 +3,10 @@ package de.dfki.step.blackboard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
 import de.dfki.step.kb.semantic.Type;
 import de.dfki.step.rm.sc.StateChartManager;
 
@@ -15,6 +19,7 @@ import java.util.stream.Stream;
 
 public class Board {
     private static final Logger log = LoggerFactory.getLogger(Board.class);
+    private static ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
 
     // tokens are ignored (regarding rule matching) after 5 minutes
     private int _ignoreTime = 5 * 60;
@@ -217,4 +222,13 @@ public class Board {
     												   .collect(Collectors.toList()));
     	return tokens;
     }
+
+	public void printDebugInfo(String description, Object o) {
+		try {
+			String json = mapper.writeValueAsString(o);
+			log.debug("{}:{} {}", description, System.lineSeparator(), json);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+	}
 }

@@ -54,8 +54,11 @@ public class SpatialReferencePreprocessingRule extends Rule {
 								.hasRecursiveType(RRTypes.LM_SPAT_REF)
 								.build();
 	    		// FIXME: what if t had two references and one was resolved?
-	    		if (!p.matches(newToken))
+	    		if (!p.matches(newToken)) {
+	    			kb.getBlackboard().printDebugInfo("TOKEN AFTER PREPROCESSING", newToken);
 	    			this.kb.getBlackboard().addToken(newToken);
+	    		}
+
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
