@@ -4,6 +4,7 @@ import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 
 import de.dfki.step.kb.IKBObject;
+import de.dfki.step.kb.RRTypes;
 
 public class PhysicalObject {
 	private IKBObject physObj;
@@ -39,4 +40,28 @@ public class PhysicalObject {
 			return new Vector2D(this.position.getX(), this.position.getY());
 	}
 
+	public double getPositionOn(RRTypes.Axis axis) {
+		switch (axis) {
+		case X:
+			return this.position.getX();
+		case Y:
+			return this.position.getY();
+		case Z:
+			return this.position.getZ();
+		default:
+			throw new IllegalStateException("not a valid axis");
+		}
+	}
+
+	public double getX() {
+		return this.position.getX();
+	}
+
+	public double getY() {
+		return this.position.getY();
+	}
+
+	public double getZ() {
+		return this.position.getZ();
+	}
 }

@@ -44,21 +44,28 @@ public class RRTypes {
 	public enum SpatialRegion {
 		// TODO: add support for front etc.
 		// rename (naming convention)
-		left(90), right(270); // front(180), back(0), top, bottom, middle;
+		left(Axis.X, false), right(Axis.X, true); // front(180), back(0), top, bottom, middle;
 		
-		private double prototypeAngle;
+		private Axis axis;
+		private boolean positive;
 		
-		SpatialRegion(double prototypeAngle) {
-			this.prototypeAngle = prototypeAngle;
+		SpatialRegion(Axis axis, boolean positive) {
+			this.axis = axis;
+			this.positive = positive;
 		}
 
-		/**
-		 * @return prototype angle in radians
-		 */
-		public double getPrototypeAngle() {
-			return Math.toRadians(this.prototypeAngle);
+		public Axis getAxis() {
+			return this.axis;
+		}
+
+		public boolean positive() {
+			return this.positive;
 		}
 	};
+	
+	public enum Axis {
+		X, Y, Z
+	}
 
 	public static boolean isSpatialReference(IKBObject obj, KnowledgeBase kb) {
 		Type type = obj.getType();
