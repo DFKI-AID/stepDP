@@ -11,16 +11,20 @@ import java.util.stream.Collectors;
 import de.dfki.step.kb.IKBObject;
 
 public class ObjectScore {
-	private UUID uuid;
+	private IKBObject obj;
 	private float score;
 	
-	public ObjectScore(UUID uuid, float score) {
-		this.uuid = uuid;
+	public ObjectScore(IKBObject obj, float score) {
+		this.obj = obj;
 		this.score = score;
 	}
 
 	public UUID getUUID() {
-		return this.uuid;
+		return this.obj.getUUID();
+	}
+
+	public IKBObject getObject() {
+		return this.obj;
 	}
 
 	public float getScore() {
@@ -35,7 +39,7 @@ public class ObjectScore {
 		List<ObjectScore> scores = new ArrayList<ObjectScore>();
 		float individualScore = (float) (1.0 / potentialReferents.size());
 		for (IKBObject obj : potentialReferents) {
-			scores.add(new ObjectScore(obj.getUUID(), individualScore));
+			scores.add(new ObjectScore(obj, individualScore));
 		}
 		return scores;
 	}

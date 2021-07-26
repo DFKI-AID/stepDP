@@ -114,7 +114,7 @@ public class ReferenceResolutionTest {
 		return obj;
 	}
 
-	private Map<String, Object> buildBinarySpatialReference(Type ioType, RRTypes.BinaryRelation rel) {
+	private Map<String, Object> buildBinarySpatialReference(Type ioType, RRTypes.BinSpatRelation rel) {
 		Map<String, Object> m1 = Map.of(
 				"type", RRTypes.TYPE_C,
 				"refType", "Drink"
@@ -162,7 +162,7 @@ public class ReferenceResolutionTest {
 		match1.setType(kb.getType(RRTypes.SPAT_REF));
 		match1.addAll(Map.of("refType", "Food"));
 
-		Map<String, Object> ref = this.buildBinarySpatialReference(kb.getType("Knife"), RRTypes.BinaryRelation.inFrontOf);
+		Map<String, Object> ref = this.buildBinarySpatialReference(kb.getType("Knife"), RRTypes.BinSpatRelation.inFrontOf);
 		BasicToken match2 = new BasicToken(kb);
 		match2.setType(kb.getType("PickUpIntent"));
 		match2.addAll(Map.of(

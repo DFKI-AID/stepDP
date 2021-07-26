@@ -40,7 +40,7 @@ public class RRTestDialog extends Dialog {
         try {
         	this.defineSemanticTree();
         	KnowledgeBase kb = this.getKB();
-    		Map<String, Object> ref = this.buildBinarySpatialReference(kb.getType("Spaghetti"), RRTypes.BinaryRelation.rightOf);
+    		Map<String, Object> ref = this.buildBinarySpatialReference(kb.getType("Spaghetti"), RRTypes.BinSpatRelation.rightOf);
     		BasicToken match2 = new BasicToken(kb);
     		match2.setType(kb.getType("PickUpIntent"));
     		match2.addAll(Map.of(
@@ -180,7 +180,7 @@ public class RRTestDialog extends Dialog {
 		return obj;
 	}
 
-	private Map<String, Object> buildBinarySpatialReference(Type ioType, RRTypes.BinaryRelation rel) {
+	private Map<String, Object> buildBinarySpatialReference(Type ioType, RRTypes.BinSpatRelation rel) {
 		KnowledgeBase kb = this.getKB();
 		Map<String, Object> m1 = Map.of(
 				"type", RRTypes.TYPE_C,

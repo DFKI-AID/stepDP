@@ -19,16 +19,36 @@ public class RRTypes {
 	public static final String LM_SPAT_REF_INNER = "LMSpatialReferenceInner";
 	public static final String BIN_SPAT_C = "BinarySpatialRelationConstraint";
 	public static final String TYPE_C = "TypeConstraint";
+	public static final String REGION_C = "RegionConstraint";
 	public static final String SPAT_REF_TARGET = "PhysicalObject";
 
-	public enum BinaryRelation {
+	public enum BinSpatRelation {
 		// TODO: add support for NEXT_TO etc.
 		// rename (naming convention)
 		leftOf(90), rightOf(270), inFrontOf(180), behindOf(0); //, ABOVE_OF, BELOW_OF //, NEXT_TO, ON, INSIDE_OF
 		
 		private double prototypeAngle;
 		
-		BinaryRelation(double prototypeAngle) {
+		BinSpatRelation(double prototypeAngle) {
+			this.prototypeAngle = prototypeAngle;
+		}
+
+		/**
+		 * @return prototype angle in radians
+		 */
+		public double getPrototypeAngle() {
+			return Math.toRadians(this.prototypeAngle);
+		}
+	};
+
+	public enum SpatialRegion {
+		// TODO: add support for front etc.
+		// rename (naming convention)
+		left(90), right(270); // front(180), back(0), top, bottom, middle;
+		
+		private double prototypeAngle;
+		
+		SpatialRegion(double prototypeAngle) {
 			this.prototypeAngle = prototypeAngle;
 		}
 
@@ -117,7 +137,7 @@ public class RRTypes {
 			kb.addType(lmSpatRef);
 
 			Type relConst = new Type("RelationConstraint", kb);
-			relConst.addInheritance(typeConst);
+			relConst.addInheritance(constraint);
 			relConst.addProperty(new PropString("relation", kb));
 			kb.addType(relConst);
 			
@@ -125,5 +145,10 @@ public class RRTypes {
 			binSpatRelConst.addProperty(new PropReference("relatumReference", kb, lmSpatRef));
 			binSpatRelConst.addInheritance(relConst);
 			kb.addType(binSpatRelConst);
+
+			Type regionConst = new Type(REGION_C, kb);
+			regionConst.addProperty(new PropString("region", kb));
+			regionConst.addInheritance(constraint);
+			kb.addType(regionConst);
 	}
 }

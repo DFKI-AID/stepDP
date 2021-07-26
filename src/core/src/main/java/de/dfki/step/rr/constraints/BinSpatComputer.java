@@ -14,12 +14,12 @@ public class BinSpatComputer {
 	public static final Vector2D SPEAKER_POS_2D = new Vector2D(SPEAKER_POS_3D.getX(), SPEAKER_POS_3D.getY());
 	private PhysicalObject io;
 	private PhysicalObject ro;
-	private RRTypes.BinaryRelation rel;
+	private RRTypes.BinSpatRelation rel;
 	private Double cp;
 	private Double bb;
 	private Double pb;
 	
-	public BinSpatComputer(IKBObject io, IKBObject ro, RRTypes.BinaryRelation rel) {
+	public BinSpatComputer(IKBObject io, IKBObject ro, RRTypes.BinSpatRelation rel) {
 		this.io = new PhysicalObject(io);
 		this.ro = new PhysicalObject(ro);
 		this.rel = rel;

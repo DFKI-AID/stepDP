@@ -129,6 +129,13 @@ public class SpatialReferencePreprocessingRule extends Rule {
 			typeConstraint.put("refType", type);
 			constraints.add(typeConstraint);
 		}
+		String region = innerRef.getString("region");
+		if (region != null) {
+			Map<String, Object> regionConstraint = new HashMap<String, Object>();
+			regionConstraint.put("type", RRTypes.REGION_C);
+			regionConstraint.put("region", region);
+			constraints.add(regionConstraint);
+		}
 		result.put("constraints", constraints);
 		return result;
 	}
