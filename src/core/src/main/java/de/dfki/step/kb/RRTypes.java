@@ -18,6 +18,7 @@ public class RRTypes {
 	public static final String LM_SPAT_REF = "LMSpatialReference";
 	public static final String LM_SPAT_REF_INNER = "LMSpatialReferenceInner";
 	public static final String BIN_SPAT_C = "BinarySpatialRelationConstraint";
+	public static final String GROUP_REL_C = "GroupBasedRelationConstraint";
 	public static final String TYPE_C = "TypeConstraint";
 	public static final String REGION_C = "RegionConstraint";
 	public static final String SPAT_REF_TARGET = "PhysicalObject";
@@ -152,6 +153,11 @@ public class RRTypes {
 			binSpatRelConst.addProperty(new PropReference("relatumReference", kb, lmSpatRef));
 			binSpatRelConst.addInheritance(relConst);
 			kb.addType(binSpatRelConst);
+
+			Type groupRelConst = new Type(GROUP_REL_C, kb);
+			groupRelConst.addProperty(new PropReference("groupReference", kb, lmSpatRef));
+			groupRelConst.addInheritance(relConst);
+			kb.addType(groupRelConst);
 
 			Type regionConst = new Type(REGION_C, kb);
 			regionConst.addProperty(new PropString("region", kb));
