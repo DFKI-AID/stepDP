@@ -28,48 +28,19 @@ public class SpatialRegionScorer extends ConstraintScorer {
 	}
 
 	@Override
-	public List<ObjectScore> computeScores(List<IKBObject> objects) {
-		List<ObjectScore> scores = new ArrayList<ObjectScore>();
-		Double prototype = this.computePrototype();
-		for (IKBObject obj : objects) {
-			PhysicalObject physObj = new PhysicalObject(obj);
+	public List<ObjectScore> updateScores(List<ObjectScore> scores) {
+		List<IKBObject> objects = this.getKB().getInstancesOfType(this.getKB().getType(RRTypes.SPAT_REF_TARGET));
+		Double prototype = SpatialRegionComputer.computePrototype(objects, this.region);
+		for (ObjectScore curScore : scores) {
+			PhysicalObject physObj = new PhysicalObject(curScore.getObject());
 			Double current = physObj.getPositionOn(this.region.getAxis());
 			Double diff = Math.abs(prototype - current);
-			Double score = Math.pow(Math.E, -c * diff * diff);
-			scores.add(new ObjectScore(obj, score.floatValue())); 
+			Double accScore = Math.pow(Math.E, -c * diff * diff);
+			curScore.accumulateScore(accScore.floatValue());
 		}
 		LogUtils.logScores("Scores for Region " + this.region, scores);
 		return scores;
 	}
 
-	private Double computePrototype() {
-		Axis axis = this.region.getAxis();
-	    Stream<Double> positions = this.getKB().getInstancesOfType(this.getKB().getType(RRTypes.SPAT_REF_TARGET))
-	    	      						.stream()
-	    	      						// FIXME: actually it should be the outermost point not the center point
-	    	      						.map(o -> new PhysicalObject(o).getPositionOn(axis));
-	    Double prototype;
-	    if (this.region.positive())
-	    	prototype = positions
-	    	      		.max(Comparator.naturalOrder())
-	    	      		.orElseThrow(NoSuchElementException::new);
-	    else prototype = positions
-	    				.min(Comparator.naturalOrder())
-	    				.orElseThrow(NoSuchElementException::new);
-	    return prototype;
-	}
-
-	private Function<PhysicalObject, Double> getPositionOn(Axis axis) {
-		switch (axis) {
-		case X:
-			return PhysicalObject::getX;
-		case Y:
-			return PhysicalObject::getY;
-		case Z:
-			return PhysicalObject::getZ;
-		default:
-			throw new IllegalStateException("not a valid axis");
-		}
-	}
 
 }

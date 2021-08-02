@@ -18,7 +18,7 @@ public class RRTypes {
 	public static final String LM_SPAT_REF = "LMSpatialReference";
 	public static final String LM_SPAT_REF_INNER = "LMSpatialReferenceInner";
 	public static final String BIN_SPAT_C = "BinarySpatialRelationConstraint";
-	public static final String GROUP_REL_C = "GroupBasedRelationConstraint";
+	public static final String GROUP_REL_C = "GroupRelationConstraint";
 	public static final String TYPE_C = "TypeConstraint";
 	public static final String REGION_C = "RegionConstraint";
 	public static final String SPAT_REF_TARGET = "PhysicalObject";
@@ -42,6 +42,7 @@ public class RRTypes {
 		}
 	};
 
+	// TODO: rename to clarify that spatial regions and spatial group relations have the same values?
 	public enum SpatialRegion {
 		// TODO: add support for front etc.
 		// rename (naming convention)
@@ -155,7 +156,6 @@ public class RRTypes {
 			kb.addType(binSpatRelConst);
 
 			Type groupRelConst = new Type(GROUP_REL_C, kb);
-			groupRelConst.addProperty(new PropReference("groupReference", kb, lmSpatRef));
 			groupRelConst.addInheritance(relConst);
 			kb.addType(groupRelConst);
 

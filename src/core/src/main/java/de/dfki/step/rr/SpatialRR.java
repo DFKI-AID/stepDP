@@ -25,10 +25,10 @@ public class SpatialRR implements ReferenceResolver {
 	@Override
 	public ResolutionResult resolveReference(IKBObject reference) {
 		List<IKBObject> potentialReferents = this.kb.getInstancesOfType(this.kb.getType(RRTypes.SPAT_REF_TARGET));
-		List<ObjectScore> total = ObjectScore.initializeScores(potentialReferents);
+		List<ObjectScore> currentScores = ObjectScore.initializeScores(potentialReferents);
 		IKBObject[] constraintArray = reference.getResolvedReferenceArray("constraints");
 		if (constraintArray == null)
-			return new ResolutionResult(total);
+			return new ResolutionResult(currentScores);
 		List<IKBObject> constraints = new ArrayList<IKBObject>(Arrays.asList(constraintArray));
 		List<ConstraintScorer> scorers = constraints.stream()
 											.map(c -> ConstraintScorer.getConstraintScorer(c, kb))
@@ -36,23 +36,13 @@ public class SpatialRR implements ReferenceResolver {
 											.collect(Collectors.toList());
 		scorers.sort(new PrioComparator());
 		for (ConstraintScorer scorer : scorers) {
-			List<ObjectScore> current = scorer.computeScores(potentialReferents);
-			total = ObjectScore.accumulateScores(total, current);
-			potentialReferents = pruneCandidates(potentialReferents, total);
-			total = total.stream().filter(s -> s.getScore() != 0).collect(Collectors.toList());
+			currentScores = scorer.updateScores(currentScores)
+								  .stream()
+								  .filter(s -> s.getScore() != 0)
+								  .collect(Collectors.toList());
 		}
-		ResolutionResult result = new ResolutionResult(total);
+		ResolutionResult result = new ResolutionResult(currentScores);
 		return result;
  	}
-
-	private List<IKBObject> pruneCandidates(List<IKBObject> candidates, List<ObjectScore> total) {
-		List<UUID> dropouts = total.stream()
-				.filter(s -> s.getScore() != 0)
-				.map(s -> s.getUUID())
-				.collect(Collectors.toList());
-		// TODO: make this more efficient?
-		candidates = candidates.stream().filter(r -> dropouts.contains(r.getUUID())).collect(Collectors.toList());
-		return candidates;
-	}
 
 }

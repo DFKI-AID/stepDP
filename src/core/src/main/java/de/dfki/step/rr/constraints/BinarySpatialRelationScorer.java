@@ -25,22 +25,22 @@ public class BinarySpatialRelationScorer extends RelationScorer {
 	}
 
 	@Override
-	public List<ObjectScore> computeScores(List<IKBObject> objects) {
-		List<ObjectScore> scores = new ArrayList<ObjectScore>();
+	public List<ObjectScore> updateScores(List<ObjectScore> scores) {
 		ReferenceResolver rr = new SpatialRR(this.getKB());
 		if (relatumRef == null)
-			return scores;
+			return new ArrayList<ObjectScore>();
 		List<UUID> potentialRelatums = rr.resolveReference(relatumRef).getMostLikelyReferents();
 		if (potentialRelatums == null || potentialRelatums.isEmpty())
-			return scores;
+			return new ArrayList<ObjectScore>();
 		IKBObject relatum = this.getKB().getInstance(potentialRelatums.get(0));
-		for (IKBObject obj : objects) {
+		for (ObjectScore curScore : scores) {
+			IKBObject obj = curScore.getObject();
 			BinSpatComputer comp = new BinSpatComputer(obj, relatum, this.rel);
-			double score = comp.computeScore();
+			double accScore = comp.computeScore();
 			// TODO: replace 0 with value range close to 0
 //			if (score == 0)
 //				continue;
-			scores.add(new ObjectScore(obj, (float) score));
+			curScore.accumulateScore((float) accScore);
 		}
 		// TODO: add relatumRef as text
 		LogUtils.logScores("Scores for BinSpatRel " + this.rel, scores);

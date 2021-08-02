@@ -26,7 +26,7 @@ public class BinSpatComputer {
 	}
 
 	public double computeScore() {
-		// TODO: implement
+		// TODO: add BB and distance measures
 		this.cp = getCP();
 		if (this.cp ==  null)
 			return 0;

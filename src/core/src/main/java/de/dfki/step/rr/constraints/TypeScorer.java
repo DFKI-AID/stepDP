@@ -20,15 +20,15 @@ public class TypeScorer extends ConstraintScorer {
 	}
 
 	@Override
-	public List<ObjectScore> computeScores(List<IKBObject> objects) {
-		List<ObjectScore> scores = new ArrayList<ObjectScore>();
-		for (IKBObject obj : objects) {
-			float score;
+	public List<ObjectScore> updateScores(List<ObjectScore> scores) {
+		for (ObjectScore curScore : scores) {
+			IKBObject obj = curScore.getObject();
+			float accScore;
 			if (obj.getType().isInheritanceFrom(type))
-				score = 1;
+				accScore = 1;
 			else
-				score = 0;
-			scores.add(new ObjectScore(obj, score));
+				accScore = 0;
+			curScore.accumulateScore(accScore);
 		}
 		LogUtils.logScores("Scores for Type " + this.type.getName(), scores);
 		return scores;

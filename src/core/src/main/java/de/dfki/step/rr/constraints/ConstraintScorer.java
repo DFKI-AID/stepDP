@@ -25,7 +25,7 @@ public abstract class ConstraintScorer {
 		this.kb = kb;
 	}
 
-	public abstract List<ObjectScore> computeScores(List<IKBObject> objects);
+	public abstract List<ObjectScore> updateScores(List<ObjectScore> currentScores);
 
 	public int getPriority() {
 		return this.priority;
@@ -52,6 +52,8 @@ public abstract class ConstraintScorer {
 			return new TypeScorer(constraint, kb);
 		if (constraint.getType().isInheritanceFrom(RRTypes.REGION_C))
 			return new SpatialRegionScorer(constraint, kb);
+		if (constraint.getType().isInheritanceFrom(RRTypes.GROUP_REL_C))
+			return new GroupRelationScorer(constraint, kb);
 		else
 			return null;
 	}

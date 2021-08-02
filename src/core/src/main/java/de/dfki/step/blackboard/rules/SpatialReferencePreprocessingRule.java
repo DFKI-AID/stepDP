@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.dfki.step.blackboard.BasicToken;
 import de.dfki.step.blackboard.Board;
 import de.dfki.step.blackboard.IToken;
@@ -23,6 +26,7 @@ import de.dfki.step.rr.SpatialRR;
 import de.dfki.step.util.LogUtils;
 
 public class SpatialReferencePreprocessingRule extends Rule {
+    private static final Logger log = LoggerFactory.getLogger(SpatialReferencePreprocessingRule.class);
 	// FIXME: what is the right prio for a preprocessing rule?
     private static final int DEFAULT_PRIO = 2000;
     private KnowledgeBase kb;
@@ -97,7 +101,7 @@ public class SpatialReferencePreprocessingRule extends Rule {
 		Map<String, Object> result = new HashMap<String, Object>();
 		IKBObject io = lmRef.getResolvedReference("intendedObjectReference");
 		IKBObject ro = lmRef.getResolvedReference("relatumObjectReference");
-		String relation = lmRef.getString("binarySpatialRelation");
+		String binRelation = lmRef.getString("binarySpatialRelation");
 		if (io == null)
 			return result;
 		Map<String, Object> ioConverted = convertInnerRef(io);
@@ -105,13 +109,21 @@ public class SpatialReferencePreprocessingRule extends Rule {
 		List<Map<String, Object>> constraints = (List<Map<String, Object>>) result.get("constraints");
 		if (constraints == null)
 			constraints = new ArrayList<Map<String, Object>>();
-		if (ro != null && relation != null) {
-			Map<String, Object> relConstraint = new HashMap<String, Object>();
-			relConstraint.put("type", RRTypes.BIN_SPAT_C);
-			relConstraint.put("relation", relation);
+		if (ro != null && binRelation != null) {
+			Map<String, Object> binRelConstraint = new HashMap<String, Object>();
+			binRelConstraint.put("type", RRTypes.BIN_SPAT_C);
+			binRelConstraint.put("relation", binRelation);
 			Map<String, Object> relatumRef = convertInnerRef(ro);
-			relConstraint.put("relatumReference", relatumRef);
-			constraints.add(relConstraint);
+			binRelConstraint.put("relatumReference", relatumRef);
+			constraints.add(binRelConstraint);
+		}
+		if (ro != null && binRelation != null) {
+			Map<String, Object> binRelConstraint = new HashMap<String, Object>();
+			binRelConstraint.put("type", RRTypes.BIN_SPAT_C);
+			binRelConstraint.put("relation", binRelation);
+			Map<String, Object> relatumRef = convertInnerRef(ro);
+			binRelConstraint.put("relatumReference", relatumRef);
+			constraints.add(binRelConstraint);
 		}
 		result.put("constraints", constraints);
 
@@ -135,6 +147,26 @@ public class SpatialReferencePreprocessingRule extends Rule {
 			regionConstraint.put("type", RRTypes.REGION_C);
 			regionConstraint.put("region", region);
 			constraints.add(regionConstraint);
+		}
+		String groupRelation = innerRef.getString("groupRelation");
+		if (groupRelation != null) {
+			Map<String, Object> groupRelConstraint = new HashMap<String, Object>();
+			groupRelConstraint.put("type", RRTypes.GROUP_REL_C);
+			// FIXME: make this adjustment in the LM
+			groupRelation = groupRelation.replace("most", "");
+			groupRelConstraint.put("relation", groupRelation);
+			String ordinalityStr = null;
+			IKBObject ordinalityObj = innerRef.getResolvedReference("ordinality");
+			if (ordinalityObj != null)
+				ordinalityStr = ordinalityObj.getString("nuance_ORDINAL_NUMBER");
+			if (ordinalityStr != null)
+				try {
+					int ordinality = Integer.parseInt(ordinalityStr);
+					groupRelConstraint.put("ordinality", ordinality);
+				} catch (Exception e) {
+					log.warn(ordinalityStr + " is not a valid ordinality.");
+				}
+			constraints.add(groupRelConstraint);
 		}
 		result.put("constraints", constraints);
 		return result;
