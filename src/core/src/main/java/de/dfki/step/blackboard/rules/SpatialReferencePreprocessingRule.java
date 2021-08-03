@@ -117,14 +117,6 @@ public class SpatialReferencePreprocessingRule extends Rule {
 			binRelConstraint.put("relatumReference", relatumRef);
 			constraints.add(binRelConstraint);
 		}
-		if (ro != null && binRelation != null) {
-			Map<String, Object> binRelConstraint = new HashMap<String, Object>();
-			binRelConstraint.put("type", RRTypes.BIN_SPAT_C);
-			binRelConstraint.put("relation", binRelation);
-			Map<String, Object> relatumRef = convertInnerRef(ro);
-			binRelConstraint.put("relatumReference", relatumRef);
-			constraints.add(binRelConstraint);
-		}
 		result.put("constraints", constraints);
 
 		return result;

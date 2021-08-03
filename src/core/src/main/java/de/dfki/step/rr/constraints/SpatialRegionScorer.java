@@ -24,6 +24,7 @@ public class SpatialRegionScorer extends ConstraintScorer {
 		super(constraint, kb);
 		this.setPriority(DEFAULT_PRIORITY);
 		// TODO: make conversion from string to region more flexible (e.g. case insensitive etc.)
+		// TODO: catch exception if no matching value in enum
 		this.region = RRTypes.SpatialRegion.valueOf(constraint.getString("region"));
 	}
 
@@ -38,7 +39,7 @@ public class SpatialRegionScorer extends ConstraintScorer {
 			Double accScore = Math.pow(Math.E, -c * diff * diff);
 			curScore.accumulateScore(accScore.floatValue());
 		}
-		LogUtils.logScores("Scores for Region " + this.region, scores);
+		LogUtils.logScores("Totals after scoring Region " + this.region, scores);
 		return scores;
 	}
 

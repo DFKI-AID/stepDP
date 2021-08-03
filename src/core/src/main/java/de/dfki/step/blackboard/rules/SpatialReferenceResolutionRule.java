@@ -3,6 +3,9 @@ package de.dfki.step.blackboard.rules;
 import java.util.List;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.dfki.step.blackboard.Board;
 import de.dfki.step.blackboard.IToken;
 import de.dfki.step.blackboard.KBToken;
@@ -19,9 +22,11 @@ import de.dfki.step.kb.semantic.IProperty;
 import de.dfki.step.kb.semantic.PropReference;
 import de.dfki.step.rr.ResolutionResult;
 import de.dfki.step.rr.SpatialRR;
+import de.dfki.step.rr.constraints.BinarySpatialRelationScorer;
 import de.dfki.step.util.LogUtils;
 
 public class SpatialReferenceResolutionRule extends Rule {
+    private static final Logger log = LoggerFactory.getLogger(SpatialReferenceResolutionRule.class);
     private static final int DEFAULT_PRIO = 3000;
 	KnowledgeBase kb;
 	SpatialRR rr;
@@ -99,6 +104,7 @@ public class SpatialReferenceResolutionRule extends Rule {
 		if (referents.isEmpty()) 
 			return null;
 	    IKBObject referent = kb.getInstance(referents.get(0));
+	    log.debug("INTENDED OBJECT: " + referent.getName());
 	    return referent;
 	}
 }

@@ -40,7 +40,7 @@ public class GroupRelationScorer extends RelationScorer {
 		if (obj == null)
 			return Collections.EMPTY_LIST;
 		scores = List.of(new ObjectScore(obj, 1));
-		LogUtils.logScores(String.format("Scores for GroupRel {} (ordinality={}) {}", relation, ordinality), scores);
+		LogUtils.logScores(String.format("Totals after scoring GroupRel %s (ordinality=%s)", relation, ordinality), scores);
 		return scores;
 	}
 

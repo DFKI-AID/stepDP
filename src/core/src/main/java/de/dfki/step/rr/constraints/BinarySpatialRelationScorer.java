@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.dfki.step.kb.IKBObject;
 import de.dfki.step.kb.KnowledgeBase;
 import de.dfki.step.kb.RRTypes;
@@ -12,6 +15,7 @@ import de.dfki.step.rr.SpatialRR;
 import de.dfki.step.util.LogUtils;
 
 public class BinarySpatialRelationScorer extends RelationScorer {
+    private static final Logger log = LoggerFactory.getLogger(BinarySpatialRelationScorer.class);
 	private static final int DEFAULT_PRIO = 6000;
 	private RRTypes.BinSpatRelation rel;
 	private IKBObject relatumRef;
@@ -29,10 +33,12 @@ public class BinarySpatialRelationScorer extends RelationScorer {
 		ReferenceResolver rr = new SpatialRR(this.getKB());
 		if (relatumRef == null)
 			return new ArrayList<ObjectScore>();
+		log.debug("RESOLVING RELATUM REFERENCE...");
 		List<UUID> potentialRelatums = rr.resolveReference(relatumRef).getMostLikelyReferents();
 		if (potentialRelatums == null || potentialRelatums.isEmpty())
 			return new ArrayList<ObjectScore>();
 		IKBObject relatum = this.getKB().getInstance(potentialRelatums.get(0));
+		log.debug("RELATUM: " + relatum.getName());
 		for (ObjectScore curScore : scores) {
 			IKBObject obj = curScore.getObject();
 			BinSpatComputer comp = new BinSpatComputer(obj, relatum, this.rel);
@@ -43,7 +49,7 @@ public class BinarySpatialRelationScorer extends RelationScorer {
 			curScore.accumulateScore((float) accScore);
 		}
 		// TODO: add relatumRef as text
-		LogUtils.logScores("Scores for BinSpatRel " + this.rel, scores);
+		LogUtils.logScores("Totals after scoring BinSpatRel " + this.rel, scores);
 		return scores;
 	}
 

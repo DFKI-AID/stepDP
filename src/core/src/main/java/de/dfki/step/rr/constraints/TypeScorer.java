@@ -12,11 +12,13 @@ public class TypeScorer extends ConstraintScorer {
 	private static final int DEFAULT_PRIORITY = 3000;
 	private Type type;
 
-	public TypeScorer(IKBObject constraint, KnowledgeBase kb) {
+	public TypeScorer(IKBObject constraint, KnowledgeBase kb) throws Exception {
 		super(constraint, kb);
 		this.setPriority(DEFAULT_PRIORITY);
 		String refType= constraint.getString("refType");
 		this.type = kb.getType(refType);
+		if (this.type == null)
+			throw new Exception("Type does not exist in kb:" + refType);
 	}
 
 	@Override
@@ -30,7 +32,7 @@ public class TypeScorer extends ConstraintScorer {
 				accScore = 0;
 			curScore.accumulateScore(accScore);
 		}
-		LogUtils.logScores("Scores for Type " + this.type.getName(), scores);
+		LogUtils.logScores("Totals after scoring Type " + this.type.getName(), scores);
 		return scores;
 	}
 

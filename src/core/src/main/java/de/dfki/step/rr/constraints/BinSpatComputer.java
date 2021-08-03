@@ -12,12 +12,16 @@ import de.dfki.step.kb.RRTypes;
 public class BinSpatComputer {
 	public static final Vector3D SPEAKER_POS_3D = new Vector3D(0, 0, 0);
 	public static final Vector2D SPEAKER_POS_2D = new Vector2D(SPEAKER_POS_3D.getX(), SPEAKER_POS_3D.getY());
+	public static final float c = 1.0f;
+	public static final float w_cp = 0.5f;
+	public static final float w_pd = 0.07f;
+	
 	private PhysicalObject io;
 	private PhysicalObject ro;
 	private RRTypes.BinSpatRelation rel;
 	private Double cp;
 	private Double bb;
-	private Double pb;
+	private Double pd;
 	
 	public BinSpatComputer(IKBObject io, IKBObject ro, RRTypes.BinSpatRelation rel) {
 		this.io = new PhysicalObject(io);
@@ -27,11 +31,12 @@ public class BinSpatComputer {
 
 	public double computeScore() {
 		// TODO: add BB and distance measures
-		this.cp = getCP();
-		if (this.cp ==  null)
+		cp = getCP();
+		pd = getPD();
+		if (cp ==  null || pd == null)
 			return 0;
 		else
-			return 2 * Math.PI - this.cp;
+			return Math.pow(Math.E, -c * (w_cp * cp * cp + w_pd * pd * pd));
 	}
 
 	/**
@@ -46,6 +51,8 @@ public class BinSpatComputer {
 			Line speakerAxis = new Line(SPEAKER_POS_2D, roPos, 0);
 			Line objectAxis = new Line(roPos, ioPos, 0);
 			double protoAngle = speakerAxis.getAngle() + this.rel.getPrototypeAngle();
+			// TODO: check if this is correct
+			protoAngle = protoAngle > 2 * Math.PI ? protoAngle - 2 * Math.PI : protoAngle;
 			Line prototypeAxis = new Line(roPos, protoAngle, 0);
 			this.cp = deviation(objectAxis, prototypeAxis);
 		}
@@ -64,9 +71,12 @@ public class BinSpatComputer {
 	/**
 	 * return Physical Distance (PD)
 	 */
-	public double getPD() {
-		// TODO: implement
-		return 1;
+	public Double getPD() {
+		Vector2D ioPos = this.io.getPosition2D();
+		Vector2D roPos = this.ro.getPosition2D();
+		if (ioPos == null || roPos == null || ioPos.equals(roPos))
+			return null;
+		return Vector2D.distance(ioPos, roPos);
 	}
 
 	private double deviation(Line x, Line y) {

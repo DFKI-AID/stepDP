@@ -24,8 +24,9 @@ public class PhysicalObject {
 		if (position == null)
 			return null;
 		double x = position.getFloat("x");
-		double y = position.getFloat("y");
-		double z = position.getFloat("z");
+		double y = position.getFloat("z");
+		// in unity, y is the height
+		double z = position.getFloat("y");
 		return new Vector3D(x, y, z);
 	}
 	

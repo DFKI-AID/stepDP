@@ -44,20 +44,27 @@ public abstract class ConstraintScorer {
 	}
 
 	public static ConstraintScorer getConstraintScorer(IKBObject constraint, KnowledgeBase kb) {
-		if (constraint == null)
+		try {
+			if (constraint == null)
+				return null;
+			if (constraint.getType().isInheritanceFrom(RRTypes.BIN_SPAT_C)) 
+				return new BinarySpatialRelationScorer(constraint, kb);
+			if (constraint.getType().isInheritanceFrom(RRTypes.TYPE_C))
+				return new TypeScorer(constraint, kb);
+			if (constraint.getType().isInheritanceFrom(RRTypes.REGION_C))
+				return new SpatialRegionScorer(constraint, kb);
+			if (constraint.getType().isInheritanceFrom(RRTypes.GROUP_REL_C))
+				return new GroupRelationScorer(constraint, kb);
+			if (constraint.getType().isInheritanceFrom(RRTypes.POINTING_C))
+				return new PointingScorer(constraint, kb);
+			else
+				return null;
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.warn("Exception while trying to instantiate constraint:" + e.getMessage());
 			return null;
-		if (constraint.getType().isInheritanceFrom(RRTypes.BIN_SPAT_C)) 
-			return new BinarySpatialRelationScorer(constraint, kb);
-		if (constraint.getType().isInheritanceFrom(RRTypes.TYPE_C))
-			return new TypeScorer(constraint, kb);
-		if (constraint.getType().isInheritanceFrom(RRTypes.REGION_C))
-			return new SpatialRegionScorer(constraint, kb);
-		if (constraint.getType().isInheritanceFrom(RRTypes.GROUP_REL_C))
-			return new GroupRelationScorer(constraint, kb);
-		if (constraint.getType().isInheritanceFrom(RRTypes.POINTING_C))
-			return new PointingScorer(constraint, kb);
-		else
-			return null;
+		}
+
 	}
 
 }
