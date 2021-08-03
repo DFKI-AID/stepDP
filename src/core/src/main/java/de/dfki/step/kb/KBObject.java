@@ -5,7 +5,9 @@ import de.dfki.step.kb.semantic.Type;
 import org.pcollections.HashTreePMap;
 import org.pcollections.PMap;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -177,5 +179,13 @@ public class KBObject implements IKBObjectWriteable
 	@Override
 	public void setReference(String propertyName, Object value) {
         this._data.put(propertyName, value);
+	}
+
+	@Override
+	public void addReferenceToArray(String propertyName, UUID value) {
+       UUID[] uuids = getReferenceArray(propertyName);
+       List<UUID> uuidList = Arrays.asList(uuids);
+       uuidList.add(value);
+       this._data.put(propertyName, uuidList.toArray());
 	}
 }

@@ -386,18 +386,33 @@ public class TokenObject implements IKBObjectWriteable {
 	public void setReferenceArray(String propertyName, UUID[] value) {
 		this._payload.put(propertyName, value);
 	}
+	
+	@Override
+	public void addReferenceToArray(String propertyName, UUID value) {
+		Object dataObj = this._payload.get(propertyName);
+		List<Object> data;
+		if (dataObj instanceof Object[])
+			data = Arrays.asList(dataObj);
+		else if (dataObj instanceof List)
+			data = (List<Object>) dataObj;
+		else
+			// something bad happend?
+			return;
+		data.add(value.toString());
+		this._payload.put(propertyName, data.toArray());
+	}
 
 	@Override
 	public void setReference(String propertyName, Object value) {
 		// TODO: make sure to consider all possible cases here (or find a better way to do this)
 		if  (value instanceof IKBObject) {
 			UUID uuid = ((IKBObject) value).getUUID();
-			if (this._kb.getInstance(uuid) != null)
-				this._payload.put(propertyName, uuid.toString());
-			else if (value instanceof TokenObject) {
+			if (value instanceof TokenObject) {
 				TokenObject obj = (TokenObject) value;
 				this._payload.put(propertyName, obj.getPayload());
 			}
+			else if(this._kb.getInstance(uuid) != null)
+				this._payload.put(propertyName, uuid.toString());
 		} else if (value instanceof Map) {
 			this._payload.put(propertyName, value);
 		}

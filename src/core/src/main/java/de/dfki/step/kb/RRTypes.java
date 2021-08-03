@@ -5,6 +5,7 @@ import de.dfki.step.kb.semantic.PropInt;
 import de.dfki.step.kb.semantic.PropReference;
 import de.dfki.step.kb.semantic.PropReferenceArray;
 import de.dfki.step.kb.semantic.PropString;
+import de.dfki.step.kb.semantic.PropStringArray;
 import de.dfki.step.kb.semantic.Type;
 
 /**
@@ -21,6 +22,7 @@ public class RRTypes {
 	public static final String GROUP_REL_C = "GroupRelationConstraint";
 	public static final String TYPE_C = "TypeConstraint";
 	public static final String REGION_C = "RegionConstraint";
+	public static final String POINTING_C = "PointingConstraint";
 	public static final String SPAT_REF_TARGET = "PhysicalObject";
 
 	public enum BinSpatRelation {
@@ -127,7 +129,7 @@ public class RRTypes {
 	
 			Type spatRef = new Type(SPAT_REF, kb, true);
 			spatRef.addInheritance(kb.getType("Reference"));
-			spatRef.addProperty(new PropReferenceArray("constraints", kb, typeConst));
+			spatRef.addProperty(new PropReferenceArray("constraints", kb, constraint));
 			spatRef.addProperty(new PropBool("ambiguous", kb));
 			kb.addType(spatRef);
 
@@ -163,5 +165,10 @@ public class RRTypes {
 			regionConst.addProperty(new PropString("region", kb));
 			regionConst.addInheritance(constraint);
 			kb.addType(regionConst);
+
+			Type pointingConst = new Type(POINTING_C, kb);
+			pointingConst.addProperty(new PropStringArray("objectNames", kb));
+			pointingConst.addInheritance(constraint);
+			kb.addType(pointingConst);
 	}
 }

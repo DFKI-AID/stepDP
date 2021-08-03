@@ -178,4 +178,9 @@ public class KBToken extends AbstractToken {
 	public void setReference(String propertyName, Object value) {
         this._parent.setReference(propertyName, value);
 	}
+
+	@Override
+	public void addReferenceToArray(String propertyName, UUID value) {
+		this._parent.addReferenceToArray(propertyName, value);
+	}
 }

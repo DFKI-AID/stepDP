@@ -303,4 +303,9 @@ public class BasicToken extends AbstractToken {
 		this._rootTokenObject.setReference(propertyName, value);
 	}
 
+	@Override
+	public void addReferenceToArray(String propertyName, UUID value) {
+		this._rootTokenObject.addReferenceToArray(propertyName, value);
+	}
+
 }

@@ -54,6 +54,8 @@ public abstract class ConstraintScorer {
 			return new SpatialRegionScorer(constraint, kb);
 		if (constraint.getType().isInheritanceFrom(RRTypes.GROUP_REL_C))
 			return new GroupRelationScorer(constraint, kb);
+		if (constraint.getType().isInheritanceFrom(RRTypes.POINTING_C))
+			return new PointingScorer(constraint, kb);
 		else
 			return null;
 	}
