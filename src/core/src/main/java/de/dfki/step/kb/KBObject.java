@@ -2,8 +2,6 @@ package de.dfki.step.kb;
 
 import de.dfki.step.kb.semantic.IProperty;
 import de.dfki.step.kb.semantic.Type;
-import org.pcollections.HashTreePMap;
-import org.pcollections.PMap;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -24,6 +22,12 @@ public class KBObject implements IKBObjectWriteable
     	this._name = name;
         this._type = type;
         this._parent = parent;
+    }
+
+    protected KBObject(String name, Type type, KnowledgeBase parent, Map<String, Object> data)
+    {
+        this(name, type, parent);
+        this._data = data;
     }
 
     @Override
@@ -76,12 +80,32 @@ public class KBObject implements IKBObjectWriteable
 
     @Override
     public UUID getReference(String propertyName) {
-        return (UUID) this._data.get(propertyName);
+        Object data = this._data.get(propertyName);
+        if (data instanceof UUID)
+            return (UUID) data;
+        else
+            return null;
     }
 
     @Override
     public IKBObjectWriteable getResolvedReference(String propertyName) {
-        return this._parent.getInstanceWriteable(this.getReference(propertyName));
+        Object data = this._data.get(propertyName);
+        if (data instanceof UUID)
+            return this._parent.getInstanceWriteable((UUID) data);
+        // FIXME: find prettier solution for this
+        else if(data instanceof Map)
+        {
+            Map<String, Object> inner = (Map<String, Object>) this._data.get(propertyName);
+            Type typeOfObject = null;
+            if(inner.containsKey("type"))
+            {
+                String type = inner.get("type").toString();
+                typeOfObject = this._parent.getType(type);
+            }
+            return new KBObject(null, typeOfObject,  this._parent, (Map<String, Object>) data);
+        }
+        else
+            return null;
     }
 
     @Override

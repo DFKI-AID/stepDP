@@ -4,11 +4,18 @@ import de.dfki.step.blackboard.Board;
 import de.dfki.step.blackboard.IToken;
 import de.dfki.step.kb.semantic.Type;
 
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class KnowledgeBase {
 
@@ -166,5 +173,17 @@ public class KnowledgeBase {
 
     public Board getBlackboard() {
     	return this._blackboard;
+    }
+
+    public void importObjects(String json) throws JsonParseException, JsonMappingException, IOException {
+      ObjectMapper mapper = new ObjectMapper();
+      List<Map<String, Object>> objects = mapper.readValue(json, new TypeReference<List<Map<String, Object>>>() {});
+      for (Map<String, Object> jsonObj : objects) {
+          String name = jsonObj.get("name").toString();
+          String type = jsonObj.get("type").toString();
+          KBObject kbObj = new KBObject(name, this.getType(type), this, jsonObj);
+          this.addUUIDtoList(kbObj);
+          this._instances.add(kbObj);
+      }
     }
 }
