@@ -19,12 +19,16 @@ public class BinarySpatialRelationScorer extends RelationScorer {
 	private static final int DEFAULT_PRIO = 6000;
 	private RRTypes.BinSpatRelation rel;
 	private IKBObject relatumRef;
+	private IKBObject speaker;
 
-	public BinarySpatialRelationScorer(IKBObject constraint, KnowledgeBase kb) {
+	public BinarySpatialRelationScorer(IKBObject constraint, IKBObject speaker, KnowledgeBase kb) throws Exception {
 		super(constraint, kb);
 		// TODO: make conversion from string to bin rel more flexible (e.g. case insensitive etc.)
 		this.rel = RRTypes.BinSpatRelation.valueOf(constraint.getString("relation"));
 		this.relatumRef = constraint.getResolvedReference("relatumReference");
+		this.speaker = speaker;
+		if (this.relatumRef == null || this.speaker == null)
+			throw new Exception("Binary Spatial Relation Constraint needs relatumRef and speaker.");
 		this.setPriority(DEFAULT_PRIO);
 	}
 
@@ -41,7 +45,7 @@ public class BinarySpatialRelationScorer extends RelationScorer {
 		log.debug("RELATUM: " + relatum.getName());
 		for (ObjectScore curScore : scores) {
 			IKBObject obj = curScore.getObject();
-			BinSpatComputer comp = new BinSpatComputer(obj, relatum, this.rel);
+			BinSpatComputer comp = new BinSpatComputer(speaker, obj, relatum, rel);
 			double accScore = comp.computeScore();
 			// TODO: replace 0 with value range close to 0
 //			if (score == 0)

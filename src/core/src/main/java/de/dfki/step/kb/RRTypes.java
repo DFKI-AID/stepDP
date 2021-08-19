@@ -1,6 +1,10 @@
 package de.dfki.step.kb;
 
+import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
+import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
+
 import de.dfki.step.kb.semantic.PropBool;
+import de.dfki.step.kb.semantic.PropFloat;
 import de.dfki.step.kb.semantic.PropInt;
 import de.dfki.step.kb.semantic.PropReference;
 import de.dfki.step.kb.semantic.PropReferenceArray;
@@ -14,6 +18,7 @@ import de.dfki.step.kb.semantic.Type;
  */
 public class RRTypes {
 	public static final String USER_INTENT = "UserIntent";
+	public static final String AGENT = "Agent";
 	public static final String REFERENCE = "Reference";
 	public static final String SPAT_REF = "SpatialReference";
 	public static final String LM_SPAT_REF = "LMSpatialReference";
@@ -28,11 +33,15 @@ public class RRTypes {
 	public enum BinSpatRelation {
 		// TODO: add support for NEXT_TO etc.
 		// rename (naming convention)
-		leftOf(90), rightOf(270), inFrontOf(180), behindOf(0); //, ABOVE_OF, BELOW_OF //, NEXT_TO, ON, INSIDE_OF
+		leftOf(Axis.X, Axis.Y, 90), rightOf(Axis.X, Axis.Y, 270), inFrontOf(Axis.X, Axis.Y, 180), behindOf(Axis.X, Axis.Y, 0),  aboveOf(Axis.X, Axis.Z, 0), belowOf(Axis.X, Axis.Z, 180);//, NEXT_TO, ON, INSIDE_OF
 		
+		private Axis abscissa;
+		private Axis ordinate;
 		private double prototypeAngle;
 		
-		BinSpatRelation(double prototypeAngle) {
+		BinSpatRelation(Axis axis1, Axis axis2, double prototypeAngle) {
+			this.abscissa = axis1;
+			this.ordinate = axis2;
 			this.prototypeAngle = prototypeAngle;
 		}
 
@@ -42,33 +51,38 @@ public class RRTypes {
 		public double getPrototypeAngle() {
 			return Math.toRadians(this.prototypeAngle);
 		}
-	};
 
-	// TODO: rename to clarify that spatial regions and spatial group relations have the same values?
-	public enum SpatialRegion {
-		// TODO: add support for front etc.
-		// rename (naming convention)
-		left(Axis.X, false), right(Axis.X, true); // front(180), back(0), top, bottom, middle;
-		
-		private Axis axis;
-		private boolean positive;
-		
-		SpatialRegion(Axis axis, boolean positive) {
-			this.axis = axis;
-			this.positive = positive;
+		public Axis getAbscissa() {
+			return this.abscissa;
 		}
 
-		public Axis getAxis() {
-			return this.axis;
-		}
-
-		public boolean positive() {
-			return this.positive;
+		public Axis getOrdinate() {
+			return this.ordinate;
 		}
 	};
-	
+
 	public enum Axis {
-		X, Y, Z
+		X, Y, Z;
+
+		public static Vector2D get2DVec(Vector3D position, Axis abscissa, Axis ordinate) {
+			if (position == null)
+				return null;
+			else
+				return new Vector2D(abscissa.getValue(position), ordinate.getValue(position));
+		}
+
+		public double getValue(Vector3D position) {
+			switch (this) {
+			case X:
+				return position.getX();
+			case Y:
+				return position.getY();
+			case Z:
+				return position.getZ();
+			default:
+				throw new IllegalStateException("not a valid axis");
+			}
+		}
 	}
 
 	public static boolean isSpatialReference(IKBObject obj, KnowledgeBase kb) {
@@ -87,32 +101,28 @@ public class RRTypes {
 			Type intent = new Type(USER_INTENT, kb);
 			kb.addType(intent);
 
-			Type position = new Type("Position", kb);
-			position.addProperty(new PropInt("x", kb));
-			position.addProperty(new PropInt("y", kb));
-			position.addProperty(new PropInt("z", kb));
-			kb.addType(position);
-
-			Type rotation = new Type("Rotation", kb);
-			rotation.addProperty(new PropInt("x", kb));
-			rotation.addProperty(new PropInt("y", kb));
-			rotation.addProperty(new PropInt("z", kb));
-			kb.addType(rotation);
+			Type vector3D = new Type("Vector3D", kb);
+			vector3D.addProperty(new PropFloat("x", kb));
+			vector3D.addProperty(new PropFloat("y", kb));
+			vector3D.addProperty(new PropFloat("z", kb));
 
 			Type transform = new Type("Transform", kb);
-			transform.addProperty(new PropReference("position", kb, position));
-			transform.addProperty(new PropReference("rotation", kb, rotation));
+			transform.addProperty(new PropReference("position", kb, vector3D));
+			transform.addProperty(new PropReference("rotation", kb, vector3D));
 			kb.addType(transform);
 
-			Type extension = new Type("Extension", kb);
-			extension.addProperty(new PropInt("x", kb));
-			extension.addProperty(new PropInt("y", kb));
-			extension.addProperty(new PropInt("z", kb));
+			Type bb = new Type("BoundingBox", kb);
+			bb.addProperty(new PropReference("center", kb, vector3D));
+			bb.addProperty(new PropReference("extents", kb, vector3D));
 
 			Type object = new Type(SPAT_REF_TARGET, kb);
 			object.addProperty(new PropReference("transform", kb, transform));
-			object.addProperty(new PropReference("extension", kb, extension));
+			object.addProperty(new PropReference("boundingBox", kb, bb));
 			kb.addType(object);
+
+			Type agent = new Type(AGENT, kb);
+			agent.addInheritance(object);
+			kb.addType(agent);
 
 			Type ref = new Type(REFERENCE, kb, true);
 			ref.addProperty(new PropString("text", kb));
@@ -129,6 +139,7 @@ public class RRTypes {
 	
 			Type spatRef = new Type(SPAT_REF, kb, true);
 			spatRef.addInheritance(kb.getType("Reference"));
+			spatRef.addProperty(new PropReference("speaker", kb, agent));
 			spatRef.addProperty(new PropReferenceArray("constraints", kb, constraint));
 			spatRef.addProperty(new PropBool("ambiguous", kb));
 			kb.addType(spatRef);

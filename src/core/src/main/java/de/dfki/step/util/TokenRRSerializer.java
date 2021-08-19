@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -41,10 +42,12 @@ public class TokenRRSerializer extends StdSerializer<BasicToken> {
         jgen.writeEndObject();
     }
 
-    private Map<String, Object> addRRInfoToPayload(BasicToken value, JsonGenerator jgen) throws JsonProcessingException {
-    	Map<String, Object> payload = value.getPayload();
+    private Map<String, Object> addRRInfoToPayload(BasicToken value, JsonGenerator jgen) throws IOException {
+    	ObjectMapper mapper = new ObjectMapper();
+    	String payloadJson = mapper.writeValueAsString(value.getPayload());
+    	Map<String, Object> payloadCopy = mapper.readValue(payloadJson, new TypeReference<Map<String, Object>>() {});
         KnowledgeBase kb = value.getKB();
-        Map<String, Object> newPayload = addRRInfoToMap(new HashMap<String,Object>(payload), kb);
+        Map<String, Object> newPayload = addRRInfoToMap(new HashMap<String,Object>(payloadCopy), kb);
         return newPayload;
     }
 

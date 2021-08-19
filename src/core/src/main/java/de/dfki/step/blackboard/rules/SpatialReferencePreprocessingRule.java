@@ -30,10 +30,14 @@ public class SpatialReferencePreprocessingRule extends Rule {
 	// FIXME: what is the right prio for a preprocessing rule?
     private static final int DEFAULT_PRIO = 2000;
     private KnowledgeBase kb;
+    private IKBObject speaker;
 	
-	public SpatialReferencePreprocessingRule(KnowledgeBase kb) throws Exception {
+	public SpatialReferencePreprocessingRule(KnowledgeBase kb, IKBObject defaultSpeaker) throws Exception {
 		this.setPriority(DEFAULT_PRIO);
 		this.kb = kb;
+		this.speaker = defaultSpeaker;
+		if (speaker == null)
+			throw new Exception("Preprocessing rule needs to know the default speaker.");
 
 		PatternBuilder builder = new PatternBuilder(RRTypes.USER_INTENT, kb);
 		builder.hasRecursiveType(RRTypes.LM_SPAT_REF);
@@ -125,6 +129,7 @@ public class SpatialReferencePreprocessingRule extends Rule {
 	private Map<String, Object> convertInnerRef(IKBObject innerRef){
 		Map<String, Object> result = new HashMap<String, Object>();
 		result.put("type", RRTypes.SPAT_REF);
+		result.put("speaker", this.speaker.getUUID().toString());
 		List<Map<String, Object>> constraints = new ArrayList<Map<String, Object>>();
 		String type = innerRef.getString("refType");
 		if (type != null) {

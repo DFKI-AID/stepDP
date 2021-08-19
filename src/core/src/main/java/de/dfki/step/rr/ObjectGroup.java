@@ -46,6 +46,10 @@ public class ObjectGroup {
 		return scores.stream().map(s -> s.getObject()).collect(Collectors.toList());
 	}
 
+	public List<String> getObjectNames() {
+		return scores.stream().map(s -> s.getObject().getName()).collect(Collectors.toList());
+	}
+
 	public List<ObjectScore> getScores() {
 		return scores;
 	}

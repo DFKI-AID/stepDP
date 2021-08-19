@@ -43,12 +43,12 @@ public abstract class ConstraintScorer {
 		return this.kb;
 	}
 
-	public static ConstraintScorer getConstraintScorer(IKBObject constraint, KnowledgeBase kb) {
+	public static ConstraintScorer getConstraintScorer(IKBObject constraint, IKBObject speaker, KnowledgeBase kb) {
 		try {
 			if (constraint == null)
 				return null;
 			if (constraint.getType().isInheritanceFrom(RRTypes.BIN_SPAT_C)) 
-				return new BinarySpatialRelationScorer(constraint, kb);
+				return new BinarySpatialRelationScorer(constraint, speaker, kb);
 			if (constraint.getType().isInheritanceFrom(RRTypes.TYPE_C))
 				return new TypeScorer(constraint, kb);
 			if (constraint.getType().isInheritanceFrom(RRTypes.REGION_C))
