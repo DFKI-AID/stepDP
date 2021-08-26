@@ -115,4 +115,17 @@ public interface IToken extends IKBObject{
     public MultiValuedMap<UUID, IToken> getResultingTokens();
 
     public KnowledgeBase getKB();
+
+    /**
+     * @param newValues a map from property names to their new values (can be a nested map for complex tokens)
+     * @return a new token with the same content as this except for the values provided in newValues
+     * @throws exception if a value should be changed in a kb object reference or if a problem occured while
+     * copying the token's content
+     */
+    public IToken createCopyWithChanges(Map<String, Object> newValues) throws Exception;
+
+    /**
+     * Helper method to insert the content of a token into a new token, e.g. during fusion.
+     */
+    public Object getContent();
 }

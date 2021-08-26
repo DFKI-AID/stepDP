@@ -162,10 +162,6 @@ public class TokenObject implements IKBObject {
 			{
 				return new TokenObject(this._parent, (Map<String, Object>) this._payload.get(propertyName), this._kb, typeOfObject);
 			}
-			else if(data instanceof IToken)
-			{
-			    return (IToken) data;
-			}
 			else
 			{
 				// something bad happend?

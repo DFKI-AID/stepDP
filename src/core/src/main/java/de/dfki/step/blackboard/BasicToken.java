@@ -8,7 +8,12 @@ import de.dfki.step.kb.semantic.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.IOException;
 import java.util.*;
+import java.util.Map.Entry;
 
 public class BasicToken extends AbstractToken {
     private static final Logger log = LoggerFactory.getLogger(BasicToken.class);
@@ -205,6 +210,45 @@ public class BasicToken extends AbstractToken {
     @Override
     public IKBObject[] getResolvedReferenceArray(String propertyName) {
         return _rootTokenObject.getResolvedReferenceArray(propertyName);
+    }
+
+    @Override
+    public IToken createCopyWithChanges(Map<String, Object> newValues) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, Object> deepCopy;
+        deepCopy = mapper.readValue(mapper.writeValueAsString(_payload), new TypeReference<Map<String, Object>>() {});
+        deepCopy = changeValues(deepCopy, newValues);
+        BasicToken newToken = new BasicToken(this.getKB());
+        newToken.setType(this.getType());
+        newToken.addAll(deepCopy);
+        return newToken;
+    }
+
+    private Map<String, Object> changeValues(Map<String, Object> original, Map<String, Object> newValues) throws Exception{
+        for (Entry<String, Object> e : newValues.entrySet()) {
+            // if value does not exist yet or the new value is a simple value, simply put it into the payload
+            if (original.get(e.getKey()) == null || !(e.getValue() instanceof Map))
+                original.put(e.getKey(), e.getValue());
+            // if value does exist and the new value is a map, change values recursively (if possible)
+            else {
+                Object oldValue = original.get(e.getKey());
+                if (oldValue instanceof Map) {
+                    Map<String, Object> newValue = changeValues((Map<String, Object>) oldValue, (Map<String, Object>) e.getValue());
+                    original.put(e.getKey(), newValue);
+                } else if (oldValue instanceof String || oldValue instanceof KBToken) {
+                    throw new Exception("Cannot change values in a reference to a kb object.");
+                } else {
+                    // something bad happened?
+                    throw new Exception("token contains invalid value.");
+                }
+            }
+        }
+        return original;
+    }
+
+    @Override
+    public Object getContent() {
+        return this._payload;
     }
 
 }

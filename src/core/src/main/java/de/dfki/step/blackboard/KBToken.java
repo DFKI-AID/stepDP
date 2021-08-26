@@ -1,5 +1,6 @@
 package de.dfki.step.blackboard;
 
+import java.util.Map;
 import java.util.UUID;
 
 import de.dfki.step.kb.IKBObject;
@@ -100,6 +101,19 @@ public class KBToken extends AbstractToken {
     @Override
     public IKBObject[] getResolvedReferenceArray(String propertyName) {
         return _parent.getResolvedReferenceArray(propertyName);
+    }
+
+    @Override
+    public IToken createCopyWithChanges(Map<String, Object> newValues) throws Exception {
+        if (newValues.entrySet().isEmpty())
+            return new KBToken(this.getKB(), this._parent);
+        else
+            throw new Exception("Cannot change values in a reference to a kb object.");
+    }
+
+    @Override
+    public Object getContent() {
+        return this._parent.getUUID().toString();
     }
 
 }
