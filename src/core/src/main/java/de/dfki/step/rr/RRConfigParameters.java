@@ -21,5 +21,5 @@ public class RRConfigParameters {
 	public static final double BINSPATREL_W_BB = 0.6;
 
 	// specificity for spatial regions
-	public static final double SPATREG_C = 0.0001;
+	public static final double SPATREG_C = 1;
 }

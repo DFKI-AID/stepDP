@@ -3,6 +3,7 @@ package de.dfki.step.kb;
 import de.dfki.step.kb.semantic.IProperty;
 import de.dfki.step.kb.semantic.Type;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -75,7 +76,20 @@ public class KBObject implements IKBObjectWriteable
 
     @Override
     public Float getFloat(String propertyName) {
-        return (Float) this._data.get(propertyName);
+    	Object data = this._data.get(propertyName);
+		if(data instanceof Integer)
+		{
+			return (float)((int) data);
+		}
+		else if(data instanceof Double)
+		{
+			return (float)((double) data);
+		}
+		else if(data instanceof Float)
+		{
+			return (float) data;
+		}
+		else return null;
     }
 
     @Override
@@ -125,7 +139,29 @@ public class KBObject implements IKBObjectWriteable
 
     @Override
     public Float[] getFloatArray(String propertyName) {
-        return (Float[])this._data.get(propertyName);
+		if (!this.isSet(propertyName))
+			return null;
+
+		ArrayList<Object> tmp = (ArrayList<Object>) this._data.get(propertyName);
+		Float[] result = new Float[tmp.size()];
+		for(int i = 0; i < tmp.size(); i++)
+		{
+			Object listEntry = tmp.get(i);
+
+			if(listEntry instanceof Integer)
+			{
+				result[i] = (float)((int)tmp.get(i));
+			}
+			else if(listEntry instanceof Double)
+			{
+				result[i] = (float)((double)tmp.get(i));
+			}
+			else if(listEntry instanceof Float)
+			{
+				result[i] = (float)(tmp.get(i));
+			}
+		}
+		return result;
     }
 
     @Override

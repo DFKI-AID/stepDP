@@ -104,7 +104,20 @@ public class TokenObject implements IKBObjectWriteable {
 
 	@Override
 	public Float getFloat(String propertyName) {
-		return (Float) this._payload.get(propertyName);
+    	Object data = this._payload.get(propertyName);
+		if(data instanceof Integer)
+		{
+			return (float)((int) data);
+		}
+		else if(data instanceof Double)
+		{
+			return (float)((double) data);
+		}
+		else if(data instanceof Float)
+		{
+			return (float) data;
+		}
+		else return null;
 	}
 
 	@Override
