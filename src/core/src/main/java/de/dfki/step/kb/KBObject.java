@@ -1,9 +1,8 @@
 package de.dfki.step.kb;
 
+import de.dfki.step.blackboard.TokenObject;
 import de.dfki.step.kb.semantic.IProperty;
 import de.dfki.step.kb.semantic.Type;
-import org.pcollections.HashTreePMap;
-import org.pcollections.PMap;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,12 +15,14 @@ public class KBObject implements IKBObjectWriteable
     private KnowledgeBase _parent;
     private final UUID _uuid = UUID.randomUUID();
     private Map<String, Object> _data = new HashMap<String, Object>();
+    private TokenObject _rootTokenObject;
 
     protected KBObject(String name, Type type, KnowledgeBase parent)
     {
     	this._name = name;
         this._type = type;
         this._parent = parent;
+        this._rootTokenObject = new TokenObject(this, this._data, this._parent);
     }
 
     @Override
@@ -74,12 +75,12 @@ public class KBObject implements IKBObjectWriteable
 
     @Override
     public UUID getReference(String propertyName) {
-        return (UUID) this._data.get(propertyName);
+        return _rootTokenObject.getReference(propertyName);
     }
 
     @Override
     public IKBObject getResolvedReference(String propertyName) {
-        return this._parent.getInstance(this.getReference(propertyName));
+        return _rootTokenObject.getResolvedReference(propertyName);
     }
 
     @Override
@@ -104,19 +105,12 @@ public class KBObject implements IKBObjectWriteable
 
     @Override
     public UUID[] getReferenceArray(String propertyName) {
-        return (UUID[])this._data.get(propertyName);
+        return _rootTokenObject.getReferenceArray(propertyName);
     }
 
     @Override
     public IKBObject[] getResolvedReferenceArray(String propertyName) {
-        UUID[] uuids = getReferenceArray(propertyName);
-        IKBObject[] result = new IKBObject[uuids.length];
-
-        for(int i = 0; i < uuids.length; i++)
-        {
-            result[i] = this._parent.getInstance(uuids[i]);
-        }
-        return result;
+        return _rootTokenObject.getResolvedReferenceArray(propertyName);
     }
 
     @Override
