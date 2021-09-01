@@ -7,11 +7,9 @@ import de.dfki.step.kb.semantic.Type;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -213,7 +211,7 @@ public class BasicToken extends AbstractToken {
     }
 
     @Override
-    public IToken createCopyWithChanges(Map<String, Object> newValues) throws Exception {
+    public IToken internal_createCopyWithChanges(Map<String, Object> newValues) throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         Map<String, Object> deepCopy;
         deepCopy = mapper.readValue(mapper.writeValueAsString(_payload), new TypeReference<Map<String, Object>>() {});
@@ -247,8 +245,10 @@ public class BasicToken extends AbstractToken {
     }
 
     @Override
-    public Object getContent() {
-        return this._payload;
+    public Object internal_getContent() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, Object> deepCopy;
+        return mapper.readValue(mapper.writeValueAsString(_payload), new TypeReference<Map<String, Object>>() {});
     }
 
 }

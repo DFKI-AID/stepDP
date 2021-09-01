@@ -3,6 +3,9 @@ package de.dfki.step.blackboard.rules;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.dfki.step.blackboard.BasicToken;
 import de.dfki.step.blackboard.Board;
 import de.dfki.step.blackboard.Condition;
@@ -21,6 +24,7 @@ import de.dfki.step.kb.semantic.Type;
  * are not considered anymore for future combinations.
  */
 public class DeclarativeTypeBasedFusionRule extends Rule {
+    private static final Logger log = LoggerFactory.getLogger(DeclarativeTypeBasedFusionRule.class);
     private static final int DEFAULT_PRIO = 5000;
     private static final String FUSION_TAG = "fusion";
 	private Type _resultType;
@@ -76,17 +80,24 @@ public class DeclarativeTypeBasedFusionRule extends Rule {
 			
 			BasicToken fusionResult = new BasicToken(t1.getKB());
 			fusionResult.setType(this._resultType);
-			fusionResult.addAll(Map.of(_prop1, t1.getContent()));
-			fusionResult.addAll(Map.of(_prop2, t2.getContent()));
-			fusionResult.setOriginTokens(List.of(t1, t2));
-			fusionResult.setProducer(this.getUUID());
+			try {
+                fusionResult.addAll(Map.of(_prop1, t1.internal_getContent()));
+                fusionResult.addAll(Map.of(_prop2, t2.internal_getContent()));
 
-			t1.usedBy(this.getUUID());
-			t2.usedBy(this.getUUID());
-			t1.addResultingTokens(List.of(fusionResult), this.getUUID());
-			t2.addResultingTokens(List.of(fusionResult), this.getUUID());
+                fusionResult.setOriginTokens(List.of(t1, t2));
+                fusionResult.setProducer(this.getUUID());
 
-			board.addToken(fusionResult);
+                t1.usedBy(this.getUUID());
+                t2.usedBy(this.getUUID());
+                t1.addResultingTokens(List.of(fusionResult), this.getUUID());
+                t2.addResultingTokens(List.of(fusionResult), this.getUUID());
+
+                board.addToken(fusionResult);
+            } catch (Exception e) {
+                e.printStackTrace();
+                log.error("Could not create fusion result.");
+                
+            }
 		}
 	}
 

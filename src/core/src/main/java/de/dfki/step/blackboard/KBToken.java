@@ -104,7 +104,7 @@ public class KBToken extends AbstractToken {
     }
 
     @Override
-    public IToken createCopyWithChanges(Map<String, Object> newValues) throws Exception {
+    public IToken internal_createCopyWithChanges(Map<String, Object> newValues) throws Exception {
         if (newValues.entrySet().isEmpty())
             return new KBToken(this.getKB(), this._parent);
         else
@@ -112,7 +112,7 @@ public class KBToken extends AbstractToken {
     }
 
     @Override
-    public Object getContent() {
+    public Object internal_getContent() {
         return this._parent.getUUID().toString();
     }
 
