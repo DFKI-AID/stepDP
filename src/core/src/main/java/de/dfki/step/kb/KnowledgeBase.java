@@ -60,7 +60,7 @@ public class KnowledgeBase {
 
     public Type getType(String name)
     {
-        Optional<Type> result = _types.stream().filter(p->p.getName().equals(name)).findFirst();
+        Optional<Type> result = _types.stream().filter(p->p.getName().equalsIgnoreCase(name)).findFirst();
 
         if(result.isPresent())
             return result.get();
@@ -150,12 +150,12 @@ public class KnowledgeBase {
 
     public boolean existType(String name)
     {
-        return this._types.stream().anyMatch(p-> p.getName().equals(name));
+        return this._types.stream().anyMatch(p-> p.getName().equalsIgnoreCase(name));
     }
 
     public boolean existType(Type type)
     {
-        return this._types.stream().anyMatch(p-> p.getName().equals(type.getName()));
+        return this._types.stream().anyMatch(p-> p.getName().equalsIgnoreCase(type.getName()));
     }
 
     public void addType(Type type) throws Exception {

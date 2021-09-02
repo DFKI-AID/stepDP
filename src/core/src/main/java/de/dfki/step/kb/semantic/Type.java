@@ -143,7 +143,7 @@ public class Type implements IUUID
 
         Type type = (Type) o;
 
-        return _name.equals(type._name);
+        return _name.equalsIgnoreCase(type._name);
     }
 
     @Override
