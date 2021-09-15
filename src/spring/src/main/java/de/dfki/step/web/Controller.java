@@ -134,6 +134,35 @@ public class Controller {
     }
 
     @CrossOrigin
+    @PostMapping(value = "/kb/addKBObject", consumes = "application/json")
+    public ResponseEntity<String> addKBObject(@RequestBody Map<String, Object> body) {
+
+        // TODO type matching
+        // TODO check if all required values are there
+        // TODO check if types of nested objects are valid (e.g. inheritance from semantic tree definition)
+        // should be possible to activate / deactivate these checks for performance reasons
+
+        if (!body.containsKey("type")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing type");
+        }
+
+        Type type = dialog.getKB().getType((String)body.get("type"));
+
+        if(type == null)
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("type not found");
+        }
+
+        try {
+            dialog.getKB().createInstance((String) body.get("name"), type, body);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error while creating kb object instance: " + e.getMessage());
+        }
+
+        return ResponseEntity.ok("ok");
+    }
+
+    @CrossOrigin
     @GetMapping(value = "/kb/instances/mapping")
     public Map<String, String> getKBInstancesMapping() {
         Map<String, String> result = new HashMap<>();

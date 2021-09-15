@@ -8,6 +8,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 public class KBObject implements IKBObjectWriteable
 {
     private String _name;
@@ -16,13 +19,23 @@ public class KBObject implements IKBObjectWriteable
     private final UUID _uuid = UUID.randomUUID();
     private Map<String, Object> _data = new HashMap<String, Object>();
     private TokenObject _rootTokenObject;
+    private ObjectMapper mapper = new ObjectMapper();
 
     protected KBObject(String name, Type type, KnowledgeBase parent)
     {
-    	this._name = name;
+        this._name = name;
         this._type = type;
         this._parent = parent;
         this._rootTokenObject = new TokenObject(this, this._data, this._parent);
+    }
+
+    protected KBObject(String name, Type type, KnowledgeBase parent, Map<String, Object> data) throws Exception
+    {
+        this(name, type, parent);
+        if (data != null) {
+            Map<String, Object> deepCopy =  mapper.readValue(mapper.writeValueAsString(data), new TypeReference<Map<String, Object>>() {});
+            this._data.putAll(deepCopy);
+        }
     }
 
     @Override
