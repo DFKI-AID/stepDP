@@ -3,6 +3,7 @@ package de.dfki.step.rr.constraints;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,15 +44,23 @@ public class BinarySpatialRelationScorer extends RelationScorer {
 			return new ArrayList<ObjectScore>();
 		IKBObject relatum = this.getKB().getInstance(potentialRelatums.get(0));
 		log.debug("RELATUM: " + relatum.getName());
-		for (ObjectScore curScore : scores) {
-			IKBObject obj = curScore.getObject();
-			BinSpatComputer comp = new BinSpatComputer(speaker, obj, relatum, rel);
-			double accScore = comp.computeScore();
-			// TODO: replace 0 with value range close to 0
-//			if (score == 0)
-//				continue;
-			curScore.accumulateScore((float) accScore);
+		if (rel.isProjective()) {
+			for (ObjectScore curScore : scores) {
+				IKBObject obj = curScore.getObject();
+				ProjectiveBinSpatComputer comp = new ProjectiveBinSpatComputer(speaker, obj, relatum, rel);
+				double accScore = comp.computeScore();
+				// TODO: replace 0 with value range close to 0
+//				if (score == 0)
+//					continue;
+				curScore.accumulateScore((float) accScore);
+			}
+		} else {
+			List<IKBObject> potentialObjects = scores.stream().map(ObjectScore::getObject).collect(Collectors.toList());
+			NonProjectiveBinSpatComputer comp = new NonProjectiveBinSpatComputer(relatum, rel, potentialObjects);
+			List<ObjectScore> newScores = comp.computeScores();
+			scores = ObjectScore.accumulateScores(scores, newScores);
 		}
+
 		// TODO: add relatumRef as text
 		LogUtils.logScores("Totals after scoring BinSpatRel " + this.rel, scores);
 		return scores;

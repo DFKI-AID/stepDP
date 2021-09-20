@@ -29,20 +29,27 @@ public class RRTypes {
 	public static final String REGION_C = "RegionConstraint";
 	public static final String POINTING_C = "PointingConstraint";
 	public static final String SPAT_REF_TARGET = "PhysicalObject";
+	public static final String CONTAINER = "Container";
 
 	public enum BinSpatRelation {
 		// TODO: add support for NEXT_TO etc.
+		// TODO: find prettier solution than one single enum for topological and projective bin rels
 		// rename (naming convention)
-		leftOf(Axis.X, Axis.Y, 90), rightOf(Axis.X, Axis.Y, 270), inFrontOf(Axis.X, Axis.Y, 180), behindOf(Axis.X, Axis.Y, 0),  aboveOf(Axis.X, Axis.Z, 0), belowOf(Axis.X, Axis.Z, 180);//, NEXT_TO, ON, INSIDE_OF
+		in(null, null, 0, false), leftOf(Axis.X, Axis.Y, 90), rightOf(Axis.X, Axis.Y, 270), inFrontOf(Axis.X, Axis.Y, 180), behindOf(Axis.X, Axis.Y, 0),  aboveOf(Axis.X, Axis.Z, 0), belowOf(Axis.X, Axis.Z, 180);//, NEXT_TO, ON, INSIDE_OF
 		
 		private Axis abscissa;
 		private Axis ordinate;
 		private double prototypeAngle;
+		private boolean projective;
 		
-		BinSpatRelation(Axis axis1, Axis axis2, double prototypeAngle) {
+		BinSpatRelation(Axis axis1, Axis axis2, double prototypeAngle, boolean projective) {
 			this.abscissa = axis1;
 			this.ordinate = axis2;
 			this.prototypeAngle = prototypeAngle;
+			this.projective = projective;
+		}
+		BinSpatRelation(Axis axis1, Axis axis2, double prototypeAngle) {
+			this(axis1, axis2, prototypeAngle, true);
 		}
 
 		/**
@@ -58,6 +65,10 @@ public class RRTypes {
 
 		public Axis getOrdinate() {
 			return this.ordinate;
+		}
+
+		public boolean isProjective() {
+			return this.projective;
 		}
 	};
 
@@ -181,5 +192,10 @@ public class RRTypes {
 			pointingConst.addProperty(new PropStringArray("objectNames", kb));
 			pointingConst.addInheritance(constraint);
 			kb.addType(pointingConst);
+
+			Type container = new Type(CONTAINER, kb);
+			container.addProperty(new PropReferenceArray("contains", kb, object));
+			container.addInheritance(object);
+			kb.addType(container);
 	}
 }

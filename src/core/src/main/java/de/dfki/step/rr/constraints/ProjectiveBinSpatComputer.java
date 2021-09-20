@@ -20,7 +20,7 @@ import de.dfki.step.rr.RRConfigParameters;
  * 5 (2016), 889–911
  *
  */
-public class BinSpatComputer {
+public class ProjectiveBinSpatComputer {
 	private static final double c = RRConfigParameters.BINSPATREL_C;
 	private static final double w_cp = RRConfigParameters.BINSPATREL_W_CP;
 	private static final double w_bb = RRConfigParameters.BINSPATREL_W_BB;
@@ -38,7 +38,7 @@ public class BinSpatComputer {
 	private Double pd;
 	private Double score;
 	
-	public BinSpatComputer(IKBObject speaker, IKBObject io, IKBObject ro, RRTypes.BinSpatRelation rel) {
+	public ProjectiveBinSpatComputer(IKBObject speaker, IKBObject io, IKBObject ro, RRTypes.BinSpatRelation rel) {
 		this.speaker = new PhysicalObject(speaker);
 		this.io = new PhysicalObject(io);
 		this.ro = new PhysicalObject(ro);
