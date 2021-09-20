@@ -22,4 +22,7 @@ public class RRConfigParameters {
 
 	// specificity for spatial regions
 	public static final double SPATREG_C = 1;
+
+	// objects are considered visible if the percentage of visible pixels exceeds this threshold
+	public static final float VISIBILITY_THRESHOLD = 0.5f;
 }

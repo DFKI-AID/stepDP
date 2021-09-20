@@ -21,11 +21,17 @@ public class SpatialRR implements ReferenceResolver {
 	public SpatialRR(KnowledgeBase kb) {
 		this.kb = kb;
 	}
+
+	private boolean isVisible(IKBObject o) {
+		Float visibility = o.getFloat("visibility");
+		return (visibility != null && visibility >= RRConfigParameters.VISIBILITY_THRESHOLD);
+	}
 	
 	@Override
 	public ResolutionResult resolveReference(IKBObject reference) {
 		IKBObject speaker = reference.getResolvedReference("speaker");
 		List<IKBObject> potentialReferents = this.kb.getInstancesOfType(this.kb.getType(RRTypes.SPAT_REF_TARGET));
+		potentialReferents = potentialReferents.stream().filter(o -> isVisible(o)).collect(Collectors.toList());
 		List<ObjectScore> currentScores = ObjectScore.initializeScores(potentialReferents);
 		IKBObject[] constraintArray = reference.getResolvedReferenceArray("constraints");
 		if (constraintArray == null)
