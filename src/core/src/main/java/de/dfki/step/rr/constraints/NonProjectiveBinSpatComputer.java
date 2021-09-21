@@ -1,5 +1,6 @@
 package de.dfki.step.rr.constraints;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -27,6 +28,11 @@ public class NonProjectiveBinSpatComputer {
 		switch (rel) {
 		case in:
 			matches = findAllContainedItems(ro);
+			break;
+		case on:
+			// FIXME: temporary workaround to make expressions like "on the second shelf" work
+			matches = findAllContainedItems(ro);
+			break;
 		}
 		List<ObjectScore> scores = matches.stream().map(m -> new ObjectScore(m, 1.0f)).collect(Collectors.toList());
 		return scores;
@@ -34,7 +40,7 @@ public class NonProjectiveBinSpatComputer {
 
 	private List<IKBObjectWriteable> findAllContainedItems(IKBObject obj){
 		IKBObjectWriteable[] containedItems = obj.getResolvedReferenceArray("contains");
-		List<IKBObjectWriteable> matches = Arrays.asList(containedItems);
+		List<IKBObjectWriteable> matches = new ArrayList<IKBObjectWriteable>(Arrays.asList(containedItems));
 		for (IKBObject inner : containedItems) {
 			if (inner.getType() != null && inner.getType().isInheritanceFrom(RRTypes.CONTAINER)) {
 				List<IKBObjectWriteable> innerItems = findAllContainedItems(inner);

@@ -35,7 +35,7 @@ public class RRTypes {
 		// TODO: add support for NEXT_TO etc.
 		// TODO: find prettier solution than one single enum for topological and projective bin rels
 		// rename (naming convention)
-		in(null, null, 0, false), leftOf(Axis.X, Axis.Y, 90), rightOf(Axis.X, Axis.Y, 270), inFrontOf(Axis.X, Axis.Y, 180), behindOf(Axis.X, Axis.Y, 0),  aboveOf(Axis.X, Axis.Z, 0), belowOf(Axis.X, Axis.Z, 180);//, NEXT_TO, ON, INSIDE_OF
+		in(null, null, 0, false), on(null, null, 0, false), leftOf(Axis.X, Axis.Y, 90), rightOf(Axis.X, Axis.Y, 270), inFrontOf(Axis.X, Axis.Y, 180), behindOf(Axis.X, Axis.Y, 0),  aboveOf(Axis.X, Axis.Z, 0), belowOf(Axis.X, Axis.Z, 180);//, NEXT_TO, ON, INSIDE_OF
 		
 		private Axis abscissa;
 		private Axis ordinate;

@@ -1,6 +1,9 @@
 package de.dfki.step.kb;
 
+import de.dfki.step.blackboard.IToken;
+import de.dfki.step.blackboard.TokenObject;
 import de.dfki.step.kb.semantic.IProperty;
+import de.dfki.step.kb.semantic.PropReferenceArray;
 import de.dfki.step.kb.semantic.Type;
 
 import java.util.ArrayList;
@@ -166,19 +169,88 @@ public class KBObject implements IKBObjectWriteable
 
     @Override
     public UUID[] getReferenceArray(String propertyName) {
-        return (UUID[])this._data.get(propertyName);
+		if (!this.isSet(propertyName))
+			return null;
+
+		try
+		{
+			ArrayList<Object> data = (ArrayList<Object>)this._data.get(propertyName);
+			UUID[] results = new UUID[data.size()];
+
+			for(int i = 0; i < data.size(); i++)
+			{
+				Object var = data.get(i);
+
+				if(var instanceof String)
+				{
+					results[i] = UUID.fromString((String)var);
+				}
+			}
+
+			return results;
+		} catch (IllegalArgumentException exception){
+			return null;
+		}
     }
 
     @Override
     public IKBObjectWriteable[] getResolvedReferenceArray(String propertyName) {
-        UUID[] uuids = getReferenceArray(propertyName);
-        IKBObjectWriteable[] result = new IKBObjectWriteable[uuids.length];
+		if (!this.isSet(propertyName))
+			return null;
 
-        for(int i = 0; i < uuids.length; i++)
-        {
-            result[i] = this._parent.getInstanceWriteable(uuids[i]);
-        }
-        return result;
+		IProperty prop = this.getProperty(propertyName);
+		Type typeOfObject = null;
+		if(prop != null && prop instanceof PropReferenceArray)
+		{
+			typeOfObject = ((PropReferenceArray)prop).getType();
+		}
+		else
+		{
+			typeOfObject = this._parent.getRootType();
+		}
+
+		try
+		{
+			Object refArray = this._data.get(propertyName);
+			List<Object> data;
+			if (refArray instanceof Object[])
+				data = Arrays.asList(((Object[]) this._data.get(propertyName)));
+			else
+				data = (List<Object>) this._data.get(propertyName);
+			IKBObjectWriteable[] results = new IKBObjectWriteable[data.size()];
+
+			for(int i = 0; i < data.size(); i++)
+			{
+				Object var = data.get(i);
+
+				if(var instanceof String)
+				{
+					UUID uuid = null;
+					try{
+						uuid = UUID.fromString(var.toString());
+					} catch (IllegalArgumentException exception){
+					}
+
+					IKBObjectWriteable ref;
+					if(uuid != null) {
+						ref = this._parent.getInstanceWriteable(uuid);
+					}
+					else
+						ref = this._parent.getInstanceWriteable(var.toString());
+
+					if(ref != null)
+						results[i] = ref;
+				}
+				else
+				{
+					// something bad happend?
+				}
+			}
+
+			return results;
+		} catch (IllegalArgumentException exception){
+			return null;
+		}
     }
 
     @Override
