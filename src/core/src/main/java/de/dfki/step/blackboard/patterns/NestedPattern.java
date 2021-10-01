@@ -1,6 +1,7 @@
 package de.dfki.step.blackboard.patterns;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -8,6 +9,9 @@ import java.util.Map;
 import java.util.Optional;
 
 import de.dfki.step.kb.IKBObject;
+import de.dfki.step.kb.semantic.IProperty;
+import de.dfki.step.kb.semantic.PropReference;
+import de.dfki.step.kb.semantic.PropReferenceArray;
 import de.dfki.step.kb.semantic.Type;
 
 /**
@@ -44,14 +48,27 @@ public class NestedPattern extends Pattern {
 			if (!p.matches(root))
 				return false;
 		for (String propKey : _refPropPatterns.keySet()) {
-			IKBObject child = root.getResolvedReference(propKey);
-			if (child == null)
-				return false;
-			Pattern p = _refPropPatterns.get(propKey);
-			if ((p != null) && (!p.matches(child)))
-				return false;
+		    if (!allValuesMatch(root, propKey))
+		        return false;
 		}
 		return true;
+	}
+
+	private boolean allValuesMatch(IKBObject root, String propKey) {
+        Pattern p = _refPropPatterns.get(propKey);
+        if (p == null)
+            return true;
+	    IProperty prop = root.getProperty(propKey);
+	    List<IKBObject> innerObjs = new ArrayList<IKBObject>();
+	    if (prop instanceof PropReference) 
+	        innerObjs.add(root.getResolvedReference(propKey));
+	    else if (prop instanceof PropReferenceArray)
+            innerObjs.addAll(Arrays.asList(root.getResolvedReferenceArray(propKey)));
+	    for (IKBObject inner : innerObjs) {
+	        if (!p.matches(inner))
+	            return false;
+	    }
+	    return true;
 	}
 
 	@Override

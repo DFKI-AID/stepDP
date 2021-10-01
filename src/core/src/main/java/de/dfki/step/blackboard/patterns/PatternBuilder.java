@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import de.dfki.step.kb.KnowledgeBase;
 import de.dfki.step.kb.semantic.IProperty;
 import de.dfki.step.kb.semantic.PropReference;
+import de.dfki.step.kb.semantic.PropReferenceArray;
 import de.dfki.step.kb.semantic.Type;
 
 /**
@@ -126,9 +127,13 @@ public class PatternBuilder {
 			return existingBuilder;
 		assertHasProperty(propertyName);
 		IProperty prop = _rootTypePattern.getType().getProperty(propertyName);
-		if (!(prop instanceof PropReference))
-			throw new Exception("Property with name " + propertyName + " is not a reference property.");
-		Type refType = ((PropReference) prop).getType();
+		Type refType = null;
+		if (prop instanceof PropReference)
+		    refType = ((PropReference) prop).getType();
+		else if (prop instanceof PropReferenceArray)
+		    refType = ((PropReferenceArray) prop).getType();
+		else
+	          throw new Exception("Property with name " + propertyName + " is not a reference property.");
 		PatternBuilder propBuilder = new PatternBuilder(refType.getName(), _kb, this);
 		_refPropBuilders.put(propertyName, propBuilder);
 		return propBuilder;

@@ -1,11 +1,16 @@
 package de.dfki.step.blackboard;
 
 import java.util.Map;
+import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
 import org.junit.Rule;
 
 import de.dfki.step.blackboard.patterns.Pattern;
@@ -15,11 +20,13 @@ import de.dfki.step.kb.RRTypes;
 import de.dfki.step.kb.semantic.PropBool;
 import de.dfki.step.kb.semantic.PropFloat;
 import de.dfki.step.kb.semantic.PropReference;
+import de.dfki.step.kb.semantic.PropReferenceArray;
 import de.dfki.step.kb.semantic.PropString;
 import de.dfki.step.kb.semantic.Type;
 
 public class PatternBuilderTest {
 	private KnowledgeBase kb;
+	private Gson gson = new Gson();
 
     @Rule
     public ExpectedException exc = ExpectedException.none();
@@ -104,6 +111,10 @@ public class PatternBuilderTest {
 		bringIntent.addInheritance(kb.getType("GeneralBringIntent"));
 		bringIntent.addProperty(new PropReference("object", kb, kb.getType("PhysicalObject")));
 		kb.addType(bringIntent);
+	    Type bringIntentArr = new Type("ObjectBringIntentArray", kb);
+	    bringIntentArr.addInheritance(kb.getType("GeneralBringIntent"));
+	    bringIntentArr.addProperty(new PropReferenceArray("objects", kb, kb.getType("PhysicalObject")));
+	    kb.addType(bringIntentArr);
 		Type pickUpIntent = new Type("PickUpIntent", kb);
 		pickUpIntent.addInheritance(kb.getType(RRTypes.USER_INTENT));
 		pickUpIntent.addProperty(new PropReference("object", kb, physObj));
@@ -168,8 +179,6 @@ public class PatternBuilderTest {
 	@Test
 	public void testNestedPattern() throws Exception {
 		PatternBuilder builder = new PatternBuilder("ObjectBringIntent", kb);
-		// FIXME: this will make the test fail until the kb
-		// is adjusted such that subtype inherit properties
 		builder.hasNonNullProperties("recipientName")
 			   .addPatternForProperty("object")
 			   		.hasType("Pizza")
@@ -242,6 +251,72 @@ public class PatternBuilderTest {
 		Assert.assertFalse(p.matches(sortNull));
 		Assert.assertFalse(p.matches(toppingNull));
 	}
+
+	   @Test
+	    public void testNestedPatternForArrayProp() throws Exception {
+	        PatternBuilder builder = new PatternBuilder("ObjectBringIntentArray", kb);
+	        builder.hasNonNullProperties("recipientName")
+	               .addPatternForProperty("objects")
+	                    .hasType("Pizza")
+	                    .hasNonNullProperties("sort")
+	                .endPropertyPattern();
+	        Pattern p = builder.build();
+
+	        BasicToken match1 = new BasicToken(kb);
+	        match1.setType(kb.getType("ObjectBringIntentArray"));
+	        match1.addAll(Map.of("recipientName","Lara",
+	                            "objects", List.of(
+	                                         Map.of("type","Pizza",
+	                                             "sort", "Hawaii"
+	                                             ),
+	                                         Map.of("type","Pizza",
+	                                              "sort", "Salami"
+	                                             )
+	                                       )
+	                            )
+	                    );
+	        
+	        BasicToken sortNull = new BasicToken(kb);
+	        sortNull.setType(kb.getType("ObjectBringIntentArray"));
+	        sortNull.addAll(Map.of("recipientName","Lara",
+                                "objects", List.of(
+                                             Map.of("type","Pizza"),
+                                             Map.of("type","Pizza",
+                                                  "sort", "Salami"
+                                                   )
+                                           )
+                                )
+                        );
+
+           BasicToken innerObjNull = new BasicToken(kb);
+           innerObjNull.setType(kb.getType("ObjectBringIntentArray"));
+           String objectsJson = "[{\"type\":\"Pizza\",\"sort\":\"Salami\"},null]";
+           java.lang.reflect.Type listType = new TypeToken<List<Map<String,Object>>>(){}.getType();
+           List<Map<String, Object>> objects = gson.fromJson(objectsJson, listType);
+           innerObjNull.addAll(Map.of("recipientName","Lara",
+                                      "objects", objects
+                                     )
+                        );
+
+           BasicToken wrongInnerType = new BasicToken(kb);
+           wrongInnerType.setType(kb.getType("ObjectBringIntentArray"));
+           wrongInnerType.addAll(Map.of("recipientName","Lara",
+                               "objects", List.of(
+                                            Map.of("type","Pizza",
+                                                   "sort", "Salami"
+                                                  ),
+                                            Map.of("type","Water",
+                                                   "carbonated", true
+                                                   )
+                                          )
+                               )
+                       );
+	        
+	        Assert.assertTrue(p.matches(match1));
+	        Assert.assertFalse(p.matches(sortNull));
+	        Assert.assertFalse(p.matches(innerObjNull));
+	        Assert.assertFalse(p.matches(wrongInnerType));
+	    }
 	
 	@Test
 	public void testInvalidType() throws Exception {
