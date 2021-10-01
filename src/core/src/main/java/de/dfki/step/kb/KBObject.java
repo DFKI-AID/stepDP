@@ -300,7 +300,13 @@ public class KBObject implements IKBObjectWriteable
 
     @Override
     public void setReferenceArray(String propertyName, UUID[] value) {
-        this._data.put(propertyName, value);
+		if (value == null)
+			return;
+		String[] uuidsStr = new String[value.length];
+		for (int i = 0; i < value.length; i++) {
+			uuidsStr[i] = value[i].toString();
+		}
+		this._data.put(propertyName, uuidsStr);
     }
 
     @Override

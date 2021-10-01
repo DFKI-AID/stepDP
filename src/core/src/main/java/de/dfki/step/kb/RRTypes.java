@@ -153,12 +153,18 @@ public class RRTypes {
 			spatRef.addProperty(new PropReference("speaker", kb, agent));
 			spatRef.addProperty(new PropReferenceArray("constraints", kb, constraint));
 			spatRef.addProperty(new PropBool("ambiguous", kb));
+			spatRef.addProperty(new PropInt("cardinality", kb));
 			kb.addType(spatRef);
 
 			Type lmSpatRefInner = new Type(LM_SPAT_REF_INNER, kb, true);
 			// FIXME: should it inherit from "Reference"?
 			//lmSpatRef.addInheritance(kb.getType("Reference"));
 			lmSpatRefInner.addProperty(new PropString("type", kb));
+			lmSpatRefInner.addProperty(new PropInt("cardinality", kb));
+			lmSpatRefInner.addProperty(new PropString("region", kb));
+			lmSpatRefInner.addProperty(new PropString("groupRelation", kb));
+			lmSpatRefInner.addProperty(new PropInt("ordinality", kb));
+			lmSpatRefInner.addProperty(new PropString("attribute", kb));
 			kb.addType(lmSpatRefInner);
 
 			Type lmSpatRef = new Type(LM_SPAT_REF, kb, true);

@@ -20,10 +20,12 @@ public class GroupRelationScorer extends RelationScorer {
 	private static final int DEFAULT_PRIO = 6000;
 	private SpatialRegion relation;
 	private Integer ordinality;
+	private Integer cardinality;
 
-	public GroupRelationScorer(IKBObject constraint, KnowledgeBase kb) {
+	public GroupRelationScorer(IKBObject constraint, KnowledgeBase kb, Integer cardinality) {
 		super(constraint, kb);
 		// TODO: make conversion from string to rel more flexible (e.g. case insensitive etc.)
+		this.cardinality = cardinality;
 		this.relation = SpatialRegion.valueOf(constraint.getString("relation"));
 		this.ordinality = constraint.getInteger("ordinality");
 		this.setPriority(DEFAULT_PRIO);
@@ -41,10 +43,10 @@ public class GroupRelationScorer extends RelationScorer {
 	    if (!bestGroup.isPresent())
 	    	return Collections.EMPTY_LIST;
 	    log.debug("RESOLVED GROUP: " + bestGroup.get().getObjectNames().toString());
-		IKBObject obj = SpatialRegionComputer.computeObjectForGroupRelation(bestGroup.get(), relation, ordinality);
-		if (obj == null)
+		List<IKBObject> objs = SpatialRegionComputer.computeObjectsForGroupRelation(bestGroup.get(), relation, ordinality, cardinality);
+		if (objs == null)
 			return Collections.EMPTY_LIST;
-		scores = List.of(new ObjectScore(obj, 1));
+		scores = objs.stream().map(o -> new ObjectScore(o, 1)).toList();
 		LogUtils.logScores(String.format("Totals after scoring GroupRel %s (ordinality=%s)", relation, ordinality), scores);
 		return scores;
 	}

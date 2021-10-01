@@ -43,15 +43,26 @@ public class SpatialRegionComputer {
 			return ordered.get(0).getValue();
 	}
 
-	public static IKBObject computeObjectForGroupRelation(ObjectGroup group, SpatialRegion relation, Integer ordinality) {
+	public static List<IKBObject> computeObjectsForGroupRelation(ObjectGroup group, SpatialRegion relation, Integer ordinality, Integer cardinality) {
 		if (ordinality == null)
 			ordinality = 1;
 		List<IKBObject> members = group.getObjects();
+		// FIXME: what about "middle"?
 		List<Pair<IKBObject, Double>> ordered = orderDescBy(members, relation);
-		if (ordered.size() < ordinality)
-			return null;
-		else
-			return ordered.get(ordinality - 1).getKey();
+		List<Pair<IKBObject, Double>> result;
+		if (cardinality == null || cardinality == 1) {
+			if (ordered.size() < ordinality)
+				return null;
+			else
+				result = ordered.subList(ordinality-1, ordinality);
+		} else {
+			if (ordered.size() < cardinality)
+				// FIXME: does this make sense?
+				result = ordered;
+			else
+				result = ordered.subList(0, cardinality);
+		}
+		return result.stream().map(p -> p.getKey()).toList();
 	}
 
 	private static List<Pair<IKBObject, Double>> orderDescBy(List<IKBObject> objects, SpatialRegion region) {

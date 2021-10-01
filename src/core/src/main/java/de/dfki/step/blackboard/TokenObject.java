@@ -397,7 +397,13 @@ public class TokenObject implements IKBObjectWriteable {
 
 	@Override
 	public void setReferenceArray(String propertyName, UUID[] value) {
-		this._payload.put(propertyName, value);
+		if (value == null)
+			return;
+		String[] uuidsStr = new String[value.length];
+		for (int i = 0; i < value.length; i++) {
+			uuidsStr[i] = value[i].toString();
+		}
+		this._payload.put(propertyName, uuidsStr);
 	}
 	
 	@Override

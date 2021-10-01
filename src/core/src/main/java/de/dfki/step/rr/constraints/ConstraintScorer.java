@@ -43,7 +43,7 @@ public abstract class ConstraintScorer {
 		return this.kb;
 	}
 
-	public static ConstraintScorer getConstraintScorer(IKBObject constraint, IKBObject speaker, KnowledgeBase kb) {
+	public static ConstraintScorer getConstraintScorer(IKBObject constraint, IKBObject speaker, KnowledgeBase kb, Integer cardinality) {
 		try {
 			if (constraint == null)
 				return null;
@@ -54,7 +54,7 @@ public abstract class ConstraintScorer {
 			if (constraint.getType().isInheritanceFrom(RRTypes.REGION_C))
 				return new SpatialRegionScorer(constraint, kb);
 			if (constraint.getType().isInheritanceFrom(RRTypes.GROUP_REL_C))
-				return new GroupRelationScorer(constraint, kb);
+				return new GroupRelationScorer(constraint, kb, cardinality);
 			if (constraint.getType().isInheritanceFrom(RRTypes.POINTING_C))
 				return new PointingScorer(constraint, kb);
 			else

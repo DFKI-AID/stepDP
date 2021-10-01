@@ -42,6 +42,7 @@ public class BinarySpatialRelationScorer extends RelationScorer {
 		List<UUID> potentialRelatums = rr.resolveReference(relatumRef).getMostLikelyReferents();
 		if (potentialRelatums == null || potentialRelatums.isEmpty())
 			return new ArrayList<ObjectScore>();
+		// FIXME: support also references with multiple referents?
 		IKBObject relatum = this.getKB().getInstance(potentialRelatums.get(0));
 		log.debug("RELATUM: " + relatum.getName());
 		if (rel.isProjective()) {

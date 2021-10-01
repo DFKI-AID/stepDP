@@ -74,37 +74,45 @@ public class SpatialReferenceResolutionRule extends Rule {
 	private IKBObjectWriteable findAndResolveReferences(IKBObjectWriteable obj) {
 		if (obj.getType() == null)
 			return obj;
-		if (RRTypes.isSpatialReference(obj, kb)) {
-			IKBObject referent = resolveReference(obj);
-			return new KBToken(kb, referent);
-		}
+		// FIXME: how to deal with top-level references?
+//		if (RRTypes.isSpatialReference(obj, kb)) {
+//			IKBObject referent = resolveReference(obj);
+//			return new KBToken(kb, referent);
+//		}
 		for (IProperty prop : obj.getType().getProperties()) {
-			if (!(prop instanceof PropReference))
+			IKBObjectWriteable[] innerObjs = obj.getResolvedRefOrRefArray(prop.getName());
+			if (innerObjs == null)
 				continue;
-			IKBObjectWriteable innerObject = obj.getResolvedReference(prop.getName());
-			if (innerObject == null)
-				continue;
-			if (RRTypes.isSpatialReference(innerObject, kb)) {
-				IKBObject innerReferent = resolveReference(innerObject);
-				if (innerReferent != null)
-					obj.setReference(prop.getName(), innerReferent.getUUID());
-			} else {
-				IKBObjectWriteable resolved = findAndResolveReferences(innerObject);
-					obj.setReference(prop.getName(), resolved);
-				
+			for (IKBObjectWriteable innerObject : innerObjs) {
+				if (innerObject == null)
+					continue;
+				if (RRTypes.isSpatialReference(innerObject, kb)) {
+					List<UUID> innerReferents = resolveReference(innerObject);
+					if (innerReferents != null && !innerReferents.isEmpty())
+						// FIXME: what if there's more than one reference in the array (others will be overriden)
+						obj.setReferenceArray(prop.getName(), innerReferents.toArray(new UUID[] {}));
+				} else {
+					IKBObjectWriteable resolved = findAndResolveReferences(innerObject);
+						obj.setReference(prop.getName(), resolved);
+					
+				}
 			}
 		}
 		return obj;
 	}
 	
-	private IKBObject resolveReference(IKBObjectWriteable obj) {
-		ResolutionResult result = this.rr.resolveReference(obj);
+	private List<UUID> resolveReference(IKBObjectWriteable ref) {
+		ResolutionResult result = this.rr.resolveReference(ref);
 		List<UUID> referents = result.getMostLikelyReferents();
-		// TODO: handle empty referents, low confidence, ambiguity etc.
 		if (referents.isEmpty()) 
 			return null;
-	    IKBObject referent = kb.getInstance(referents.get(0));
-	    log.debug("INTENDED OBJECT: " + referent.getName());
-	    return referent;
+		Integer cardinality = ref.getInteger("cardinality");
+		if (cardinality != null)
+			referents = referents.subList(0, cardinality);
+		else
+			referents = referents.subList(0, 1);
+		// TODO: handle empty referents, low confidence, ambiguity etc.
+	    log.debug("INTENDED OBJECTS: " + referents);
+	    return referents;
 	}
 }

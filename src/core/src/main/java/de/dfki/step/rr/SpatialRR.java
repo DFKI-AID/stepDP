@@ -30,6 +30,7 @@ public class SpatialRR implements ReferenceResolver {
 	@Override
 	public ResolutionResult resolveReference(IKBObject reference) {
 		IKBObject speaker = reference.getResolvedReference("speaker");
+		Integer cardinality = reference.getInteger("cardinality");
 		List<IKBObject> potentialReferents = this.kb.getInstancesOfType(this.kb.getType(RRTypes.SPAT_REF_TARGET));
 		potentialReferents = potentialReferents.stream().filter(o -> isVisible(o)).collect(Collectors.toList());
 		List<ObjectScore> currentScores = ObjectScore.initializeScores(potentialReferents);
@@ -38,7 +39,7 @@ public class SpatialRR implements ReferenceResolver {
 			return new ResolutionResult(currentScores);
 		List<IKBObject> constraints = new ArrayList<IKBObject>(Arrays.asList(constraintArray));
 		List<ConstraintScorer> scorers = constraints.stream()
-											.map(c -> ConstraintScorer.getConstraintScorer(c, speaker, kb))
+											.map(c -> ConstraintScorer.getConstraintScorer(c, speaker, kb, cardinality))
 											.filter(c -> c!= null)
 											.collect(Collectors.toList());
 		scorers.sort(new PrioComparator());

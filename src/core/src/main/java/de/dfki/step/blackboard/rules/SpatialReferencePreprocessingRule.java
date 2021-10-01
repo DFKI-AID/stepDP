@@ -84,18 +84,19 @@ public class SpatialReferencePreprocessingRule extends Rule {
 			return result;
 		}
 		for (IProperty prop : obj.getType().getProperties()) {
-			if (!(prop instanceof PropReference))
+			IKBObjectWriteable[] innerObjects = obj.getResolvedRefOrRefArray(prop.getName());
+			if (innerObjects == null)
 				continue;
-			IKBObjectWriteable innerObject = obj.getResolvedReference(prop.getName());
-			if (innerObject == null)
-				continue;
-			if (innerObject.getType().equals(kb.getType(RRTypes.LM_SPAT_REF))) {
-				Map<String, Object> innerKBRef = lMRefToKBRef(innerObject);
-				obj.setReference(prop.getName(), innerKBRef);
-			} else {
-				IKBObjectWriteable converted = convertLMRefsToKBRefs(innerObject);
-					obj.setReference(prop.getName(), converted);
-				
+			for (IKBObjectWriteable innerObject : innerObjects) {
+				if (innerObject == null)
+					continue;
+				if (innerObject.getType().equals(kb.getType(RRTypes.LM_SPAT_REF))) {
+					Map<String, Object> innerKBRef = lMRefToKBRef(innerObject);
+					obj.setReference(prop.getName(), innerKBRef);
+				} else {
+					IKBObjectWriteable converted = convertLMRefsToKBRefs(innerObject);
+						obj.setReference(prop.getName(), converted);
+				}
 			}
 		}
 		return obj;
@@ -131,6 +132,7 @@ public class SpatialReferencePreprocessingRule extends Rule {
 		result.put("type", RRTypes.SPAT_REF);
 		result.put("speaker", this.speaker.getUUID().toString());
 		List<Map<String, Object>> constraints = new ArrayList<Map<String, Object>>();
+		result = putNumber(result, innerRef, "cardinality", "nuance_CARDINAL_NUMBER");
 		String type = innerRef.getString("refType");
 		if (type != null) {
 			Map<String, Object> typeConstraint = new HashMap<String, Object>();
@@ -152,21 +154,25 @@ public class SpatialReferencePreprocessingRule extends Rule {
 			// FIXME: make this adjustment in the LM
 			groupRelation = groupRelation.replace("most", "");
 			groupRelConstraint.put("relation", groupRelation);
-			String ordinalityStr = null;
-			IKBObject ordinalityObj = innerRef.getResolvedReference("ordinality");
-			if (ordinalityObj != null)
-				ordinalityStr = ordinalityObj.getString("nuance_ORDINAL_NUMBER");
-			if (ordinalityStr != null)
-				try {
-					int ordinality = Integer.parseInt(ordinalityStr);
-					groupRelConstraint.put("ordinality", ordinality);
-				} catch (Exception e) {
-					log.warn(ordinalityStr + " is not a valid ordinality.");
-				}
+			groupRelConstraint = putNumber(groupRelConstraint, innerRef, "ordinality", "nuance_ORDINAL_NUMBER");
 			constraints.add(groupRelConstraint);
 		}
 		result.put("constraints", constraints);
 		return result;
 	}
 
+	private Map<String, Object> putNumber(Map<String, Object> map, IKBObject obj, String propName, String nuanceConcept){
+		String numStr = null;
+		IKBObject numObj = obj.getResolvedReference(propName);
+		if (numObj != null)
+			numStr = numObj.getString(nuanceConcept);
+		if (numStr != null)
+			try {
+				int numInt = Integer.parseInt(numStr);
+				map.put(propName, numInt);
+			} catch (Exception e) {
+				log.warn(numStr + " is not a valid " + propName + ".");
+			}
+		return map;
+	}
 }
