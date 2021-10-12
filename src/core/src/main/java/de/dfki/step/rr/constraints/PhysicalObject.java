@@ -1,6 +1,8 @@
 package de.dfki.step.rr.constraints;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
@@ -10,13 +12,15 @@ import org.slf4j.LoggerFactory;
 import de.dfki.step.kb.IKBObject;
 import de.dfki.step.kb.RRTypes;
 import de.dfki.step.kb.RRTypes.Axis;
+import de.dfki.step.rr.constraints.BoundingBox2D.BoundingBoxType;
 
 public class PhysicalObject {
     private static final Logger log = LoggerFactory.getLogger(PhysicalObject.class);
 	private IKBObject physObj;
 	private Vector3D position;
 	private Vector3D rotation;
-	private BoundingBox bb;
+	private BoundingBox2D bb;
+	private Map<BoundingBoxType, BoundingBox2D> bbs = new HashMap<BoundingBoxType, BoundingBox2D>();
 
 	PhysicalObject(IKBObject physObj) {
 		this.physObj = physObj;
@@ -27,7 +31,10 @@ public class PhysicalObject {
 		IKBObject center = physObj.getResolvedReference(List.of("boundingBox", "center"));
 		IKBObject extents = physObj.getResolvedReference(List.of("boundingBox", "extents"));
 		try {
-			this.bb = new BoundingBox(createVector3D(center), createVector3D(extents));
+			for (BoundingBoxType bbType : BoundingBoxType.values()) {
+				BoundingBox2D bb = new BoundingBox2D(createVector3D(center), createVector3D(extents), bbType, this);
+				this.bbs.put(bbType, bb);
+			}
 		} catch (Exception e) {
 			String name = physObj.getName();
 			name = (name != null) ? name : "<no name>"; 
@@ -38,18 +45,18 @@ public class PhysicalObject {
 	public Vector3D createVector3D(IKBObject obj) {
 		if (obj == null)
 			return null;
-		Float x = obj.getFloat("x");
-		Float y = obj.getFloat("z");
 		// FIXME: make configurable if y or z is height
 		// in unity, y is the height
-		Float z = obj.getFloat("y");
+		Float x = obj.getFloat("x");
+		Float y = obj.getFloat("y");
+		Float z = obj.getFloat("z");
 		if (x == null | y == null | z == null)
 			return null;
 		return new Vector3D(x, y, z);
 	}
 
-	public BoundingBox getBoundingBox() {
-		return this.bb;
+	public BoundingBox2D getBoundingBox(BoundingBoxType type) {
+		return this.bbs.get(type);
 	}
 
 	public Vector3D getPosition3D() {

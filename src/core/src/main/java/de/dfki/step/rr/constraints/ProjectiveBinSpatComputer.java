@@ -11,6 +11,7 @@ import de.dfki.step.kb.IKBObject;
 import de.dfki.step.kb.RRTypes;
 import de.dfki.step.kb.RRTypes.Axis;
 import de.dfki.step.rr.RRConfigParameters;
+import de.dfki.step.rr.constraints.BoundingBox2D.BoundingBoxType;
 
 /**
  * 
@@ -83,7 +84,7 @@ public class ProjectiveBinSpatComputer {
 		return this.cp;
 	}
 
-	private double addAngles(double a1, double a2) {
+	public static double addAngles(double a1, double a2) {
 		double aSum = a1 + a2;
 		return aSum >= 2 * Math.PI ? aSum - 2 * Math.PI : aSum;
 	}
@@ -116,14 +117,12 @@ public class ProjectiveBinSpatComputer {
 	}
 
 	public Border computePrototypeBorder() {
-		BoundingBox roBB = this.ro.getBoundingBox();
-		Vector2D roCenter = roBB.getCenter2D(this.rel.getAbscissa(), this.rel.getOrdinate());
+		BoundingBox2D roBB = this.ro.getBoundingBox(BoundingBoxType.getType(this.rel.getAbscissa(), this.rel.getOrdinate()));
+		Vector2D roCenter = roBB.getCenter();
 		Line speakerAxis = new Line(speakerPos, roCenter, 0);
-		Line roAbscissa = new Line(roCenter, this.rel.getAbscissa().getValue(io.getRotation()), 0);
-		double speakerBBAngle = addAngles(roAbscissa.getAngle(), speakerAxis.getAngle());
-		Border behindOfBorder = roBB.getBorder(speakerBBAngle, this.rel.getAbscissa(), this.rel.getOrdinate());
+		Border behindOfBorder = roBB.getExitBorder(speakerPos, speakerAxis);
 		double protoBorderAngle = addAngles(behindOfBorder.getType().getBorderAngle(), rel.getPrototypeAngle());
-		return roBB.getBorder(protoBorderAngle, this.rel.getAbscissa(), this.rel.getOrdinate());
+		return roBB.getBorder(protoBorderAngle);
 
 	}
 

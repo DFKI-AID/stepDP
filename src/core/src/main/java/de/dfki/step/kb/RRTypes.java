@@ -35,7 +35,8 @@ public class RRTypes {
 		// TODO: add support for NEXT_TO etc.
 		// TODO: find prettier solution than one single enum for topological and projective bin rels
 		// rename (naming convention)
-		in(null, null, 0, false), on(null, null, 0, false), leftOf(Axis.X, Axis.Y, 90), rightOf(Axis.X, Axis.Y, 270), inFrontOf(Axis.X, Axis.Y, 180), behindOf(Axis.X, Axis.Y, 0),  aboveOf(Axis.X, Axis.Z, 0), belowOf(Axis.X, Axis.Z, 180);//, NEXT_TO, ON, INSIDE_OF
+		// angle is relative to speaker axis
+		in(null, null, 0, false), on(null, null, 0, false), leftOf(Axis.X, Axis.Z, 90), rightOf(Axis.X, Axis.Z, 270), inFrontOf(Axis.X, Axis.Z, 180), behindOf(Axis.X, Axis.Z, 0),  aboveOf(Axis.Z, Axis.Y, 90), belowOf(Axis.Z, Axis.Y, 270);//, NEXT_TO, ON, INSIDE_OF
 		
 		private Axis abscissa;
 		private Axis ordinate;
@@ -75,6 +76,17 @@ public class RRTypes {
 	public enum Axis {
 		X, Y, Z;
 
+		public static Axis getRotationAxis(Axis abscissa, Axis ordinate) {
+			if (X.equals(abscissa) || X.equals(ordinate)) {
+				if (Y.equals(abscissa) || Y.equals(ordinate))
+					return Z;
+				else
+					return Y;
+			}
+			else
+				return X;
+		}
+
 		public static Vector2D get2DVec(Vector3D position, Axis abscissa, Axis ordinate) {
 			if (position == null)
 				return null;
@@ -94,6 +106,7 @@ public class RRTypes {
 				throw new IllegalStateException("not a valid axis");
 			}
 		}
+
 	}
 
 	public static boolean isSpatialReference(IKBObject obj, KnowledgeBase kb) {
