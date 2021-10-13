@@ -118,4 +118,11 @@ public interface IToken extends IKBObjectWriteable {
     public KnowledgeBase getKB();
 
     public  IToken createTokenWithSameContent();
+
+    /**
+     * Only for internal use (no public API).
+     * Helper method to insert the content of a token into a new token, e.g. during fusion.
+     * @throws Exception if there was a problem while copying the content
+     */
+    public Object internal_getContent() throws Exception;
 }

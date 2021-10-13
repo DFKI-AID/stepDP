@@ -314,4 +314,11 @@ public class BasicToken extends AbstractToken {
 		this._rootTokenObject.addReferenceToArray(propertyName, value);
 	}
 
+    @Override
+    public Object internal_getContent() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, Object> deepCopy;
+        return mapper.readValue(mapper.writeValueAsString(_payload), new TypeReference<Map<String, Object>>() {});
+    }
+
 }
