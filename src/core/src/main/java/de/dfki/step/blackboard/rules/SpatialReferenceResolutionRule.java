@@ -1,5 +1,6 @@
 package de.dfki.step.blackboard.rules;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
 
@@ -7,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.dfki.step.blackboard.Board;
+import de.dfki.step.blackboard.Condition;
 import de.dfki.step.blackboard.IToken;
 import de.dfki.step.blackboard.KBToken;
 import de.dfki.step.blackboard.Rule;
@@ -31,7 +33,13 @@ public class SpatialReferenceResolutionRule extends Rule {
 	KnowledgeBase kb;
 	SpatialRR rr;
 
-	public SpatialReferenceResolutionRule(KnowledgeBase kb) throws Exception {
+	/**
+	 * 
+	 * @param kb
+	 * @param minTokenAge in millisecs
+	 * @throws Exception
+	 */
+	public SpatialReferenceResolutionRule(KnowledgeBase kb, long minTokenAge) throws Exception {
 		this.setPriority(DEFAULT_PRIO);
 		this.kb = kb;
 		this.rr = new SpatialRR(kb);
@@ -39,7 +47,9 @@ public class SpatialReferenceResolutionRule extends Rule {
 		PatternBuilder builder = new PatternBuilder(RRTypes.USER_INTENT, kb);
 		builder.hasRecursiveType(RRTypes.SPAT_REF);
 		Pattern p = builder.build();
-		this.setCondition(new PatternCondition(p));
+		Condition c = new PatternCondition(p);
+		c.setMinTokenAge(minTokenAge);
+		this.setCondition(c);
 	}
 	
 	@Override

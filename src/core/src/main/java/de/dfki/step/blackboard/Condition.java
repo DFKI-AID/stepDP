@@ -71,6 +71,9 @@ public abstract class Condition {
         return this._minTokenAge;
     }
 
+    /**
+     * Set min token age (Millisecs) 
+     **/
     public void setMinTokenAge(long minTokenAge) {
         this._minTokenAge = minTokenAge;
     }

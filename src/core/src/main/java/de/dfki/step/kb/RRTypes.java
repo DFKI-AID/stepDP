@@ -207,6 +207,7 @@ public class RRTypes {
 			regionConst.addInheritance(constraint);
 			kb.addType(regionConst);
 
+			// FIXME: consider confidences
 			Type pointingConst = new Type(POINTING_C, kb);
 			pointingConst.addProperty(new PropStringArray("objectNames", kb));
 			pointingConst.addInheritance(constraint);

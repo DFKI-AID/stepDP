@@ -173,15 +173,17 @@ public class DeclarativeTypeBasedFusionRule extends Rule {
 		if (tok == null)
 			return null;
 		for (IProperty prop : tok.getType().getProperties()) {
-			if (prop instanceof PropReference) {
-				PropReference propRef = (PropReference) prop;
-				IKBObjectWriteable innerObj = tok.getResolvedReference(prop.getName());
-				if (innerObj.getType().isInheritanceFrom(type))
-					return Pair.of(prop.getName(), tok);
-				else {
-					Pair<String, IKBObject> inner = findOuterObject(type, innerObj);
-					if (inner != null)
-						return inner;
+			if (prop instanceof PropReference || prop instanceof PropReferenceArray) {
+				IKBObjectWriteable[] innerObjs = tok.getResolvedRefOrRefArray(prop.getName());
+				// FIXME: what if there are multiple references
+				for (IKBObjectWriteable innerObj : innerObjs) {
+					if (innerObj.getType().isInheritanceFrom(type))
+						return Pair.of(prop.getName(), tok);
+					else {
+						Pair<String, IKBObject> inner = findOuterObject(type, innerObj);
+						if (inner != null)
+							return inner;
+					}
 				}
 			}
 			// TODO: what about reference arrays?

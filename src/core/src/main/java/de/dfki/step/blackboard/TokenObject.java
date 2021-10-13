@@ -205,9 +205,17 @@ public class TokenObject implements IKBObjectWriteable {
 	public String[] getStringArray(String propertyName) {
 		if (!this.isSet(propertyName))
 			return null;
-
-    	ArrayList<String> tmp = (ArrayList<String>) this._payload.get(propertyName);
-		return tmp.toArray(new String[tmp.size()]);
+		
+		Object data =  this._payload.get(propertyName);
+		if (data instanceof String[]) {
+			return (String[]) data;
+		}
+		else if (data instanceof List) {
+	    	ArrayList<String> tmp = (ArrayList<String>) data;
+			return tmp.toArray(new String[tmp.size()]);
+		}
+		else
+			return null;
 	}
 
 	@Override

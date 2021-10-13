@@ -53,7 +53,7 @@ public class RRTestDialog extends Dialog {
     	   	);
     		this.getBlackboard().addToken(match2);
 
-    		de.dfki.step.blackboard.Rule r =  new SpatialReferenceResolutionRule(kb);
+    		de.dfki.step.blackboard.Rule r =  new SpatialReferenceResolutionRule(kb,0);
     		this.getBlackboard().addRule(r);
  
             Rule pickUpRule = new SimpleRule(tokens -> {

@@ -191,7 +191,7 @@ public class ReferenceResolutionTest {
 				)
 	   	);
 		
-		de.dfki.step.blackboard.Rule r =  new SpatialReferenceResolutionRule(this.kb);
+		de.dfki.step.blackboard.Rule r =  new SpatialReferenceResolutionRule(this.kb, 0);
 		IToken[] tArray = List.of(match1).toArray(new IToken[] {});
 		List<IToken[]> tList = new ArrayList<IToken[]>();
 		//tList.add(tArray);
