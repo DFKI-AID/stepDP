@@ -33,7 +33,8 @@ public class BoundingBox2D {
 		public enum BoundingBoxType {
 			// TODO: replace this with general plane type and refactor binspatrel code
 			ZY(Axis.Z, Axis.Y),
-			XZ(Axis.X, Axis.Z);
+			XZ(Axis.X, Axis.Z),
+			XY(Axis.X, Axis.Y);
 
 			public Axis abscissa;
 			public Axis ordinate;
@@ -112,9 +113,16 @@ public class BoundingBox2D {
 			this.type = type;
 			this.center = Axis.get2DVec(center, type.abscissa, type.ordinate);
 			this.extents = Axis.get2DVec(extents, type.abscissa, type.ordinate);
-			// ajust extents to object rotation
-			Axis rotAxis = Axis.getRotationAxis(type.abscissa, type.ordinate);
-			this.extents = rotateVector(this.extents, rotAxis.getValue(parent.getRotation()));
+			// adjust extents to object rotation; FIXME: is this needed or not?
+			//Axis rotAxis = Axis.getRotationAxis(type.abscissa, type.ordinate);
+			//double rotation = Math.toRadians(rotAxis.getValue(parent.getRotation()));
+			//this.extents = rotateVector(this.extents, this.center, rotation);
+
+			// x and y might change due to rotation
+			// FIXME: does this even make sense???
+//			if ((rotation >= Math.toRadians(90) && rotation < Math.toRadians(180)) ||
+//					(rotation >= Math.toRadians(270) && rotation < Math.toRadians(360)))
+//					this.extents = new Vector2D(this.extents.getY(), this.extents.getX());
 			this.parent = parent;
 		}
 
@@ -187,10 +195,18 @@ public class BoundingBox2D {
 			return this.extents;
 		}
 
-		private Vector2D rotateVector(Vector2D old, double angle) {
+		/**
+		 * 
+		 * @param old
+		 * @param rotPoint
+		 * @param angle in radians
+		 * @return
+		 */
+		private Vector2D rotateVector(Vector2D old, Vector2D rotPoint, double angle) {
 			double newX = old.getX() * Math.cos(angle) - old.getY() * Math.sin(angle);
 		    double newY = old.getX() * Math.sin(angle) + old.getY() * Math.cos(angle);
-		    return new Vector2D(newX, newY);
+		    Vector2D newVec = new Vector2D(newX, newY);
+		    return newVec;
 		}
 		
 }

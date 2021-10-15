@@ -42,6 +42,12 @@ public class PhysicalObject {
 		}
 	}
 
+	public String getName() {
+		if (this.physObj == null)
+			return null;
+		return this.physObj.getName();
+	}
+
 	public Vector3D createVector3D(IKBObject obj) {
 		if (obj == null)
 			return null;

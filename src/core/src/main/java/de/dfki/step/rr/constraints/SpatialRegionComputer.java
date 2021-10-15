@@ -11,6 +11,12 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.apache.commons.math3.geometry.euclidean.twod.Line;
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 import org.apache.commons.math3.geometry.euclidean.twod.Euclidean2D;
 
@@ -20,7 +26,9 @@ import de.dfki.step.kb.SpatialRegion;
 import de.dfki.step.rr.ObjectGroup;
 
 public class SpatialRegionComputer {
-	
+    private static final Logger log = LoggerFactory.getLogger(GroupRelationScorer.class);
+	private static final ObjectMapper mapper = new ObjectMapper();
+
 	public static Double computePrototype(List<IKBObject> objects, SpatialRegion region) {
 		if (!region.isMiddle()) {
 			return protoForNotMiddle(objects, region);
@@ -49,6 +57,13 @@ public class SpatialRegionComputer {
 		List<IKBObject> members = group.getObjects();
 		// FIXME: what about "middle"?
 		List<Pair<IKBObject, Double>> ordered = orderDescBy(members, relation);
+	    try {
+	    	List<Pair<String, Double>> debug = ordered.stream().map(p -> Pair.of(p.getLeft().getName(), p.getRight())).toList();
+			log.debug("ORDERED GROUP: " + mapper.writeValueAsString(debug));
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		List<Pair<IKBObject, Double>> result;
 		if (cardinality == null || cardinality == 1) {
 			if (ordered.size() < ordinality)

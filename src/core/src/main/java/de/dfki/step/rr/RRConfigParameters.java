@@ -16,7 +16,7 @@ public class RRConfigParameters {
 	// weight of centre point angular deviation for binary spatial relations
 	public static final double BINSPATREL_W_CP = 0.009;
 	// weight of physical distance for binary spatial relations
-	public static final double BINSPATREL_W_PD = 0.045;
+	public static final double BINSPATREL_W_PD = 0.1;
 	// weight of bounding box angular deviation for binary spatial relations
 	public static final double BINSPATREL_W_BB = 0.6;
 

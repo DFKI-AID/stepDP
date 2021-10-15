@@ -1,5 +1,10 @@
 package de.dfki.step.kb;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 
@@ -36,36 +41,41 @@ public class RRTypes {
 		// TODO: find prettier solution than one single enum for topological and projective bin rels
 		// rename (naming convention)
 		// angle is relative to speaker axis
-		in(null, null, 0, false), on(null, null, 0, false), leftOf(Axis.X, Axis.Z, 90), rightOf(Axis.X, Axis.Z, 270), inFrontOf(Axis.X, Axis.Z, 180), behindOf(Axis.X, Axis.Z, 0),  aboveOf(Axis.Z, Axis.Y, 90), belowOf(Axis.Z, Axis.Y, 270);//, NEXT_TO, ON, INSIDE_OF
+		in(null, 0, null, 0, false),
+		on(null, 0, null, 0, false),
+		leftOf(Pair.of(Axis.X, Axis.Z), 90, Pair.of(Axis.X, Axis.Y), 180),
+		rightOf(Pair.of(Axis.X, Axis.Z), 270, Pair.of(Axis.X, Axis.Y), 0),
+		inFrontOf(Pair.of(Axis.X, Axis.Z), 180, Pair.of(Axis.Z, Axis.Y), 180),
+		behindOf(Pair.of(Axis.X, Axis.Z), 0, Pair.of(Axis.Z, Axis.Y), 0),
+		aboveOf(Pair.of(Axis.X, Axis.Y), 90, Pair.of(Axis.Z, Axis.Y), 90),
+		belowOf(Pair.of(Axis.X, Axis.Y), 270, Pair.of(Axis.Z, Axis.Y), 270);//, NEXT_TO, ON, INSIDE_OF
 		
-		private Axis abscissa;
-		private Axis ordinate;
-		private double prototypeAngle;
+		private Pair<Axis, Axis> plane1;
+		private Pair<Axis, Axis> plane2;
+		// TODO: make this pretty
+		private Map<Pair<Axis,Axis>, Double> protoAngles = new HashMap<Pair<Axis,Axis>,Double>();
 		private boolean projective;
 		
-		BinSpatRelation(Axis axis1, Axis axis2, double prototypeAngle, boolean projective) {
-			this.abscissa = axis1;
-			this.ordinate = axis2;
-			this.prototypeAngle = prototypeAngle;
+		BinSpatRelation(Pair<Axis,Axis> plane1, double prototypeAngle1, Pair<Axis,Axis> plane2, double prototypeAngle2, boolean projective) {
+			this.plane1 = plane1;
+			this.plane2 = plane2;
+			protoAngles.put(plane1, prototypeAngle1);
+			protoAngles.put(plane2, prototypeAngle2);
 			this.projective = projective;
 		}
-		BinSpatRelation(Axis axis1, Axis axis2, double prototypeAngle) {
-			this(axis1, axis2, prototypeAngle, true);
+		BinSpatRelation(Pair<Axis,Axis> plane1, double prototypeAngle1, Pair<Axis,Axis> plane2, double prototypeAngle2) {
+			this(plane1, prototypeAngle1, plane2, prototypeAngle2, true);
 		}
 
 		/**
 		 * @return prototype angle in radians
 		 */
-		public double getPrototypeAngle() {
-			return Math.toRadians(this.prototypeAngle);
+		public double getPrototypeAngle(Pair<Axis, Axis> plane) {
+			return Math.toRadians(this.protoAngles.get(plane));
 		}
 
-		public Axis getAbscissa() {
-			return this.abscissa;
-		}
-
-		public Axis getOrdinate() {
-			return this.ordinate;
+		public List<Pair<Axis, Axis>>getPlanes() {
+			return List.of(plane1, plane2);
 		}
 
 		public boolean isProjective() {

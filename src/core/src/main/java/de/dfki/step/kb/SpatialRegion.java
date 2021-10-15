@@ -6,7 +6,7 @@ import de.dfki.step.kb.RRTypes.Axis;
 public enum SpatialRegion {
 	// rename (naming convention)
 	// TODO: make configurable if left-handed or right-handed coordinate system is used
-	left(Axis.X, false), right(Axis.X, true), front(Axis.Y, false), back(Axis.Y, true), top(Axis.Z, true), bottom(Axis.Z, false), middle_left(Axis.X, null), middle_front(Axis.Y, null), middle_top(Axis.Z, null);
+	left(Axis.X, false), right(Axis.X, true), front(Axis.Z, false), back(Axis.Z, true), top(Axis.Y, true), bottom(Axis.Y, false), middle_left(Axis.X, null), middle_front(Axis.Z, null), middle_top(Axis.Y, null);
 	
 	private Axis axis;
 	private Boolean positive;
