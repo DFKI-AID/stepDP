@@ -1,5 +1,10 @@
 package de.dfki.step.rr;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import de.dfki.step.kb.SpatialRegion;
+
 /**
  * Parameters used by the reference resolution algorithm. The optimum values
  * of these parameters might depend on the scenario. 
@@ -25,4 +30,9 @@ public class RRConfigParameters {
 
 	// objects are considered visible if the percentage of visible pixels exceeds this threshold
 	public static final float VISIBILITY_THRESHOLD = 0.5f;
+
+	// which direction should be default when its not specified in a group relation, e.g. the second shelf
+	public static final SpatialRegion DEFAULT_DIR = SpatialRegion.left;
+	// exceptions (type name is case sensitive!; does not work yet with inheritance)
+	public static final Map<String, SpatialRegion> DIR_EXCEPTIONS = new HashMap<String, SpatialRegion>(Map.of("ShelfLevel", SpatialRegion.bottom));
 }

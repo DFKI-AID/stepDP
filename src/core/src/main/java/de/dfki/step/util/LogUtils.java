@@ -36,6 +36,7 @@ public class LogUtils {
 		Map<String, Float> map = scores
 									.stream()
 									.map(e -> (Pair<String, Float>) Pair.of(e.getObject().getName(), e.getScore()))
+									.filter(p -> p.getValue() != 0F)
 									.collect(Collectors.toMap(Pair::getKey, Pair::getValue));
 		String json = null;
 		try {

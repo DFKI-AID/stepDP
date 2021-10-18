@@ -1,11 +1,16 @@
 package de.dfki.step.rr.constraints;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.commons.math3.geometry.euclidean.twod.Euclidean2D;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.apache.commons.math3.geometry.euclidean.twod.Line;
 
 import de.dfki.step.kb.IKBObject;
@@ -13,7 +18,6 @@ import de.dfki.step.kb.RRTypes;
 import de.dfki.step.kb.RRTypes.Axis;
 import de.dfki.step.rr.RRConfigParameters;
 import de.dfki.step.rr.constraints.BoundingBox2D.BoundingBoxType;
-import de.dfki.step.util.LogUtils;
 
 /**
  * 
@@ -31,11 +35,36 @@ public class ProjectiveBinSpatComputer {
     private static final Logger log = LoggerFactory.getLogger(ProjectiveBinSpatComputer.class);
 	
 	private PhysicalObject speaker;
-	private Vector2D speakerPos;
 	private PhysicalObject io;
 	private PhysicalObject ro;
 	private RRTypes.BinSpatRelation rel;
 	private Double score;
+
+	public class Total {
+		public String io;
+		public String ro;
+		public CurScore total;
+		public Double objectScore;
+		public Map<Pair<Axis, Axis>, CurScore> partialScores = new HashMap<Pair<Axis, Axis>, CurScore>();
+
+		public Total(String io, String ro) {
+			this.io = io;
+			this.ro = ro;
+		}
+	}
+
+	public class CurScore {
+		public Double cp;
+		public Double bb;
+		public Double pd;
+
+		public CurScore(Double cp, Double bb, Double pd) {
+			super();
+			this.cp = cp;
+			this.bb = bb;
+			this.pd = pd;
+		}
+	}
 	
 	public ProjectiveBinSpatComputer(IKBObject speaker, IKBObject io, IKBObject ro, RRTypes.BinSpatRelation rel) {
 		this.speaker = new PhysicalObject(speaker);
@@ -51,10 +80,11 @@ public class ProjectiveBinSpatComputer {
 			return score;
 		String ioName = this.io.getName();
 		String roName = this.ro.getName();
+		Total total = new Total(ioName, roName);
 		log.trace("Scoring " + ioName + " " + this.rel.name() + " " + roName);
 		Double totalCP = Double.valueOf(0);
-		Double totalBB = Double.valueOf(0);;
-		Double totalPD = Double.valueOf(0);;
+		Double totalBB = Double.valueOf(0);
+		Double totalPD = Double.valueOf(0);
 		for (Pair<Axis, Axis> plane : this.rel.getPlanes()) {
 			Vector2D ioPos = io.getPosition2D(plane.getLeft(), plane.getRight());
 			Vector2D roPos = ro.getPosition2D(plane.getLeft(), plane.getRight());
@@ -64,18 +94,28 @@ public class ProjectiveBinSpatComputer {
 			Double curCP = getCP(plane, ioPos, roPos, speakerPos);
 			Double curBB = getBB(plane, ioPos, roPos, speakerPos);
 			Double curPD = getPD(plane, ioPos, roPos, speakerPos);
-			if (totalCP ==  null || totalBB == null || totalPD == null)
+			if (totalCP ==  null || totalBB == null || totalPD == null || curCP == null || curBB == null || curPD == null)
 				return 0;
+			CurScore curScore = new CurScore(curCP, curBB, curPD);
+			total.partialScores.put(plane, curScore);
 			totalCP += curCP;
 			totalBB += curBB;
 			totalPD += curPD;
 		}
 
+		total.total = new CurScore(totalCP, totalBB, totalPD);
 		if (Double.valueOf(0).equals(score))
-			return 0;
+			total.objectScore = 0.0;
 		else {
-			return Math.pow(Math.E, -c * (w_cp * totalCP * totalCP + w_bb * totalBB * totalBB + w_pd * totalPD * totalPD));
+			total.objectScore = Math.pow(Math.E, -c * (w_cp * totalCP * totalCP + w_bb * totalBB * totalBB + w_pd * totalPD * totalPD));
 		}
+		try {
+			log.trace(new ObjectMapper().writeValueAsString(total));
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return total.objectScore;
 	}
 
 	/**
@@ -115,9 +155,9 @@ public class ProjectiveBinSpatComputer {
 		double angleRight = ioAxisRight.getAngle() - protoBounds.getRight().getAngle();
 		
 		if (angleLeft < 0)
-			angleLeft = 360 + angleLeft;
+			angleLeft = Math.toRadians(360) + angleLeft;
 		if (angleRight < 0)
-			angleRight = 360 + angleRight;
+			angleRight = Math.toRadians(360) + angleRight;
 
 		// ro lies between the prototype boundaries
 		if (angleLeft > Math.toRadians(270) && angleRight < Math.toRadians(90))

@@ -17,7 +17,7 @@ import de.dfki.step.util.LogUtils;
 
 public class BinarySpatialRelationScorer extends RelationScorer {
     private static final Logger log = LoggerFactory.getLogger(BinarySpatialRelationScorer.class);
-	private static final int DEFAULT_PRIO = 6000;
+	private static final int DEFAULT_PRIO = 5000;
 	private RRTypes.BinSpatRelation rel;
 	private IKBObject relatumRef;
 	private IKBObject speaker;

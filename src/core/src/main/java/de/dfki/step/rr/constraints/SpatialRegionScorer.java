@@ -25,7 +25,7 @@ import de.dfki.step.util.LogUtils;
  *
  */
 public class SpatialRegionScorer extends ConstraintScorer {
-	private static final int DEFAULT_PRIORITY = 5000;
+	private static final int DEFAULT_PRIORITY = 6000;
 	private SpatialRegion region;
 	private static final double C = RRConfigParameters.SPATREG_C;
 

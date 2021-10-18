@@ -186,7 +186,6 @@ public class DeclarativeTypeBasedFusionRule extends Rule {
 					}
 				}
 			}
-			// TODO: what about reference arrays?
 		}
 		return null;
 	}

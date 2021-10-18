@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,12 +14,14 @@ import org.slf4j.LoggerFactory;
 import de.dfki.step.kb.IKBObject;
 import de.dfki.step.kb.KnowledgeBase;
 import de.dfki.step.kb.SpatialRegion;
+import de.dfki.step.kb.semantic.Type;
 import de.dfki.step.rr.ObjectGroup;
+import de.dfki.step.rr.RRConfigParameters;
 import de.dfki.step.util.LogUtils;
 
 public class GroupRelationScorer extends RelationScorer {
     private static final Logger log = LoggerFactory.getLogger(GroupRelationScorer.class);
-	private static final int DEFAULT_PRIO = 6000;
+	private static final int DEFAULT_PRIO = 10000;
 	private SpatialRegion relation;
 	private Integer ordinality;
 	private Integer cardinality;
@@ -26,7 +30,8 @@ public class GroupRelationScorer extends RelationScorer {
 		super(constraint, kb);
 		// TODO: make conversion from string to rel more flexible (e.g. case insensitive etc.)
 		this.cardinality = cardinality;
-		this.relation = SpatialRegion.valueOf(constraint.getString("relation"));
+		if (constraint.isSet("relation"))
+			this.relation = SpatialRegion.valueOf(constraint.getString("relation"));
 		this.ordinality = constraint.getInteger("ordinality");
 		this.setPriority(DEFAULT_PRIO);
 	}
@@ -43,6 +48,19 @@ public class GroupRelationScorer extends RelationScorer {
 	    if (!bestGroup.isPresent())
 	    	return Collections.EMPTY_LIST;
 	    log.debug("RESOLVED GROUP: " + bestGroup.get().getObjectNames().toString());
+	    if (relation == null) {
+	    	Set<Type> types = bestGroup.get().getObjects().stream().map(o -> o.getType()).collect(Collectors.toSet());
+	    	if (types.size() == 1) {
+	    		Type type = types.iterator().next();
+	    		SpatialRegion relation = RRConfigParameters.DIR_EXCEPTIONS.get(type.getName());
+	    		if (relation != null)
+	    			this.relation = relation;
+	    		else
+	    			this.relation = RRConfigParameters.DEFAULT_DIR;
+	    	} else {
+    			this.relation = RRConfigParameters.DEFAULT_DIR;
+	    	}
+	    }
 		List<IKBObject> objs = SpatialRegionComputer.computeObjectsForGroupRelation(bestGroup.get(), relation, ordinality, cardinality);
 		if (objs == null)
 			return Collections.EMPTY_LIST;

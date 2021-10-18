@@ -38,7 +38,7 @@ public class Border {
 	public Pair<Line, Line> getBounds() {
 		if (bounds == null){
 			Line line = this.getLine();
-			double boundAngle = ProjectiveBinSpatComputer.addAngles(line.getAngle(), 90.0);
+			double boundAngle = ProjectiveBinSpatComputer.addAngles(line.getAngle(), Math.toRadians(90.0));
 			Line boundLeft = new Line(corners.getLeft(), boundAngle , 0);
 			Line boundRight = new Line(corners.getRight(), boundAngle, 0);
 			this.bounds = Pair.of(boundLeft, boundRight);

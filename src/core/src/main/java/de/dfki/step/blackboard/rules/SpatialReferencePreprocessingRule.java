@@ -147,13 +147,15 @@ public class SpatialReferencePreprocessingRule extends Rule {
 			regionConstraint.put("region", region);
 			constraints.add(regionConstraint);
 		}
-		String groupRelation = innerRef.getString("groupRelation");
-		if (groupRelation != null) {
+		if (innerRef.isSet("groupRelation") || innerRef.isSet("ordinality")) {
 			Map<String, Object> groupRelConstraint = new HashMap<String, Object>();
 			groupRelConstraint.put("type", RRTypes.GROUP_REL_C);
 			// FIXME: make this adjustment in the LM
-			groupRelation = groupRelation.replace("most", "");
-			groupRelConstraint.put("relation", groupRelation);
+			String groupRelation = innerRef.getString("groupRelation");
+			if (groupRelation != null) {
+				groupRelation = groupRelation.replace("most", "");
+				groupRelConstraint.put("relation", groupRelation);
+			}
 			groupRelConstraint = putNumber(groupRelConstraint, innerRef, "ordinality", "nuance_ORDINAL_NUMBER");
 			constraints.add(groupRelConstraint);
 		}
