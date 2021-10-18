@@ -25,13 +25,21 @@ public class GroupRelationScorer extends RelationScorer {
 	private SpatialRegion relation;
 	private Integer ordinality;
 	private Integer cardinality;
+	private RRConfigParameters config;
 
-	public GroupRelationScorer(IKBObject constraint, KnowledgeBase kb, Integer cardinality) {
+	public GroupRelationScorer(IKBObject constraint, KnowledgeBase kb, Integer cardinality,  RRConfigParameters config) {
 		super(constraint, kb);
 		// TODO: make conversion from string to rel more flexible (e.g. case insensitive etc.)
+		this.config = config;
 		this.cardinality = cardinality;
-		if (constraint.isSet("relation"))
-			this.relation = SpatialRegion.valueOf(constraint.getString("relation"));
+		if (constraint.isSet("relation")) {
+			try {
+				this.relation = SpatialRegion.valueOf(constraint.getString("relation"));
+			} catch (Exception e) {
+				log.error("invalid group relation " + constraint.getString("relation"));
+			}
+		}
+
 		this.ordinality = constraint.getInteger("ordinality");
 		this.setPriority(DEFAULT_PRIO);
 	}
@@ -52,16 +60,16 @@ public class GroupRelationScorer extends RelationScorer {
 	    	Set<Type> types = bestGroup.get().getObjects().stream().map(o -> o.getType()).collect(Collectors.toSet());
 	    	if (types.size() == 1) {
 	    		Type type = types.iterator().next();
-	    		SpatialRegion relation = RRConfigParameters.DIR_EXCEPTIONS.get(type.getName());
+	    		SpatialRegion relation = config.DIR_EXCEPTIONS.get(type.getName());
 	    		if (relation != null)
 	    			this.relation = relation;
 	    		else
-	    			this.relation = RRConfigParameters.DEFAULT_DIR;
+	    			this.relation = config.DEFAULT_DIR;
 	    	} else {
-    			this.relation = RRConfigParameters.DEFAULT_DIR;
+    			this.relation = config.DEFAULT_DIR;
 	    	}
 	    }
-		List<IKBObject> objs = SpatialRegionComputer.computeObjectsForGroupRelation(bestGroup.get(), relation, ordinality, cardinality);
+		List<IKBObject> objs = SpatialRegionComputer.computeObjectsForGroupRelation(bestGroup.get(), relation, ordinality, cardinality, config);
 		if (objs == null)
 			return Collections.EMPTY_LIST;
 		scores = objs.stream().map(o -> new ObjectScore(o, 1)).toList();

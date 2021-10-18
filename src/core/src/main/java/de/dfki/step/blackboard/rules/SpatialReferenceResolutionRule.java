@@ -22,6 +22,7 @@ import de.dfki.step.kb.KnowledgeBase;
 import de.dfki.step.kb.RRTypes;
 import de.dfki.step.kb.semantic.IProperty;
 import de.dfki.step.kb.semantic.PropReference;
+import de.dfki.step.rr.RRConfigParameters;
 import de.dfki.step.rr.ResolutionResult;
 import de.dfki.step.rr.SpatialRR;
 import de.dfki.step.rr.constraints.BinarySpatialRelationScorer;
@@ -30,6 +31,7 @@ import de.dfki.step.util.LogUtils;
 public class SpatialReferenceResolutionRule extends Rule {
     private static final Logger log = LoggerFactory.getLogger(SpatialReferenceResolutionRule.class);
     private static final int DEFAULT_PRIO = 3000;
+    private RRConfigParameters config;
 	KnowledgeBase kb;
 	SpatialRR rr;
 
@@ -39,7 +41,8 @@ public class SpatialReferenceResolutionRule extends Rule {
 	 * @param minTokenAge in millisecs
 	 * @throws Exception
 	 */
-	public SpatialReferenceResolutionRule(KnowledgeBase kb, long minTokenAge) throws Exception {
+	public SpatialReferenceResolutionRule(KnowledgeBase kb, long minTokenAge, RRConfigParameters config) throws Exception {
+		this.config = config;
 		this.setPriority(DEFAULT_PRIO);
 		this.kb = kb;
 		this.rr = new SpatialRR(kb);
@@ -112,10 +115,12 @@ public class SpatialReferenceResolutionRule extends Rule {
 	}
 	
 	private List<UUID> resolveReference(IKBObjectWriteable ref) {
-		ResolutionResult result = this.rr.resolveReference(ref);
+		ResolutionResult result = this.rr.resolveReference(ref, this.config);
 		List<UUID> referents = result.getMostLikelyReferents();
-		if (referents.isEmpty()) 
+		if (referents.isEmpty()) {
+		    log.debug("NO INTENDED OBJECT FOUND");
 			return null;
+		}
 		Integer cardinality = ref.getInteger("cardinality");
 		if (cardinality != null)
 			referents = referents.subList(0, cardinality);

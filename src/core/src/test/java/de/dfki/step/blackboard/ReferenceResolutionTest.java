@@ -21,6 +21,7 @@ import de.dfki.step.kb.semantic.PropFloat;
 import de.dfki.step.kb.semantic.PropReference;
 import de.dfki.step.kb.semantic.PropString;
 import de.dfki.step.kb.semantic.Type;
+import de.dfki.step.rr.RRConfigParameters;
 
 public class ReferenceResolutionTest {
 	private KnowledgeBase kb;
@@ -191,7 +192,7 @@ public class ReferenceResolutionTest {
 				)
 	   	);
 		
-		de.dfki.step.blackboard.Rule r =  new SpatialReferenceResolutionRule(this.kb, 0);
+		de.dfki.step.blackboard.Rule r =  new SpatialReferenceResolutionRule(this.kb, 0, new RRConfigParameters());
 		IToken[] tArray = List.of(match1).toArray(new IToken[] {});
 		List<IToken[]> tList = new ArrayList<IToken[]>();
 		//tList.add(tArray);

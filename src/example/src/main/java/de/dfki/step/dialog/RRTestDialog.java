@@ -19,6 +19,7 @@ import de.dfki.step.kb.semantic.PropBool;
 import de.dfki.step.kb.semantic.PropReference;
 import de.dfki.step.kb.semantic.PropString;
 import de.dfki.step.kb.semantic.Type;
+import de.dfki.step.rr.RRConfigParameters;
 import de.dfki.step.web.Controller;
 
 import java.util.List;
@@ -53,7 +54,7 @@ public class RRTestDialog extends Dialog {
     	   	);
     		this.getBlackboard().addToken(match2);
 
-    		de.dfki.step.blackboard.Rule r =  new SpatialReferenceResolutionRule(kb,0);
+    		de.dfki.step.blackboard.Rule r =  new SpatialReferenceResolutionRule(kb,0, new RRConfigParameters());
     		this.getBlackboard().addRule(r);
  
             Rule pickUpRule = new SimpleRule(tokens -> {

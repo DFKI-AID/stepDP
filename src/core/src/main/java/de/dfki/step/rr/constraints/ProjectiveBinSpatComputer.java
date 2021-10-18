@@ -28,11 +28,12 @@ import de.dfki.step.rr.constraints.BoundingBox2D.BoundingBoxType;
  *
  */
 public class ProjectiveBinSpatComputer {
-	private static final double c = RRConfigParameters.BINSPATREL_C;
-	private static final double w_cp = RRConfigParameters.BINSPATREL_W_CP;
-	private static final double w_bb = RRConfigParameters.BINSPATREL_W_BB;
-	private static final double w_pd = RRConfigParameters.BINSPATREL_W_PD;
+	private double c;
+	private double w_cp;
+	private double w_bb;
+	private double w_pd;
     private static final Logger log = LoggerFactory.getLogger(ProjectiveBinSpatComputer.class);
+    private RRConfigParameters config;
 	
 	private PhysicalObject speaker;
 	private PhysicalObject io;
@@ -66,7 +67,12 @@ public class ProjectiveBinSpatComputer {
 		}
 	}
 	
-	public ProjectiveBinSpatComputer(IKBObject speaker, IKBObject io, IKBObject ro, RRTypes.BinSpatRelation rel) {
+	public ProjectiveBinSpatComputer(IKBObject speaker, IKBObject io, IKBObject ro, RRTypes.BinSpatRelation rel, RRConfigParameters config) {
+		this.config = config;
+		this.c = config.BINSPATREL_C;
+		this.w_cp = config.BINSPATREL_W_CP;
+		this.w_bb = config.BINSPATREL_W_BB;
+		this.w_pd = config.BINSPATREL_W_PD;
 		this.speaker = new PhysicalObject(speaker);
 		// FIXME: should probably not instantiate a new PhysObj for the same object multiple times
 		this.io = new PhysicalObject(io);

@@ -8,6 +8,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.dfki.step.kb.IKBObject;
 import de.dfki.step.kb.KnowledgeBase;
 import de.dfki.step.kb.RRTypes;
@@ -25,22 +28,32 @@ import de.dfki.step.util.LogUtils;
  *
  */
 public class SpatialRegionScorer extends ConstraintScorer {
+    private static final Logger log = LoggerFactory.getLogger(SpatialRegionScorer.class);
 	private static final int DEFAULT_PRIORITY = 6000;
 	private SpatialRegion region;
-	private static final double C = RRConfigParameters.SPATREG_C;
+	private double C;
+	private RRConfigParameters config;
 
-	public SpatialRegionScorer(IKBObject constraint, KnowledgeBase kb) {
+	public SpatialRegionScorer(IKBObject constraint, KnowledgeBase kb,  RRConfigParameters config) {
 		super(constraint, kb);
+		this.config = config;
+		this.C = config.SPATREG_C;
 		this.setPriority(DEFAULT_PRIORITY);
 		// TODO: make conversion from string to region more flexible (e.g. case insensitive etc.)
 		// TODO: catch exception if no matching value in enum
-		this.region = SpatialRegion.valueOf(constraint.getString("region"));
+		try {
+			this.region = SpatialRegion.valueOf(constraint.getString("region"));
+		} catch (Exception e) {
+			log.error("invalid region" + constraint.getString("region"));
+		}
 	}
 
 	@Override
 	public List<ObjectScore> updateScores(List<ObjectScore> scores) {
+		if (this.region == null)
+				return scores;
 		List<IKBObject> objects = this.getKB().getInstancesOfType(this.getKB().getType(RRTypes.SPAT_REF_TARGET));
-		Double prototype = SpatialRegionComputer.computePrototype(objects, this.region);
+		Double prototype = SpatialRegionComputer.computePrototype(objects, this.region, config);
 		for (ObjectScore curScore : scores) {
 			PhysicalObject physObj = new PhysicalObject(curScore.getObject());
 			Double current = physObj.getPositionOn(this.region.getAxis());

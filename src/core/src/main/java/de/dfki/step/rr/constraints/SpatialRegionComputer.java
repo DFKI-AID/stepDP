@@ -24,12 +24,13 @@ import de.dfki.step.kb.IKBObject;
 import de.dfki.step.kb.RRTypes.Axis;
 import de.dfki.step.kb.SpatialRegion;
 import de.dfki.step.rr.ObjectGroup;
+import de.dfki.step.rr.RRConfigParameters;
 
 public class SpatialRegionComputer {
-    private static final Logger log = LoggerFactory.getLogger(GroupRelationScorer.class);
+    private static final Logger log = LoggerFactory.getLogger(SpatialRegionComputer.class);
 	private static final ObjectMapper mapper = new ObjectMapper();
 
-	public static Double computePrototype(List<IKBObject> objects, SpatialRegion region) {
+	public static Double computePrototype(List<IKBObject> objects, SpatialRegion region, RRConfigParameters config) {
 		if (!region.isMiddle()) {
 			return protoForNotMiddle(objects, region);
 		} else {
@@ -51,7 +52,7 @@ public class SpatialRegionComputer {
 			return ordered.get(0).getValue();
 	}
 
-	public static List<IKBObject> computeObjectsForGroupRelation(ObjectGroup group, SpatialRegion relation, Integer ordinality, Integer cardinality) {
+	public static List<IKBObject> computeObjectsForGroupRelation(ObjectGroup group, SpatialRegion relation, Integer ordinality, Integer cardinality, RRConfigParameters config) {
 		if (ordinality == null)
 			ordinality = 1;
 		List<IKBObject> members = group.getObjects();

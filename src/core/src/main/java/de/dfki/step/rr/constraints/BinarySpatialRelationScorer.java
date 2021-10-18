@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.dfki.step.kb.IKBObject;
 import de.dfki.step.kb.KnowledgeBase;
 import de.dfki.step.kb.RRTypes;
+import de.dfki.step.rr.RRConfigParameters;
 import de.dfki.step.rr.ReferenceResolver;
 import de.dfki.step.rr.SpatialRR;
 import de.dfki.step.util.LogUtils;
@@ -26,11 +27,17 @@ public class BinarySpatialRelationScorer extends RelationScorer {
 	private RRTypes.BinSpatRelation rel;
 	private IKBObject relatumRef;
 	private IKBObject speaker;
+	private  RRConfigParameters config;
 
-	public BinarySpatialRelationScorer(IKBObject constraint, IKBObject speaker, KnowledgeBase kb) throws Exception {
+	public BinarySpatialRelationScorer(IKBObject constraint, IKBObject speaker, KnowledgeBase kb, RRConfigParameters config) throws Exception {
 		super(constraint, kb);
+		this.config = config;
 		// TODO: make conversion from string to bin rel more flexible (e.g. case insensitive etc.)
-		this.rel = RRTypes.BinSpatRelation.valueOf(constraint.getString("relation"));
+		try {
+			this.rel = RRTypes.BinSpatRelation.valueOf(constraint.getString("relation"));
+		} catch (Exception e) {
+			log.error("invalid binary spatial relation" + constraint.getString("relation"));
+		}
 		this.relatumRef = constraint.getResolvedReference("relatumReference");
 		this.speaker = speaker;
 		if (this.relatumRef == null || this.speaker == null)
@@ -41,10 +48,10 @@ public class BinarySpatialRelationScorer extends RelationScorer {
 	@Override
 	public List<ObjectScore> updateScores(List<ObjectScore> scores) {
 		ReferenceResolver rr = new SpatialRR(this.getKB());
-		if (relatumRef == null)
-			return new ArrayList<ObjectScore>();
+		if (rel == null || relatumRef == null)
+			return scores;
 		log.debug("RESOLVING RELATUM REFERENCE...");
-		List<UUID> relatumUUIDs = rr.resolveReference(relatumRef).getAllPotentialReferents();
+		List<UUID> relatumUUIDs = rr.resolveReference(relatumRef, config).getAllPotentialReferents();
 		if (relatumUUIDs == null || relatumUUIDs.isEmpty())
 			return new ArrayList<ObjectScore>();
 		// FIXME: support also references with multiple referents?
@@ -63,7 +70,7 @@ public class BinarySpatialRelationScorer extends RelationScorer {
 			if (rel.isProjective()) {
 				for (ObjectScore curScore : scores) {
 					IKBObject obj = curScore.getObject();
-					ProjectiveBinSpatComputer comp = new ProjectiveBinSpatComputer(speaker, obj, relatum, rel);
+					ProjectiveBinSpatComputer comp = new ProjectiveBinSpatComputer(speaker, obj, relatum, rel, config);
 					double accScore = comp.computeScore();
 					
 					// TODO: replace 0 with value range close to 0
@@ -76,7 +83,7 @@ public class BinarySpatialRelationScorer extends RelationScorer {
 				}
 			} else {
 				List<IKBObject> potentialObjects = scores.stream().map(ObjectScore::getObject).collect(Collectors.toList());
-				NonProjectiveBinSpatComputer comp = new NonProjectiveBinSpatComputer(relatum, rel, potentialObjects);
+				NonProjectiveBinSpatComputer comp = new NonProjectiveBinSpatComputer(relatum, rel, potentialObjects, config);
 				List<ObjectScore> newScores = comp.computeScores();
 				LogUtils.logScores("Scores for In " + relatum.getName() + ": ", newScores);
 				for (ObjectScore newScore : newScores) {

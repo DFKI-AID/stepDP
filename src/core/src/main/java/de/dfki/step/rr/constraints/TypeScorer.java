@@ -6,14 +6,17 @@ import java.util.List;
 import de.dfki.step.kb.IKBObject;
 import de.dfki.step.kb.KnowledgeBase;
 import de.dfki.step.kb.semantic.Type;
+import de.dfki.step.rr.RRConfigParameters;
 import de.dfki.step.util.LogUtils;
 
 public class TypeScorer extends ConstraintScorer {
 	private static final int DEFAULT_PRIORITY = 3000;
 	private Type type;
+	private RRConfigParameters config;
 
-	public TypeScorer(IKBObject constraint, KnowledgeBase kb) throws Exception {
+	public TypeScorer(IKBObject constraint, KnowledgeBase kb, RRConfigParameters config) throws Exception {
 		super(constraint, kb);
+		this.config = config;
 		this.setPriority(DEFAULT_PRIORITY);
 		String refType= constraint.getString("refType");
 		this.type = kb.getType(refType);

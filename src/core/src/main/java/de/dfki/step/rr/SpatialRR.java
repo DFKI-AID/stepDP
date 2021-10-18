@@ -22,24 +22,24 @@ public class SpatialRR implements ReferenceResolver {
 		this.kb = kb;
 	}
 
-	private boolean isVisible(IKBObject o) {
+	private boolean isVisible(IKBObject o, RRConfigParameters config) {
 		Float visibility = o.getFloat("visibility");
-		return (visibility != null && visibility >= RRConfigParameters.VISIBILITY_THRESHOLD);
+		return (visibility != null && visibility >= config.VISIBILITY_THRESHOLD);
 	}
 	
 	@Override
-	public ResolutionResult resolveReference(IKBObject reference) {
+	public ResolutionResult resolveReference(IKBObject reference, RRConfigParameters config) {
 		IKBObject speaker = reference.getResolvedReference("speaker");
 		Integer cardinality = reference.getInteger("cardinality");
 		List<IKBObject> potentialReferents = this.kb.getInstancesOfType(this.kb.getType(RRTypes.SPAT_REF_TARGET));
-		potentialReferents = potentialReferents.stream().filter(o -> isVisible(o)).collect(Collectors.toList());
+		potentialReferents = potentialReferents.stream().filter(o -> isVisible(o, config)).collect(Collectors.toList());
 		List<ObjectScore> currentScores = ObjectScore.initializeScores(potentialReferents);
 		IKBObject[] constraintArray = reference.getResolvedReferenceArray("constraints");
 		if (constraintArray == null)
 			return new ResolutionResult(currentScores);
 		List<IKBObject> constraints = new ArrayList<IKBObject>(Arrays.asList(constraintArray));
 		List<ConstraintScorer> scorers = constraints.stream()
-											.map(c -> ConstraintScorer.getConstraintScorer(c, speaker, kb, cardinality))
+											.map(c -> ConstraintScorer.getConstraintScorer(c, speaker, kb, cardinality, config))
 											.filter(c -> c!= null)
 											.collect(Collectors.toList());
 		scorers.sort(new PrioComparator());

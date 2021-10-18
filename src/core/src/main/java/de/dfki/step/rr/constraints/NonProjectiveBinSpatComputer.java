@@ -9,13 +9,16 @@ import java.util.stream.Collectors;
 import de.dfki.step.kb.IKBObject;
 import de.dfki.step.kb.IKBObjectWriteable;
 import de.dfki.step.kb.RRTypes;
+import de.dfki.step.rr.RRConfigParameters;
 
 public class NonProjectiveBinSpatComputer {
 	private IKBObject ro;
 	private RRTypes.BinSpatRelation rel;
 	private List<IKBObject> potentialIOs;
+	private RRConfigParameters config;
 	
-	public NonProjectiveBinSpatComputer(IKBObject ro, RRTypes.BinSpatRelation rel, List<IKBObject> potentialIOs) {
+	public NonProjectiveBinSpatComputer(IKBObject ro, RRTypes.BinSpatRelation rel, List<IKBObject> potentialIOs, RRConfigParameters config) {
+		this.config = config;
 		this.ro = ro;
 		this.rel = rel;
 		this.potentialIOs = potentialIOs;

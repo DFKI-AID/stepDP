@@ -4,6 +4,6 @@ import de.dfki.step.kb.IKBObject;
 
 public interface ReferenceResolver {
 	
-	public ResolutionResult resolveReference(IKBObject reference);
+	public ResolutionResult resolveReference(IKBObject reference, RRConfigParameters config);
 
 }

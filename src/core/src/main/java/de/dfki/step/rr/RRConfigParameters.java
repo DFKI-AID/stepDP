@@ -17,22 +17,22 @@ import de.dfki.step.kb.SpatialRegion;
  */
 public class RRConfigParameters {
 	// specificity for binary spatial relations
-	public static final double BINSPATREL_C = 1.0;
+	public double BINSPATREL_C = 1.0;
 	// weight of centre point angular deviation for binary spatial relations
-	public static final double BINSPATREL_W_CP = 0.009;
+	public double BINSPATREL_W_CP = 0.009;
 	// weight of physical distance for binary spatial relations
-	public static final double BINSPATREL_W_PD = 0.1;
+	public double BINSPATREL_W_PD = 0.1;
 	// weight of bounding box angular deviation for binary spatial relations
-	public static final double BINSPATREL_W_BB = 0.6;
+	public double BINSPATREL_W_BB = 0.6;
 
 	// specificity for spatial regions
-	public static final double SPATREG_C = 1;
+	public double SPATREG_C = 1;
 
 	// objects are considered visible if the percentage of visible pixels exceeds this threshold
-	public static final float VISIBILITY_THRESHOLD = 0.5f;
+	public float VISIBILITY_THRESHOLD = 0.5f;
 
 	// which direction should be default when its not specified in a group relation, e.g. the second shelf
-	public static final SpatialRegion DEFAULT_DIR = SpatialRegion.left;
+	public SpatialRegion DEFAULT_DIR = SpatialRegion.left;
 	// exceptions (type name is case sensitive!; does not work yet with inheritance)
-	public static final Map<String, SpatialRegion> DIR_EXCEPTIONS = new HashMap<String, SpatialRegion>(Map.of("ShelfLevel", SpatialRegion.bottom));
+	public Map<String, SpatialRegion> DIR_EXCEPTIONS = new HashMap<String, SpatialRegion>(Map.of("ShelfLevel", SpatialRegion.bottom));
 }

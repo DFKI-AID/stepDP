@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import de.dfki.step.kb.IKBObject;
 import de.dfki.step.kb.KnowledgeBase;
 import de.dfki.step.kb.RRTypes;
+import de.dfki.step.rr.RRConfigParameters;
 import de.dfki.step.util.LogUtils;
 
 public abstract class ConstraintScorer {
@@ -43,20 +44,20 @@ public abstract class ConstraintScorer {
 		return this.kb;
 	}
 
-	public static ConstraintScorer getConstraintScorer(IKBObject constraint, IKBObject speaker, KnowledgeBase kb, Integer cardinality) {
+	public static ConstraintScorer getConstraintScorer(IKBObject constraint, IKBObject speaker, KnowledgeBase kb, Integer cardinality,  RRConfigParameters config) {
 		try {
 			if (constraint == null)
 				return null;
 			if (constraint.getType().isInheritanceFrom(RRTypes.BIN_SPAT_C)) 
-				return new BinarySpatialRelationScorer(constraint, speaker, kb);
+				return new BinarySpatialRelationScorer(constraint, speaker, kb, config);
 			if (constraint.getType().isInheritanceFrom(RRTypes.TYPE_C))
-				return new TypeScorer(constraint, kb);
+				return new TypeScorer(constraint, kb, config);
 			if (constraint.getType().isInheritanceFrom(RRTypes.REGION_C))
-				return new SpatialRegionScorer(constraint, kb);
+				return new SpatialRegionScorer(constraint, kb, config);
 			if (constraint.getType().isInheritanceFrom(RRTypes.GROUP_REL_C))
-				return new GroupRelationScorer(constraint, kb, cardinality);
+				return new GroupRelationScorer(constraint, kb, cardinality, config);
 			if (constraint.getType().isInheritanceFrom(RRTypes.POINTING_C))
-				return new PointingScorer(constraint, kb);
+				return new PointingScorer(constraint, kb, config);
 			else
 				return null;
 		} catch (Exception e) {

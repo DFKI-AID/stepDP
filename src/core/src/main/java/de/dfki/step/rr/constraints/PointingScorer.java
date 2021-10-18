@@ -5,14 +5,17 @@ import java.util.List;
 
 import de.dfki.step.kb.IKBObject;
 import de.dfki.step.kb.KnowledgeBase;
+import de.dfki.step.rr.RRConfigParameters;
 import de.dfki.step.util.LogUtils;
 
 public class PointingScorer extends ConstraintScorer {
 	private static final int DEFAULT_PRIORITY = 1000;
 	private List<String> objectNames;
+	private RRConfigParameters config;
 
-	public PointingScorer(IKBObject constraint, KnowledgeBase kb) {
+	public PointingScorer(IKBObject constraint, KnowledgeBase kb, RRConfigParameters config) {
 		super(constraint, kb);
+		this.config = config;
 		this.setPriority(DEFAULT_PRIORITY);
 		this.objectNames = Arrays.asList(constraint.getStringArray("objectNames"));
 	}
