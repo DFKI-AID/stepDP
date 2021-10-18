@@ -24,6 +24,14 @@ public class ResolutionResult {
 		else
 			return this.potentialReferents.get(0).getScore();
 	}
+
+	public List<ObjectScore> getAllScores(){
+		return this.potentialReferents;
+	}
+
+	public List<UUID> getAllPotentialReferents() {
+		return this.potentialReferents.stream().map(s -> s.getUUID()).collect(Collectors.toList());
+	}
 	
 	public List<UUID> getMostLikelyReferents(){
 		float maxScore = this.getMaxScore();

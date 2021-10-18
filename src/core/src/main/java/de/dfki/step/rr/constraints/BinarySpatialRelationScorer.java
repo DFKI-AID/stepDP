@@ -2,11 +2,16 @@ package de.dfki.step.rr.constraints;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.dfki.step.kb.IKBObject;
 import de.dfki.step.kb.KnowledgeBase;
@@ -39,29 +44,50 @@ public class BinarySpatialRelationScorer extends RelationScorer {
 		if (relatumRef == null)
 			return new ArrayList<ObjectScore>();
 		log.debug("RESOLVING RELATUM REFERENCE...");
-		List<UUID> potentialRelatums = rr.resolveReference(relatumRef).getMostLikelyReferents();
-		if (potentialRelatums == null || potentialRelatums.isEmpty())
+		List<UUID> relatumUUIDs = rr.resolveReference(relatumRef).getAllPotentialReferents();
+		if (relatumUUIDs == null || relatumUUIDs.isEmpty())
 			return new ArrayList<ObjectScore>();
 		// FIXME: support also references with multiple referents?
-		IKBObject relatum = this.getKB().getInstance(potentialRelatums.get(0));
-		log.debug("RELATUM: " + relatum.getName());
-		if (rel.isProjective()) {
-			for (ObjectScore curScore : scores) {
-				IKBObject obj = curScore.getObject();
-				ProjectiveBinSpatComputer comp = new ProjectiveBinSpatComputer(speaker, obj, relatum, rel);
-				double accScore = comp.computeScore();
-				// TODO: replace 0 with value range close to 0
-//				if (score == 0)
-//					continue;
-				curScore.accumulateScore((float) accScore);
+		List<IKBObject> relatums = relatumUUIDs.stream().map(r -> this.getKB().getInstance(r)).collect(Collectors.toList());
+		List<String> debugList = relatums.stream().map(r->r.getName()).collect(Collectors.toList());
+		try {
+			log.debug("POTENTIAL RELATUM OBJECTS: " + new ObjectMapper().writeValueAsString(debugList));
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		Map<String, ObjectScore> maxScores = scores.stream().map(s -> new ObjectScore(s.getObject(), 0F)).collect(Collectors.toMap(s->s.getObject().getName(), Function.identity()));
+		for (IKBObject relatum : relatums){
+			if (relatum == null)
+				continue;
+			if (rel.isProjective()) {
+				for (ObjectScore curScore : scores) {
+					IKBObject obj = curScore.getObject();
+					ProjectiveBinSpatComputer comp = new ProjectiveBinSpatComputer(speaker, obj, relatum, rel);
+					double accScore = comp.computeScore();
+					
+					// TODO: replace 0 with value range close to 0
+//					if (score == 0)
+//						continue;
+					// FIXME: accumulate only max score
+					ObjectScore maxScore = maxScores.get(obj.getName());
+					if (accScore > maxScore.getScore())
+						maxScore.setScore((float) accScore);
+				}
+			} else {
+				List<IKBObject> potentialObjects = scores.stream().map(ObjectScore::getObject).collect(Collectors.toList());
+				NonProjectiveBinSpatComputer comp = new NonProjectiveBinSpatComputer(relatum, rel, potentialObjects);
+				List<ObjectScore> newScores = comp.computeScores();
+				LogUtils.logScores("Scores for In " + relatum.getName() + ": ", newScores);
+				for (ObjectScore newScore : newScores) {
+					ObjectScore maxScore = maxScores.get(newScore.getObject().getName());
+					if (newScore.getScore() > maxScore.getScore())
+						maxScore.setScore((float) newScore.getScore());
+				}
 			}
-		} else {
-			List<IKBObject> potentialObjects = scores.stream().map(ObjectScore::getObject).collect(Collectors.toList());
-			NonProjectiveBinSpatComputer comp = new NonProjectiveBinSpatComputer(relatum, rel, potentialObjects);
-			List<ObjectScore> newScores = comp.computeScores();
-			scores = ObjectScore.accumulateScores(scores, newScores);
 		}
 
+		scores = ObjectScore.accumulateScores(scores, new ArrayList<ObjectScore>(maxScores.values()));
 		// TODO: add relatumRef as text
 		LogUtils.logScores("Totals after scoring BinSpatRel " + this.rel, scores);
 		return scores;
