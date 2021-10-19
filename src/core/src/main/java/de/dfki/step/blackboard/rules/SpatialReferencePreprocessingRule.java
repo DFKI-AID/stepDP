@@ -22,6 +22,7 @@ import de.dfki.step.kb.KnowledgeBase;
 import de.dfki.step.kb.RRTypes;
 import de.dfki.step.kb.semantic.IProperty;
 import de.dfki.step.kb.semantic.PropReference;
+import de.dfki.step.rr.RRConfigParameters;
 import de.dfki.step.rr.SpatialRR;
 import de.dfki.step.util.LogUtils;
 
@@ -31,10 +32,12 @@ public class SpatialReferencePreprocessingRule extends Rule {
     private static final int DEFAULT_PRIO = 2000;
     private KnowledgeBase kb;
     private IKBObject speaker;
+    private RRConfigParameters config;
 	
-	public SpatialReferencePreprocessingRule(KnowledgeBase kb, IKBObject defaultSpeaker) throws Exception {
+	public SpatialReferencePreprocessingRule(KnowledgeBase kb, IKBObject defaultSpeaker, RRConfigParameters config) throws Exception {
 		this.setPriority(DEFAULT_PRIO);
 		this.kb = kb;
+		this.config = config;
 		this.speaker = defaultSpeaker;
 		if (speaker == null)
 			throw new Exception("Preprocessing rule needs to know the default speaker.");
@@ -109,16 +112,27 @@ public class SpatialReferencePreprocessingRule extends Rule {
 		String binRelation = lmRef.getString("binarySpatialRelation");
 		if (io == null)
 			return result;
-		Map<String, Object> ioConverted = convertInnerRef(io);
+		Map<String, Object> ioConverted = convertInnerRef(io, null);
 		result.putAll(ioConverted);
 		List<Map<String, Object>> constraints = (List<Map<String, Object>>) result.get("constraints");
 		if (constraints == null)
 			constraints = new ArrayList<Map<String, Object>>();
+		Map<String, Object> additionalROConstraint = null;
+		String region = lmRef.getString("region");
+		if (region != null) {
+			Map<String, Object> regionConstraint = new HashMap<String, Object>();
+			regionConstraint.put("type", RRTypes.REGION_C);
+			regionConstraint.put("region", region);
+			if (config.MAP_AMBIGUOUS_CONSTRAINTS_TO_IO)
+				constraints.add(regionConstraint);
+			else
+				additionalROConstraint = regionConstraint;
+		}
 		if (ro != null && binRelation != null) {
 			Map<String, Object> binRelConstraint = new HashMap<String, Object>();
 			binRelConstraint.put("type", RRTypes.BIN_SPAT_C);
 			binRelConstraint.put("relation", binRelation);
-			Map<String, Object> relatumRef = convertInnerRef(ro);
+			Map<String, Object> relatumRef = convertInnerRef(ro, additionalROConstraint);
 			binRelConstraint.put("relatumReference", relatumRef);
 			constraints.add(binRelConstraint);
 		}
@@ -127,11 +141,13 @@ public class SpatialReferencePreprocessingRule extends Rule {
 		return result;
  	}
 
-	private Map<String, Object> convertInnerRef(IKBObject innerRef){
+	private Map<String, Object> convertInnerRef(IKBObject innerRef, Map<String, Object> additionalConstraint){
 		Map<String, Object> result = new HashMap<String, Object>();
 		result.put("type", RRTypes.SPAT_REF);
 		result.put("speaker", this.speaker.getUUID().toString());
 		List<Map<String, Object>> constraints = new ArrayList<Map<String, Object>>();
+		if (additionalConstraint != null)
+			constraints.add(additionalConstraint);
 		result = putNumber(result, innerRef, "cardinality", "nuance_CARDINAL_NUMBER");
 		String type = innerRef.getString("refType");
 		if (type != null) {

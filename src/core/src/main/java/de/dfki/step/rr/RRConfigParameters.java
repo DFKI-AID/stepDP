@@ -35,4 +35,6 @@ public class RRConfigParameters {
 	public SpatialRegion DEFAULT_DIR = SpatialRegion.left;
 	// exceptions (type name is case sensitive!; does not work yet with inheritance)
 	public Map<String, SpatialRegion> DIR_EXCEPTIONS = new HashMap<String, SpatialRegion>(Map.of("ShelfLevel", SpatialRegion.bottom));
+
+	public boolean MAP_AMBIGUOUS_CONSTRAINTS_TO_IO = true;
 }
