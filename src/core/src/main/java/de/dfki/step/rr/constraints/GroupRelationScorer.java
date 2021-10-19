@@ -47,8 +47,10 @@ public class GroupRelationScorer extends RelationScorer {
 	@Override
 	public List<ObjectScore> updateScores(List<ObjectScore> scores) {
 		List<ObjectGroup> potentialGroups = ObjectGroup.findGroupCandidates(scores, ordinality, -1);
-		if (potentialGroups == null || potentialGroups.isEmpty())
+		if (potentialGroups == null || potentialGroups.isEmpty()) {
+			log.debug("No object groups found for group relation.");
 			return Collections.EMPTY_LIST;
+		}
 		// TODO: consider also other potential groups
 		Optional<ObjectGroup> bestGroup = potentialGroups
 			      				.stream()
@@ -77,4 +79,18 @@ public class GroupRelationScorer extends RelationScorer {
 		return scores;
 	}
 
+	@Override
+	public String getDirection() {
+		if (this.relation == null)
+			return null;
+		else
+		return this.relation.direction;
+	}
+
+	public Integer getOrdinality() {
+		if (this.ordinality == null)
+			return null;
+		else
+			return this.ordinality;
+	}
 }

@@ -43,6 +43,11 @@ public class KnowledgeBase {
         }
     }
 
+    public void deleteAllKBObjects(List<UUID> exceptions) {
+    	this._instances = this._instances.stream().filter(i -> exceptions.contains(i.getUUID())).collect(Collectors.toList());
+    	this._objects =  this._objects.stream().filter(i -> exceptions.contains(i.getUUID())).collect(Collectors.toList());
+    }
+    
     public Type getRootType()
     {
         return this._root;

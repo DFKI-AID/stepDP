@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import de.dfki.step.blackboard.BasicToken;
 import de.dfki.step.blackboard.Board;
+import de.dfki.step.blackboard.Condition;
 import de.dfki.step.blackboard.IToken;
 import de.dfki.step.blackboard.KBToken;
 import de.dfki.step.blackboard.Rule;
@@ -70,6 +71,13 @@ public class SpatialReferencePreprocessingRule extends Rule {
 	    			LogUtils.printDebugInfo("TOKEN AFTER PREPROCESSING", newToken);
 	    			this.kb.getBlackboard().addToken(newToken);
 	    		}
+				Pattern rrPattern = new PatternBuilder("Object", kb)
+						.hasRecursiveType(RRTypes.SPAT_REF)
+						.build();
+				if (!rrPattern.matches(newToken)) {
+					// rr rule will not trigger so print csv now
+				    log.error("Preprocessing of spatial reference failed.");
+				}
 
 			} catch (Exception e) {
 				e.printStackTrace();

@@ -3,6 +3,7 @@ package de.dfki.step.blackboard.rules;
 import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,7 @@ import de.dfki.step.rr.RRConfigParameters;
 import de.dfki.step.rr.ResolutionResult;
 import de.dfki.step.rr.SpatialRR;
 import de.dfki.step.rr.constraints.BinarySpatialRelationScorer;
+import de.dfki.step.rr.constraints.ObjectScore;
 import de.dfki.step.util.LogUtils;
 
 public class SpatialReferenceResolutionRule extends Rule {
@@ -116,18 +118,13 @@ public class SpatialReferenceResolutionRule extends Rule {
 	
 	private List<UUID> resolveReference(IKBObjectWriteable ref) {
 		ResolutionResult result = this.rr.resolveReference(ref, this.config);
-		List<UUID> referents = result.getMostLikelyReferents();
+		List<ObjectScore> referents = result.getMostLikelyReferents(ref.getInteger("cardinality"));
+		List<String> referentNames = referents.stream().map(r -> r.getObject().getName()).collect(Collectors.toList());
 		if (referents.isEmpty()) {
 		    log.debug("NO INTENDED OBJECT FOUND");
 			return null;
 		}
-		Integer cardinality = ref.getInteger("cardinality");
-		if (cardinality != null)
-			referents = referents.subList(0, cardinality);
-		else
-			referents = referents.subList(0, 1);
-		// TODO: handle empty referents, low confidence, ambiguity etc.
-	    log.debug("INTENDED OBJECTS: " + referents);
-	    return referents;
+	    log.debug("INTENDED OBJECTS: " + referentNames);
+	    return referents.stream().map(r -> r.getObject().getUUID()).collect(Collectors.toList());
 	}
 }

@@ -221,4 +221,9 @@ public class Board {
     												   .collect(Collectors.toList()));
     	return tokens;
     }
+
+    public void deleteAllTokens() {
+    	this._activeTokens.clear();
+    	this._archivedTokens.clear();
+    }
 }

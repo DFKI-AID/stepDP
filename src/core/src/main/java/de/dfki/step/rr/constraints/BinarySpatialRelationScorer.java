@@ -100,4 +100,12 @@ public class BinarySpatialRelationScorer extends RelationScorer {
 		return scores;
 	}
 
+	@Override
+	public String getDirection() {
+		if (rel == null)
+			return null;
+		else
+			return rel.direction;
+	}
+
 }

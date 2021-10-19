@@ -1,5 +1,7 @@
 package de.dfki.step.rr;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -33,11 +35,26 @@ public class ResolutionResult {
 		return this.potentialReferents.stream().map(s -> s.getUUID()).collect(Collectors.toList());
 	}
 	
-	public List<UUID> getMostLikelyReferents(){
+	public List<UUID> getMaxScoreReferents(){
 		float maxScore = this.getMaxScore();
 		return this.potentialReferents.stream()
 									  .filter(s -> s.getScore() == maxScore)
 									  .map(s -> s.getUUID())
 									  .collect(Collectors.toList());
+	};
+
+	public List<ObjectScore> getMostLikelyReferents(Integer cardinality){
+		if (this.potentialReferents.isEmpty())
+			return new ArrayList<ObjectScore>();
+		List<ObjectScore> result;
+		if (cardinality != null) {
+			if (this.potentialReferents.size() <= cardinality)
+				result = this.potentialReferents;
+			else
+				result = this.potentialReferents.subList(0, cardinality);
+		} else {
+			result = this.potentialReferents.subList(0, 1);
+		}
+		return result;
 	};
 }
