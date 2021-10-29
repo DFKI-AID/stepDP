@@ -65,25 +65,22 @@ public class KBObject implements IKBObjectWriteable
 
     @Override
     public String getString(String propertyName) {
-        Object value = this._data.get(propertyName);
-        if (value == null)
-            return null;
-        return value.toString();
+        return _rootTokenObject.getString(propertyName);
     }
 
     @Override
     public Integer getInteger(String propertyName) {
-        return (Integer) this._data.get(propertyName);
+        return _rootTokenObject.getInteger(propertyName);
     }
 
     @Override
     public Boolean getBoolean(String propertyName) {
-        return (Boolean) this._data.get(propertyName);
+        return _rootTokenObject.getBoolean(propertyName);
     }
 
     @Override
     public Float getFloat(String propertyName) {
-        return (Float) this._data.get(propertyName);
+        return _rootTokenObject.getFloat(propertyName);
     }
 
     @Override
@@ -98,22 +95,22 @@ public class KBObject implements IKBObjectWriteable
 
     @Override
     public String[] getStringArray(String propertyName) {
-        return (String[])this._data.get(propertyName);
+        return _rootTokenObject.getStringArray(propertyName);
     }
 
     @Override
     public Integer[] getIntegerArray(String propertyName) {
-        return (Integer[])this._data.get(propertyName);
+        return _rootTokenObject.getIntegerArray(propertyName);
     }
 
     @Override
     public Boolean[] getBooleanArray(String propertyName) {
-        return (Boolean[])this._data.get(propertyName);
+        return _rootTokenObject.getBooleanArray(propertyName);
     }
 
     @Override
     public Float[] getFloatArray(String propertyName) {
-        return (Float[])this._data.get(propertyName);
+        return _rootTokenObject.getFloatArray(propertyName);
     }
 
     @Override
