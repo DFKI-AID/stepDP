@@ -55,14 +55,14 @@ public class SpatialReferencePreprocessingRule extends Rule {
             return;
 
         for (IToken[] tArray : tokens) {
-        	IToken t = tArray[0];
-        	t.usedBy(this.getUUID());
-        	IToken newToken = t.createTokenWithSameContent();
-    		newToken = (IToken) convertLMRefsToKBRefs(newToken);
-    		newToken.getOriginTokens().add(t);
-    		t.addResultingTokens(List.of(newToken), this.getUUID());
-    		Pattern p;
-			try {
+        	try {
+            	IToken t = tArray[0];
+            	t.usedBy(this.getUUID());
+            	IToken newToken = t.createTokenWithSameContent();
+        		newToken = (IToken) convertLMRefsToKBRefs(newToken);
+        		newToken.getOriginTokens().add(t);
+        		t.addResultingTokens(List.of(newToken), this.getUUID());
+        		Pattern p;
 				p = new PatternBuilder("Object", kb)
 								.hasRecursiveType(RRTypes.LM_SPAT_REF)
 								.build();
@@ -78,10 +78,11 @@ public class SpatialReferencePreprocessingRule extends Rule {
 					// rr rule will not trigger so print csv now
 				    log.error("Preprocessing of spatial reference failed.");
 				}
+        	} catch (Exception e) {
+        		log.error("Exception in spatial reference preprocessing rule.");
+        		e.printStackTrace();
+        	}
 
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
         }
 	}
 

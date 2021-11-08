@@ -63,14 +63,14 @@ public class SpatialReferenceResolutionRule extends Rule {
             return;
 
         for (IToken[] tArray : tokens) {
-        	IToken t = tArray[0];
-        	t.usedBy(this.getUUID());
-        	IToken newToken = t.createTokenWithSameContent();
-    		IToken resolved = (IToken) findAndResolveReferences(newToken);
-    		resolved.getOriginTokens().add(t);
-    		t.addResultingTokens(List.of(resolved), this.getUUID());
-    		Pattern p;
-			try {
+        	try {
+            	IToken t = tArray[0];
+            	t.usedBy(this.getUUID());
+            	IToken newToken = t.createTokenWithSameContent();
+        		IToken resolved = (IToken) findAndResolveReferences(newToken);
+        		resolved.getOriginTokens().add(t);
+        		t.addResultingTokens(List.of(resolved), this.getUUID());
+        		Pattern p;
 				p = new PatternBuilder("Object", kb)
 								.hasRecursiveType(RRTypes.SPAT_REF)
 								.build();
@@ -79,9 +79,11 @@ public class SpatialReferenceResolutionRule extends Rule {
 	    			this.kb.getBlackboard().addToken(resolved);
 	    			LogUtils.printDebugInfo("RESOLVED TOKEN", resolved);
 	    		}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+        	} catch (Exception e) {
+        		log.error("Exception in spatial reference resolution rule.");
+        		e.printStackTrace();
+        	}
+
         }
 	}
 
