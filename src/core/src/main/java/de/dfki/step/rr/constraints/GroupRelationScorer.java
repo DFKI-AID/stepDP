@@ -79,14 +79,6 @@ public class GroupRelationScorer extends RelationScorer {
 		return scores;
 	}
 
-	@Override
-	public String getDirection() {
-		if (this.relation == null)
-			return null;
-		else
-		return this.relation.direction;
-	}
-
 	public Integer getOrdinality() {
 		if (this.ordinality == null)
 			return null;

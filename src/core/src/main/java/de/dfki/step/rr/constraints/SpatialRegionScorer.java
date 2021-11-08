@@ -65,16 +65,5 @@ public class SpatialRegionScorer extends ConstraintScorer {
 		return scores;
 	}
 
-<<<<<<< adina-ma-reference-resolution
-=======
-	@Override
-	public String getDirection() {
-		if (this.region == null)
-			return null;
-		else
-			return this.region.direction;
-	}
-
->>>>>>> b046302 some adjustments
 
 }
