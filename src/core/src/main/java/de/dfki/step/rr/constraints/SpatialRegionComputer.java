@@ -59,7 +59,7 @@ public class SpatialRegionComputer {
 		// FIXME: what about "middle"?
 		List<Pair<IKBObject, Double>> ordered = orderDescBy(members, relation);
 	    try {
-	    	List<Pair<String, Double>> debug = ordered.stream().map(p -> Pair.of(p.getLeft().getName(), p.getRight())).toList();
+	    	List<Pair<String, Double>> debug = ordered.stream().map(p -> Pair.of(p.getLeft().getName(), p.getRight())).collect(Collectors.toList());
 			log.debug("ORDERED GROUP: " + mapper.writeValueAsString(debug));
 		} catch (JsonProcessingException e) {
 			// TODO Auto-generated catch block
@@ -78,7 +78,7 @@ public class SpatialRegionComputer {
 			else
 				result = ordered.subList(0, cardinality);
 		}
-		return result.stream().map(p -> p.getKey()).toList();
+		return result.stream().map(p -> p.getKey()).collect(Collectors.toList());
 	}
 
 	private static List<Pair<IKBObject, Double>> orderDescBy(List<IKBObject> objects, SpatialRegion region) {

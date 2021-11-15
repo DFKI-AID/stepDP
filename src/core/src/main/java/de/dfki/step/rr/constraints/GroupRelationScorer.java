@@ -74,7 +74,7 @@ public class GroupRelationScorer extends RelationScorer {
 		List<IKBObject> objs = SpatialRegionComputer.computeObjectsForGroupRelation(bestGroup.get(), relation, ordinality, cardinality, config);
 		if (objs == null)
 			return Collections.EMPTY_LIST;
-		scores = objs.stream().map(o -> new ObjectScore(o, 1)).toList();
+		scores = objs.stream().map(o -> new ObjectScore(o, 1)).collect(Collectors.toList());
 		LogUtils.logScores(String.format("Totals after scoring GroupRel %s (ordinality=%s)", relation, ordinality), scores);
 		return scores;
 	}
