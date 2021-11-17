@@ -69,6 +69,7 @@ public class SpatialReferenceResolutionRule extends Rule {
             	IToken newToken = t.createTokenWithSameContent();
         		IToken resolved = (IToken) findAndResolveReferences(newToken);
         		resolved.getOriginTokens().add(t);
+        		resolved.setProducer(this.getUUID());
         		t.addResultingTokens(List.of(resolved), this.getUUID());
         		Pattern p;
 				p = new PatternBuilder("Object", kb)

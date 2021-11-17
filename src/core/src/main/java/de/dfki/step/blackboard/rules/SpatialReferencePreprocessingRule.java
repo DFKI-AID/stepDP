@@ -61,6 +61,7 @@ public class SpatialReferencePreprocessingRule extends Rule {
             	IToken newToken = t.createTokenWithSameContent();
         		newToken = (IToken) convertLMRefsToKBRefs(newToken);
         		newToken.getOriginTokens().add(t);
+        		newToken.setProducer(this.getUUID());
         		t.addResultingTokens(List.of(newToken), this.getUUID());
         		Pattern p;
 				p = new PatternBuilder("Object", kb)
