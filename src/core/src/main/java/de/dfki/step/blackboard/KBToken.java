@@ -1,5 +1,6 @@
 package de.dfki.step.blackboard;
 
+import java.util.Map;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
@@ -8,7 +9,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import de.dfki.step.kb.IKBObject;
-import de.dfki.step.kb.IKBObjectWriteable;
 import de.dfki.step.kb.KnowledgeBase;
 import de.dfki.step.kb.semantic.IProperty;
 import de.dfki.step.kb.semantic.Type;
@@ -17,21 +17,13 @@ public class KBToken extends AbstractToken {
     @JsonProperty
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "name")
     @JsonIdentityReference(alwaysAsId = true)
-    private IKBObjectWriteable _parent;
+    private IKBObject _parent;
 
     public KBToken(KnowledgeBase kb, IKBObject kbObj) {
         super(kb);
         if (kbObj instanceof IToken)
             throw new RuntimeException("KBToken can only hold references to kb objects, not other tokens.");
-        
-        if (kbObj instanceof IKBObjectWriteable)
-        	this._parent = (IKBObjectWriteable) kbObj;
-        else {
-        	IKBObjectWriteable writeObj = kb.getInstanceWriteable(kbObj.getUUID());
-        	if (writeObj == null)
-        		throw new RuntimeException("Cannot instantiate KBToken with object that does not exist in kb.");
-        	this._parent = writeObj;
-        }
+        this._parent = kbObj;
     }
 
     @Override
@@ -85,7 +77,7 @@ public class KBToken extends AbstractToken {
     }
 
     @Override
-    public IKBObjectWriteable getResolvedReference(String propertyName) {
+    public IKBObject getResolvedReference(String propertyName) {
         return _parent.getResolvedReference(propertyName);
     }
 
@@ -115,7 +107,7 @@ public class KBToken extends AbstractToken {
     }
 
     @Override
-    public IKBObjectWriteable[] getResolvedReferenceArray(String propertyName) {
+    public IKBObject[] getResolvedReferenceArray(String propertyName) {
         return _parent.getResolvedReferenceArray(propertyName);
     }
 
@@ -188,4 +180,17 @@ public class KBToken extends AbstractToken {
     public Object internal_getContent() {
         return this._parent.getUUID().toString();
     }
+    @Override
+    public IToken internal_createCopyWithChanges(Map<String, Object> newValues) throws Exception {
+        if (newValues.entrySet().isEmpty())
+            return new KBToken(this.getKB(), this._parent);
+        else
+            throw new Exception("Cannot change values in a reference to a kb object.");
+    }
+
+    @Override
+    public Object internal_getContent() {
+        return this._parent.getUUID().toString();
+    }
+
 }

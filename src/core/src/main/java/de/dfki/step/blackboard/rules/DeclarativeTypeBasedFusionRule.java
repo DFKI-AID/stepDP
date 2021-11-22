@@ -126,54 +126,54 @@ public class DeclarativeTypeBasedFusionRule extends Rule {
 	@Override
 	public void onMatch(List<IToken[]> tokens, Board board) {
 		for (IToken[] match : tokens) {
-			try {
-				IToken t1 = match[0];
-				IToken t2 = match[1];
-				
-				IToken fusionResult;
-				if (_prop2 != null) {
-					BasicToken basic = new BasicToken(t1.getKB());
-					basic.setType(this._resultType);
-					// simply reference origin tokens since tokens should not change anyway
-					basic.addAll(Map.of(_prop1, t1.getUUID().toString()));
-					basic.addAll(Map.of(_prop2, t2.getUUID().toString()));
-					fusionResult = basic;
-				} else {
-					fusionResult = t1.createTokenWithSameContent();
-					Pair<String, IKBObject> outer = findOuterObject(_resultType, t1);
-					// FIXME: what if inner is part of KBObject?
-					if (outer == null)
-						return;
-					IKBObjectWriteable innerObj = outer.getValue().getResolvedReference(outer.getKey());
-					IProperty prop = innerObj.getProperty(_prop1);
-					if (prop != null && prop instanceof PropReference) {
-						innerObj.setReference(_prop1, t2.getUUID());
-						fusionResult.setReference(outer.getKey(), innerObj);
-					} else if (prop != null && prop instanceof PropReferenceArray) {
-						innerObj.addReferenceToArray(_prop1, t2.getUUID());
-						fusionResult.setReference(outer.getKey(), innerObj);
-					}
-				}
-
-				fusionResult.setOriginTokens(List.of(t1, t2));
-				fusionResult.setProducer(this.getUUID());
-
-				t1.usedBy(this.getUUID());
-				t2.usedBy(this.getUUID());
-				t1.addResultingTokens(List.of(fusionResult), this.getUUID());
-				t2.addResultingTokens(List.of(fusionResult), this.getUUID());
-
-				board.addToken(fusionResult);
-				
-				// FIXME: temporary workaround
-				t1.setActive(false);
-
-				LogUtils.printDebugInfo("TOKEN AFTER FUSION", fusionResult);
-			} catch (Exception e) {
-        		log.error("Exception in declarative type-based fusion rule.");
-        		e.printStackTrace();
-			}
-
+			IToken t1 = match[0];
+			IToken t2 = match[1];
+			
+			IToken fusionResult;
+	         try {
+    			if (_prop2 != null) {
+    				BasicToken basic = new BasicToken(t1.getKB());
+    				basic.setType(this._resultType);
+    				// simply reference origin tokens since tokens should not change anyway
+    				basic.addAll(Map.of(_prop1, t1.getUUID().toString()));
+    				basic.addAll(Map.of(_prop2, t2.getUUID().toString()));
+    				fusionResult = basic;
+    			} else {
+    				fusionResult = t1.createTokenWithSameContent();
+    				Pair<String, IKBObject> outer = findOuterObject(_resultType, t1);
+    				// FIXME: what if inner is part of KBObject?
+    				if (outer == null)
+    					return;
+    				IKBObjectWriteable innerObj = outer.getValue().getResolvedReference(outer.getKey());
+    				IProperty prop = innerObj.getProperty(_prop1);
+    				if (prop != null && prop instanceof PropReference) {
+    					innerObj.setReference(_prop1, t2.getUUID());
+    					fusionResult.setReference(outer.getKey(), innerObj);
+    				} else if (prop != null && prop instanceof PropReferenceArray) {
+    					innerObj.addReferenceToArray(_prop1, t2.getUUID());
+    					fusionResult.setReference(outer.getKey(), innerObj);
+    				}
+    			}
+    
+    			fusionResult.setOriginTokens(List.of(t1, t2));
+    			fusionResult.setProducer(this.getUUID());
+    
+    			t1.usedBy(this.getUUID());
+    			t2.usedBy(this.getUUID());
+    			t1.addResultingTokens(List.of(fusionResult), this.getUUID());
+    			t2.addResultingTokens(List.of(fusionResult), this.getUUID());
+    
+    			board.addToken(fusionResult);
+    			
+    			// FIXME: temporary workaround
+    			t1.setActive(false);
+    
+    			LogUtils.printDebugInfo("TOKEN AFTER FUSION", fusionResult);
+            } catch (Exception e) {
+                e.printStackTrace();
+                log.error("Could not create fusion result.");
+                
+            }
 		}
 	}
 

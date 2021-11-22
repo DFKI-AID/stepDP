@@ -17,6 +17,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 public class KnowledgeBase {
 
     public List<Type> _types = new LinkedList<>();
@@ -25,6 +28,7 @@ public class KnowledgeBase {
 
     private Type _root;
     private Board _blackboard;
+    private ObjectMapper mapper = new ObjectMapper();
 
     public KnowledgeBase(Board blackboard)
     {
@@ -76,6 +80,14 @@ public class KnowledgeBase {
     public IKBObjectWriteable createInstance(String name, Type type)
     {
         KBObject newObj = new KBObject(name, type, this);
+        this.addUUIDtoList(newObj);
+        this._instances.add(newObj);
+        return newObj;
+    }
+
+    public IKBObjectWriteable createInstance(String name, Type type, Map<String, Object> data) throws Exception
+    {
+        KBObject newObj = new KBObject(name, type, this, data);
         this.addUUIDtoList(newObj);
         this._instances.add(newObj);
         return newObj;
@@ -179,6 +191,24 @@ public class KnowledgeBase {
     public Board getBlackboard() {
     	return this._blackboard;
     }
+
+    public void importKBObject(String json) throws Exception {
+        Map<String, Object> jsonObj = this.mapper.readValue(json, new TypeReference<Map<String, Object>>() {});
+
+        Object typeName = jsonObj.get("type");
+        if (typeName == null || !(typeName instanceof String)) {
+            throw new Exception("missing type");
+        }
+        Type type = getType((String) typeName);
+        if(type == null)
+        {
+            throw new Exception("type not found");
+        }
+
+        Object name = jsonObj.get("name");
+
+        createInstance((String) name, type, jsonObj);
+      }
 
     public void importObjects(String json) throws JsonParseException, JsonMappingException, IOException {
       ObjectMapper mapper = new ObjectMapper();

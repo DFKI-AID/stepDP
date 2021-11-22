@@ -15,14 +15,14 @@ import de.dfki.step.kb.semantic.PropReferenceArray;
 import de.dfki.step.kb.semantic.Type;
 import org.pcollections.PMap;
 
-public class TokenObject implements IKBObjectWriteable {
+public class TokenObject implements IKBObject {
 
-	private BasicToken _parent;
+	private IKBObject _parent;
 	private Map<String, Object> _payload;
 	private KnowledgeBase _kb;
 	private Type _type;
 
-    public TokenObject(BasicToken parent, Map<String, Object> payload, KnowledgeBase kb)
+    public TokenObject(IKBObject parent, Map<String, Object> payload, KnowledgeBase kb)
 	{
 		this._parent = parent;
 		this._payload = payload;
@@ -30,7 +30,7 @@ public class TokenObject implements IKBObjectWriteable {
 		this._type = null;
 	}
 
-	public TokenObject(BasicToken parent, Map<String, Object> payload, KnowledgeBase kb, Type type)
+	public TokenObject(IKBObject parent, Map<String, Object> payload, KnowledgeBase kb, Type type)
 	{
 		this._parent = parent;
 		this._payload = payload;
@@ -131,91 +131,35 @@ public class TokenObject implements IKBObjectWriteable {
                 } catch (IllegalArgumentException exception){
                     return null;
                 }
+            } else if (data instanceof UUID) {
+                return (UUID) data;
             }
 	    }
 		return null;
 	}
 
 	@Override
-	public IKBObjectWriteable getResolvedReference(String propertyName) {
-		if (this.isSet(propertyName))
-		{
-			// TODO resolve UUIDs and names (KB reference)
-			// TODO write warning to log if name ambiguous; return first match (must be implemented in KnowledgeBase)
+	public IKBObject getResolvedReference(String propertyName) {
+        if (!this.isSet(propertyName))
+            return null;
+    // TODO resolve UUIDs and names (KB reference)
+    // TODO write warning to log if name ambiguous; return first match (must be implemented in KnowledgeBase)
 
-			IProperty prop = this.getProperty(propertyName);
-			Type typeOfObject = null;
-			if(prop != null && prop instanceof PropReference)
-			{
-					typeOfObject = ((PropReference)prop).getType();
-			}
-			else
-			{
-				typeOfObject = this._kb.getRootType();
-			}
-
-			Object data = this._payload.get(propertyName);
-
-			if(data instanceof String || data instanceof UUID)
-			{
-				UUID uuid = (data instanceof UUID) ? (UUID) data : null;
-				if (uuid == null)
-					try{
-						uuid = UUID.fromString(data.toString());
-					} catch (IllegalArgumentException exception){
-					}
-
-				IKBObjectWriteable ref;
-				if(uuid != null) {
-					ref = this._kb.getInstanceWriteable(uuid);
-					ref = (ref == null) ? this._kb.getBlackboard().getTokenByID(uuid, true) : ref;
-				}
-				else
-					ref = this._kb.getInstanceWriteable(data.toString());
-				if(ref != null)
-					return ref;
-				else
-					return null;
-			}
-			else if(data instanceof Map)
-			{
-				Map<String, Object> inner = (Map<String, Object>) this._payload.get(propertyName);
-				if(inner.containsKey("type"))
-				{
-					String type = inner.get("type").toString();
-					typeOfObject = this._kb.getType(type);
-				}
-				return new TokenObject(this._parent, inner, this._kb, typeOfObject);
-			}
-			else if(data instanceof IToken)
-			{
-			    return (IToken) data;
-			}
-			else
-			{
-				// something bad happend?
-				return null;
-			}
-		}
-		else
-			return null;
+    IProperty prop = this.getProperty(propertyName);
+    Object data = this._payload.get(propertyName);
+    return resolveReference(prop, data);
 	}
 
 	@Override
 	public String[] getStringArray(String propertyName) {
 		if (!this.isSet(propertyName))
 			return null;
-		
-		Object data =  this._payload.get(propertyName);
-		if (data instanceof String[]) {
-			return (String[]) data;
-		}
-		else if (data instanceof List) {
-	    	ArrayList<String> tmp = (ArrayList<String>) data;
-			return tmp.toArray(new String[tmp.size()]);
-		}
-		else
-			return null;
+
+        List<String> data = getList(propertyName, new ArrayList<String>());
+        if (data != null)
+            return data.toArray(new String[data.size()]);
+        else
+            return null;
 	}
 
 	@Override
@@ -223,8 +167,11 @@ public class TokenObject implements IKBObjectWriteable {
 		if (!this.isSet(propertyName))
 			return null;
 
-		ArrayList<Integer> tmp = (ArrayList<Integer>) this._payload.get(propertyName);
-		return tmp.toArray(new Integer[tmp.size()]);
+        List<Integer> data = getList(propertyName, new ArrayList<Integer>());
+        if (data != null)
+            return data.toArray(new Integer[data.size()]);
+        else
+            return null;
 	}
 
 	@Override
@@ -232,8 +179,11 @@ public class TokenObject implements IKBObjectWriteable {
 		if (!this.isSet(propertyName))
 			return null;
 
-		ArrayList<Boolean> tmp = (ArrayList<Boolean>) this._payload.get(propertyName);
-		return tmp.toArray(new Boolean[tmp.size()]);
+        List<Boolean> data = getList(propertyName, new ArrayList<Boolean>());
+        if (data != null)
+            return data.toArray(new Boolean[data.size()]);
+        else
+            return null;
 	}
 
 	@Override
@@ -241,26 +191,33 @@ public class TokenObject implements IKBObjectWriteable {
 		if (!this.isSet(propertyName))
 			return null;
 
-		ArrayList<Object> tmp = (ArrayList<Object>) this._payload.get(propertyName);
-		Float[] result = new Float[tmp.size()];
-		for(int i = 0; i < tmp.size(); i++)
+        Float[] results = null;
+        List<Object> data = getList(propertyName, new ArrayList<Object>());
+        if (data != null) {
+            results = new Float[data.size()];
+        } else {
+            // something bad happened?
+            return null;
+        }
+
+		for(int i = 0; i < data.size(); i++)
 		{
-			Object listEntry = tmp.get(i);
+			Object listEntry = data.get(i);
 
 			if(listEntry instanceof Integer)
 			{
-				result[i] = (float)((int)tmp.get(i));
+				results[i] = (float)((int)data.get(i));
 			}
 			else if(listEntry instanceof Double)
 			{
-				result[i] = (float)((double)tmp.get(i));
+				results[i] = (float)((double)data.get(i));
 			}
 			else if(listEntry instanceof Float)
 			{
-				result[i] = (float)(tmp.get(i));
+				results[i] = (float)(data.get(i));
 			}
 		}
-		return result;
+		return results;
 	}
 
 	@Override
@@ -270,8 +227,14 @@ public class TokenObject implements IKBObjectWriteable {
 
 		try
 		{
-			ArrayList<Object> data = (ArrayList<Object>)this._payload.get(propertyName);
-			UUID[] results = new UUID[data.size()];
+            UUID[] results = null;
+            List<Object> data = getList(propertyName, new ArrayList<Object>());
+            if (data != null) {
+                results = new UUID[data.size()];
+            } else {
+                // something bad happened?
+                return null;
+            }
 
 			for(int i = 0; i < data.size(); i++)
 			{
@@ -281,6 +244,10 @@ public class TokenObject implements IKBObjectWriteable {
 				{
 					results[i] = UUID.fromString((String)var);
 				}
+				else if (var instanceof UUID) 
+				{
+				    results[i] = (UUID) var;
+				}
 			}
 
 			return results;
@@ -290,66 +257,28 @@ public class TokenObject implements IKBObjectWriteable {
 	}
 
 	@Override
-	public IKBObjectWriteable[] getResolvedReferenceArray(String propertyName) {
+	public IKBObject[] getResolvedReferenceArray(String propertyName) {
 		if (!this.isSet(propertyName))
 			return null;
 
 		IProperty prop = this.getProperty(propertyName);
-		Type typeOfObject = null;
-		if(prop != null && prop instanceof PropReferenceArray)
-		{
-			typeOfObject = ((PropReferenceArray)prop).getType();
-		}
-		else
-		{
-			typeOfObject = this._kb.getRootType();
-		}
 
 		try
 		{
-			Object refArray = this._payload.get(propertyName);
-			List<Object> data;
-			if (refArray instanceof Object[])
-				data = Arrays.asList(((Object[]) this._payload.get(propertyName)));
-			else
-				data = (List<Object>) this._payload.get(propertyName);
-			IKBObjectWriteable[] results = new IKBObjectWriteable[data.size()];
+            IKBObject[] results = null;
+            List<Object> data = getList(propertyName, new ArrayList<Object>());
+            if (data != null) {
+                results = new IKBObject[data.size()];
+            } else {
+                Object value = this._payload.get(propertyName);
+                IKBObject result = resolveReference(prop, value);
+                if (result != null)
+                    return new IKBObject[] {result};
+            }
 
 			for(int i = 0; i < data.size(); i++)
 			{
-				Object var = data.get(i);
-
-				if(var instanceof String)
-				{
-					UUID uuid = null;
-					try{
-						uuid = UUID.fromString(var.toString());
-					} catch (IllegalArgumentException exception){
-					}
-
-					IKBObjectWriteable ref;
-					if(uuid != null) {
-						ref = this._kb.getInstanceWriteable(uuid);
-						ref = (ref == null) ? this._kb.getBlackboard().getTokenByID(uuid, true) : ref;
-					}
-					else
-						ref = this._kb.getInstanceWriteable(data.toString());
-
-					if(ref != null)
-						results[i] = ref;
-				}
-				else if(var instanceof Map)
-				{
-					results[i] = new TokenObject(this._parent, (Map<String, Object>) var, this._kb, typeOfObject);
-				}
-				else if(var instanceof IToken)
-				{
-					results[i] = (IToken) data;
-				}
-				else
-				{
-					// something bad happend?
-				}
+                results[i] = resolveReference(prop, data.get(i));
 			}
 
 			return results;
@@ -358,92 +287,66 @@ public class TokenObject implements IKBObjectWriteable {
 		}
 	}
 
-	@Override
-	public void setString(String propertyName, String value) {
-		this._payload.put(propertyName, value);
-	}
+    private IKBObject resolveReference(IProperty prop, Object var) {
+        Type typeOfObject = null;
+        if(prop != null && prop instanceof PropReference)
+        {
+            typeOfObject = ((PropReference)prop).getType();
+        }
+        else if(prop != null && prop instanceof PropReferenceArray)
+        {
+            typeOfObject = ((PropReferenceArray)prop).getType();
+        }
+        else
+        {
+            typeOfObject = this._kb.getRootType();
+        }
 
-	@Override
-	public void setInteger(String propertyName, Integer value) {
-		this._payload.put(propertyName, value);
-	}
+        if(var instanceof UUID || var instanceof String)
+        {
+            UUID uuid = null;
+            if (var instanceof UUID)
+                uuid = (UUID) var;
+            else {
+            try{
+                uuid = UUID.fromString(var.toString());
+            } catch (IllegalArgumentException exception){
+            }
+            }
 
-	@Override
-	public void setBoolean(String propertyName, Boolean value) {
-		this._payload.put(propertyName, value);
-	}
+            IKBObject ref;
+            if(uuid != null)
+                ref = this._kb.getInstance(uuid);
+            else
+                ref = this._kb.getInstance(var.toString());
 
-	@Override
-	public void setFloat(String propertyName, Float value) {
-		this._payload.put(propertyName, value);
-	}
+            return ref;
+        }
+        else if(var instanceof Map)
+        {
+            return new TokenObject(this._parent, (Map<String, Object>) var, this._kb, typeOfObject);
+        }
+        else if(var instanceof IToken)
+        {
+            return (IToken) var;
+        }
+        else
+        {
+            // something bad happend?
+            return null;
+        }
+    }
 
-	@Override
-	public void setReference(String propertyName, UUID value) {
-		this._payload.put(propertyName, value);
-	}
-
-	@Override
-	public void setStringArray(String propertyName, String[] value) {
-		this._payload.put(propertyName, value);
-	}
-
-	@Override
-	public void setIntegerArray(String propertyName, Integer[] value) {
-		this._payload.put(propertyName, value);
-	}
-
-	@Override
-	public void setBooleanArray(String propertyName, Boolean[] value) {
-		this._payload.put(propertyName, value);
-	}
-
-	@Override
-	public void setFloatArray(String propertyName, Float[] value) {
-		this._payload.put(propertyName, value);
-	}
-
-	@Override
-	public void setReferenceArray(String propertyName, UUID[] value) {
-		if (value == null)
-			return;
-		String[] uuidsStr = new String[value.length];
-		for (int i = 0; i < value.length; i++) {
-			uuidsStr[i] = value[i].toString();
-		}
-		this._payload.put(propertyName, uuidsStr);
-	}
-	
-	@Override
-	public void addReferenceToArray(String propertyName, UUID value) {
-		Object dataObj = this._payload.get(propertyName);
-		List<Object> data;
-		if (dataObj instanceof Object[])
-			data = Arrays.asList(dataObj);
-		else if (dataObj instanceof List)
-			data = (List<Object>) dataObj;
-		else
-			// something bad happend?
-			return;
-		data.add(value.toString());
-		this._payload.put(propertyName, data.toArray());
-	}
-
-	@Override
-	public void setReference(String propertyName, Object value) {
-		// TODO: make sure to consider all possible cases here (or find a better way to do this)
-		if  (value instanceof IKBObject) {
-			UUID uuid = ((IKBObject) value).getUUID();
-			if (value instanceof TokenObject) {
-				TokenObject obj = (TokenObject) value;
-				this._payload.put(propertyName, obj.getPayload());
-			}
-			else if(this._kb.getInstance(uuid) != null)
-				this._payload.put(propertyName, uuid.toString());
-		} else if (value instanceof Map) {
-			this._payload.put(propertyName, value);
-		}
-	}
+    private <T> List<T> getList(String propertyName, List<T> typedList){
+        Object value = this._payload.get(propertyName);
+        List<T> data = null;
+        if (value instanceof List) {
+            data = (List<T>)this._payload.get(propertyName);
+        } else if (value instanceof Object[]) {
+            data = List.of((T[])this._payload.get(propertyName));
+        }
+        return data;
+    }
 
 	public Map<String, Object> getPayload() {
 		return this._payload;
