@@ -1,7 +1,9 @@
 package de.dfki.step.blackboard.rules;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -66,8 +68,11 @@ public class SpatialReferenceResolutionRule extends Rule {
         	try {
             	IToken t = tArray[0];
             	t.usedBy(this.getUUID());
-            	IToken newToken = t.createTokenWithSameContent();
-        		IToken resolved = (IToken) findAndResolveReferences(newToken);
+                List<String> path = t.findInnerObjOfType(new ArrayList<String>(), kb.getType(RRTypes.SPAT_REF));
+                IKBObject ref = t.getResolvedReference(path);
+                List<UUID> result = resolveReference(ref);
+                Map<String, Object> newValues = DeclarativeTypeBasedFusionRule.createChangeMap(path, result);
+                IToken resolved = t.internal_createCopyWithChanges(newValues);
         		resolved.getOriginTokens().add(t);
         		resolved.setProducer(this.getUUID());
         		t.addResultingTokens(List.of(resolved), this.getUUID());
@@ -88,38 +93,7 @@ public class SpatialReferenceResolutionRule extends Rule {
         }
 	}
 
-	// replaces spatial references with the most likely referent object
-	private IKBObjectWriteable findAndResolveReferences(IKBObjectWriteable obj) {
-		if (obj.getType() == null)
-			return obj;
-		// FIXME: how to deal with top-level references?
-//		if (RRTypes.isSpatialReference(obj, kb)) {
-//			IKBObject referent = resolveReference(obj);
-//			return new KBToken(kb, referent);
-//		}
-		for (IProperty prop : obj.getType().getProperties()) {
-			IKBObjectWriteable[] innerObjs = obj.getResolvedRefOrRefArray(prop.getName());
-			if (innerObjs == null)
-				continue;
-			for (IKBObjectWriteable innerObject : innerObjs) {
-				if (innerObject == null)
-					continue;
-				if (RRTypes.isSpatialReference(innerObject, kb)) {
-					List<UUID> innerReferents = resolveReference(innerObject);
-					if (innerReferents != null && !innerReferents.isEmpty())
-						// FIXME: what if there's more than one reference in the array (others will be overriden)
-						obj.setReferenceArray(prop.getName(), innerReferents.toArray(new UUID[] {}));
-				} else {
-					IKBObjectWriteable resolved = findAndResolveReferences(innerObject);
-						obj.setReference(prop.getName(), resolved);
-					
-				}
-			}
-		}
-		return obj;
-	}
-	
-	private List<UUID> resolveReference(IKBObjectWriteable ref) {
+	private List<UUID> resolveReference(IKBObject ref) {
 		ResolutionResult result = this.rr.resolveReference(ref, this.config);
 		List<ObjectScore> referents = result.getMostLikelyReferents(ref.getInteger("cardinality"));
 		List<String> referentNames = referents.stream().map(r -> r.getObject().getName()).collect(Collectors.toList());

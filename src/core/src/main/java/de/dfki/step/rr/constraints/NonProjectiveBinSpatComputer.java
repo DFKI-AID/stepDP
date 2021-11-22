@@ -27,7 +27,7 @@ public class NonProjectiveBinSpatComputer {
 	public List<ObjectScore> computeScores() {
 		if (rel == null || ro.getType() == null || !ro.getType().isInheritanceFrom(RRTypes.CONTAINER))
 			return Collections.EMPTY_LIST;
-		List<IKBObjectWriteable> matches = Collections.EMPTY_LIST;
+		List<IKBObject> matches = Collections.EMPTY_LIST;
 		switch (rel) {
 		case in:
 			matches = findAllContainedItems(ro);
@@ -41,18 +41,18 @@ public class NonProjectiveBinSpatComputer {
 		return scores;
 	}
 
-	private List<IKBObjectWriteable> findAllContainedItems(IKBObject obj){
-		IKBObjectWriteable[] containedItems = obj.getResolvedReferenceArray("contains");
+	private List<IKBObject> findAllContainedItems(IKBObject obj){
+		IKBObject[] containedItems = obj.getResolvedReferenceArray("contains");
         if (containedItems == null)
             return Collections.EMPTY_LIST;
-        List<IKBObjectWriteable> matches = new ArrayList<IKBObjectWriteable>(Arrays.asList(containedItems));
+        List<IKBObject> matches = new ArrayList<IKBObject>(Arrays.asList(containedItems));
         for (IKBObject inner : containedItems) {
             if (inner == null) {
                 matches.remove(inner);
                 continue;
             }
 			if (inner.getType() != null && inner.getType().isInheritanceFrom(RRTypes.CONTAINER)) {
-				List<IKBObjectWriteable> innerItems = findAllContainedItems(inner);
+				List<IKBObject> innerItems = findAllContainedItems(inner);
 				matches.addAll(innerItems);
 			}
 		}

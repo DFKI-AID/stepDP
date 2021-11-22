@@ -1,5 +1,7 @@
 package de.dfki.step.blackboard.rules;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -139,20 +141,12 @@ public class DeclarativeTypeBasedFusionRule extends Rule {
     				basic.addAll(Map.of(_prop2, t2.getUUID().toString()));
     				fusionResult = basic;
     			} else {
-    				fusionResult = t1.createTokenWithSameContent();
-    				Pair<String, IKBObject> outer = findOuterObject(_resultType, t1);
-    				// FIXME: what if inner is part of KBObject?
-    				if (outer == null)
-    					return;
-    				IKBObjectWriteable innerObj = outer.getValue().getResolvedReference(outer.getKey());
-    				IProperty prop = innerObj.getProperty(_prop1);
-    				if (prop != null && prop instanceof PropReference) {
-    					innerObj.setReference(_prop1, t2.getUUID());
-    					fusionResult.setReference(outer.getKey(), innerObj);
-    				} else if (prop != null && prop instanceof PropReferenceArray) {
-    					innerObj.addReferenceToArray(_prop1, t2.getUUID());
-    					fusionResult.setReference(outer.getKey(), innerObj);
-    				}
+    				List<String> path = t1.findInnerObjOfType(new ArrayList<String>(), _resultType);
+                    if (path == null)
+                        return;
+    				path.add(_prop1);
+                    Map<String, Object> newValues = createChangeMap(path, t2.getUUID());
+                    fusionResult = t1.internal_createCopyWithChanges(newValues);
     			}
     
     			fusionResult.setOriginTokens(List.of(t1, t2));
@@ -177,25 +171,21 @@ public class DeclarativeTypeBasedFusionRule extends Rule {
 		}
 	}
 
-	private Pair<String, IKBObject> findOuterObject(Type type, IKBObject tok) {
-		if (tok == null)
-			return null;
-		for (IProperty prop : tok.getType().getProperties()) {
-			if (prop instanceof PropReference || prop instanceof PropReferenceArray) {
-				IKBObjectWriteable[] innerObjs = tok.getResolvedRefOrRefArray(prop.getName());
-				// FIXME: what if there are multiple references
-				for (IKBObjectWriteable innerObj : innerObjs) {
-					if (innerObj.getType().isInheritanceFrom(type))
-						return Pair.of(prop.getName(), tok);
-					else {
-						Pair<String, IKBObject> inner = findOuterObject(type, innerObj);
-						if (inner != null)
-							return inner;
-					}
-				}
-			}
-		}
-		return null;
+	public static Map<String, Object> createChangeMap(List<String> path, Object newValue){
+	    if (path == null || path.isEmpty())
+	        return null;
+        Map<String, Object> newValues = new HashMap<String, Object>();
+        Map<String, Object> current = newValues;
+	    for (int i = 0; i < path.size(); i++) {
+	        if (i != path.size() - 1) {
+	            HashMap<String, Object> next = new HashMap<String, Object>();
+	            current.put(path.get(i), next);
+	            current = next;
+	        } else {
+	            current.put(path.get(i), newValue);
+	        }
+	    }
+	    return newValues;
 	}
 
 }

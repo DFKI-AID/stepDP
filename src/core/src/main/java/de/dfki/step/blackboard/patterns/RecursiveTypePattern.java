@@ -57,7 +57,7 @@ public class RecursiveTypePattern extends Pattern {
 	}
 
 	public boolean innerMatch(IKBObject obj, IProperty prop) {
-		IKBObject[] innerObjects = obj.getResolvedRefOrRefArray(prop.getName());
+		IKBObject[] innerObjects = obj.getResolvedReferenceArray(prop.getName());
 		if (innerObjects == null)
 			return false;
 		for (IKBObject innerObj : innerObjects) {

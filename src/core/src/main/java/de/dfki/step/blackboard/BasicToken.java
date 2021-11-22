@@ -3,6 +3,8 @@ package de.dfki.step.blackboard;
 import de.dfki.step.kb.IKBObject;
 import de.dfki.step.kb.KnowledgeBase;
 import de.dfki.step.kb.semantic.IProperty;
+import de.dfki.step.kb.semantic.PropReference;
+import de.dfki.step.kb.semantic.PropReferenceArray;
 import de.dfki.step.kb.semantic.Type;
 
 import org.slf4j.Logger;
@@ -252,11 +254,16 @@ public class BasicToken extends AbstractToken {
             // if value does exist and the new value is a map, change values recursively (if possible)
             else {
                 Object oldValue = original.get(e.getKey());
+                // FIXME: what if oldValue is an array
                 if (oldValue instanceof Map) {
                     Map<String, Object> newValue = changeValues((Map<String, Object>) oldValue, (Map<String, Object>) e.getValue());
                     original.put(e.getKey(), newValue);
                 } else if (oldValue instanceof String || oldValue instanceof KBToken) {
                     throw new Exception("Cannot change values in a reference to a kb object.");
+                } else if (oldValue instanceof List){
+                    original.put(e.getKey(), ((List) oldValue).add(e.getValue()));
+                } else if (oldValue instanceof Object[]){
+                    original.put(e.getKey(), new ArrayList<Object>(Arrays.asList(oldValue)).add(e.getValue()));
                 } else {
                     // something bad happened?
                     throw new Exception("token contains invalid value.");
@@ -265,12 +272,7 @@ public class BasicToken extends AbstractToken {
         }
         return original;
     }
-
-	@Override
-	public void addReferenceToArray(String propertyName, UUID value) {
-		this._rootTokenObject.addReferenceToArray(propertyName, value);
-	}
-
+    
     @Override
     public Object internal_getContent() throws Exception {
         ObjectMapper mapper = new ObjectMapper();

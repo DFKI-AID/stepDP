@@ -1,19 +1,16 @@
 package de.dfki.step.blackboard;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import de.dfki.step.kb.IKBObject;
-import de.dfki.step.kb.IKBObjectWriteable;
 import de.dfki.step.kb.KnowledgeBase;
 import de.dfki.step.kb.semantic.IProperty;
 import de.dfki.step.kb.semantic.PropReference;
 import de.dfki.step.kb.semantic.PropReferenceArray;
 import de.dfki.step.kb.semantic.Type;
-import org.pcollections.PMap;
 
 public class TokenObject implements IKBObject {
 
@@ -265,23 +262,22 @@ public class TokenObject implements IKBObject {
 
 		try
 		{
-            IKBObject[] results = null;
             List<Object> data = getList(propertyName, new ArrayList<Object>());
             if (data != null) {
-                results = new IKBObject[data.size()];
+                IKBObject[] results = new IKBObject[data.size()];
+                for(int i = 0; i < data.size(); i++)
+                {
+                    results[i] = resolveReference(prop, data.get(i));
+                }
+                return results;
             } else {
                 Object value = this._payload.get(propertyName);
                 IKBObject result = resolveReference(prop, value);
                 if (result != null)
                     return new IKBObject[] {result};
+                else
+                    return null;
             }
-
-			for(int i = 0; i < data.size(); i++)
-			{
-                results[i] = resolveReference(prop, data.get(i));
-			}
-
-			return results;
 		} catch (IllegalArgumentException exception){
 			return null;
 		}

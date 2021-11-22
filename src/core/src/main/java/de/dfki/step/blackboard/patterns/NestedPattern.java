@@ -58,7 +58,7 @@ public class NestedPattern extends Pattern {
         Pattern p = _refPropPatterns.get(propKey);
         if (p == null)
             return true;
-	    IKBObject[] innerObjs = root.getResolvedRefOrRefArray(propKey);
+	    IKBObject[] innerObjs = root.getResolvedReferenceArray(propKey);
 	    if (innerObjs == null)
 	    	return p.matches(null);
 	    for (IKBObject inner : innerObjs) {

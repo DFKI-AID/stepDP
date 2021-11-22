@@ -210,7 +210,7 @@ public class KnowledgeBase {
         createInstance((String) name, type, jsonObj);
       }
 
-    public void importObjects(String json) throws JsonParseException, JsonMappingException, IOException {
+    public void importObjects(String json) throws Exception {
       ObjectMapper mapper = new ObjectMapper();
       List<Map<String, Object>> objects = mapper.readValue(json, new TypeReference<List<Map<String, Object>>>() {});
       for (Map<String, Object> jsonObj : objects) {

@@ -58,8 +58,11 @@ public class SpatialReferencePreprocessingRule extends Rule {
         	try {
             	IToken t = tArray[0];
             	t.usedBy(this.getUUID());
-            	IToken newToken = t.createTokenWithSameContent();
-        		newToken = (IToken) convertLMRefsToKBRefs(newToken);
+            	List<String> path = t.findInnerObjOfType(new ArrayList<String>(), kb.getType(RRTypes.LM_SPAT_REF));
+            	IKBObject lmRef = t.getResolvedReference(path);
+            	Map<String, Object> kbRef = lMRefToKBRef(lmRef);
+            	Map<String, Object> newValues = DeclarativeTypeBasedFusionRule.createChangeMap(path, kbRef);
+            	IToken newToken = t.internal_createCopyWithChanges(newValues);
         		newToken.getOriginTokens().add(t);
         		newToken.setProducer(this.getUUID());
         		t.addResultingTokens(List.of(newToken), this.getUUID());
@@ -85,34 +88,6 @@ public class SpatialReferencePreprocessingRule extends Rule {
         	}
 
         }
-	}
-
-	private IKBObjectWriteable convertLMRefsToKBRefs(IKBObjectWriteable obj) {
-		if (obj.getType() == null)
-			return obj;
-		if (obj.getType().equals(kb.getType(RRTypes.LM_SPAT_REF))) {
-			Map<String, Object> kbRef = lMRefToKBRef(obj);
-			BasicToken result = new BasicToken(kb);
-			result.addAll(kbRef);
-			return result;
-		}
-		for (IProperty prop : obj.getType().getProperties()) {
-			IKBObjectWriteable[] innerObjects = obj.getResolvedRefOrRefArray(prop.getName());
-			if (innerObjects == null)
-				continue;
-			for (IKBObjectWriteable innerObject : innerObjects) {
-				if (innerObject == null)
-					continue;
-				if (innerObject.getType().equals(kb.getType(RRTypes.LM_SPAT_REF))) {
-					Map<String, Object> innerKBRef = lMRefToKBRef(innerObject);
-					obj.setReference(prop.getName(), innerKBRef);
-				} else {
-					IKBObjectWriteable converted = convertLMRefsToKBRefs(innerObject);
-						obj.setReference(prop.getName(), converted);
-				}
-			}
-		}
-		return obj;
 	}
 
 	private Map<String, Object> lMRefToKBRef(IKBObject lmRef) {

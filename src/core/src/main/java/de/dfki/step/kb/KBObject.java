@@ -94,7 +94,7 @@ public class KBObject implements IKBObjectWriteable
     }
 
     @Override
-    public IKBObjectWriteable getResolvedReference(String propertyName) {
+    public IKBObject getResolvedReference(String propertyName) {
         return _rootTokenObject.getResolvedReference(propertyName);
     }
 
@@ -124,7 +124,7 @@ public class KBObject implements IKBObjectWriteable
     }
 
     @Override
-    public IKBObjectWriteable[] getResolvedReferenceArray(String propertyName) {
+    public IKBObject[] getResolvedReferenceArray(String propertyName) {
         return _rootTokenObject.getResolvedReferenceArray(propertyName);
     }
 

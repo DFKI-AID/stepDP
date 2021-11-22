@@ -116,21 +116,14 @@ public interface IToken extends IKBObject{
 
     public KnowledgeBase getKB();
 
-    public  IToken createTokenWithSameContent();
-
-    /**
-     * Only for internal use (no public API).
-     * Helper method to insert the content of a token into a new token, e.g. during fusion.
-     * @throws Exception if there was a problem while copying the content
-     */
-    public Object internal_getContent() throws Exception;
-
     /**
      * Only for internal use (no public API).
      * @param newValues a map from property names to their new values (can be a nested map for complex tokens)
      * @return a new token with the same content as this except for the values provided in newValues
      * @throws exception if a value should be changed in a kb object reference or if a problem occured while
      * copying the token's content
+     * Note 1: Does not work if properties on the path to a new value have reference arrays
+     * Note 2: If the old value is an array, the new value will be added to the array
      */
     public IToken internal_createCopyWithChanges(Map<String, Object> newValues) throws Exception;
 
