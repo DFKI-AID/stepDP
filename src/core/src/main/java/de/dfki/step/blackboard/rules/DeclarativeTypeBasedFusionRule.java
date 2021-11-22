@@ -152,7 +152,6 @@ public class DeclarativeTypeBasedFusionRule extends Rule {
 					} else if (prop != null && prop instanceof PropReferenceArray) {
 						innerObj.addReferenceToArray(_prop1, t2.getUUID());
 						fusionResult.setReference(outer.getKey(), innerObj);
-						System.out.println("test");
 					}
 				}
 

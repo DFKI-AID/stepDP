@@ -43,8 +43,14 @@ public class NonProjectiveBinSpatComputer {
 
 	private List<IKBObjectWriteable> findAllContainedItems(IKBObject obj){
 		IKBObjectWriteable[] containedItems = obj.getResolvedReferenceArray("contains");
-		List<IKBObjectWriteable> matches = new ArrayList<IKBObjectWriteable>(Arrays.asList(containedItems));
-		for (IKBObject inner : containedItems) {
+        if (containedItems == null)
+            return Collections.EMPTY_LIST;
+        List<IKBObjectWriteable> matches = new ArrayList<IKBObjectWriteable>(Arrays.asList(containedItems));
+        for (IKBObject inner : containedItems) {
+            if (inner == null) {
+                matches.remove(inner);
+                continue;
+            }
 			if (inner.getType() != null && inner.getType().isInheritanceFrom(RRTypes.CONTAINER)) {
 				List<IKBObjectWriteable> innerItems = findAllContainedItems(inner);
 				matches.addAll(innerItems);
