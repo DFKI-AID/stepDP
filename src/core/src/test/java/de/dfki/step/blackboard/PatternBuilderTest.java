@@ -154,8 +154,6 @@ public class PatternBuilderTest {
 	@Test
 	public void testNonNullProps() throws Exception {
 		PatternBuilder builder = new PatternBuilder("ObjectBringIntent", kb);
-		// FIXME: this will make the test fail until the kb
-		// is adjusted such that subtype inherit properties
 		builder.hasNonNullProperties("object", "recipientName");
 		Pattern p = builder.build();
 		

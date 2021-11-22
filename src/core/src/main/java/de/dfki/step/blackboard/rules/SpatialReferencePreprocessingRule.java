@@ -29,7 +29,6 @@ import de.dfki.step.util.LogUtils;
 
 public class SpatialReferencePreprocessingRule extends Rule {
     private static final Logger log = LoggerFactory.getLogger(SpatialReferencePreprocessingRule.class);
-	// FIXME: what is the right prio for a preprocessing rule?
     private static final int DEFAULT_PRIO = 2000;
     private KnowledgeBase kb;
     private IKBObject speaker;
@@ -70,7 +69,6 @@ public class SpatialReferencePreprocessingRule extends Rule {
 				p = new PatternBuilder("Object", kb)
 								.hasRecursiveType(RRTypes.LM_SPAT_REF)
 								.build();
-	    		// FIXME: what if t had two references and one was resolved?
 	    		if (!p.matches(newToken)) {
 	    			LogUtils.printDebugInfo("TOKEN AFTER PREPROCESSING", newToken);
 	    			this.kb.getBlackboard().addToken(newToken);
@@ -151,7 +149,6 @@ public class SpatialReferencePreprocessingRule extends Rule {
 		if (innerRef.isSet("groupRelation") || innerRef.isSet("ordinality")) {
 			Map<String, Object> groupRelConstraint = new HashMap<String, Object>();
 			groupRelConstraint.put("type", RRTypes.GROUP_REL_C);
-			// FIXME: make this adjustment in the LM
 			String groupRelation = innerRef.getString("groupRelation");
 			if (groupRelation != null) {
 				groupRelation = groupRelation.replace("most", "");

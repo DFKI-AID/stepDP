@@ -27,7 +27,6 @@ public class ObjectGroup {
 	}
 
 	public static List<ObjectGroup> findGroupCandidates(List<ObjectScore> scores, Integer minCardinality, Integer maxCardinality){
-		// TODO: find smarter way to do this; also consider cardinality
 		List<ObjectScore> members = scores
 									.stream()
 									.filter(s -> s.getScore() >= CONFIDENCE_THRESHOLD)

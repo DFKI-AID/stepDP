@@ -254,7 +254,6 @@ public class BasicToken extends AbstractToken {
             // if value does exist and the new value is a map, change values recursively (if possible)
             else {
                 Object oldValue = original.get(e.getKey());
-                // FIXME: what if oldValue is an array
                 if (oldValue instanceof Map) {
                     Map<String, Object> newValue = changeValues((Map<String, Object>) oldValue, (Map<String, Object>) e.getValue());
                     original.put(e.getKey(), newValue);

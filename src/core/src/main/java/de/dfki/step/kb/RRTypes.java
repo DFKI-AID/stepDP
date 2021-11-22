@@ -24,7 +24,6 @@ import de.dfki.step.kb.semantic.Type;
 public class RRTypes {
 	public static final String USER_INTENT = "UserIntent";
 	public static final String AGENT = "Agent";
-	public static final String REFERENCE = "Reference";
 	public static final String SPAT_REF = "SpatialReference";
 	public static final String LM_SPAT_REF = "LMSpatialReference";
 	public static final String LM_SPAT_REF_INNER = "LMSpatialReferenceInner";
@@ -37,10 +36,6 @@ public class RRTypes {
 	public static final String CONTAINER = "Container";
 
 	public enum BinSpatRelation {
-		// TODO: add support for NEXT_TO etc.
-		// TODO: find prettier solution than one single enum for topological and projective bin rels
-		// rename (naming convention)
-		// angle is relative to speaker axis
 		in(null, 0, null, 0, false),
 		on(null, 0, null, 0, false),
 		leftOf(Pair.of(Axis.X, Axis.Z), 90, Pair.of(Axis.X, Axis.Y), 180),
@@ -52,7 +47,6 @@ public class RRTypes {
 		
 		private Pair<Axis, Axis> plane1;
 		private Pair<Axis, Axis> plane2;
-		// TODO: make this pretty
 		private Map<Pair<Axis,Axis>, Double> protoAngles = new HashMap<Pair<Axis,Axis>,Double>();
 		private boolean projective;
 		
@@ -126,10 +120,6 @@ public class RRTypes {
 		else
 			return type.isInheritanceFrom(kb.getType(RRTypes.SPAT_REF));
 	}
-
-	public static boolean isReference(IKBObject obj, KnowledgeBase kb) {
-		return obj.getType().isInheritanceFrom(kb.getType(RRTypes.REFERENCE));
-	}
 	
 	public static void addRRTypesToKB(KnowledgeBase kb) throws Exception{
 			Type intent = new Type(USER_INTENT, kb);
@@ -157,10 +147,6 @@ public class RRTypes {
 			Type agent = new Type(AGENT, kb);
 			agent.addInheritance(object);
 			kb.addType(agent);
-
-			Type ref = new Type(REFERENCE, kb, true);
-			ref.addProperty(new PropString("text", kb));
-			kb.addType(ref);
 	
 			Type constraint = new Type("Constraint", kb, true);
 			constraint.addProperty(new PropInt("priority", kb));
@@ -180,8 +166,6 @@ public class RRTypes {
 			kb.addType(spatRef);
 
 			Type lmSpatRefInner = new Type(LM_SPAT_REF_INNER, kb, true);
-			// FIXME: should it inherit from "Reference"?
-			//lmSpatRef.addInheritance(kb.getType("Reference"));
 			lmSpatRefInner.addProperty(new PropString("type", kb));
 			lmSpatRefInner.addProperty(new PropInt("cardinality", kb));
 			lmSpatRefInner.addProperty(new PropString("region", kb));
@@ -217,7 +201,6 @@ public class RRTypes {
 			regionConst.addInheritance(constraint);
 			kb.addType(regionConst);
 
-			// FIXME: consider confidences
 			Type pointingConst = new Type(POINTING_C, kb);
 			pointingConst.addProperty(new PropStringArray("objectNames", kb));
 			pointingConst.addInheritance(constraint);

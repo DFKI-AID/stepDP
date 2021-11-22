@@ -56,13 +56,11 @@ public class SpatialRegionComputer {
 		if (ordinality == null)
 			ordinality = 1;
 		List<IKBObject> members = group.getObjects();
-		// FIXME: what about "middle"?
 		List<Pair<IKBObject, Double>> ordered = orderDescBy(members, relation);
 	    try {
 	    	List<Pair<String, Double>> debug = ordered.stream().map(p -> Pair.of(p.getLeft().getName(), p.getRight())).collect(Collectors.toList());
 			log.debug("ORDERED GROUP: " + mapper.writeValueAsString(debug));
 		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		List<Pair<IKBObject, Double>> result;
@@ -73,7 +71,6 @@ public class SpatialRegionComputer {
 				result = ordered.subList(ordinality-1, ordinality);
 		} else {
 			if (ordered.size() < cardinality)
-				// FIXME: does this make sense?
 				result = ordered;
 			else
 				result = ordered.subList(0, cardinality);
@@ -88,7 +85,6 @@ public class SpatialRegionComputer {
 			comp = comp.reversed();
 	    List<Pair<IKBObject, Double>> ordered = objects
 	    	      					.stream()
-	    	      					// FIXME: actually it should be the outermost point not the center point
 	    	      					.map(o -> Pair.of(o, new PhysicalObject(o).getPositionOn(axis)))
 	    	      					.sorted(comp)
 	    							.collect(Collectors.toList());

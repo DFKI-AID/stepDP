@@ -74,7 +74,6 @@ public class ProjectiveBinSpatComputer {
 		this.w_bb = config.BINSPATREL_W_BB;
 		this.w_pd = config.BINSPATREL_W_PD;
 		this.speaker = new PhysicalObject(speaker);
-		// FIXME: should probably not instantiate a new PhysObj for the same object multiple times
 		this.io = new PhysicalObject(io);
 		this.ro = new PhysicalObject(ro);
 		this.rel = rel;
@@ -118,7 +117,6 @@ public class ProjectiveBinSpatComputer {
 		try {
 			log.trace(new ObjectMapper().writeValueAsString(total));
 		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return total.objectScore;
@@ -128,7 +126,6 @@ public class ProjectiveBinSpatComputer {
 	 * return Centre Point Angular Deviation (CP)
 	 */
 	public Double getCP(Pair<Axis,Axis> plane, Vector2D ioPos, Vector2D roPos, Vector2D speakerPos) {
-		// FIXME: is this correct?
 		if (ioPos.equals(roPos))
 			return null;
 		double protoAngle;

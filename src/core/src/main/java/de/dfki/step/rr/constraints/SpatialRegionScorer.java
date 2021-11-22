@@ -39,8 +39,6 @@ public class SpatialRegionScorer extends ConstraintScorer {
 		this.config = config;
 		this.C = config.SPATREG_C;
 		this.setPriority(DEFAULT_PRIORITY);
-		// TODO: make conversion from string to region more flexible (e.g. case insensitive etc.)
-		// TODO: catch exception if no matching value in enum
 		try {
 			this.region = SpatialRegion.valueOf(constraint.getString("region"));
 		} catch (Exception e) {

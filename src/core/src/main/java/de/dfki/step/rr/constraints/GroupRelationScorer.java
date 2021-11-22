@@ -29,7 +29,6 @@ public class GroupRelationScorer extends RelationScorer {
 
 	public GroupRelationScorer(IKBObject constraint, KnowledgeBase kb, Integer cardinality,  RRConfigParameters config) {
 		super(constraint, kb);
-		// TODO: make conversion from string to rel more flexible (e.g. case insensitive etc.)
 		this.config = config;
 		this.cardinality = cardinality;
 		if (constraint.isSet("relation")) {
@@ -51,7 +50,6 @@ public class GroupRelationScorer extends RelationScorer {
 			log.debug("No object groups found for group relation.");
 			return Collections.EMPTY_LIST;
 		}
-		// TODO: consider also other potential groups
 		Optional<ObjectGroup> bestGroup = potentialGroups
 			      				.stream()
 			      				.min(Comparator.comparing(ObjectGroup::getGroupConfidence));

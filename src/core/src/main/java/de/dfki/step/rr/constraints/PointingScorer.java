@@ -22,7 +22,6 @@ public class PointingScorer extends ConstraintScorer {
 
 	@Override
 	public List<ObjectScore> updateScores(List<ObjectScore> scores) {
-		// FIXME: consider confidences
 		for (ObjectScore curScore : scores) {
 			if (!(objectNames.contains(curScore.getObject().getName())))
 				curScore.setScore(0);

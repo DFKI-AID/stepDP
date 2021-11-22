@@ -37,8 +37,7 @@ public class ObjectScore {
 
 	public static List<ObjectScore> initializeScores(List<IKBObject> potentialReferents) {
 		List<ObjectScore> scores = new ArrayList<ObjectScore>();
-		// FIXME: should this be 1 or 1/size?
-		float individualScore = 1;// (float) (1.0 / potentialReferents.size());
+		float individualScore = 1;
 		for (IKBObject obj : potentialReferents) {
 			scores.add(new ObjectScore(obj, individualScore));
 		}

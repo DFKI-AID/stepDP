@@ -31,7 +31,6 @@ public class BoundingBox2D {
 		}
 
 		public enum BoundingBoxType {
-			// TODO: replace this with general plane type and refactor binspatrel code
 			ZY(Axis.Z, Axis.Y),
 			XZ(Axis.X, Axis.Z),
 			XY(Axis.X, Axis.Y);
@@ -53,7 +52,6 @@ public class BoundingBox2D {
 		}
 
 		public enum BBBorderType {
-			// FIXME make this prettier?
 			ABS_MIN(AxisType.ABSCISSA, false, 180, Pair.of(false, false), Pair.of(false, true)), 
 			ABS_MAX(AxisType.ABSCISSA, true, 0, Pair.of(true, true), Pair.of(true, false)),
 			ORD_MIN(AxisType.ORDINATE, false, 270, Pair.of(true, false), Pair.of(false, false)),
@@ -113,16 +111,6 @@ public class BoundingBox2D {
 			this.type = type;
 			this.center = Axis.get2DVec(center, type.abscissa, type.ordinate);
 			this.extents = Axis.get2DVec(extents, type.abscissa, type.ordinate);
-			// adjust extents to object rotation; FIXME: is this needed or not?
-			//Axis rotAxis = Axis.getRotationAxis(type.abscissa, type.ordinate);
-			//double rotation = Math.toRadians(rotAxis.getValue(parent.getRotation()));
-			//this.extents = rotateVector(this.extents, this.center, rotation);
-
-			// x and y might change due to rotation
-			// FIXME: does this even make sense???
-//			if ((rotation >= Math.toRadians(90) && rotation < Math.toRadians(180)) ||
-//					(rotation >= Math.toRadians(270) && rotation < Math.toRadians(360)))
-//					this.extents = new Vector2D(this.extents.getY(), this.extents.getX());
 			this.parent = parent;
 		}
 
@@ -154,8 +142,6 @@ public class BoundingBox2D {
 			return last;
 		}
 
-		// angle relative to axis aligned bounding box
-		// TODO: only allow the 4 valid angles here
 		// angle in radians
 		public Border getBorder(double angle) {
 			BBBorderType type = BBBorderType.getBorderType(angle);

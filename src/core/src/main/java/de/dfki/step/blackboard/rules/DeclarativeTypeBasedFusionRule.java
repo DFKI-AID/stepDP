@@ -158,9 +158,6 @@ public class DeclarativeTypeBasedFusionRule extends Rule {
     			t2.addResultingTokens(List.of(fusionResult), this.getUUID());
     
     			board.addToken(fusionResult);
-    			
-    			// FIXME: temporary workaround
-    			t1.setActive(false);
     
     			LogUtils.printDebugInfo("TOKEN AFTER FUSION", fusionResult);
             } catch (Exception e) {

@@ -51,8 +51,7 @@ public class PhysicalObject {
 	public Vector3D createVector3D(IKBObject obj) {
 		if (obj == null)
 			return null;
-		// FIXME: make configurable if y or z is height
-		// in unity, y is the height
+		// y is the height (as in unity)
 		Float x = obj.getFloat("x");
 		Float y = obj.getFloat("y");
 		Float z = obj.getFloat("z");

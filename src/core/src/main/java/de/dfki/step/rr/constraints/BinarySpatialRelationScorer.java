@@ -32,7 +32,6 @@ public class BinarySpatialRelationScorer extends RelationScorer {
 	public BinarySpatialRelationScorer(IKBObject constraint, IKBObject speaker, KnowledgeBase kb, RRConfigParameters config) throws Exception {
 		super(constraint, kb);
 		this.config = config;
-		// TODO: make conversion from string to bin rel more flexible (e.g. case insensitive etc.)
 		try {
 			this.rel = RRTypes.BinSpatRelation.valueOf(constraint.getString("relation"));
 		} catch (Exception e) {
@@ -54,13 +53,11 @@ public class BinarySpatialRelationScorer extends RelationScorer {
 		List<UUID> relatumUUIDs = rr.resolveReference(relatumRef, config).getAllPotentialReferents();
 		if (relatumUUIDs == null || relatumUUIDs.isEmpty())
 			return new ArrayList<ObjectScore>();
-		// FIXME: support also references with multiple referents?
 		List<IKBObject> relatums = relatumUUIDs.stream().map(r -> this.getKB().getInstance(r)).collect(Collectors.toList());
 		List<String> debugList = relatums.stream().map(r->r.getName()).collect(Collectors.toList());
 		try {
 			log.debug("POTENTIAL RELATUM OBJECTS: " + new ObjectMapper().writeValueAsString(debugList));
 		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		Map<String, ObjectScore> maxScores = scores.stream().map(s -> new ObjectScore(s.getObject(), 0F)).collect(Collectors.toMap(s->s.getObject().getName(), Function.identity()));
@@ -72,11 +69,6 @@ public class BinarySpatialRelationScorer extends RelationScorer {
 					IKBObject obj = curScore.getObject();
 					ProjectiveBinSpatComputer comp = new ProjectiveBinSpatComputer(speaker, obj, relatum, rel, config);
 					double accScore = comp.computeScore();
-					
-					// TODO: replace 0 with value range close to 0
-//					if (score == 0)
-//						continue;
-					// FIXME: accumulate only max score
 					ObjectScore maxScore = maxScores.get(obj.getName());
 					if (accScore > maxScore.getScore())
 						maxScore.setScore((float) accScore);
@@ -95,7 +87,6 @@ public class BinarySpatialRelationScorer extends RelationScorer {
 		}
 
 		scores = ObjectScore.accumulateScores(scores, new ArrayList<ObjectScore>(maxScores.values()));
-		// TODO: add relatumRef as text
 		LogUtils.logScores("Totals after scoring BinSpatRel " + this.rel, scores);
 		return scores;
 	}

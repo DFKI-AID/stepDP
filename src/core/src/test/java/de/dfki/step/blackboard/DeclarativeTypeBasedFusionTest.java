@@ -343,7 +343,6 @@ public class DeclarativeTypeBasedFusionTest {
 		IKBObject gesture = result.getResolvedReference("gesture");
 		Assert.assertTrue(gesture != null);
 		Assert.assertTrue(gesture.getType().getName().equals("Gesture"));
-		// FIXME: this will fail until our TokenObject class supports KB references
 		Assert.assertTrue(gesture.getReference("targetObject").equals(kb.getInstance("pizza1").getUUID()));
 		IKBObject object = gesture.getResolvedReference("targetObject");
 		Assert.assertTrue(object != null);
