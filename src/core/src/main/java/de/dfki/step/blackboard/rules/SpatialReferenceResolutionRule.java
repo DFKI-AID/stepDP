@@ -70,6 +70,7 @@ public class SpatialReferenceResolutionRule extends Rule {
         for (IToken[] tArray : tokens) {
         	try {
             	IToken t = tArray[0];
+            	// check ignore tags again in case that they changed inside this method
             	if (t.isIgnoredBy(this.getTags()))
             	    continue;
                 // check if there is a newer version of the token, e.g. fusion result
@@ -77,15 +78,22 @@ public class SpatialReferenceResolutionRule extends Rule {
             	if (results.iterator().hasNext())
             	    t = results.iterator().next();
             	t.usedBy(this.getUUID());
+
+            	// find the reference
                 List<String> path = t.findInnerObjOfType(new ArrayList<String>(), kb.getType(RRTypes.SPAT_REF));
                 IKBObject ref = t.getResolvedReference(path);
+                // resolve the reference
                 List<UUID> result = resolveReference(ref);
+                // replace the reference with the referent(s)
                 Map<List<String>, Object> newValues = new HashMap<List<String>,Object>();
                 newValues.put(path, result);
                 IToken resolved = t.internal_createCopyWithChanges(newValues);
+                // set origin and result metadata
         		resolved.getOriginTokens().add(t);
         		resolved.setProducer(this.getUUID());
         		t.addResultingTokens(List.of(resolved), this.getUUID());
+
+        		// make sure that reference has been replaced and add the resulting token to the board
         		Pattern p;
 				p = new PatternBuilder("Object", kb)
 								.hasRecursiveType(RRTypes.SPAT_REF)
@@ -93,11 +101,8 @@ public class SpatialReferenceResolutionRule extends Rule {
 	    		if (!p.matches(resolved)) {
 	    			this.kb.getBlackboard().addToken(resolved);
 	    			LogUtils.printDebugInfo("RESOLVED TOKEN", resolved);
-	    			// mark origin tokens to avoid repeated resolution
-	    			//FIXME: use new methods for that
-	    			List<IToken> origins = t.getOriginTokens();
-	    			for (IToken o : origins)
-	    			    o.getIgnoreRuleTags().add(RESOLUTION_TAG);
+	    			// set ignore tags of origin tokens to avoid repeated resolution
+	    			t.addIgnoreTagsToAllOrigins(List.of(RESOLUTION_TAG));
 	    		}
         	} catch (Exception e) {
         		log.error("Exception in spatial reference resolution rule.");
@@ -108,7 +113,9 @@ public class SpatialReferenceResolutionRule extends Rule {
 	}
 
 	private List<UUID> resolveReference(IKBObject ref) {
+	    // get reference resolution result (potential referents with confidences)
 		ResolutionResult result = this.rr.resolveReference(ref, this.config);
+		// select the most likely referent(s)
 		List<ObjectScore> referents = result.getMostLikelyReferents(ref.getInteger("cardinality"));
 		List<String> referentNames = referents.stream().map(r -> r.getObject().getName()).collect(Collectors.toList());
 		if (referents.isEmpty()) {

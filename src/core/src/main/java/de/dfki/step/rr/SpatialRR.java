@@ -31,9 +31,13 @@ public class SpatialRR implements ReferenceResolver {
 	public ResolutionResult resolveReference(IKBObject reference, RRConfigParameters config) {
 		IKBObject speaker = reference.getResolvedReference("speaker");
 		Integer cardinality = reference.getInteger("cardinality");
+		// retrieve all objects that could be referents from the kb
 		List<IKBObject> potentialReferents = this.kb.getInstancesOfType(this.kb.getType(RRTypes.SPAT_REF_TARGET));
+		// ignore objects of which a large part is not visible (below visibility threshold)
 		potentialReferents = potentialReferents.stream().filter(o -> isVisible(o, config)).collect(Collectors.toList());
 		List<ObjectScore> currentScores = ObjectScore.initializeScores(potentialReferents);
+		
+		// construct constraint scorers for the constraint types provided in the reference and sort by prio
 		IKBObject[] constraintArray = reference.getResolvedReferenceArray("constraints");
 		if (constraintArray == null)
 			return new ResolutionResult(currentScores);
@@ -43,12 +47,16 @@ public class SpatialRR implements ReferenceResolver {
 											.filter(c -> c!= null)
 											.collect(Collectors.toList());
 		scorers.sort(new PrioComparator());
+
+		// evaluate constraints and update scores accordingly
 		for (ConstraintScorer scorer : scorers) {
 			currentScores = scorer.updateScores(currentScores)
 								  .stream()
 								  .filter(s -> s.getScore() != 0)
 								  .collect(Collectors.toList());
 		}
+
+		// return the final object confidences
 		ResolutionResult result = new ResolutionResult(currentScores);
 		return result;
  	}

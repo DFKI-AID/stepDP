@@ -54,6 +54,7 @@ public class SpatialRegionScorer extends ConstraintScorer {
 		Double prototype = SpatialRegionComputer.computePrototype(objects, this.region, config);
 		for (ObjectScore curScore : scores) {
 			PhysicalObject physObj = new PhysicalObject(curScore.getObject());
+			// consider only distance in the direction that is relevant for the region
 			Double current = physObj.getPositionOn(this.region.getAxis());
 			Double diff = Math.abs(prototype - current);
 			Double accScore = Math.pow(Math.E, -C * diff * diff);

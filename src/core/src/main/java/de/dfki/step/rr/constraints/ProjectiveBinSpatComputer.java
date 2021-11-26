@@ -90,6 +90,8 @@ public class ProjectiveBinSpatComputer {
 		Double totalCP = Double.valueOf(0);
 		Double totalBB = Double.valueOf(0);
 		Double totalPD = Double.valueOf(0);
+		// compute angular deviation (CP,BB) and distance (PD) for two planes, e.g. side view and top view for "behindOf"
+		// or front view and top view for "leftOf"
 		for (Pair<Axis, Axis> plane : this.rel.getPlanes()) {
 			Vector2D ioPos = io.getPosition2D(plane.getLeft(), plane.getRight());
 			Vector2D roPos = ro.getPosition2D(plane.getLeft(), plane.getRight());

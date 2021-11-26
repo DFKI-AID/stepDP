@@ -45,6 +45,7 @@ public class GroupRelationScorer extends RelationScorer {
 
 	@Override
 	public List<ObjectScore> updateScores(List<ObjectScore> scores) {
+	    // determine group
 		List<ObjectGroup> potentialGroups = ObjectGroup.findGroupCandidates(scores, ordinality, -1);
 		if (potentialGroups == null || potentialGroups.isEmpty()) {
 			log.debug("No object groups found for group relation.");
@@ -56,6 +57,8 @@ public class GroupRelationScorer extends RelationScorer {
 	    if (!bestGroup.isPresent())
 	    	return Collections.EMPTY_LIST;
 	    log.debug("RESOLVED GROUP: " + bestGroup.get().getObjectNames().toString());
+
+	    // if no explicit relation given, use default
 	    if (relation == null) {
 	    	Set<Type> types = bestGroup.get().getObjects().stream().map(o -> o.getType()).collect(Collectors.toSet());
 	    	if (types.size() == 1) {
@@ -69,9 +72,12 @@ public class GroupRelationScorer extends RelationScorer {
     			this.relation = config.DEFAULT_DIR;
 	    	}
 	    }
+
+	    // retrieve objects for given relation, ordinality and cardinality
 		List<IKBObject> objs = SpatialRegionComputer.computeObjectsForGroupRelation(bestGroup.get(), relation, ordinality, cardinality, config);
 		if (objs == null)
 			return Collections.EMPTY_LIST;
+		// set only the retrieved objects to confidence 1 => all others get confidence 0
 		scores = objs.stream().map(o -> new ObjectScore(o, 1)).collect(Collectors.toList());
 		LogUtils.logScores(String.format("Totals after scoring GroupRel %s (ordinality=%s)", relation, ordinality), scores);
 		return scores;

@@ -49,6 +49,7 @@ public class BinarySpatialRelationScorer extends RelationScorer {
 		ReferenceResolver rr = new SpatialRR(this.getKB());
 		if (rel == null || relatumRef == null)
 			return scores;
+		
 		log.debug("RESOLVING RELATUM REFERENCE...");
 		List<UUID> relatumUUIDs = rr.resolveReference(relatumRef, config).getAllPotentialReferents();
 		if (relatumUUIDs == null || relatumUUIDs.isEmpty())
@@ -60,10 +61,14 @@ public class BinarySpatialRelationScorer extends RelationScorer {
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		}
+
+		// compute confidences for all pairs of intended objects (IO) and relatum objects (RO) for the given relation
+		// assign each IO the max score over all potential ROs
 		Map<String, ObjectScore> maxScores = scores.stream().map(s -> new ObjectScore(s.getObject(), 0F)).collect(Collectors.toMap(s->s.getObject().getName(), Function.identity()));
 		for (IKBObject relatum : relatums){
 			if (relatum == null)
 				continue;
+			// directional relations such as "leftOf"
 			if (rel.isProjective()) {
 				for (ObjectScore curScore : scores) {
 					IKBObject obj = curScore.getObject();
@@ -73,6 +78,7 @@ public class BinarySpatialRelationScorer extends RelationScorer {
 					if (accScore > maxScore.getScore())
 						maxScore.setScore((float) accScore);
 				}
+			// topological relations such as "in"
 			} else {
 				List<IKBObject> potentialObjects = scores.stream().map(ObjectScore::getObject).collect(Collectors.toList());
 				NonProjectiveBinSpatComputer comp = new NonProjectiveBinSpatComputer(relatum, rel, potentialObjects, config);
@@ -86,6 +92,7 @@ public class BinarySpatialRelationScorer extends RelationScorer {
 			}
 		}
 
+		// update and return scores
 		scores = ObjectScore.accumulateScores(scores, new ArrayList<ObjectScore>(maxScores.values()));
 		LogUtils.logScores("Totals after scoring BinSpatRel " + this.rel, scores);
 		return scores;

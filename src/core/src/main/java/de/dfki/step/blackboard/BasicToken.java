@@ -131,6 +131,8 @@ public class BasicToken extends AbstractToken {
         for (var entry : values.entrySet()) {
         	Object val = entry.getValue();
         	if (val instanceof Map)
+        	    // avoid trouble with immutable maps, such as the ones created
+        	    // with the "Map.of" statement
         		val = createMutableCopy((Map<String, Object>) val);
             this._payload.put(entry.getKey(), val);
         }
