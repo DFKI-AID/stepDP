@@ -6,12 +6,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.dfki.step.kb.IKBObject;
 import de.dfki.step.kb.IKBObjectWriteable;
 import de.dfki.step.kb.RRTypes;
 import de.dfki.step.rr.RRConfigParameters;
 
 public class NonProjectiveBinSpatComputer {
+    private static final Logger log = LoggerFactory.getLogger(NonProjectiveBinSpatComputer.class);
 	private IKBObject ro;
 	private RRTypes.BinSpatRelation rel;
 	private List<IKBObject> potentialIOs;
@@ -33,9 +37,12 @@ public class NonProjectiveBinSpatComputer {
 			matches = findAllContainedItems(ro);
 			break;
 		case on:
-			// FIXME: temporary workaround to make expressions like "on the second shelf" work
-			matches = findAllContainedItems(ro);
-			break;
+		    if (config.ON_EQUALS_IN_TYPES.contains(ro.getType().getName())){
+		          matches = findAllContainedItems(ro);
+		          break;
+		    } else {
+		        log.warn("Relation \"on\" is not supported for relatum objects of type " + ro.getType());
+		    }
 		}
 		List<ObjectScore> scores = matches.stream().map(m -> new ObjectScore(m, 1.0f)).collect(Collectors.toList());
 		return scores;

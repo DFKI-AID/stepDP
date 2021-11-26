@@ -145,7 +145,8 @@ public class DeclarativeTypeBasedFusionRule extends Rule {
                     if (path == null)
                         return;
     				path.add(_prop1);
-                    Map<String, Object> newValues = createChangeMap(path, t2.getUUID());
+                    Map<List<String>, Object> newValues = new HashMap<List<String>, Object>();
+                    newValues.put(path, t2.getUUID());
                     fusionResult = t1.internal_createCopyWithChanges(newValues);
     			}
     
@@ -166,23 +167,6 @@ public class DeclarativeTypeBasedFusionRule extends Rule {
                 
             }
 		}
-	}
-
-	public static Map<String, Object> createChangeMap(List<String> path, Object newValue){
-	    if (path == null || path.isEmpty())
-	        return null;
-        Map<String, Object> newValues = new HashMap<String, Object>();
-        Map<String, Object> current = newValues;
-	    for (int i = 0; i < path.size(); i++) {
-	        if (i != path.size() - 1) {
-	            HashMap<String, Object> next = new HashMap<String, Object>();
-	            current.put(path.get(i), next);
-	            current = next;
-	        } else {
-	            current.put(path.get(i), newValue);
-	        }
-	    }
-	    return newValues;
 	}
 
 }

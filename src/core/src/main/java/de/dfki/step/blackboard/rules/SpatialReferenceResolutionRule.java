@@ -2,6 +2,8 @@ package de.dfki.step.blackboard.rules;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -15,7 +17,6 @@ import de.dfki.step.blackboard.Condition;
 import de.dfki.step.blackboard.IToken;
 import de.dfki.step.blackboard.KBToken;
 import de.dfki.step.blackboard.Rule;
-import de.dfki.step.blackboard.ValueReplacement;
 import de.dfki.step.blackboard.conditions.PatternCondition;
 import de.dfki.step.blackboard.patterns.Pattern;
 import de.dfki.step.blackboard.patterns.PatternBuilder;
@@ -35,6 +36,7 @@ import de.dfki.step.util.LogUtils;
 public class SpatialReferenceResolutionRule extends Rule {
     private static final Logger log = LoggerFactory.getLogger(SpatialReferenceResolutionRule.class);
     private static final int DEFAULT_PRIO = 3000;
+    private static final String RESOLUTION_TAG = "resolution";
     private RRConfigParameters config;
 	KnowledgeBase kb;
 	SpatialRR rr;
@@ -57,6 +59,7 @@ public class SpatialReferenceResolutionRule extends Rule {
 		Condition c = new PatternCondition(p);
 		c.setMinTokenAge(minTokenAge);
 		this.setCondition(c);
+        this.getTags().add(RESOLUTION_TAG);
 	}
 	
 	@Override
@@ -67,11 +70,18 @@ public class SpatialReferenceResolutionRule extends Rule {
         for (IToken[] tArray : tokens) {
         	try {
             	IToken t = tArray[0];
+            	if (t.isIgnoredBy(this.getTags()))
+            	    continue;
+                // check if there is a newer version of the token, e.g. fusion result
+            	Collection<IToken> results = t.getResultingTokens().values();
+            	if (results.iterator().hasNext())
+            	    t = results.iterator().next();
             	t.usedBy(this.getUUID());
                 List<String> path = t.findInnerObjOfType(new ArrayList<String>(), kb.getType(RRTypes.SPAT_REF));
                 IKBObject ref = t.getResolvedReference(path);
                 List<UUID> result = resolveReference(ref);
-                Map<String, Object> newValues = DeclarativeTypeBasedFusionRule.createChangeMap(path, result);
+                Map<List<String>, Object> newValues = new HashMap<List<String>,Object>();
+                newValues.put(path, result);
                 IToken resolved = t.internal_createCopyWithChanges(newValues);
         		resolved.getOriginTokens().add(t);
         		resolved.setProducer(this.getUUID());
@@ -83,6 +93,11 @@ public class SpatialReferenceResolutionRule extends Rule {
 	    		if (!p.matches(resolved)) {
 	    			this.kb.getBlackboard().addToken(resolved);
 	    			LogUtils.printDebugInfo("RESOLVED TOKEN", resolved);
+	    			// mark origin tokens to avoid repeated resolution
+	    			//FIXME: use new methods for that
+	    			List<IToken> origins = t.getOriginTokens();
+	    			for (IToken o : origins)
+	    			    o.getIgnoreRuleTags().add(RESOLUTION_TAG);
 	    		}
         	} catch (Exception e) {
         		log.error("Exception in spatial reference resolution rule.");

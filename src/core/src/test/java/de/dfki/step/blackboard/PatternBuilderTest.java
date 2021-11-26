@@ -42,8 +42,9 @@ public class PatternBuilderTest {
 		coord.addProperty(new PropFloat("y", kb));
 		coord.addProperty(new PropFloat("z", kb));
 		kb.addType(coord);
-		Type physObj = kb.getType("PhysicalObject");
+		Type physObj = new Type("PhysicalObject", kb);
 		physObj.addProperty(new PropReference("position", kb, kb.getType("3DCoordinates")));
+		kb.addType(physObj);
 
 		// Location Type
 		Type loc = new Type("Location", kb);
@@ -353,7 +354,6 @@ public class PatternBuilderTest {
 	}
 
 	@Test
-	@Ignore
 	public void testInnerTypePattern() throws Exception {
 		PatternBuilder builder = new PatternBuilder(RRTypes.USER_INTENT, kb);
 		Pattern p = builder.hasRecursiveType(RRTypes.SPAT_REF)

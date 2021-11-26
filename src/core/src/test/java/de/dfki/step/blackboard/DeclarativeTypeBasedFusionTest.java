@@ -35,7 +35,8 @@ public class DeclarativeTypeBasedFusionTest {
 	@Before
 	public void setUp() throws Exception {
 		// Physical Object Type
-		Type physObj = kb.getType("PhysicalObject");
+		Type physObj = new Type("PhysicalObject", kb);
+		kb.addType(physObj);
 
 		// Food Types
 		Type food = new Type("Food", kb);

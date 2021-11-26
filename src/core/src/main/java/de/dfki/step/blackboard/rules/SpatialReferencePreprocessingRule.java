@@ -60,7 +60,8 @@ public class SpatialReferencePreprocessingRule extends Rule {
             	List<String> path = t.findInnerObjOfType(new ArrayList<String>(), kb.getType(RRTypes.LM_SPAT_REF));
             	IKBObject lmRef = t.getResolvedReference(path);
             	Map<String, Object> kbRef = lMRefToKBRef(lmRef);
-            	Map<String, Object> newValues = DeclarativeTypeBasedFusionRule.createChangeMap(path, kbRef);
+            	Map<List<String>, Object> newValues = new HashMap<List<String>,Object>();
+            	newValues.put(path, kbRef);
             	IToken newToken = t.internal_createCopyWithChanges(newValues);
         		newToken.getOriginTokens().add(t);
         		newToken.setProducer(this.getUUID());

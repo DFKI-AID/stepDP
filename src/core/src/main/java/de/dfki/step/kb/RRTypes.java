@@ -22,18 +22,20 @@ import de.dfki.step.kb.semantic.Type;
  * reference resolution.
  */
 public class RRTypes {
-	public static final String USER_INTENT = "UserIntent";
-	public static final String AGENT = "Agent";
-	public static final String SPAT_REF = "SpatialReference";
+	public static final String USER_INTENT = "internal_UserIntent";
+	public static final String AGENT = "internal_Agent";
+	public static final String SPAT_REF = "internal_SpatialReference";
+	// don't use "internal" prefix for LM types, because it does not match the LM
+	// and the names are pretty uncommon
 	public static final String LM_SPAT_REF = "LMSpatialReference";
 	public static final String LM_SPAT_REF_INNER = "LMSpatialReferenceInner";
-	public static final String BIN_SPAT_C = "BinarySpatialRelationConstraint";
-	public static final String GROUP_REL_C = "GroupRelationConstraint";
-	public static final String TYPE_C = "TypeConstraint";
-	public static final String REGION_C = "RegionConstraint";
-	public static final String POINTING_C = "PointingConstraint";
-	public static final String SPAT_REF_TARGET = "PhysicalObject";
-	public static final String CONTAINER = "Container";
+	public static final String BIN_SPAT_C = "internal_BinarySpatialRelationConstraint";
+	public static final String GROUP_REL_C = "internal_GroupRelationConstraint";
+	public static final String TYPE_C = "internal_TypeConstraint";
+	public static final String REGION_C = "internal_RegionConstraint";
+	public static final String POINTING_C = "internal_PointingConstraint";
+	public static final String SPAT_REF_TARGET = "internal_PhysicalObject";
+	public static final String CONTAINER = "internal_Container";
 
 	public enum BinSpatRelation {
 		in(null, 0, null, 0, false),
@@ -122,6 +124,7 @@ public class RRTypes {
 	}
 	
 	public static void addRRTypesToKB(KnowledgeBase kb) throws Exception{
+	        // TODO: make types system types
 			Type intent = new Type(USER_INTENT, kb);
 			kb.addType(intent);
 
@@ -158,7 +161,6 @@ public class RRTypes {
 			kb.addType(typeConst);
 	
 			Type spatRef = new Type(SPAT_REF, kb, true);
-			spatRef.addInheritance(kb.getType("Reference"));
 			spatRef.addProperty(new PropReference("speaker", kb, agent));
 			spatRef.addProperty(new PropReferenceArray("constraints", kb, constraint));
 			spatRef.addProperty(new PropBool("ambiguous", kb));
@@ -175,8 +177,6 @@ public class RRTypes {
 			kb.addType(lmSpatRefInner);
 
 			Type lmSpatRef = new Type(LM_SPAT_REF, kb, true);
-			// FIXME: should it inherit from "Reference"?
-			//lmSpatRef.addInheritance(kb.getType("Reference"));
 			lmSpatRef.addProperty(new PropReference("intendedObjectReference", kb, lmSpatRefInner));
 			lmSpatRef.addProperty(new PropReference("relatumObjectReference", kb, lmSpatRefInner));
 			lmSpatRef.addProperty(new PropString("binarySpatialRelation", kb));

@@ -1,5 +1,6 @@
 package de.dfki.step.blackboard;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -112,7 +113,7 @@ public class KBToken extends AbstractToken {
     }
 
     @Override
-    public IToken internal_createCopyWithChanges(Map<String, Object> newValues) throws Exception {
+    public IToken internal_createCopyWithChanges(Map<List<String>, Object> newValues) throws Exception {
         if (newValues.entrySet().isEmpty())
             return new KBToken(this.getKB(), this._parent);
         else

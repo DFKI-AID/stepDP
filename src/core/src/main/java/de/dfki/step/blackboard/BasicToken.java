@@ -235,41 +235,55 @@ public class BasicToken extends AbstractToken {
     }
 
     @Override
-    public IToken internal_createCopyWithChanges(Map<String, Object> newValues) throws Exception {
+    public IToken internal_createCopyWithChanges(Map<List<String>, Object> newValues) throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         Map<String, Object> deepCopy;
         deepCopy = mapper.readValue(mapper.writeValueAsString(_payload), new TypeReference<Map<String, Object>>() {});
-        deepCopy = changeValues(deepCopy, newValues);
+        for (Entry<List<String>, Object> e : newValues.entrySet())
+            deepCopy = changeValue(deepCopy,e.getKey(), e.getValue());
         BasicToken newToken = new BasicToken(this.getKB());
         newToken.setType(this.getType());
         newToken.addAll(deepCopy);
         return newToken;
     }
 
-    private Map<String, Object> changeValues(Map<String, Object> original, Map<String, Object> newValues) throws Exception{
-        for (Entry<String, Object> e : newValues.entrySet()) {
-            // if value does not exist yet or the new value is a simple value, simply put it into the payload
-            if (original.get(e.getKey()) == null || !(e.getValue() instanceof Map))
-                original.put(e.getKey(), e.getValue());
-            // if value does exist and the new value is a map, change values recursively (if possible)
-            else {
-                Object oldValue = original.get(e.getKey());
-                if (oldValue instanceof Map) {
-                    Map<String, Object> newValue = changeValues((Map<String, Object>) oldValue, (Map<String, Object>) e.getValue());
-                    original.put(e.getKey(), newValue);
-                } else if (oldValue instanceof String || oldValue instanceof KBToken) {
+    private Map<String, Object> changeValue(Map<String, Object> original, List<String> path, Object newValue) throws Exception{
+            if (path == null || path.isEmpty())
+                throw new Exception("Path null or empty");
+            Map<String, Object> current = original;
+            while (path.size() > 1) {
+                String prop = path.remove(0);
+                Object inner = current.get(prop);
+                if (inner == null) {
+                    Map<String,Object> map = new HashMap<String,Object>();
+                    current.put(prop, map);
+                    current = map;
+                }
+                else if(inner instanceof Map) {
+                    current = (Map<String, Object>) inner;
+                }
+                else if (inner instanceof String || inner instanceof UUID || inner instanceof KBToken)
                     throw new Exception("Cannot change values in a reference to a kb object.");
-                } else if (oldValue instanceof List){
-                    original.put(e.getKey(), ((List) oldValue).add(e.getValue()));
-                } else if (oldValue instanceof Object[]){
-                    original.put(e.getKey(), new ArrayList<Object>(Arrays.asList(oldValue)).add(e.getValue()));
-                } else {
-                    // something bad happened?
-                    throw new Exception("token contains invalid value.");
+                else {
+                    throw new Exception("Invalid java object type in token.");
                 }
             }
-        }
-        return original;
+            String prop = path.get(0);
+            Object val = current.get(prop);
+            if (val instanceof List) {
+                List<Object> list = ((List<Object>) val);
+                list.add(newValue);
+                current.put(prop, list);
+            }
+            else if (val instanceof Object[]) {
+                List<Object> list = new ArrayList<Object>(Arrays.asList(val));
+                list.add(newValue);
+                original.put(prop, list);
+            }
+            else {
+                current.put(path.get(0), newValue);
+            }
+            return original;
     }
     
     @Override

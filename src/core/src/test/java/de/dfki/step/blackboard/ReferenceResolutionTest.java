@@ -60,7 +60,7 @@ public class ReferenceResolutionTest {
 
 		// Drink Types
 		Type drink = new Type("Drink", kb);
-		drink.addInheritance(kb.getType("PhysicalObject"));
+		drink.addInheritance(kb.getType(RRTypes.SPAT_REF_TARGET));
 		drink.addProperty(new PropBool("withIce", kb));
 		kb.addType(drink);
 		Type water = new Type("Water", kb);
@@ -73,7 +73,7 @@ public class ReferenceResolutionTest {
 
 		// Other Physcial Object Types
 		Type knife = new Type("Knife", kb);
-		knife.addInheritance(kb.getType("PhysicalObject"));
+		knife.addInheritance(kb.getType(RRTypes.SPAT_REF_TARGET));
 		kb.addType(knife);
 
 		// Intent Types
@@ -84,7 +84,7 @@ public class ReferenceResolutionTest {
 		kb.addType(generalBringIntent);
 		Type bringIntent = new Type("ObjectBringIntent", kb);
 		bringIntent.addInheritance(kb.getType("GeneralBringIntent"));
-		bringIntent.addProperty(new PropReference("object", kb, kb.getType("PhysicalObject")));
+		bringIntent.addProperty(new PropReference("object", kb, kb.getType(RRTypes.SPAT_REF_TARGET)));
 		kb.addType(bringIntent);
 		Type pickUpIntent = new Type("PickUpIntent", kb);
 		pickUpIntent.addInheritance(kb.getType(RRTypes.USER_INTENT));
