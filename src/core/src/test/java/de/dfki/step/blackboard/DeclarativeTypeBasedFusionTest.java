@@ -1,12 +1,11 @@
 package de.dfki.step.blackboard;
 
 import java.time.Duration;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
+import de.dfki.step.kb.Graph_KB.Edge;
+import de.dfki.step.kb.Graph_KB.Graph;
+import de.dfki.step.kb.IUUID;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.junit.Assert;
 import org.junit.Before;
