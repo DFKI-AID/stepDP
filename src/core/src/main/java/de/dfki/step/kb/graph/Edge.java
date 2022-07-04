@@ -17,7 +17,6 @@ public class Edge {
         this.parent_UUID = NextUUID;
         this.label = Edge_label;
         this.Edge_UUID = UUID.randomUUID();
-
     }
 
 }
