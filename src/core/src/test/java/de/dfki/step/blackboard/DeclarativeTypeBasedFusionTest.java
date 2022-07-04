@@ -362,4 +362,47 @@ public class DeclarativeTypeBasedFusionTest {
 		exc.expect(Exception.class);
 		Rule r = new DeclarativeTypeBasedFusionRule(p1, p2, resultType, fusionInterval);
 	}
+
+	@Test
+	public void GraphTest() throws Exception {
+
+		Type T = new Type("default", kb);
+		IKBObject plant =  kb.createInstance("plant", T);
+		IKBObject tree =  kb.createInstance("tree", T);
+		IKBObject apple_tree =  kb.createInstance("apple tree", T);
+		IKBObject apple =  kb.createInstance("apple", T);
+
+
+		Graph G = new Graph();
+		UUID E1 = G.create_edge(tree, plant, "is");
+		UUID E2 = G.create_edge(apple_tree, tree, "is");
+		UUID E3 = G.create_edge(apple, apple_tree, "grows on");
+		G.save_edges();
+		G.delete_edge(E2);
+		List<String> names = Arrays.asList("tree");
+		ArrayList<IKBObject> nodes = G.GetNodesBelow(plant);
+		int index = 0;
+		for (IKBObject node:  nodes)
+		{
+			Assert.assertTrue(node.getName().equals(names.get(index)));
+			index++;
+
+		}
+
+
+		List<IKBObject> nodes_neighbours = G.FindRelation("grows on", apple_tree);
+		Assert.assertTrue(nodes_neighbours.get(0).getName().equals("apple"));
+
+		G.load_edges("edges.json");
+
+		names = Arrays.asList("tree", "apple tree", "apple");
+		nodes = G.GetNodesBelow(plant);
+		index = 0;
+		for (IKBObject node:  nodes)
+		{
+			Assert.assertTrue(node.getName().equals(names.get(index)));
+			index++;
+
+		}
+	}
 }
