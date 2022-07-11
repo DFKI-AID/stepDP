@@ -4,7 +4,7 @@ import de.dfki.step.blackboard.KBToken;
 import de.dfki.step.dialog.Dialog;
 import de.dfki.step.kb.IKBObject;
 import de.dfki.step.kb.IUUID;
-import de.dfki.step.kb.IKBObjectWriteable;
+import de.dfki.step.kb.graph.Graph;
 import de.dfki.step.kb.semantic.Type;
 import de.dfki.step.rm.sc.StateChartManager;
 import de.dfki.step.rm.sc.internal.StateChart;
@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import com.google.gson.Gson;
 
 import javax.annotation.PostConstruct;
-import java.lang.reflect.Array;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -26,7 +25,7 @@ import java.util.stream.Collectors;
  */
 @RestController
 public class Controller {
-//    @Autowired
+    //    @Autowired
 //    private ApplicationContext context;
     private Dialog dialog;
     private static List<String> outputHistory = new ArrayList<String>();
@@ -87,8 +86,8 @@ public class Controller {
 
         // TODO type matching
         // TODO check if all required values are there
-    	// TODO check if types of nested objects are valid (e.g. inheritance from semantic tree definition)
-    	// should be possible to activate / deactivate these checks for performance reasons
+        // TODO check if types of nested objects are valid (e.g. inheritance from semantic tree definition)
+        // should be possible to activate / deactivate these checks for performance reasons
         if (!body.containsKey("type")) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing type");
         }
@@ -191,7 +190,7 @@ public class Controller {
     @CrossOrigin
     @GetMapping(value = "/behaviors", produces = "application/json")
     public ResponseEntity<Object> getBehaviors() {
-    	Map<String, StateChartManager> scMans = dialog.getBlackboard().getAllStateChartManagers();
+        Map<String, StateChartManager> scMans = dialog.getBlackboard().getAllStateChartManagers();
         Map<String, StateChart> body = scMans.entrySet().stream()
                 .map(e -> new AbstractMap.SimpleEntry<>(e.getKey(), e.getValue().getEngine().getStateChart()))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
@@ -201,13 +200,13 @@ public class Controller {
     @CrossOrigin
     @GetMapping(value = "/behavior/{id}/state", produces = "application/json")
     public ResponseEntity<String> getBehaviorState(@PathVariable("id") String id) {
-      StateChartManager behavior = dialog.getBlackboard().getStateChartManager(id);
-      if(behavior == null) {
-          return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-      }
+        StateChartManager behavior = dialog.getBlackboard().getStateChartManager(id);
+        if(behavior == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
 
-      String currentState = behavior.getCurrentState();
-      return ResponseEntity.status(HttpStatus.OK).body(String.format("{\"state\":\"%s\"}", currentState));
+        String currentState = behavior.getCurrentState();
+        return ResponseEntity.status(HttpStatus.OK).body(String.format("{\"state\":\"%s\"}", currentState));
     }
 
     @CrossOrigin
@@ -221,4 +220,128 @@ public class Controller {
     public ResponseEntity<Map<String, String>> getExampleTokens() {
         return ResponseEntity.status(HttpStatus.OK).body(exampleTokens);
     }
+
+    @CrossOrigin
+    @GetMapping (value =  "/kb/graph/{graphName}/getEdges", produces = "application/json")
+    public Collection<de.dfki.step.kb.graph.Edge> getEdgesFromGraph(@PathVariable("graphName") String graphName) {
+        return dialog.getBlackboard().getGraph(graphName).getAllEdges();
+    }
+
+    @CrossOrigin
+    @PostMapping (value = "/kb/graph/addEdge", consumes = "application/json")
+    public ResponseEntity<String> addEdgeToGraph(@RequestBody Map<String, Object> body) {
+
+        if (!body.containsKey("graphName")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing graphName");
+        }
+
+        Graph graph = this.dialog.getBlackboard().getGraph(body.get("graphName").toString());
+
+        if (graph == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("graph not found");
+        }
+
+
+        UUID sourceID = null;
+        UUID goalID = null;
+
+        if (!body.containsKey("source")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing source");
+        }
+        if (!(body.get("source") instanceof String))
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("source must be string");
+        try {
+            sourceID = UUID.fromString(body.get("source").toString());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("source is invalid");
+        }
+
+
+        if (!body.containsKey("goal")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing goal");
+        }
+        if (!(body.get("goal") instanceof String))
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("goal must be string");
+        try {
+            goalID = UUID.fromString(body.get("goal").toString());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("goal is invalid");
+        }
+
+        if (sourceID == null)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("source not found");
+
+        if (goalID == null)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("goal not found");
+
+        IKBObject source = this.dialog.getKB().getInstance(sourceID);
+        IKBObject goal = this.dialog.getKB().getInstance(goalID);
+
+        if (body.containsKey("label")) {
+            if (!(body.get("goal") instanceof String))
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("label must be string");
+            graph.createEdge(source, goal, (String)body.get("label"));
+        } else {
+            //TODO: change according to optional implementation
+            graph.createEdge(source, goal, null);
+        }
+
+        return ResponseEntity.ok("ok");
+    }
+
+    @CrossOrigin
+    @PostMapping (value = "/kb/graph/removeEdge", consumes = "application/json")
+    public ResponseEntity<String> removeEdgeFromGraph(@RequestBody Map<String, Object> body) {
+        //TODO: rework to take the UUID of the edge and create a mapping of UUID to edge in graph
+        if (!body.containsKey("graphName")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing graphName");
+        }
+
+        Graph graph = this.dialog.getBlackboard().getGraph(body.get("graphName").toString());
+
+
+        UUID ID = null;
+
+        if (!body.containsKey("UUID")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing source");
+        }
+        if (!(body.get("UUID") instanceof String))
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("source must be string");
+        try {
+            ID = UUID.fromString(body.get("UUID").toString());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("UUID is invalid");
+        }
+
+        if (ID == null)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("UUID not found");
+
+
+        graph.deleteEdge(ID);
+
+        return ResponseEntity.ok("ok");
+    }
+
+    @CrossOrigin
+    @PostMapping (value = "/kb/graph/addGraph", consumes = "application/json")
+    public ResponseEntity<String> addNewGraph(@RequestBody Map<String, Object> body) {
+
+        if (!body.containsKey("graphName")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing graphName");
+        }
+
+        Graph graph = new Graph();
+
+        this.dialog.getBlackboard().addGraph(body.get("graphName").toString(), graph);
+
+        return ResponseEntity.ok("ok");
+    }
+
+    @CrossOrigin
+    @GetMapping (value = "/kb/graph/getGraphNames", produces = "application/json")
+    public Collection<String> getAllGraphNames() {
+        return this.dialog.getBlackboard().getAllGraphs().keySet();
+    }
+
+
 }
