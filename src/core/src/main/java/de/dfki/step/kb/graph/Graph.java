@@ -1,4 +1,4 @@
-package de.dfki.step.kb.Graph_KB;
+package de.dfki.step.kb.graph;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
@@ -10,75 +10,75 @@ import java.lang.reflect.Type;
 import java.util.*;
 
 public class Graph {
-    public Map<IKBObject, ArrayList<Edge>> Child;
-    public Map<IKBObject, ArrayList<Edge>> Parent;
-    public Map<UUID,IKBObject> UUID_IKB_Child;
-    public Map<UUID,IKBObject> UUID_IKB_Parent;
-    Boolean Directed = true;
+    public Map<IKBObject, ArrayList<Edge>> _child;
+    public Map<IKBObject, ArrayList<Edge>> _parent;
+    public Map<UUID,IKBObject> _uuidIkbChild;
+    public Map<UUID,IKBObject> _uuidIkbParent;
+    Boolean _directed = true;
     public Graph()
     {
-        Child = new HashMap<IKBObject, ArrayList<Edge>>();
-        Parent = new HashMap<IKBObject, ArrayList<Edge>>();
-        UUID_IKB_Child = new HashMap<UUID,IKBObject>();
-        UUID_IKB_Parent = new HashMap<UUID,IKBObject>();
+        _child = new HashMap<IKBObject, ArrayList<Edge>>();
+        _parent = new HashMap<IKBObject, ArrayList<Edge>>();
+        _uuidIkbChild = new HashMap<UUID,IKBObject>();
+        _uuidIkbParent = new HashMap<UUID,IKBObject>();
     }
     public void SetUndirected()
     {
-        this.Directed = false;
+        this._directed = false;
     }
 
-    public UUID create_edge(IKBObject child_node,IKBObject parent_node, String label)
+    public UUID createEdge(IKBObject child_node,IKBObject parent_node, String label)
     {
         Edge Ed = new Edge(child_node.getUUID(), parent_node.getUUID(),label);
-        UUID_IKB_Child.put(Ed.child_UUID, child_node);
-        UUID_IKB_Parent.put(Ed.parent_UUID, parent_node);
-        add_edge(Ed);
+        _uuidIkbChild.put(Ed._childUUID, child_node);
+        _uuidIkbParent.put(Ed._parentUUID, parent_node);
+        addEdge(Ed);
 
-        return Ed.Edge_UUID;
+        return Ed._edgeUUID;
     }
 
-    public void add_edge(Edge Ed)
+    public void addEdge(Edge Ed)
     {
-        IKBObject child_node = UUID_IKB_Child.get(Ed.child_UUID);
-        IKBObject parent_node = UUID_IKB_Parent.get(Ed.parent_UUID);
+        IKBObject child_node = _uuidIkbChild.get(Ed._childUUID);
+        IKBObject parent_node = _uuidIkbParent.get(Ed._parentUUID);
 
-        if (Child.get(child_node) == null)
+        if (_child.get(child_node) == null)
         {
             ArrayList <Edge> list = new ArrayList<Edge>();
             list.add(Ed);
-            Child.put(child_node, list);
+            _child.put(child_node, list);
 
         }
         else
         {
-            Child.get(child_node).add(Ed);
+            _child.get(child_node).add(Ed);
 
         }
-        if (Parent.get(parent_node) == null)
+        if (_parent.get(parent_node) == null)
         {
             ArrayList <Edge> list = new ArrayList<Edge>();
             list.add(Ed);
-            Parent.put(parent_node, list);
+            _parent.put(parent_node, list);
         }
         else
         {
-            Parent.get(parent_node).add(Ed);
+            _parent.get(parent_node).add(Ed);
         }
     }
     public ArrayList<Edge> getAllEdges() {
         ArrayList<Edge> edges = new ArrayList<>();
-        for (ArrayList<Edge> edgeList : Child.values()) {
+        for (ArrayList<Edge> edgeList : _child.values()) {
             edges.addAll(edgeList);
         }
         return edges;
     }
 
-    public  Edge Find_Edge(UUID ID)
+    public  Edge findEdge(UUID ID)
     {
-        for (ArrayList<Edge> edgeList : Child.values()) {
+        for (ArrayList<Edge> edgeList : _child.values()) {
             for (Edge current_edge: edgeList)
             {
-                if (current_edge.Edge_UUID.equals(ID))
+                if (current_edge._edgeUUID.equals(ID))
                 {
                     return current_edge;
                 }
@@ -87,13 +87,13 @@ public class Graph {
 
         return null;
     }
-    private void remove_edge(UUID ID, Map<IKBObject, ArrayList<Edge>> Map)
+    private void removeEdge(UUID ID, Map<IKBObject, ArrayList<Edge>> Map)
     {
             for (ArrayList<Edge> edgeList : Map.values())
             {
                 for (Edge current_edge: edgeList)
                 {
-                    if (current_edge.Edge_UUID.equals(ID))
+                    if (current_edge._edgeUUID.equals(ID))
                     {
                         edgeList.remove(current_edge);
                         return;
@@ -102,15 +102,15 @@ public class Graph {
             }
         return;
     }
-    public void delete_edge(UUID ID)
+    public void deleteEdge(UUID ID)
     {
-        remove_edge(ID, Child);
-        remove_edge(ID, Parent);
+        removeEdge(ID, _child);
+        removeEdge(ID, _parent);
     }
 
-    public ArrayList<IKBObject> GetNodesBelow(IKBObject node)
+    public ArrayList<IKBObject> getNodesBelow(IKBObject node)
     {
-        if (!Directed)
+        if (!_directed)
         {
             return null;
         }
@@ -122,7 +122,7 @@ public class Graph {
             while (start_counter==0)
             {
                 start_counter = 1;
-                ArrayList<Edge> E = Parent.get(node);
+                ArrayList<Edge> E = _parent.get(node);
 
                 if (E == null)
                 {
@@ -132,13 +132,13 @@ public class Graph {
 
                 for (Edge current_edge : E)
                 {
-                    IKBObject child_node = UUID_IKB_Child.get(current_edge.child_UUID);
+                    IKBObject child_node = _uuidIkbChild.get(current_edge._childUUID);
                     nodes.add(child_node);
                     node = child_node;
                     start_counter = 0;
 
                 }
-                if (Parent.get(node) == null)
+                if (_parent.get(node) == null)
                 {
                     return nodes;
                 }
@@ -149,20 +149,20 @@ public class Graph {
 
 
     }
-    public List<IKBObject> FindRelation(String Relation, IKBObject A)
+    public List<IKBObject> findRelation(String Relation, IKBObject A)
     {
-        List<Edge> E = Parent.get(A);
+        List<Edge> E = _parent.get(A);
         List<IKBObject> nodes = new ArrayList<IKBObject>();;
         for (Edge current_edge : E)
         {
-            if (current_edge.label.equals(Relation))
+            if (current_edge._label.equals(Relation))
             {
-                nodes.add(UUID_IKB_Child.get(current_edge.child_UUID));
+                nodes.add(_uuidIkbChild.get(current_edge._childUUID));
             }
         }
         return nodes;
     }
-    public void save_edges() throws IOException {
+    public void saveEdges() throws IOException {
         ArrayList<Edge> edges = getAllEdges();
         Gson gson = new Gson();
         FileWriter writer = new FileWriter(new File("edges.json"));
@@ -171,7 +171,7 @@ public class Graph {
         writer.close();
 
     }
-    public void load_edges(String path) throws FileNotFoundException {
+    public void loadEdges(String path) throws FileNotFoundException {
         Gson gson = new Gson();
 
         BufferedReader br = new BufferedReader(new FileReader(path));
@@ -179,9 +179,9 @@ public class Graph {
         ArrayList<Edge> edges=  gson.fromJson(br, userListType);
         for (Edge current_edge : edges)
         {
-            if (Find_Edge(current_edge.Edge_UUID) == null)
+            if (findEdge(current_edge._edgeUUID) == null)
             {
-                this.add_edge(current_edge);
+                this.addEdge(current_edge);
             }
 
         }
