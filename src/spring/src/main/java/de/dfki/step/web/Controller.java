@@ -222,7 +222,7 @@ public class Controller {
     }
 
     @CrossOrigin
-    @GetMapping (value =  "/kb/graph/getEdges", produces = "application/json")
+    @GetMapping (value =  "/kb/graph/{graphName}/getEdges", produces = "application/json")
     public Collection<de.dfki.step.kb.graph.Edge> getEdgesFromGraph(@PathVariable("graphName") String graphName) {
         return dialog.getBlackboard().getGraph(graphName).getAllEdges();
     }

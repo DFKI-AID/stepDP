@@ -1,5 +1,6 @@
 package de.dfki.step.blackboard;
 
+import de.dfki.step.kb.graph.Graph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +31,8 @@ public class Board {
     private final LinkedList<IToken> _archivedTokens = new LinkedList<>();
 
     private final Map<String, StateChartManager> scManagers = new HashMap<String, StateChartManager>();
+
+    private final Map<String, Graph> graphs = new HashMap<>();
 
 
     public synchronized void update()
@@ -151,6 +154,19 @@ public class Board {
     public Map<String, StateChartManager> getAllStateChartManagers(){
     	return this.scManagers;
     }
+
+    public void addGraph(String name, Graph graph) {
+        this.graphs.put(name, graph);
+    }
+
+    public Graph getGraph(String name) {
+        return this.graphs.get(name);
+    }
+
+    public Map<String, Graph> getAllGraphs() {
+        return this.graphs;
+    }
+
 
     public synchronized List<Rule> getRules()
     {
