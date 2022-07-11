@@ -3,13 +3,10 @@ package de.dfki.step.blackboard;
 import java.time.Duration;
 import java.util.*;
 
-import de.dfki.step.kb.Graph_KB.Edge;
-import de.dfki.step.kb.Graph_KB.Graph;
-import de.dfki.step.kb.IUUID;
+import de.dfki.step.kb.graph.Graph;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
@@ -27,9 +24,9 @@ public class DeclarativeTypeBasedFusionTest {
 	private Board board = new Board();
 	private KnowledgeBase kb = new KnowledgeBase(board);
 
-    @org.junit.Rule
-    public ExpectedException exc = ExpectedException.none();
-	
+	@org.junit.Rule
+	public ExpectedException exc = ExpectedException.none();
+
 	@Before
 	public void setUp() throws Exception {
 		// Physical Object Type
@@ -59,7 +56,7 @@ public class DeclarativeTypeBasedFusionTest {
 		Type gesture = new Type("Gesture", kb);
 		gesture.addProperty(new PropReference("targetObject", kb, kb.getType("PhysicalObject")));
 		kb.addType(gesture);
-		
+
 		// Fusion Result Types
 		Type bringObject = new Type("BringObject", kb);
 		bringObject.addProperty(new PropReference("object", kb, kb.getType("PhysicalObject")));
@@ -75,7 +72,7 @@ public class DeclarativeTypeBasedFusionTest {
 		bringPizza.addProperty(new PropReference("pizza", kb, kb.getType("Pizza")));
 		bringPizza.addProperty(new PropReference("intent", kb, kb.getType("BringIntent")));
 		kb.addType(bringPizza);
-		
+
 		// Instances
 		kb.createInstance("pizza1", kb.getType("Pizza"));
 	}
@@ -93,7 +90,7 @@ public class DeclarativeTypeBasedFusionTest {
 		t2.setType(kb.getType("PhysicalObject"));
 		List<IToken> tokens = List.of(t2, t1);
 		List<IToken[]> matches = r.getCondition().generateMatches(tokens.stream(), r.getTags(), r.getUUID());
-	
+
 		Assert.assertTrue(matches.size() == 1);
 		IToken[] match = matches.get(0);
 		Assert.assertTrue(match[0] == t1);
@@ -114,7 +111,7 @@ public class DeclarativeTypeBasedFusionTest {
 		t2.setType(kb.getType("PhysicalObject"));
 		List<IToken> tokens = List.of(t2, t1);
 		List<IToken[]> matches = r.getCondition().generateMatches(tokens.stream(), r.getTags(), r.getUUID());
-	
+
 		Assert.assertTrue(matches.isEmpty());
 	}
 
@@ -133,7 +130,7 @@ public class DeclarativeTypeBasedFusionTest {
 		t3.setType(kb.getType("PhysicalObject"));
 		List<IToken> tokens = List.of(t3, t2, t1);
 		List<IToken[]> matches = r.getCondition().generateMatches(tokens.stream(), r.getTags(), r.getUUID());
-	
+
 		Assert.assertTrue(matches.size() == 1);
 		IToken[] match = matches.get(0);
 		Assert.assertTrue(match[0] == t2);
@@ -158,7 +155,7 @@ public class DeclarativeTypeBasedFusionTest {
 		Assert.assertTrue(matches.size() == 1);
 		// use tokens
 		r.onMatch(matches, board);
-		
+
 		// used tokens are not matched anymore when new token comes in
 		BasicToken t3 = new BasicToken(kb);
 		t3.setType(kb.getType("PhysicalObject"));
@@ -184,7 +181,7 @@ public class DeclarativeTypeBasedFusionTest {
 		t4.setType(kb.getType("BringIntent"));
 		BasicToken t5 = new BasicToken(kb);
 		t5.setType(kb.getType("PhysicalObject"));
-		
+
 		// first interaction: e.g. user says "bring this" and points at 2 objects
 		// our fusion algorithm assumes that the most recent object is the one that the user intended
 		LinkedList<IToken> tokens = new LinkedList<IToken>(List.of(t3, t2, t1));
@@ -195,13 +192,13 @@ public class DeclarativeTypeBasedFusionTest {
 		Assert.assertTrue(match[1] == t3);
 		// use tokens
 		r.onMatch(matches, board);
-		
+
 		// second interaction: user says "bring this" again but has not pointed yet to an object
 		// the new intent t4 should not be fused with the old, unused token t2
 		tokens.addFirst(t4);
 		matches = r.getCondition().generateMatches(tokens.stream(), r.getTags(), r.getUUID());
 		Assert.assertTrue(matches.isEmpty());
-		
+
 		// the user now points at the object corresponding to his last intent => now there's a match
 		tokens.addFirst(t5);
 		matches = r.getCondition().generateMatches(tokens.stream(), r.getTags(), r.getUUID());
@@ -225,7 +222,7 @@ public class DeclarativeTypeBasedFusionTest {
 		t2.setType(kb.getType("Pizza"));
 		t2.addAll(Map.of("sort", "Hawaii"));
 		List<IToken> tokens = List.of(t2, t1);
-		
+
 		List<IToken[]> matches = r.getCondition().generateMatches(tokens.stream(), r.getTags(), r.getUUID());
 		Assert.assertTrue(matches.size() == 1);
 		r.onMatch(matches, board);
@@ -239,7 +236,7 @@ public class DeclarativeTypeBasedFusionTest {
 		Assert.assertTrue(object != null);
 		Assert.assertTrue(object.getType().getName().equals("Pizza"));
 		Assert.assertTrue(object.getString("sort").equals("Hawaii"));
-		
+
 		// also test fusion meta information (origin tokens & resulting tokens)
 		Assert.assertTrue(result.getOriginTokens().contains(t1));
 		Assert.assertTrue(result.getOriginTokens().contains(t2));
@@ -319,7 +316,7 @@ public class DeclarativeTypeBasedFusionTest {
 		t2.setType(kb.getType("Gesture"));
 		t2.addAll(Map.of("targetObject", kb.getInstance("pizza1").getUUID().toString()));
 		List<IToken> tokens = List.of(t2, t1);
-		
+
 		List<IToken[]> matches = r.getCondition().generateMatches(tokens.stream(), r.getTags(), r.getUUID());
 		Assert.assertTrue(matches.size() == 1);
 		r.onMatch(matches, board);
@@ -339,7 +336,7 @@ public class DeclarativeTypeBasedFusionTest {
 		IKBObject pizza1 = kb.getInstance("pizza1");
 		Assert.assertTrue(object.getType().getName().equals("Pizza"));
 		Assert.assertTrue(object == pizza1);
-	}	
+	}
 
 	@Test
 	public void testInvalidOriginPatterns() throws Exception {
@@ -360,48 +357,5 @@ public class DeclarativeTypeBasedFusionTest {
 		long fusionInterval = Duration.ofSeconds(5).toMillis();
 		exc.expect(Exception.class);
 		Rule r = new DeclarativeTypeBasedFusionRule(p1, p2, resultType, fusionInterval);
-	}
-
-	@Test
-	public void GraphTest() throws Exception {
-
-		Type T = new Type("default", kb);
-		IKBObject plant =  kb.createInstance("plant", T);
-		IKBObject tree =  kb.createInstance("tree", T);
-		IKBObject apple_tree =  kb.createInstance("apple tree", T);
-		IKBObject apple =  kb.createInstance("apple", T);
-
-
-		Graph G = new Graph();
-		UUID E1 = G.create_edge(tree, plant, "is");
-		UUID E2 = G.create_edge(apple_tree, tree, "is");
-		UUID E3 = G.create_edge(apple, apple_tree, "grows on");
-		G.save_edges();
-		G.delete_edge(E2);
-		List<String> names = Arrays.asList("tree");
-		ArrayList<IKBObject> nodes = G.GetNodesBelow(plant);
-		int index = 0;
-		for (IKBObject node:  nodes)
-		{
-			Assert.assertTrue(node.getName().equals(names.get(index)));
-			index++;
-
-		}
-
-
-		List<IKBObject> nodes_neighbours = G.FindRelation("grows on", apple_tree);
-		Assert.assertTrue(nodes_neighbours.get(0).getName().equals("apple"));
-
-		G.load_edges("edges.json");
-
-		names = Arrays.asList("tree", "apple tree", "apple");
-		nodes = G.GetNodesBelow(plant);
-		index = 0;
-		for (IKBObject node:  nodes)
-		{
-			Assert.assertTrue(node.getName().equals(names.get(index)));
-			index++;
-
-		}
 	}
 }
