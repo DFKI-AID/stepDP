@@ -162,10 +162,10 @@ public class Graph {
         }
         return nodes;
     }
-    public void saveEdges() throws IOException {
+    public void saveEdges(String path) throws IOException {
         ArrayList<Edge> edges = getAllEdges();
         Gson gson = new Gson();
-        FileWriter writer = new FileWriter(new File("edges.json"));
+        FileWriter writer = new FileWriter(path);
         gson.toJson(edges, writer);
         writer.flush();
         writer.close();

@@ -30,7 +30,7 @@ public class GraphTest {
         UUID E1 = G.createEdge(tree, plant, "is");
         UUID E2 = G.createEdge(apple_tree, tree, "is");
         UUID E3 = G.createEdge(apple, apple_tree, "grows on");
-        G.saveEdges();
+        G.saveEdges("edges.json");
         G.deleteEdge(E2);
         List<String> names = Arrays.asList("tree");
         ArrayList<IKBObject> nodes = G.getNodesBelow(plant);

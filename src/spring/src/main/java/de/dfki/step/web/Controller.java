@@ -242,40 +242,40 @@ public class Controller {
         }
 
 
-        UUID sourceID = null;
-        UUID goalID = null;
+        UUID parentID = null;
+        UUID childID = null;
 
-        if (!body.containsKey("source")) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing source");
+        if (!body.containsKey("parent")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing parent");
         }
-        if (!(body.get("source") instanceof String))
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("source must be string");
+        if (!(body.get("parent") instanceof String))
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("parent must be string");
         try {
-            sourceID = UUID.fromString(body.get("source").toString());
+            parentID = UUID.fromString(body.get("parent").toString());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("source is invalid");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("parent is invalid");
         }
 
 
-        if (!body.containsKey("goal")) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing goal");
+        if (!body.containsKey("child")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing child");
         }
-        if (!(body.get("goal") instanceof String))
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("goal must be string");
+        if (!(body.get("child") instanceof String))
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("child must be string");
         try {
-            goalID = UUID.fromString(body.get("goal").toString());
+            childID = UUID.fromString(body.get("child").toString());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("goal is invalid");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("child is invalid");
         }
 
-        if (sourceID == null)
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("source not found");
+        if (parentID == null)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("parent not found");
 
-        if (goalID == null)
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("goal not found");
+        if (childID == null)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("child not found");
 
-        IKBObject source = this.dialog.getKB().getInstance(sourceID);
-        IKBObject goal = this.dialog.getKB().getInstance(goalID);
+        IKBObject source = this.dialog.getKB().getInstance(parentID);
+        IKBObject goal = this.dialog.getKB().getInstance(childID);
 
         if (body.containsKey("label")) {
             if (!(body.get("goal") instanceof String))
@@ -303,10 +303,10 @@ public class Controller {
         UUID ID = null;
 
         if (!body.containsKey("UUID")) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing source");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing edge UUID");
         }
         if (!(body.get("UUID") instanceof String))
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("source must be string");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("UUID must be string");
         try {
             ID = UUID.fromString(body.get("UUID").toString());
         } catch (Exception e) {

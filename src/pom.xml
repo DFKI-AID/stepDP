@@ -8,12 +8,12 @@
     <artifactId>parent</artifactId>
     <packaging>pom</packaging>
     <name>stepDP-Core</name>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <step-dp.version>1.0.2</step-dp.version>
+        <step-dp.version>1.0.3</step-dp.version>
     </properties>
 
     <build>
