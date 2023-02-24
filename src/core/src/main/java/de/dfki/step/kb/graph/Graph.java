@@ -147,8 +147,49 @@ public class Graph {
             return nodes;
         }
 
+    }
+
+    public ArrayList<IKBObject> getNodesAbove(IKBObject node)
+    {
+        if (!_directed)
+        {
+            return null;
+        }
+        else
+        {
+
+            ArrayList<IKBObject> nodes = new ArrayList<IKBObject>();
+            int start_counter = 0;
+            while (start_counter==0)
+            {
+                start_counter = 1;
+                ArrayList<Edge> E = _child.get(node);
+
+                if (E == null)
+                {
+                    return null;
+                }
+                int num_edges = E.size();
+
+                for (Edge current_edge : E)
+                {
+                    IKBObject parent_node = _uuidIkbParent.get(current_edge._parentUUID);
+                    nodes.add(parent_node);
+                    node = parent_node;
+                    start_counter = 0;
+
+                }
+                if (_child.get(node) == null)
+                {
+                    return nodes;
+                }
+
+            }
+            return nodes;
+        }
 
     }
+
     public List<IKBObject> findRelation(String Relation, IKBObject A)
     {
         List<Edge> E = _parent.get(A);

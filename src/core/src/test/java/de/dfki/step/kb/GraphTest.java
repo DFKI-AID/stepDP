@@ -17,7 +17,7 @@ public class GraphTest {
     private Board board = new Board();
     private KnowledgeBase kb = new KnowledgeBase(board);
     @Test
-    public void GraphTest() throws Exception {
+    public void GraphTestBelow() throws Exception {
 
         Type T = new Type("default", kb);
         IKBObject plant =  kb.createInstance("plant", T);
@@ -51,6 +51,32 @@ public class GraphTest {
         names = Arrays.asList("tree", "apple tree", "apple");
         nodes = G.getNodesBelow(plant);
         index = 0;
+        for (IKBObject node:  nodes)
+        {
+            Assert.assertTrue(node.getName().equals(names.get(index)));
+            index++;
+
+        }
+    }
+
+    @Test
+    public void GraphTestAbove() throws Exception {
+        Type T = new Type("default", kb);
+        IKBObject plant =  kb.createInstance("plant", T);
+        IKBObject tree =  kb.createInstance("tree", T);
+        IKBObject apple_tree =  kb.createInstance("apple tree", T);
+        IKBObject apple =  kb.createInstance("apple", T);
+
+
+        Graph G = new Graph();
+        UUID E1 = G.createEdge(tree, plant, "is");
+        UUID E2 = G.createEdge(apple_tree, tree, "is");
+        UUID E3 = G.createEdge(apple, apple_tree, "grows on");
+
+
+        List<String> names = Arrays.asList("apple tree", "tree", "plant");
+        ArrayList<IKBObject> nodes = G.getNodesAbove(apple);
+        int index = 0;
         for (IKBObject node:  nodes)
         {
             Assert.assertTrue(node.getName().equals(names.get(index)));
