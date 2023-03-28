@@ -108,7 +108,7 @@ public class Graph {
         removeEdge(ID, _parent);
     }
 
-    public ArrayList<IKBObject> getNodesBelow(IKBObject node)
+    public Collection<IKBObject> getNodesBelow(IKBObject node)
     {
         if (!_directed)
         {
@@ -117,7 +117,7 @@ public class Graph {
         else
         {
 
-            ArrayList<IKBObject> nodes = new ArrayList<IKBObject>();
+            HashSet<IKBObject> nodes = new HashSet<>();
             int start_counter = 0;
             while (start_counter==0)
             {
@@ -128,12 +128,14 @@ public class Graph {
                 {
                     return null;
                 }
-                int num_edges = E.size();
 
                 for (Edge current_edge : E)
                 {
                     IKBObject child_node = _uuidIkbChild.get(current_edge._childUUID);
-                    nodes.add(child_node);
+                    Boolean loop = nodes.add(child_node);
+                    if (loop) {
+                        return nodes;
+                    }
                     node = child_node;
                     start_counter = 0;
 
@@ -149,7 +151,7 @@ public class Graph {
 
     }
 
-    public ArrayList<IKBObject> getNodesAbove(IKBObject node)
+    public Collection<IKBObject> getNodesAbove(IKBObject node)
     {
         if (!_directed)
         {
@@ -158,7 +160,7 @@ public class Graph {
         else
         {
 
-            ArrayList<IKBObject> nodes = new ArrayList<IKBObject>();
+            HashSet<IKBObject> nodes = new HashSet<>();
             int start_counter = 0;
             while (start_counter==0)
             {
@@ -174,7 +176,10 @@ public class Graph {
                 for (Edge current_edge : E)
                 {
                     IKBObject parent_node = _uuidIkbParent.get(current_edge._parentUUID);
-                    nodes.add(parent_node);
+                    Boolean loop = nodes.add(parent_node);
+                    if (loop) {
+                        return nodes;
+                    }
                     node = parent_node;
                     start_counter = 0;
 

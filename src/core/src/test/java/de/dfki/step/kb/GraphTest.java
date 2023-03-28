@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,7 +34,7 @@ public class GraphTest {
         G.saveEdges("edges.json");
         G.deleteEdge(E2);
         List<String> names = Arrays.asList("tree");
-        ArrayList<IKBObject> nodes = G.getNodesBelow(plant);
+        Collection<IKBObject> nodes = G.getNodesBelow(plant);
         int index = 0;
         for (IKBObject node:  nodes)
         {
@@ -60,6 +61,29 @@ public class GraphTest {
     }
 
     @Test
+    public void GraphTestLoop() throws Exception {
+
+        Type T = new Type("default", kb);
+        IKBObject plant =  kb.createInstance("plant", T);
+        IKBObject tree =  kb.createInstance("tree", T);
+
+
+        Graph G = new Graph();
+        UUID E1 = G.createEdge(tree, plant, "is");
+        UUID E2 = G.createEdge(plant, tree, null);
+        G.saveEdges("edges.json");
+        List<String> names = Arrays.asList("tree");
+        Collection<IKBObject> nodes = G.getNodesBelow(plant);
+        int index = 0;
+        for (IKBObject node:  nodes)
+        {
+            Assert.assertTrue(node.getName().equals(names.get(index)));
+            index++;
+
+        }
+    }
+
+    @Test
     public void GraphTestAbove() throws Exception {
         Type T = new Type("default", kb);
         IKBObject plant =  kb.createInstance("plant", T);
@@ -75,7 +99,7 @@ public class GraphTest {
 
 
         List<String> names = Arrays.asList("apple tree", "tree", "plant");
-        ArrayList<IKBObject> nodes = G.getNodesAbove(apple);
+        Collection<IKBObject> nodes = G.getNodesAbove(apple);
         int index = 0;
         for (IKBObject node:  nodes)
         {
