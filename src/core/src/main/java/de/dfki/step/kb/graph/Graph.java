@@ -4,9 +4,6 @@ import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import de.dfki.step.kb.IKBObject;
 
-
-import javax.swing.*;
-import javax.xml.crypto.Data;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.util.*;
