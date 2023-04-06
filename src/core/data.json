@@ -1,0 +1,1 @@
+{"nodes":["plant","tree","apple tree","apple"],"edges":["plant,tree","tree,apple tree","apple tree,apple"],"edges_labels":["is","is","grows on"]}

@@ -1,0 +1,1 @@
+{"nodes": ["keyboard", "mouse", "monitor"], "edges": ["keyboard,mouse", "monitor,keyboard"], "edges_labels": ["buddies", "friends"]}

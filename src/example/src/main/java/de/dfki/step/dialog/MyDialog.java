@@ -59,6 +59,8 @@ public class MyDialog extends Dialog {
             }, "GreetingRule");
             Pattern p = new PatternBuilder("GreetingIntent", this.getKB()).build();
             GreetingRule.setCondition(new PatternCondition(p));
+            GreetingRule.getCondition().setMinTokenAge(1 * 1000);
+            GreetingRule.getCondition().setMaxTokenAge(30 * 1000);
             this.getBlackboard().addRule(GreetingRule);
 
 

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import com.google.gson.Gson;
 
 import javax.annotation.PostConstruct;
+import java.io.FileNotFoundException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -223,8 +224,85 @@ public class Controller {
 
     @CrossOrigin
     @GetMapping (value =  "/kb/graph/{graphName}/getEdges", produces = "application/json")
-    public Collection<de.dfki.step.kb.graph.Edge> getEdgesFromGraph(@PathVariable("graphName") String graphName) {
+    public ArrayList<String> getEdgesFromGraph(@PathVariable("graphName") String graphName) {
         return dialog.getBlackboard().getGraph(graphName).getAllEdges();
+    }
+
+
+    @CrossOrigin
+    @PostMapping (value = "/kb/graph/addNode", consumes = "application/json")
+    public ResponseEntity<String> addNodeToGraph(@RequestBody Map<String, Object> body) {
+
+        if (!body.containsKey("graphName")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing graphName");
+        }
+
+        Graph graph = this.dialog.getBlackboard().getGraph(body.get("graphName").toString());
+
+        if (graph == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("graph not found");
+        }
+
+
+        String addNode = null;
+
+        if (!body.containsKey("node")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing node");
+        }
+        if (!(body.get("node") instanceof String))
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("node must be string");
+        try {
+            addNode = body.get("node").toString();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("node is invalid");
+        }
+
+        if (addNode == null)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("node not found");
+
+
+        IKBObject goal = this.dialog.getKB().getInstance(addNode);
+        graph.createNode(goal);
+
+        return ResponseEntity.ok("ok");
+    }
+
+    @CrossOrigin
+    @PostMapping (value = "/kb/graph/deleteNode", consumes = "application/json")
+    public ResponseEntity<String> deleteNodeFromGraph(@RequestBody Map<String, Object> body) {
+
+        if (!body.containsKey("graphName")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing graphName");
+        }
+
+        Graph graph = this.dialog.getBlackboard().getGraph(body.get("graphName").toString());
+
+        if (graph == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("graph not found");
+        }
+
+
+        String deleteNode = null;
+
+        if (!body.containsKey("node")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing node");
+        }
+        if (!(body.get("node") instanceof String))
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("node must be string");
+        try {
+            deleteNode = body.get("node").toString();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("node is invalid");
+        }
+
+        if (deleteNode == null)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("node not found");
+
+
+        IKBObject goal = this.dialog.getKB().getInstance(deleteNode);
+        graph.deleteNode(goal);
+
+        return ResponseEntity.ok("ok");
     }
 
     @CrossOrigin
@@ -242,40 +320,40 @@ public class Controller {
         }
 
 
-        UUID sourceID = null;
-        UUID goalID = null;
+        String parent = null;
+        String child = null;
 
-        if (!body.containsKey("source")) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing source");
+        if (!body.containsKey("parent")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing parent");
         }
-        if (!(body.get("source") instanceof String))
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("source must be string");
+        if (!(body.get("parent") instanceof String))
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("parent must be string");
         try {
-            sourceID = UUID.fromString(body.get("source").toString());
+            parent = body.get("parent").toString();
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("source is invalid");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("parent is invalid");
         }
 
 
-        if (!body.containsKey("goal")) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing goal");
+        if (!body.containsKey("child")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing child");
         }
-        if (!(body.get("goal") instanceof String))
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("goal must be string");
+        if (!(body.get("child") instanceof String))
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("child must be string");
         try {
-            goalID = UUID.fromString(body.get("goal").toString());
+            child = body.get("child").toString();
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("goal is invalid");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("child is invalid");
         }
 
-        if (sourceID == null)
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("source not found");
+        if (parent == null)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("parent not found");
 
-        if (goalID == null)
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("goal not found");
+        if (child == null)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("child not found");
 
-        IKBObject source = this.dialog.getKB().getInstance(sourceID);
-        IKBObject goal = this.dialog.getKB().getInstance(goalID);
+        IKBObject source = this.dialog.getKB().getInstance(parent);
+        IKBObject goal = this.dialog.getKB().getInstance(child);
 
         if (body.containsKey("label")) {
             if (!(body.get("goal") instanceof String))
@@ -283,7 +361,7 @@ public class Controller {
             graph.createEdge(source, goal, (String)body.get("label"));
         } else {
             //TODO: change according to optional implementation
-            graph.createEdge(source, goal, null);
+            graph.createEdge(source, goal, "");
         }
 
         return ResponseEntity.ok("ok");
@@ -300,24 +378,49 @@ public class Controller {
         Graph graph = this.dialog.getBlackboard().getGraph(body.get("graphName").toString());
 
 
-        UUID ID = null;
+        String parent = null;
+        String child = null;
 
-        if (!body.containsKey("UUID")) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing source");
+        if (!body.containsKey("parent")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing parent");
         }
-        if (!(body.get("UUID") instanceof String))
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("source must be string");
+        if (!(body.get("parent") instanceof String))
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("parent must be string");
         try {
-            ID = UUID.fromString(body.get("UUID").toString());
+            parent = body.get("parent").toString();
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("UUID is invalid");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("parent is invalid");
         }
 
-        if (ID == null)
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("UUID not found");
 
+        if (!body.containsKey("child")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing child");
+        }
+        if (!(body.get("child") instanceof String))
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("child must be string");
+        try {
+            child = body.get("child").toString();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("child is invalid");
+        }
 
-        graph.deleteEdge(ID);
+        if (parent == null)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("parent not found");
+
+        if (child == null)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("child not found");
+
+        IKBObject source = this.dialog.getKB().getInstance(parent);
+        IKBObject goal = this.dialog.getKB().getInstance(child);
+
+        if (body.containsKey("label")) {
+            if (!(body.get("goal") instanceof String))
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("label must be string");
+            graph.createEdge(source, goal, (String)body.get("label"));
+        } else {
+            //TODO: change according to optional implementation
+            graph.deleteEdge(source, goal, "");
+        }
 
         return ResponseEntity.ok("ok");
     }
