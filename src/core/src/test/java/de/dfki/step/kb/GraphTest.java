@@ -28,33 +28,38 @@ public class GraphTest {
 
 
         Graph G = new Graph();
-        UUID E1 = G.createEdge(tree, plant, "is");
-        UUID E2 = G.createEdge(apple_tree, tree, "is");
-        UUID E3 = G.createEdge(apple, apple_tree, "grows on");
-        G.saveEdges("edges.json");
-        G.deleteEdge(E2);
+        G.createNode(plant);
+        G.createNode(tree);
+        G.createNode(apple_tree);
+        G.createNode(apple);
+
+        G.createEdge(tree, plant, "is");
+        G.createEdge(apple_tree, tree, "is");
+        G.createEdge(apple, apple_tree, "grows on");
+        G.saveData("data.json");
+        G.deleteEdge(apple_tree, tree, "is");
         List<String> names = Arrays.asList("tree");
-        Collection<IKBObject> nodes = G.getNodesBelow(plant);
+        Collection<String> nodes = G.getNodesBelow(plant);
         int index = 0;
-        for (IKBObject node:  nodes)
+        for (String node:  nodes)
         {
-            Assert.assertTrue(node.getName().equals(names.get(index)));
+            Assert.assertTrue(node.equals(names.get(index)));
             index++;
 
         }
 
 
-        List<IKBObject> nodes_neighbours = G.findRelation("grows on", apple_tree);
-        Assert.assertTrue(nodes_neighbours.get(0).getName().equals("apple"));
+        ArrayList<String> nodes_neighbours = G.findRelation("grows on", apple_tree);
+        Assert.assertTrue(nodes_neighbours.get(0).equals("apple"));
 
-        G.loadEdges("edges.json");
+        G.loadData("data.json");
 
         names = Arrays.asList("tree", "apple tree", "apple");
         nodes = G.getNodesBelow(plant);
         index = 0;
-        for (IKBObject node:  nodes)
+        for (String node:  nodes)
         {
-            Assert.assertTrue(node.getName().equals(names.get(index)));
+            Assert.assertTrue(node.equals(names.get(index)));
             index++;
 
         }
@@ -66,18 +71,25 @@ public class GraphTest {
         Type T = new Type("default", kb);
         IKBObject plant =  kb.createInstance("plant", T);
         IKBObject tree =  kb.createInstance("tree", T);
-
+        IKBObject apple_tree =  kb.createInstance("apple tree", T);
 
         Graph G = new Graph();
-        UUID E1 = G.createEdge(tree, plant, "is");
-        UUID E2 = G.createEdge(plant, tree, null);
-        G.saveEdges("edges.json");
-        List<String> names = Arrays.asList("tree");
-        Collection<IKBObject> nodes = G.getNodesBelow(plant);
+        G.createNode(plant);
+        G.createNode(tree);
+        G.createNode(apple_tree);
+
+        G.createEdge(tree, plant, "is");
+        G.createEdge(plant, tree, null);
+        G.createEdge(apple_tree, tree, "type of");
+        G.createEdge(plant, apple_tree, "is");
+
+        G.saveData("loop.json");
+        List<String> names = Arrays.asList("tree", "apple tree");
+        Collection<String> nodes = G.getNodesBelow(plant);
         int index = 0;
-        for (IKBObject node:  nodes)
+        for (String node:  nodes)
         {
-            Assert.assertTrue(node.getName().equals(names.get(index)));
+            Assert.assertTrue(node.equals(names.get(index)));
             index++;
 
         }
@@ -93,19 +105,43 @@ public class GraphTest {
 
 
         Graph G = new Graph();
-        UUID E1 = G.createEdge(tree, plant, "is");
-        UUID E2 = G.createEdge(apple_tree, tree, "is");
-        UUID E3 = G.createEdge(apple, apple_tree, "grows on");
+        G.createNode(plant);
+        G.createNode(tree);
+        G.createNode(apple_tree);
+        G.createNode(apple);
+
+        G.createEdge(tree, plant, "is");
+        G.createEdge(apple_tree, tree, "is");
+        G.createEdge(apple, apple_tree, "grows on");
 
 
         List<String> names = Arrays.asList("apple tree", "tree", "plant");
-        Collection<IKBObject> nodes = G.getNodesAbove(apple);
+        Collection<String> nodes = G.getNodesAbove(apple);
+
         int index = 0;
-        for (IKBObject node:  nodes)
+        for (String node:  nodes)
         {
-            Assert.assertTrue(node.getName().equals(names.get(index)));
+            Assert.assertTrue(node.equals(names.get(index)));
             index++;
 
         }
+    }
+    @Test
+    public void pythonDataFile() throws Exception {
+        Graph G = new Graph();
+        Type T = new Type("default", kb);
+        IKBObject keyboard =  kb.createInstance("keyboard", T);
+        IKBObject monitor =  kb.createInstance("monitor", T);
+        G.loadData("pythondb.json");
+        Collection<String> nodes = G.getNodesAbove(monitor);
+        List<String> names = Arrays.asList("keyboard", "mouse");
+        int index = 0;
+        for (String node:  nodes)
+        {
+            Assert.assertTrue(node.equals(names.get(index)));
+            index++;
+
+        }
+
     }
 }

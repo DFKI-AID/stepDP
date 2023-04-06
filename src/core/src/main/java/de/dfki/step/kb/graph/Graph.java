@@ -3,112 +3,93 @@ package de.dfki.step.kb.graph;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import de.dfki.step.kb.IKBObject;
-
-
 import java.io.*;
 import java.lang.reflect.Type;
 import java.util.*;
 
 public class Graph {
-    public Map<IKBObject, ArrayList<Edge>> _child;
-    public Map<IKBObject, ArrayList<Edge>> _parent;
-    public Map<UUID,IKBObject> _uuidIkbChild;
-    public Map<UUID,IKBObject> _uuidIkbParent;
+    public Database data;
     Boolean _directed = true;
     public Graph()
     {
-        _child = new HashMap<IKBObject, ArrayList<Edge>>();
-        _parent = new HashMap<IKBObject, ArrayList<Edge>>();
-        _uuidIkbChild = new HashMap<UUID,IKBObject>();
-        _uuidIkbParent = new HashMap<UUID,IKBObject>();
+        this.data = new Database();
     }
     public void SetUndirected()
     {
         this._directed = false;
     }
 
-    public UUID createEdge(IKBObject child_node,IKBObject parent_node, String label)
+    public boolean createNode(IKBObject node)
     {
-        Edge Ed = new Edge(child_node.getUUID(), parent_node.getUUID(),label);
-        _uuidIkbChild.put(Ed._childUUID, child_node);
-        _uuidIkbParent.put(Ed._parentUUID, parent_node);
-        addEdge(Ed);
-
-        return Ed._edgeUUID;
+        if (this.data.nodes.contains(node.getName()))
+        {
+            System.out.println("Node already present");
+            return false;
+        }
+        else {
+            data.nodes.add(node.getName());
+            return true;
+        }
     }
 
-    public void addEdge(Edge Ed)
-    {
-        IKBObject child_node = _uuidIkbChild.get(Ed._childUUID);
-        IKBObject parent_node = _uuidIkbParent.get(Ed._parentUUID);
-
-        if (_child.get(child_node) == null)
+    public boolean deleteNode(IKBObject node) {
+        if (this.data.nodes.contains(node.getName()))
         {
-            ArrayList <Edge> list = new ArrayList<Edge>();
-            list.add(Ed);
-            _child.put(child_node, list);
-
+            data.nodes.remove(node.getName());
+            return true;
         }
-        else
-        {
-            _child.get(child_node).add(Ed);
+        else {
+            System.out.println("Node not present");
+            return false;
 
         }
-        if (_parent.get(parent_node) == null)
-        {
-            ArrayList <Edge> list = new ArrayList<Edge>();
-            list.add(Ed);
-            _parent.put(parent_node, list);
-        }
-        else
-        {
-            _parent.get(parent_node).add(Ed);
-        }
-    }
-    public ArrayList<Edge> getAllEdges() {
-        ArrayList<Edge> edges = new ArrayList<>();
-        for (ArrayList<Edge> edgeList : _child.values()) {
-            edges.addAll(edgeList);
-        }
-        return edges;
+
     }
 
-    public  Edge findEdge(UUID ID)
+    public boolean createEdge(IKBObject child_node,IKBObject parent_node, String edge_label)
     {
-        for (ArrayList<Edge> edgeList : _child.values()) {
-            for (Edge current_edge: edgeList)
+        if (this.data.nodes.contains(child_node.getName()) && this.data.nodes.contains(parent_node.getName()))
+        {
+            for (int i =0; i <this.data.edges.size(); i++)
             {
-                if (current_edge._edgeUUID.equals(ID))
+                String parent = this.data.edges.get(i).split(",")[0];
+                String child = this.data.edges.get(i).split(",")[1];
+                if (child == child_node.getName() && parent == parent_node.getName() && this.data.edges_labels.get(i) == edge_label)
                 {
-                    return current_edge;
+                    System.out.println("Edge already present");
+                    return false;
                 }
             }
+            this.data.edges.add(parent_node.getName().trim() + "," + child_node.getName().trim());
+            this.data.edges_labels.add(edge_label);
+            return true;
+
         }
-
-        return null;
+        System.out.println("Node not found in graph");
+        return false;
     }
-    private void removeEdge(UUID ID, Map<IKBObject, ArrayList<Edge>> Map)
+
+    public ArrayList<String> getAllEdges() {
+        return this.data.edges;
+    }
+
+    public boolean deleteEdge(IKBObject child_node,IKBObject parent_node, String edge_label)
     {
-            for (ArrayList<Edge> edgeList : Map.values())
-            {
-                for (Edge current_edge: edgeList)
-                {
-                    if (current_edge._edgeUUID.equals(ID))
-                    {
-                        edgeList.remove(current_edge);
-                        return;
-                    }
-                }
+        for (int i = 0; i < this.data.edges.size(); i++) {
+            String parent = this.data.edges.get(i).split(",")[0];
+            String child = this.data.edges.get(i).split(",")[1];
+
+            if (child.equals( child_node.getName()) && parent.equals(parent_node.getName()) && this.data.edges_labels.get(i).equals( edge_label)) {
+                this.data.edges.remove(this.data.edges.get(i));
+                this.data.edges_labels.remove(this.data.edges_labels.get(i));
+                return true;
             }
-        return;
-    }
-    public void deleteEdge(UUID ID)
-    {
-        removeEdge(ID, _child);
-        removeEdge(ID, _parent);
+        }
+        return false;
+
     }
 
-    public Collection<IKBObject> getNodesBelow(IKBObject node)
+    public Collection<String> getNodesBelow(IKBObject node)
     {
         if (!_directed)
         {
@@ -116,42 +97,13 @@ public class Graph {
         }
         else
         {
-
-            HashSet<IKBObject> nodes = new HashSet<>();
-            int start_counter = 0;
-            while (start_counter==0)
-            {
-                start_counter = 1;
-                ArrayList<Edge> E = _parent.get(node);
-
-                if (E == null)
-                {
-                    return null;
-                }
-
-                for (Edge current_edge : E)
-                {
-                    IKBObject child_node = _uuidIkbChild.get(current_edge._childUUID);
-                    Boolean loop = nodes.add(child_node);
-                    if (loop) {
-                        return nodes;
-                    }
-                    node = child_node;
-                    start_counter = 0;
-
-                }
-                if (_parent.get(node) == null)
-                {
-                    return nodes;
-                }
-
-            }
-            return nodes;
+            Set<String> visited = new HashSet<>();
+            List<String> result = new ArrayList<>();
+            dfs(node.getName(), this.data.edges, visited, result,1);
+            return result;
         }
-
     }
-
-    public Collection<IKBObject> getNodesAbove(IKBObject node)
+    public Collection<String> getNodesAbove(IKBObject node)
     {
         if (!_directed)
         {
@@ -159,80 +111,53 @@ public class Graph {
         }
         else
         {
-
-            HashSet<IKBObject> nodes = new HashSet<>();
-            int start_counter = 0;
-            while (start_counter==0)
-            {
-                start_counter = 1;
-                ArrayList<Edge> E = _child.get(node);
-
-                if (E == null)
-                {
-                    return null;
-                }
-                int num_edges = E.size();
-
-                for (Edge current_edge : E)
-                {
-                    IKBObject parent_node = _uuidIkbParent.get(current_edge._parentUUID);
-                    Boolean loop = nodes.add(parent_node);
-                    if (loop) {
-                        return nodes;
-                    }
-                    node = parent_node;
-                    start_counter = 0;
-
-                }
-                if (_child.get(node) == null)
-                {
-                    return nodes;
-                }
-
-            }
-            return nodes;
+            Set<String> visited = new HashSet<>();
+            List<String> result = new ArrayList<>();
+            dfs(node.getName(), this.data.edges, visited, result, 0);
+            return result;
         }
 
     }
+    private static void dfs(String node, ArrayList<String> edges, Set<String> visited, List<String> result,int node_below) {
+        visited.add(node);
+        for (String edge : edges) {
+            String[] parts = edge.split(",");
+            if (parts[1 - node_below].equals(node) && !visited.contains(parts[node_below])) {
+                result.add(parts[node_below]);
+                dfs(parts[node_below], edges, visited, result, node_below);
+            }
+        }
+    }
 
-    public List<IKBObject> findRelation(String Relation, IKBObject A)
+
+    public ArrayList<String> findRelation(String Relation, IKBObject A)
     {
-        List<Edge> E = _parent.get(A);
-        List<IKBObject> nodes = new ArrayList<IKBObject>();;
-        for (Edge current_edge : E)
-        {
-            if (current_edge._label.equals(Relation))
-            {
-                nodes.add(_uuidIkbChild.get(current_edge._childUUID));
-            }
+    ArrayList<String> nodes = new ArrayList<>();
+    for (int i = 0; i < this.data.edges.size(); i++) {
+        String parent = this.data.edges.get(i).split(",")[0];
+        String child = this.data.edges.get(i).split(",")[1];
+
+        if ((A.getName().equals(parent)) && (this.data.edges_labels.get(i).equals(Relation)))
+            nodes.add(child);
+        else if ((A.getName().equals(child)) && (this.data.edges_labels.get(i).equals(Relation)))
+            nodes.add(child);
         }
-        return nodes;
+    return nodes;
     }
-    public void saveEdges(String path) throws IOException {
-        ArrayList<Edge> edges = getAllEdges();
+    public void saveData(String path) throws IOException {
         Gson gson = new Gson();
         FileWriter writer = new FileWriter(path);
-        gson.toJson(edges, writer);
+        gson.toJson(this.data, writer);
         writer.flush();
         writer.close();
 
     }
-    public void loadEdges(String path) throws FileNotFoundException {
+    public void loadData(String path) throws FileNotFoundException {
         Gson gson = new Gson();
-
         BufferedReader br = new BufferedReader(new FileReader(path));
-        Type userListType = new TypeToken<ArrayList<Edge>>(){}.getType();
-        ArrayList<Edge> edges=  gson.fromJson(br, userListType);
-        for (Edge current_edge : edges)
-        {
-            if (findEdge(current_edge._edgeUUID) == null)
-            {
-                this.addEdge(current_edge);
-            }
-
-        }
+        Type userListType = new TypeToken<Database>(){}.getType();
+        this.data =  gson.fromJson(br, userListType);
     }
-
 
 }
 
