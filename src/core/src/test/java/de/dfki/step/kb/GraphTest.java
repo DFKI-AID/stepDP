@@ -115,7 +115,7 @@ public class GraphTest {
         G.createEdge(apple, apple_tree, "grows on");
 
 
-        List<String> names = Arrays.asList("apple tree", "tree", "plant")
+        List<String> names = Arrays.asList("apple tree", "tree", "plant");
         Collection<String> nodes = G.getNodesAbove(apple);
 
         int index = 0;
