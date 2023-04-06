@@ -26,7 +26,6 @@ public class GraphTest {
         IKBObject apple_tree =  kb.createInstance("apple tree", T);
         IKBObject apple =  kb.createInstance("apple", T);
 
-
         Graph G = new Graph();
         G.createNode(plant);
         G.createNode(tree);
