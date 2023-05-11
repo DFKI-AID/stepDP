@@ -1,13 +1,19 @@
 package de.dfki.step.web;
 
+import de.dfki.step.blackboard.BasicToken;
 import de.dfki.step.blackboard.KBToken;
 import de.dfki.step.dialog.Dialog;
 import de.dfki.step.kb.IKBObject;
 import de.dfki.step.kb.IUUID;
 import de.dfki.step.kb.graph.Graph;
+import de.dfki.step.kb.semantic.PropInt;
+import de.dfki.step.kb.semantic.PropString;
 import de.dfki.step.kb.semantic.Type;
 import de.dfki.step.rm.sc.StateChartManager;
 import de.dfki.step.rm.sc.internal.StateChart;
+import de.dfki.step.web.webchat.Message;
+import de.dfki.step.web.webchat.Sender;
+import de.dfki.step.web.webchat.WebChat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +22,6 @@ import org.springframework.web.bind.annotation.*;
 import com.google.gson.Gson;
 
 import javax.annotation.PostConstruct;
-import java.io.FileNotFoundException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -29,6 +34,8 @@ public class Controller {
     //    @Autowired
 //    private ApplicationContext context;
     private Dialog dialog;
+    public static WebChat webChat;
+    public static Type webChatInputType;
     private static List<String> outputHistory = new ArrayList<String>();
     private static Map<String, String> exampleTokens = new LinkedHashMap<>();
 
@@ -37,7 +44,17 @@ public class Controller {
 
     @PostConstruct
     protected void init() {
-        dialog = appConfig.getDialog(); //context.getBean(Dialog.class);
+        dialog = appConfig.getDialog();
+        //context.getBean(Dialog.class);
+        try {
+            webChatInputType = new Type("WebChatInputType", dialog.getKB());
+            webChatInputType.addProperty(new PropInt("session", dialog.getKB()));
+            webChatInputType.addProperty(new PropString("userText", dialog.getKB()));
+            dialog.getKB().addType(webChatInputType);
+        } catch (Exception e) {
+            System.out.println("WebChatInputType cout not be initialized");
+            e.printStackTrace();
+        }
     }
 
     public static void createSpeechUtterance(String text) {
@@ -48,6 +65,8 @@ public class Controller {
 
     public Controller()
     {
+        this.webChat = new WebChat();
+
         // add standard examples
         addExampleToken("add greeting", "{\"type\": \"GreetingIntent\", \"userName\":\"Alice\"}");
         addExampleToken("add hello", "{\"type\": \"HelloIntent\"}");
@@ -446,5 +465,39 @@ public class Controller {
         return this.dialog.getBlackboard().getAllGraphs().keySet();
     }
 
+    @CrossOrigin
+    @GetMapping (value = "/webchat-api/getDiscourse", produces = "application/json")
+    public Collection<Message> getDiscourse(@RequestParam int session, @RequestParam(required = false) Integer numberOfMessages) {
+        if (numberOfMessages == null) {
+            return this.webChat.getDiscourse(session);
+        } else {
+            return this.webChat.getDiscourse(session, numberOfMessages);
+        }
+    }
 
+    @CrossOrigin
+    @PostMapping (value = "/webchat-api/sendInput", produces = "application/json")
+    public ResponseEntity<String> sendInput(@RequestParam int session, @RequestParam String message) {
+
+        //save user message
+        this.webChat.addMessage(session, Sender.USER, message);
+
+        //Create a Token and add to blackboard
+        BasicToken token = new BasicToken(dialog.getKB());
+        token.setType(webChatInputType);
+        Map<String,Object> values = new HashMap<>();
+        values.put("userText", message);
+        values.put("session", session);
+        token.addAll(values);
+        dialog.getBlackboard().addToken(token);
+
+        return ResponseEntity.ok("ok");
+    }
+
+    @CrossOrigin
+    @PostMapping (value = "/webchat-api/newSession", produces = "application/json")
+    public ResponseEntity<Integer> newSession() {
+        int session = webChat.addSession();
+        return ResponseEntity.ok(session);
+    }
 }

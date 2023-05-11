@@ -1,6 +1,7 @@
 package de.dfki.step.dialog;
 
 
+import de.dfki.step.blackboard.IToken;
 import de.dfki.step.blackboard.Rule;
 import de.dfki.step.blackboard.conditions.PatternCondition;
 import de.dfki.step.blackboard.patterns.Pattern;
@@ -11,6 +12,7 @@ import de.dfki.step.kb.IKBObjectWriteable;
 import de.dfki.step.kb.semantic.PropString;
 import de.dfki.step.kb.semantic.Type;
 import de.dfki.step.web.Controller;
+import de.dfki.step.web.webchat.Sender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,6 +73,15 @@ public class MyDialog extends Dialog {
             Pattern p2 = new PatternBuilder("PlasticBottle", this.getKB()).build();
             TestRule.setCondition(new PatternCondition(p2));
             this.getBlackboard().addRule(TestRule);
+
+            Rule ChatEchoRule = new SimpleRule(tokens -> {
+                IToken t = tokens[0];
+
+                Controller.webChat.addMessage(t.getInteger("session"), Sender.BOT, t.getString("userText"));
+            }, "ChatEchoRule");
+            Pattern p3 = new PatternBuilder("WebChatInputType", this.getKB()).build();
+            ChatEchoRule.setCondition(new PatternCondition(p3));
+            this.getBlackboard().addRule(ChatEchoRule);
 
             Controller.addExampleToken("add custom intent", "{\"type\": \"CustomIntent\", \"userName\":\"Alice\"}");
 

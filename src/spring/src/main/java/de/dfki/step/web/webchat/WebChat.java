@@ -1,6 +1,7 @@
 package de.dfki.step.web.webchat;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class WebChat {
@@ -20,12 +21,16 @@ public class WebChat {
         return i;
     }
 
-    public void sendMessage (int sessionID, String text) {
-        sessions.get(sessionID).addMessage(Sender.BOT, text);
+    public void addMessage (int sessionID, Sender sender, String text) {
+        sessions.get(sessionID).addMessage(sender, text);
     }
 
-    public Message receiveMessage (int sessionID) {
-        //TODO: implement
-        return null;
+
+    public List<Message> getDiscourse (int sessionID) {
+        return this.sessions.get(sessionID).getDiscourse();
+    }
+
+    public List<Message> getDiscourse (int sessionID, int numberOfMessages) {
+        return this.sessions.get(sessionID).getDiscourse(numberOfMessages);
     }
 }
