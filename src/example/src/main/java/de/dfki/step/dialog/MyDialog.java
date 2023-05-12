@@ -74,14 +74,7 @@ public class MyDialog extends Dialog {
             TestRule.setCondition(new PatternCondition(p2));
             this.getBlackboard().addRule(TestRule);
 
-            Rule ChatEchoRule = new SimpleRule(tokens -> {
-                IToken t = tokens[0];
 
-                Controller.webChat.addMessage(t.getInteger("session"), Sender.BOT, t.getString("userText"));
-            }, "ChatEchoRule");
-            Pattern p3 = new PatternBuilder("WebChatInputType", this.getKB()).build();
-            ChatEchoRule.setCondition(new PatternCondition(p3));
-            this.getBlackboard().addRule(ChatEchoRule);
 
             Controller.addExampleToken("add custom intent", "{\"type\": \"CustomIntent\", \"userName\":\"Alice\"}");
 

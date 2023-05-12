@@ -31,6 +31,6 @@ public class Session {
 
     public List<Message> getDiscourse (int numberOfSentences) {
         List<Message> messages = this.messages.subList(this.messages.size()-Math.min(this.messages.size(),numberOfSentences), this.messages.size());
-        return this.messages;
+        return messages;
     }
 }

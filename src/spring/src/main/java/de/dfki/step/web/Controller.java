@@ -1,7 +1,13 @@
 package de.dfki.step.web;
 
 import de.dfki.step.blackboard.BasicToken;
+import de.dfki.step.blackboard.IToken;
 import de.dfki.step.blackboard.KBToken;
+import de.dfki.step.blackboard.Rule;
+import de.dfki.step.blackboard.conditions.PatternCondition;
+import de.dfki.step.blackboard.patterns.Pattern;
+import de.dfki.step.blackboard.patterns.PatternBuilder;
+import de.dfki.step.blackboard.rules.SimpleRule;
 import de.dfki.step.dialog.Dialog;
 import de.dfki.step.kb.IKBObject;
 import de.dfki.step.kb.IUUID;
@@ -51,6 +57,14 @@ public class Controller {
             webChatInputType.addProperty(new PropInt("session", dialog.getKB()));
             webChatInputType.addProperty(new PropString("userText", dialog.getKB()));
             dialog.getKB().addType(webChatInputType);
+            Rule ChatEchoRule = new SimpleRule(tokens -> {
+                IToken t = tokens[0];
+
+                Controller.webChat.addMessage(t.getInteger("session"), Sender.BOT, t.getString("userText"));
+            }, "ChatEchoRule");
+            Pattern p3 = new PatternBuilder("WebChatInputType", dialog.getKB()).build();
+            ChatEchoRule.setCondition(new PatternCondition(p3));
+            dialog.getBlackboard().addRule(ChatEchoRule);
         } catch (Exception e) {
             System.out.println("WebChatInputType cout not be initialized");
             e.printStackTrace();
