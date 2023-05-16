@@ -9,6 +9,7 @@ import de.dfki.step.blackboard.patterns.PatternBuilder;
 import de.dfki.step.blackboard.rules.SimpleRule;
 import de.dfki.step.kb.IKBObject;
 import de.dfki.step.kb.IKBObjectWriteable;
+import de.dfki.step.kb.semantic.PropInt;
 import de.dfki.step.kb.semantic.PropString;
 import de.dfki.step.kb.semantic.Type;
 import de.dfki.step.web.Controller;
@@ -74,7 +75,25 @@ public class MyDialog extends Dialog {
             TestRule.setCondition(new PatternCondition(p2));
             this.getBlackboard().addRule(TestRule);
 
+            Type webChatInputType;
+            try {
+                webChatInputType = new Type("WebChatInputType", this.getKB());
+                webChatInputType.addProperty(new PropInt("session", this.getKB()));
+                webChatInputType.addProperty(new PropString("userText", this.getKB()));
+                this.getKB().addType(webChatInputType);
+            } catch (Exception e) {
+                System.out.println("WebChatInputType could not be initialized");
+                e.printStackTrace();
+            }
 
+            Rule ChatEchoRule = new SimpleRule(tokens -> {
+                IToken t = tokens[0];
+
+                Controller.webChat.addMessage(t.getInteger("session"), Sender.BOT, t.getString("userText"));
+            }, "ChatEchoRule");
+            Pattern p3 = new PatternBuilder("WebChatInputType", this.getKB()).build();
+            ChatEchoRule.setCondition(new PatternCondition(p3));
+            this.getBlackboard().addRule(ChatEchoRule);
 
             Controller.addExampleToken("add custom intent", "{\"type\": \"CustomIntent\", \"userName\":\"Alice\"}");
 

@@ -1,6 +1,5 @@
 package de.dfki.step.web;
 
-import de.dfki.step.blackboard.BasicToken;
 import de.dfki.step.blackboard.IToken;
 import de.dfki.step.blackboard.KBToken;
 import de.dfki.step.blackboard.Rule;
@@ -52,23 +51,17 @@ public class Controller {
     protected void init() {
         dialog = appConfig.getDialog();
         //context.getBean(Dialog.class);
-        try {
+
+        //temporarily moved to example dialogue to prevent error because init is called after the rule is initialized
+        /*try {
             webChatInputType = new Type("WebChatInputType", dialog.getKB());
             webChatInputType.addProperty(new PropInt("session", dialog.getKB()));
             webChatInputType.addProperty(new PropString("userText", dialog.getKB()));
             dialog.getKB().addType(webChatInputType);
-            Rule ChatEchoRule = new SimpleRule(tokens -> {
-                IToken t = tokens[0];
-
-                Controller.webChat.addMessage(t.getInteger("session"), Sender.BOT, t.getString("userText"));
-            }, "ChatEchoRule");
-            Pattern p3 = new PatternBuilder("WebChatInputType", dialog.getKB()).build();
-            ChatEchoRule.setCondition(new PatternCondition(p3));
-            dialog.getBlackboard().addRule(ChatEchoRule);
         } catch (Exception e) {
-            System.out.println("WebChatInputType cout not be initialized");
+            System.out.println("WebChatInputType could not be initialized");
             e.printStackTrace();
-        }
+        }*/
     }
 
     public static void createSpeechUtterance(String text) {
@@ -492,19 +485,7 @@ public class Controller {
     @CrossOrigin
     @PostMapping (value = "/webchat-api/sendInput", produces = "application/json")
     public ResponseEntity<String> sendInput(@RequestParam int session, @RequestParam String message) {
-
-        //save user message
-        this.webChat.addMessage(session, Sender.USER, message);
-
-        //Create a Token and add to blackboard
-        BasicToken token = new BasicToken(dialog.getKB());
-        token.setType(webChatInputType);
-        Map<String,Object> values = new HashMap<>();
-        values.put("userText", message);
-        values.put("session", session);
-        token.addAll(values);
-        dialog.getBlackboard().addToken(token);
-
+        this.webChat.addUserMessage(session, message, dialog.getKB(), dialog.getBlackboard());
         return ResponseEntity.ok("ok");
     }
 

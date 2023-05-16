@@ -1,5 +1,10 @@
 package de.dfki.step.web.webchat;
 
+import de.dfki.step.blackboard.BasicToken;
+import de.dfki.step.blackboard.Board;
+import de.dfki.step.kb.KnowledgeBase;
+import de.dfki.step.web.Controller;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +28,19 @@ public class WebChat {
 
     public void addMessage (int sessionID, Sender sender, String text) {
         sessions.get(sessionID).addMessage(sender, text);
+    }
+
+    public void addUserMessage (int sessionID, String text, KnowledgeBase kb, Board blackboard) {
+        addMessage(sessionID, Sender.USER, text);
+
+        //Create a Token and add to blackboard
+        BasicToken token = new BasicToken(kb);
+        token.setType(Controller.webChatInputType);
+        Map<String,Object> values = new HashMap<>();
+        values.put("userText", text);
+        values.put("session", sessionID);
+        token.addAll(values);
+        blackboard.addToken(token);
     }
 
 
