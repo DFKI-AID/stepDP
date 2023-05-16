@@ -72,7 +72,7 @@ public class Controller {
 
     public Controller()
     {
-        this.webChat = new WebChat();
+        this.webChat = new WebChat(this.dialog.getBlackboard(), this.dialog.getKB());
 
         // add standard examples
         addExampleToken("add greeting", "{\"type\": \"GreetingIntent\", \"userName\":\"Alice\"}");
@@ -485,7 +485,7 @@ public class Controller {
     @CrossOrigin
     @PostMapping (value = "/webchat-api/sendInput", produces = "application/json")
     public ResponseEntity<String> sendInput(@RequestParam int session, @RequestParam String message) {
-        this.webChat.addUserMessage(session, message, dialog.getKB(), dialog.getBlackboard());
+        this.webChat.addUserMessage(session, message);
         return ResponseEntity.ok("ok");
     }
 

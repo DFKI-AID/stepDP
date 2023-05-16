@@ -11,9 +11,13 @@ import java.util.Map;
 
 public class WebChat {
     Map<Integer, Session> sessions;
+    Board blackboard;
+    KnowledgeBase kb;
 
-    public WebChat () {
+    public WebChat (Board blackboard, KnowledgeBase kb) {
         sessions = new HashMap<>();
+        this.blackboard = blackboard;
+        this.kb = kb;
     }
 
     public int addSession () {
@@ -30,7 +34,7 @@ public class WebChat {
         sessions.get(sessionID).addMessage(sender, text);
     }
 
-    public void addUserMessage (int sessionID, String text, KnowledgeBase kb, Board blackboard) {
+    public void addUserMessage (int sessionID, String text) {
         addMessage(sessionID, Sender.USER, text);
 
         //Create a Token and add to blackboard
