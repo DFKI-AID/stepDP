@@ -75,12 +75,11 @@ public class MyDialog extends Dialog {
             TestRule.setCondition(new PatternCondition(p2));
             this.getBlackboard().addRule(TestRule);
 
-            Type webChatInputType;
             try {
-                webChatInputType = new Type("WebChatInputType", this.getKB());
-                webChatInputType.addProperty(new PropInt("session", this.getKB()));
-                webChatInputType.addProperty(new PropString("userText", this.getKB()));
-                this.getKB().addType(webChatInputType);
+                Controller.webChatInputType = new Type("WebChatInputType", this.getKB());
+                Controller.webChatInputType.addProperty(new PropInt("session", this.getKB()));
+                Controller.webChatInputType.addProperty(new PropString("userText", this.getKB()));
+                this.getKB().addType(Controller.webChatInputType);
             } catch (Exception e) {
                 System.out.println("WebChatInputType could not be initialized");
                 e.printStackTrace();

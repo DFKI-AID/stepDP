@@ -485,8 +485,13 @@ public class Controller {
     @CrossOrigin
     @PostMapping (value = "/webchat-api/sendInput", produces = "application/json")
     public ResponseEntity<String> sendInput(@RequestParam int session, @RequestParam String message) {
-        this.webChat.addUserMessage(session, message);
-        return ResponseEntity.ok("ok");
+        try {
+            this.webChat.addUserMessage(session, message);
+            return ResponseEntity.ok("ok");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.of(Optional.of("session does not exist"));
+        }
+
     }
 
     @CrossOrigin

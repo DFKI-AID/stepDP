@@ -30,8 +30,13 @@ public class WebChat {
         return i;
     }
 
-    public void addMessage (int sessionID, Sender sender, String text) {
-        sessions.get(sessionID).addMessage(sender, text);
+    public void addMessage (int sessionID, Sender sender, String text) throws IllegalArgumentException{
+        if (sessions.get(sessionID)!=null){
+            sessions.get(sessionID).addMessage(sender, text);
+        }
+        else {
+            throw new IllegalArgumentException("sessionID is invalid");
+        }
     }
 
     public void addUserMessage (int sessionID, String text) {
