@@ -62,6 +62,7 @@ public class Controller {
             System.out.println("WebChatInputType could not be initialized");
             e.printStackTrace();
         }*/
+        this.webChat = new WebChat(this.dialog.getBlackboard(), this.dialog.getKB());
     }
 
     public static void createSpeechUtterance(String text) {
@@ -72,7 +73,6 @@ public class Controller {
 
     public Controller()
     {
-        this.webChat = new WebChat(this.dialog.getBlackboard(), this.dialog.getKB());
 
         // add standard examples
         addExampleToken("add greeting", "{\"type\": \"GreetingIntent\", \"userName\":\"Alice\"}");
