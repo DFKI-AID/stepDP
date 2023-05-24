@@ -88,7 +88,7 @@ public class MyDialog extends Dialog {
             Rule ChatEchoRule = new SimpleRule(tokens -> {
                 IToken t = tokens[0];
 
-                Controller.webChat.addMessage(t.getInteger("session"), Sender.BOT, t.getString("userText"));
+                Controller.webChat.addMessage("session", "bot", t.getString("userText"));
             }, "ChatEchoRule");
             Pattern p3 = new PatternBuilder("WebChatInputType", this.getKB()).build();
             ChatEchoRule.setCondition(new PatternCondition(p3));
@@ -107,4 +107,3 @@ public class MyDialog extends Dialog {
         super.update();
     }
 }
-
