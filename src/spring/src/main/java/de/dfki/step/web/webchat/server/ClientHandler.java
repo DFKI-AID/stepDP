@@ -18,19 +18,29 @@ public class ClientHandler implements Runnable {
         while (true) {
             try {
                 cConnection = new WebConnection(this.clientSocket);
-
-
+                String sessionID = cConnection.receiveMessage();
                 String inputLine;
                 while ((inputLine = cConnection.receiveMessage()) != null) {
-                    if (inputLine.contains("getDiscourse sessionID:")){
-                        int sessionID =  Integer.parseInt(inputLine.split("sessionid:")[1]);
-                        List<Message> discourse = Controller.webChat.getDiscourse(sessionID);
-                        cConnection.sendMessage(discourse.toString());
+                    if (inputLine.contains("getDiscourse")){
+                        List<Message> discourses = Controller.webChat.getDiscourse(sessionID);
+                        if (discourses != null) {
+                            String message = "";
+                            for (Message discourse : discourses) {
+                                message = message + discourse.sender + ":" + discourse.text + "\n";
+                            }
+                            cConnection.sendMessage(message);
+                        }
+
+                    }
+                    else{
+                        cConnection.sendMessage(inputLine);
+                        if (this.clientSocket.isConnected()){
+                            Controller.webChat.addUserMessage(sessionID, inputLine);
+                        }
                     }
 
-                    cConnection.sendMessage("From Server: " + inputLine);
                 }
-                System.out.println("Client disconnected");
+                System.out.println("Client Disconnected");
             }
             catch (Exception e)
             {

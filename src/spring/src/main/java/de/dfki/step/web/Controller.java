@@ -19,6 +19,7 @@ import de.dfki.step.rm.sc.internal.StateChart;
 import de.dfki.step.web.webchat.Message;
 import de.dfki.step.web.webchat.Sender;
 import de.dfki.step.web.webchat.WebChat;
+import de.dfki.step.web.webchat.server.WebServer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 import com.google.gson.Gson;
 
 import javax.annotation.PostConstruct;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -40,6 +42,7 @@ public class Controller {
 //    private ApplicationContext context;
     private Dialog dialog;
     public static WebChat webChat;
+    public static WebServer Server;
     public static Type webChatInputType;
     private static List<String> outputHistory = new ArrayList<String>();
     private static Map<String, String> exampleTokens = new LinkedHashMap<>();
@@ -48,21 +51,12 @@ public class Controller {
     private AppConfig appConfig;
 
     @PostConstruct
-    protected void init() {
-        dialog = appConfig.getDialog();
-        //context.getBean(Dialog.class);
+    protected void init() throws IOException {
 
-        //temporarily moved to example dialogue to prevent error because init is called after the rule is initialized
-        /*try {
-            webChatInputType = new Type("WebChatInputType", dialog.getKB());
-            webChatInputType.addProperty(new PropInt("session", dialog.getKB()));
-            webChatInputType.addProperty(new PropString("userText", dialog.getKB()));
-            dialog.getKB().addType(webChatInputType);
-        } catch (Exception e) {
-            System.out.println("WebChatInputType could not be initialized");
-            e.printStackTrace();
-        }*/
+        this.dialog = appConfig.getDialog();
         this.webChat = new WebChat(this.dialog.getBlackboard(), this.dialog.getKB());
+        this.Server = new WebServer();
+
     }
 
     public static void createSpeechUtterance(String text) {
@@ -71,8 +65,8 @@ public class Controller {
 
     public static void addExampleToken(String name, String json){exampleTokens.put(name, json);}
 
-    public Controller()
-    {
+    public Controller() throws IOException {
+
 
         // add standard examples
         addExampleToken("add greeting", "{\"type\": \"GreetingIntent\", \"userName\":\"Alice\"}");
@@ -474,7 +468,7 @@ public class Controller {
 
     @CrossOrigin
     @GetMapping (value = "/webchat-api/getDiscourse", produces = "application/json")
-    public Collection<Message> getDiscourse(@RequestParam int session, @RequestParam(required = false) Integer numberOfMessages) {
+    public Collection<Message> getDiscourse(@RequestParam String session, @RequestParam(required = false) Integer numberOfMessages) {
         if (numberOfMessages == null) {
             return this.webChat.getDiscourse(session);
         } else {
@@ -484,20 +478,9 @@ public class Controller {
 
     @CrossOrigin
     @PostMapping (value = "/webchat-api/sendInput", produces = "application/json")
-    public ResponseEntity<String> sendInput(@RequestParam int session, @RequestParam String message) {
-        try {
-            this.webChat.addUserMessage(session, message);
-            return ResponseEntity.ok("ok");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.of(Optional.of("session does not exist"));
-        }
-
+    public ResponseEntity<String> sendInput(@RequestParam String session, @RequestParam String message) {
+        this.webChat.addUserMessage(session, message);
+        return ResponseEntity.ok("ok");
     }
 
-    @CrossOrigin
-    @PostMapping (value = "/webchat-api/newSession", produces = "application/json")
-    public ResponseEntity<Integer> newSession() {
-        int session = webChat.addSession();
-        return ResponseEntity.ok(session);
-    }
 }

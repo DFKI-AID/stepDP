@@ -10,37 +10,32 @@ import java.util.List;
 import java.util.Map;
 
 public class WebChat {
-    Map<Integer, Session> sessions;
+    Map<String, Session> sessions;
     Board blackboard;
     KnowledgeBase kb;
 
     public WebChat (Board blackboard, KnowledgeBase kb) {
-        sessions = new HashMap<>();
+        this.sessions = new HashMap<>();
         this.blackboard = blackboard;
         this.kb = kb;
     }
 
-    public int addSession () {
-        Integer i = 1;
-        while (sessions.keySet().contains(i)) {
-            i++;
+    public void addMessage (String sessionID, String sender, String text) {
+        if (this.sessions.get(sessionID) == null){
+            Session sess = new Session();
+        this.sessions.put(sessionID, sess);
         }
-        Session session = new Session(i);
-        sessions.put(i, session);
-        return i;
+        this.sessions.get(sessionID).addMessage(sender, text);
+
     }
 
-    public void addMessage (int sessionID, Sender sender, String text) throws IllegalArgumentException{
-        if (sessions.get(sessionID)!=null){
-            sessions.get(sessionID).addMessage(sender, text);
-        }
-        else {
-            throw new IllegalArgumentException("sessionID is invalid");
-        }
-    }
+    public void addUserMessage (String sessionID, String text) {
+        System.out.println(text);
+        this.addMessage(sessionID, "user", text);
 
-    public void addUserMessage (int sessionID, String text) {
-        addMessage(sessionID, Sender.USER, text);
+        //dialogue isnt adding messages for bot, when that is fixed remove the line below
+        this.addMessage(sessionID, "bot", text);
+
 
         //Create a Token and add to blackboard
         BasicToken token = new BasicToken(kb);
@@ -49,15 +44,21 @@ public class WebChat {
         values.put("userText", text);
         values.put("session", sessionID);
         token.addAll(values);
-        blackboard.addToken(token);
+        this.blackboard.addToken(token);
     }
 
 
-    public List<Message> getDiscourse (int sessionID) {
-        return this.sessions.get(sessionID).getDiscourse();
+    public List<Message> getDiscourse (String sessionID) {
+
+        if (this.sessions.containsKey(sessionID))
+        {
+            return this.sessions.get(sessionID).getDiscourse();
+        }
+        return null;
+
     }
 
-    public List<Message> getDiscourse (int sessionID, int numberOfMessages) {
+    public List<Message> getDiscourse (String sessionID, int numberOfMessages) {
         return this.sessions.get(sessionID).getDiscourse(numberOfMessages);
     }
 }
