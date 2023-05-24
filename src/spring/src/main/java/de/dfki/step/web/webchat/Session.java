@@ -11,18 +11,13 @@ public class Session {
     int id;
     List<Message> messages;
 
-    public Session (int id) {
-        this.id = id;
+    public Session () {
         this.messages = new ArrayList<>();
     }
 
-    public void addMessage (Sender sender, String text) {
+    public void addMessage (String sender, String text) {
         Message message = new Message(sender, text);
         messages.add(message);
-    }
-
-    public int getId () {
-        return this.id;
     }
 
     public List<Message> getDiscourse () {

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>DFKI-CHAT</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+
+<body>
+  <div id="messages"></div>
+  <!-- <form id="form">
+      <input id="message-input" autocomplete="off" autofocus/>
+      <button class="button">Send</button>
+    </form> -->
+</body>
+
+<main class="page__main">
+  <div class="block--background">
+    <div class="chatbot__overview">
+      <ul class="chatlist">
+
+      </ul>
+    </div>
+    <div class="chatbox-area">
+      <form action="" id="chatform">
+        <textarea placeholder="" class="chatbox" name="chatbox" resize: "none" minlength="2"></textarea>
+        <button class="submit-button" value="send"><span class="material-icons">send</span></button>
+      </form>
+    </div>
+    <div class="block--background"></div>
+
+</main>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+<script src="socketio.js"></script>
+<script src="rasa_communication.js"></script>
+
+</html>
