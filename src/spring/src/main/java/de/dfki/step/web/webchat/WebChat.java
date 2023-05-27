@@ -4,6 +4,7 @@ import de.dfki.step.blackboard.BasicToken;
 import de.dfki.step.blackboard.Board;
 import de.dfki.step.kb.KnowledgeBase;
 import de.dfki.step.web.Controller;
+import de.dfki.step.web.webchat.server.WebConnection;
 
 import java.util.HashMap;
 import java.util.List;
@@ -14,27 +15,39 @@ public class WebChat {
     Board blackboard;
     KnowledgeBase kb;
 
+    public WebConnection currentConnection;
+
     public WebChat (Board blackboard, KnowledgeBase kb) {
         this.sessions = new HashMap<>();
         this.blackboard = blackboard;
         this.kb = kb;
     }
+    public Session getSession(String session)
+    {
+        if (this.sessions.get(session) == null){
+            Session sess = new Session();
+            this.sessions.put(session, sess);
+            return sess;
+        }
+        return this.sessions.get(session);
 
-    public void addMessage (String sessionID, String sender, String text) {
+    }
+
+    public void addMessage (String sessionID, String sender, String text, Boolean sendMessage) {
         if (this.sessions.get(sessionID) == null){
             Session sess = new Session();
         this.sessions.put(sessionID, sess);
         }
         this.sessions.get(sessionID).addMessage(sender, text);
-
+        this.sessions.get(sessionID).sendMessage(text, sender, this.currentConnection, sendMessage);
     }
 
-    public void addUserMessage (String sessionID, String text) {
+    public void addUserMessage (String sessionID, String text, Boolean sendMessage) {
         System.out.println(text);
-        this.addMessage(sessionID, "user", text);
+        this.addMessage(sessionID, "user", text, sendMessage);
 
         //dialogue isnt adding messages for bot, when that is fixed remove the line below
-        this.addMessage(sessionID, "bot", text);
+        //this.addMessage(sessionID, "bot", text);
 
 
         //Create a Token and add to blackboard

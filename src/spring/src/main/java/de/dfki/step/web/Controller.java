@@ -479,7 +479,7 @@ public class Controller {
     @CrossOrigin
     @PostMapping (value = "/webchat-api/sendInput", produces = "application/json")
     public ResponseEntity<String> sendInput(@RequestParam String session, @RequestParam String message) {
-        this.webChat.addUserMessage(session, message);
+        this.webChat.addUserMessage(session, message, true);
         return ResponseEntity.ok("ok");
     }
 

@@ -77,7 +77,7 @@ public class MyDialog extends Dialog {
 
             try {
                 Controller.webChatInputType = new Type("WebChatInputType", this.getKB());
-                Controller.webChatInputType.addProperty(new PropInt("session", this.getKB()));
+                Controller.webChatInputType.addProperty(new PropString("session", this.getKB()));
                 Controller.webChatInputType.addProperty(new PropString("userText", this.getKB()));
                 this.getKB().addType(Controller.webChatInputType);
             } catch (Exception e) {
@@ -88,7 +88,7 @@ public class MyDialog extends Dialog {
             Rule ChatEchoRule = new SimpleRule(tokens -> {
                 IToken t = tokens[0];
 
-                Controller.webChat.addMessage("session", "bot", t.getString("userText"));
+                Controller.webChat.addMessage(t.getString("session"), "bot", t.getString("userText") + "test", true);
             }, "ChatEchoRule");
             Pattern p3 = new PatternBuilder("WebChatInputType", this.getKB()).build();
             ChatEchoRule.setCondition(new PatternCondition(p3));

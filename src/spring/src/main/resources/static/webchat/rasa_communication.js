@@ -67,8 +67,6 @@ sendForm.onkeydown = function (e) {
 socket.addEventListener('message', (event) => {
   discourse_data = event.data.split('\n')
 
-  if (discourse_data.length > 1)
-  {
   for (let i = 0; i<discourse_data.length; i = i + 1)
     {
     if (discourse_data[i].includes('\x03') || discourse_data[i] == '') //for handling the unknown bits that are sent after connection is abruptly closed by browser
@@ -76,7 +74,8 @@ socket.addEventListener('message', (event) => {
     }
         else
         {
-        console.log(discourse_data[i].split(":"));
+        console.log(discourse_data[i].split(":")[0]);
+
 
         if (discourse_data[i].split(":")[0] == "user")
             {
@@ -90,9 +89,7 @@ socket.addEventListener('message', (event) => {
         }
     }
    }
-   else
-    createBubble(discourse_data, "green");
-});
+);
 
 
 
