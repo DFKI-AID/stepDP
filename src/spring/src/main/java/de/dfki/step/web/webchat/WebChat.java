@@ -22,30 +22,44 @@ public class WebChat {
         this.blackboard = blackboard;
         this.kb = kb;
     }
-    public Session getSession(String session)
+
+    /**
+     * get an existing or new session with the given ID
+     * @param sessionID ID that the session has or should be given
+     * @return the retrieved or newly cerated session
+     */
+    public Session getSession(String sessionID)
     {
-        if (this.sessions.get(session) == null){
-            Session sess = new Session(session);
-            this.sessions.put(session, sess);
-            return sess;
+        Session session = this.sessions.get(sessionID);
+        if (session == null){
+            session = new Session(sessionID);
+            this.sessions.put(sessionID, session);
         }
-        return this.sessions.get(session);
+        return session;
 
     }
 
     private void addMessage (String sessionID, String sender, String text, Boolean sendMessage) {
-        if (this.sessions.get(sessionID) == null){
-            Session sess = new Session(sessionID);
-        this.sessions.put(sessionID, sess);
-        }
-        this.sessions.get(sessionID).addMessage(sender, text);
-        this.sessions.get(sessionID).sendMessage(text, sender, this.currentConnection, sendMessage);
+        Session session = this.getSession(sessionID);
+        session.addMessage(sender, text);
+        session.sendMessage(text, sender, this.currentConnection, sendMessage);
     }
 
-    public void addBotMessage (String sessionID, String text, Boolean sendMessage) {
-        this.addMessage(sessionID, "bot", text, sendMessage);
+    /**
+     * saves a message from the bot in the discourse
+     * @param sessionID id of the session (newly created, if it does not exist)
+     * @param text text of the message to be saved
+     */
+    public void addBotMessage (String sessionID, String text) {
+        this.addMessage(sessionID, "bot", text, true);
     }
 
+    /**
+     * saves a message as user message and creates a Token to generate the bot response
+     * @param sessionID id of the session (newly created, if it does not exist)
+     * @param text text of the message to be saved
+     * @param sendMessage Boolean that specifies, if the message is supposed to be sent to the webSocket
+     */
     public void addUserMessage (String sessionID, String text, Boolean sendMessage) {
         System.out.println(text);
         this.addMessage(sessionID, "user", text, sendMessage);
@@ -64,18 +78,38 @@ public class WebChat {
         this.blackboard.addToken(token);
     }
 
-
+    /**
+     * retrieves the entire discourse from the session
+     * @param sessionID id of the session (newly created, if it does not exist)
+     * @return entire discourse as a List of messages (sender and text)
+     */
     public List<Message> getDiscourse (String sessionID) {
-
+        Session session;
         if (this.sessions.containsKey(sessionID))
         {
-            return this.sessions.get(sessionID).getDiscourse();
+            session = this.sessions.get(sessionID);
+        } else {
+            session = new Session(sessionID);
+            sessions.put(sessionID, session);
         }
-        return null;
-
+        return session.getDiscourse();
     }
 
+    /**
+     * retrieves the latest discourse from the session
+     * @param sessionID id of the session (newly created, if it does not exist)
+     * @param numberOfMessages the number of messages that should be returned (maximum)
+     * @return List of messages (sender and text)
+     */
     public List<Message> getDiscourse (String sessionID, int numberOfMessages) {
-        return this.sessions.get(sessionID).getDiscourse(numberOfMessages);
+        Session session;
+        if (this.sessions.containsKey(sessionID))
+        {
+            session = this.sessions.get(sessionID);
+        } else {
+            session = new Session(sessionID);
+            sessions.put(sessionID, session);
+        }
+        return session.getDiscourse(numberOfMessages);
     }
 }
