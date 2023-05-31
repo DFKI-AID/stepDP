@@ -120,8 +120,10 @@ var createBubble = function (input, color) {
   //adds input of textarea to chatbubble list item
   chatBubble.innerHTML = input;
 
+
   //adds chatBubble to chatlist
   chatList.appendChild(chatBubble)
+  chatList.scrollTop = chatList.scrollHeight;
 
 }
 

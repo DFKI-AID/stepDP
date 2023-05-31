@@ -169,6 +169,7 @@ body {
     flex-flow: column nowrap;
     align-items: flex-end;
     overflow-x: hidden;
+    overflow-y: scroll;
     width: 100%;
     max-width: 35em;
     max-height: 75vh;
