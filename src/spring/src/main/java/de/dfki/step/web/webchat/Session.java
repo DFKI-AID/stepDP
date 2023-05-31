@@ -1,21 +1,21 @@
 package de.dfki.step.web.webchat;
 
-import com.google.gson.Gson;
 import de.dfki.step.web.webchat.server.WebConnection;
 
-import java.io.FileWriter;
 import java.io.IOException;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Session {
-    int id;
-    List<Message> messages;
-    List<WebConnection> connections;
+    private String id;
+    private List<Message> messages;
+    private List<WebConnection> connections;
 
-    public Session () {
+    public Session (String id) {
         this.messages = new ArrayList<>();
-        connections = new ArrayList<>();
+        this.connections = new ArrayList<>();
+        this.id = id;
     }
     public void addConnection(WebConnection ccon)
     {
@@ -27,8 +27,16 @@ public class Session {
             if (connection!=currentConnection || sendMessage == true) {
                 try {
                     connection.sendMessage(sender + ":" + message);
-                } catch (Exception E) {
-                    // remove connections that are dead and check them before trying
+                } catch (Exception e) {
+                    //remove connections that are dead and check them before trying
+                    Socket socket = connection.clientSocket;
+                    if (!socket.isConnected()) {
+                        try {
+                            socket.close();
+                            this.connections.remove(connection);
+                        } catch (IOException ex) {
+                        }
+                    }
                 }
             }
         }
@@ -46,5 +54,9 @@ public class Session {
     public List<Message> getDiscourse (int numberOfSentences) {
         List<Message> messages = this.messages.subList(this.messages.size()-Math.min(this.messages.size(),numberOfSentences), this.messages.size());
         return messages;
+    }
+
+    public String getID (){
+        return this.id;
     }
 }

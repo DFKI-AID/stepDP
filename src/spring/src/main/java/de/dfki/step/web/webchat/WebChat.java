@@ -25,7 +25,7 @@ public class WebChat {
     public Session getSession(String session)
     {
         if (this.sessions.get(session) == null){
-            Session sess = new Session();
+            Session sess = new Session(session);
             this.sessions.put(session, sess);
             return sess;
         }
@@ -33,13 +33,17 @@ public class WebChat {
 
     }
 
-    public void addMessage (String sessionID, String sender, String text, Boolean sendMessage) {
+    private void addMessage (String sessionID, String sender, String text, Boolean sendMessage) {
         if (this.sessions.get(sessionID) == null){
-            Session sess = new Session();
+            Session sess = new Session(sessionID);
         this.sessions.put(sessionID, sess);
         }
         this.sessions.get(sessionID).addMessage(sender, text);
         this.sessions.get(sessionID).sendMessage(text, sender, this.currentConnection, sendMessage);
+    }
+
+    public void addBotMessage (String sessionID, String text, Boolean sendMessage) {
+        this.addMessage(sessionID, "bot", text, sendMessage);
     }
 
     public void addUserMessage (String sessionID, String text, Boolean sendMessage) {
