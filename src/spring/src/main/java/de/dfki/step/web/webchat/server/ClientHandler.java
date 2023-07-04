@@ -43,7 +43,7 @@ public class ClientHandler implements Runnable {
 
                 }
                 System.out.println("Client Disconnected");
-
+                }
             }
             catch (Exception e)
             {
