@@ -65,30 +65,23 @@ sendForm.onkeydown = function (e) {
 
 // Event listener for when a message is received from the backend
 socket.addEventListener('message', (event) => {
-  discourse_data = event.data.split('\n')
 
-  for (let i = 0; i<discourse_data.length; i = i + 1)
-    {
-    if (discourse_data[i].includes('\x03') || discourse_data[i] == '') //for handling the unknown bits that are sent after connection is abruptly closed by browser
+    discourse_data = event.data
+    if (discourse_data.includes('\x03') || discourse_data == '') //for handling the unknown bits that are sent after connection is abruptly closed by browser
     {
     }
-        else
+    else
+    {
+    if (discourse_data.split(":")[0] == "user")
         {
-        console.log(discourse_data[i].split(":")[0]);
-
-
-        if (discourse_data[i].split(":")[0] == "user")
-            {
-
-            createBubble(discourse_data[i].split(":")[1], "");
-            }
-        else
-            {
-            createBubble(discourse_data[i].split(":")[1], "green");
-            }
+        createBubble(discourse_data.split(":").slice(1), "");
+        }
+    else
+        {
+        createBubble(discourse_data.split(":").slice(1), "green");
         }
     }
-   }
+    }
 );
 
 
