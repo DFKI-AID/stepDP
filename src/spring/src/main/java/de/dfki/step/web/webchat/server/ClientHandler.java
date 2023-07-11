@@ -29,7 +29,6 @@ public class ClientHandler implements Runnable {
                             String message = "";
                             for (Message discourse : discourses) {
                                 message = discourse.sender + ":" + discourse.text + "\n";
-                                System.out.println("message is " + message);
                                 cConnection.sendMessage(message);
                             }
                         }
