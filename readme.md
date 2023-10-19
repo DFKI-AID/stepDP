@@ -36,3 +36,9 @@ The web gui can be opened with a webbrowser on e.g. [http://localhost:50000](htt
 
 ### State Chart Editor
 The [Qt Editor](https://www.qt.io/download) comes with a scxml editor that can be used to create the state chart. You don't have to install the whole qt package, the editor is enough. See checkboxes during installation.
+
+## Notes
+
+<img align="left" height="150" src="bmbf.jpg">
+The work on stepDP has been funded by the German Ministry of Education and Research (BMBF) in projects MADMACS (grant number 01IW14003), TRACTAT (grant number 01IW17004), and CAMELOT (grant number 01IW20008).
+
