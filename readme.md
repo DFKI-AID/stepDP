@@ -2,7 +2,7 @@
 
 ## Getting Started
 
-You can find the Main Documentation under [stepdp.sb.dfki.de](http://stepdp.sb.dfki.de) (only DFKI intern).
+You can find the Main Documentation under [stepdp.dfki.de](http://stepdp.dfki.de).
 
 
 ## Components and Classes
