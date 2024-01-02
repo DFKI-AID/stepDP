@@ -1,4 +1,4 @@
-package de.dfki.step.dialog;
+package de.dfki.step.spring;
 
 
 import de.dfki.step.blackboard.IToken;
@@ -7,16 +7,14 @@ import de.dfki.step.blackboard.conditions.PatternCondition;
 import de.dfki.step.blackboard.patterns.Pattern;
 import de.dfki.step.blackboard.patterns.PatternBuilder;
 import de.dfki.step.blackboard.rules.SimpleRule;
+import de.dfki.step.dialog.Dialog;
 import de.dfki.step.kb.IKBObject;
 import de.dfki.step.kb.IKBObjectWriteable;
-import de.dfki.step.kb.semantic.PropInt;
 import de.dfki.step.kb.semantic.PropString;
 import de.dfki.step.kb.semantic.Type;
 import de.dfki.step.web.Controller;
-import de.dfki.step.web.webchat.Sender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 
 /**
@@ -88,7 +86,7 @@ public class MyDialog extends Dialog {
             Rule ChatEchoRule = new SimpleRule(tokens -> {
                 IToken t = tokens[0];
 
-                Controller.webChat.addBotMessage(t.getString("session"), "You send me that " + t.getString("userText"));
+                Controller.webChat.addBotMessage(t.getString("session"), t.getString("userText") + "test");
             }, "ChatEchoRule");
             Pattern p3 = new PatternBuilder("WebChatInputType", this.getKB()).build();
             ChatEchoRule.setCondition(new PatternCondition(p3));
@@ -100,7 +98,6 @@ public class MyDialog extends Dialog {
             e.printStackTrace();
         }
     }
-
 
     @Override
     public void update() {

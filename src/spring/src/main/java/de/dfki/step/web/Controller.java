@@ -21,6 +21,7 @@ import de.dfki.step.web.webchat.Sender;
 import de.dfki.step.web.webchat.WebChat;
 import de.dfki.step.web.webchat.server.WebServer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -38,8 +39,8 @@ import java.util.stream.Collectors;
  */
 @RestController
 public class Controller {
-    //    @Autowired
-//    private ApplicationContext context;
+    //@Autowired
+    //private ApplicationContext context;
     private Dialog dialog;
     public static WebChat webChat;
     public static WebServer Server;
@@ -52,11 +53,9 @@ public class Controller {
 
     @PostConstruct
     protected void init() throws IOException {
-
         this.dialog = appConfig.getDialog();
         this.webChat = new WebChat(this.dialog.getBlackboard(), this.dialog.getKB());
         this.Server = new WebServer();
-
     }
 
     public static void createSpeechUtterance(String text) {
@@ -66,8 +65,6 @@ public class Controller {
     public static void addExampleToken(String name, String json){exampleTokens.put(name, json);}
 
     public Controller() throws IOException {
-
-
         // add standard examples
         addExampleToken("add greeting", "{\"type\": \"GreetingIntent\", \"userName\":\"Alice\"}");
         addExampleToken("add hello", "{\"type\": \"HelloIntent\"}");
