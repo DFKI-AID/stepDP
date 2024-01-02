@@ -28,11 +28,10 @@ public class ClientHandler implements Runnable {
 
                             String message = "";
                             for (Message discourse : discourses) {
-                                message = message + discourse.sender + ":" + discourse.text + "\n";
+                                message = discourse.sender + ":" + discourse.text + "\n";
+                                cConnection.sendMessage(message);
                             }
-                            cConnection.sendMessage(message);
                         }
-
                     }
                     else{
 
@@ -40,11 +39,9 @@ public class ClientHandler implements Runnable {
                             Controller.webChat.currentConnection = cConnection;
                             Controller.webChat.addUserMessage(sessionID, inputLine, false);
                         }
-                    }
-
                 }
                 System.out.println("Client Disconnected");
-
+                }
             }
             catch (Exception e)
             {
