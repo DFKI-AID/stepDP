@@ -8,7 +8,7 @@
     <artifactId>parent</artifactId>
     <packaging>pom</packaging>
     <name>stepDP-Core</name>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -149,7 +149,7 @@
       <repository>
         <id>stepdp-dfki-ftp</id>
         <name>stepDP DFKI Hosting</name>
-        <url>ftps://webhosting-intern.dfki.de</url>
+        <url>ftps://webhosting.dfki.de</url>
         <layout>default</layout>
       </repository>
     </distributionManagement>
